@@ -1,0 +1,26 @@
+/**
+ * END CSS RESET
+ */
+
+@media (max-width: 767px) {
+	.hidden-sm {
+		display: none !important;
+	}
+}
+
+@media (max-width: 576px) {
+	.hidden-xs {
+		display: none !important;
+	}
+}
+
+@media (min-width: 576px) {
+	.visible-xs {
+		display: none !important;
+	}
+}
+
+nav .btn:nth-child(2) {
+	border-left: 1px solid rgb(132, 132, 132);
+	border-right: 1px solid rgb(132, 132, 132);
+}
