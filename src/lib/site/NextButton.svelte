@@ -3,7 +3,7 @@
 
   export let href: string | null = "";
   export let title: string | null = "";
-  export let disabled: boolean | null;
+  export let disabled: boolean | null = null;
 </script>
 
 <Button {href} {disabled}
