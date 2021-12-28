@@ -30,12 +30,12 @@
       <span slot="title">{year}</span>
     </Header>
     <Nav>
-      <PrevButton title="2020" href="#2020" />
-      <UpButton title="All Years" href="#" />
+      <PrevButton title="2019" href="2019" />
+      <UpButton title="All Years" href="../" />
       <NextButton disabled />
     </Nav>
     <PageContent>
-      <Sidebar>sidebar</Sidebar>
+      <Sidebar>The Year In Review</Sidebar>
       <MainContent>
         <Thumbnail
           title="Dec 20"
