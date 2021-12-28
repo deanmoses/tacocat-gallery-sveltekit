@@ -32,8 +32,8 @@
       <span slot="title">{week}-{year}</span>
     </Header>
     <Nav>
-      <PrevButton title="2020" href="/2021/12-12" />
-      <UpButton title="All Years" href="/" />
+      <PrevButton title="Dec 12" href="/2021/12-12" />
+      <UpButton title="2021" href="/2021" />
       <NextButton disabled />
     </Nav>
     <PageContent>
