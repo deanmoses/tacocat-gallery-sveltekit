@@ -12,8 +12,8 @@
     import Footer from "../../lib/site/Footer.svelte";
     import Nav from "../../lib/site/Nav.svelte";
     import PageContent from "../../lib/site/PageContent.svelte";
-    import Sidebar from "../../lib/site/Sidebar.svelte";
     import MainContent from "../../lib/site/MainContent.svelte";
+    import Thumbnails from "../../lib/site/Thumbnails.svelte";
     import Thumbnail from "../../lib/site/Thumbnail.svelte";
     import PrevButton from "../../lib/site/PrevButton.svelte";
     import UpButton from "../../lib/site/UpButton.svelte";
@@ -37,24 +37,28 @@
       <NextButton disabled />
     </Nav>
     <PageContent>
-      <Sidebar>sidebar</Sidebar>
       <MainContent>
-        <Thumbnail
-          title="Dec 20"
-          href="#2021/12-20"
-          src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-        />
-        <Thumbnail
-          title="Dec 20"
-          href="#2021/12-20"
-          src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-        />
-        <Thumbnail
-          title="Dec 20"
-          href="#2021/12-20"
-          src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-        />
-       
+        <section>
+          <h2 style="display:none">Album Description</h2>
+          This week, we flew to the moon on Elon Musk's shuttle service.
+        </section>
+        <Thumbnails>
+          <Thumbnail
+            title="Dec 20"
+            href="#2021/12-20"
+            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
+          />
+          <Thumbnail
+            title="Dec 20"
+            href="#2021/12-20"
+            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
+          />
+          <Thumbnail
+            title="Dec 20"
+            href="#2021/12-20"
+            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
+          />
+        </Thumbnails>
       </MainContent>
     </PageContent>
     <Footer />
