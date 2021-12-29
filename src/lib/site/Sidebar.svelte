@@ -2,7 +2,8 @@
   .sidebar {
     flex: 1;
     min-width: 8em;
-    padding: var(--default-padding);
+    padding: calc(var(--default-padding) * 2);
+    padding-top: calc(var(--default-padding) * 4);
     background-color: #838470;
     border-right: var(--default-border);
   }

@@ -6,6 +6,7 @@
 <style>
   header {
     padding: var(--default-padding);
+    padding-left: calc(var(--default-padding) * 2);
     background-color: #f7de5a;
     border: var(--default-border);
   }
