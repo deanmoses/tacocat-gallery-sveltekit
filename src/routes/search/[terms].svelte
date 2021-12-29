@@ -4,10 +4,11 @@
         return {props: {terms}}
     }
 </script>
+
 <script lang="ts">
+    import SearchResultsPage from "$lib/pages/search/SearchResultsPage.svelte";
+
     export let terms;
 </script>
-<svelte:head>
-	<title>Search For {terms}</title>
-</svelte:head>
-<div>search terms: {terms}</div>
+
+<SearchResultsPage {terms}/>
