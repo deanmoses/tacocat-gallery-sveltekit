@@ -4,10 +4,6 @@
   export let title: string = "";
 </script>
 
-<div class="thumbnail">
-  <a {href}><img {src} alt={title} /></a><a {href}>{title}</a>
-</div>
-
 <style>
   .thumbnail {
     display: flex;
@@ -31,3 +27,7 @@
     border: var(--default-border);
   }
 </style>
+
+<div class="thumbnail">
+  <a {href}><img {src} alt={title} /></a><a {href}>{title}</a>
+</div>

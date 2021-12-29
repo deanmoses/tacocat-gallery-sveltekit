@@ -3,8 +3,6 @@
   export let disabled: boolean | null = null;
 </script>
 
-<a class="btn" {href} {disabled}><slot /></a>
-
 <style>
   .btn {
     flex: 1;
@@ -35,3 +33,5 @@
     box-shadow: none;
   }
 </style>
+
+<a class="btn" {href} {disabled}><slot /></a>

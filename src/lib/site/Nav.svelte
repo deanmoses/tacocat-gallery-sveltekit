@@ -4,10 +4,6 @@
   import NextButton from "./NextButton.svelte";
 </script>
 
-<nav role="navigation">
-  <slot />
-</nav>
-
 <style>
   nav {
     display: flex;
@@ -16,3 +12,7 @@
     border-bottom: var(--default-border);
   }
 </style>
+
+<nav role="navigation">
+  <slot />
+</nav>

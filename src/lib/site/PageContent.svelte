@@ -1,7 +1,3 @@
-<main>
-  <slot />
-</main>
-
 <style>
   main {
     flex: 1;
@@ -11,3 +7,7 @@
     border-bottom: var(--default-border);
   }
 </style>
+
+<main>
+  <slot />
+</main>

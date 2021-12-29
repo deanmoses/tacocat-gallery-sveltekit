@@ -1,7 +1,3 @@
-<div class="page-container">
-  <slot>page</slot>
-</div>
-
 <style>
   .page-container {
     --default-padding: 0.5em;
@@ -17,3 +13,7 @@
     background-color: #94949c;
   }
 </style>
+
+<div class="page-container">
+  <slot>page</slot>
+</div>
