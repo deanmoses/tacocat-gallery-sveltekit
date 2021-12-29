@@ -1,15 +1,13 @@
 <script context="module" lang="ts">
 	export async function load({ page }) {
-        const slug = page.params.photo;
-        return {props: {slug}}
-    }
+    const slug = page.params.photo;
+    return {props: {slug}}
+  }
 </script>
 
 <script lang="ts">
-    import Page from "../../../../lib/site/Page.svelte";
     import Header from "../../../../lib/site/Header.svelte";
-    import Footer from "../../../../lib/site/Footer.svelte";
-    import Nav from "../../../../lib/site/Nav.svelte";
+    import PhotoNav from "../../../../lib/site/PhotoNav.svelte";
     import PageContent from "../../../../lib/site/PageContent.svelte";
     import MainContent from "../../../../lib/site/MainContent.svelte";
     import Section from "../../../../lib/site/Section.svelte";
@@ -24,22 +22,25 @@
 	<title>{slug}</title>
 </svelte:head>
 
-<Page>
-    <Header>
-      <span slot="title">{slug}</span>
-    </Header>
-    <PageContent>
-      <MainContent>
-        <Section>
-          <span slot="title">Caption</span>
-          No animals were harmed in the making of this photo
-        </Section>
-        <Nav>
-            <PrevButton href="/2021/12-12/christmas" />
-            <UpButton title="December 20, 2021" href="/2021/12-20" />
-            <NextButton disabled />
-          </Nav>
-      </MainContent>
-    </PageContent>
-    <Footer />
-  </Page>
+<Header>
+  <span slot="title">{slug}</span>
+</Header>
+<PageContent>
+  <MainContent>
+    <Section>
+      <span slot="title">Caption</span>
+      No animals were harmed in the making of this photo
+    </Section>
+    <div>
+      <PhotoNav>
+        <PrevButton href="/2021/12-12/christmas" />
+        <UpButton title="December 20, 2021" href="/2021/12-20" />
+        <NextButton disabled />
+      </PhotoNav>
+      <Section>
+        <span slot="title">Photo</span>
+        <a href="https://tacocat.com/zenphoto/albums/2021/12-26/butcher.jpg" target="zen"><img src="https://cdn.tacocat.com/zenphoto/cache/2021/12-26/butcher_1024.jpg?cached=1640635409" style="object-fit: contain; width: 100%; height: 100%; max-width: 4032px; max-height: 3024px;"  alt="Holiday Meat"></a>
+      </Section>
+    </div>
+  </MainContent>
+</PageContent>

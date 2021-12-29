@@ -1,7 +1,3 @@
-<div class="main-content">
-  <slot />
-</div>
-
 <style>
   .main-content {
     flex: 3;
@@ -14,3 +10,7 @@
     background-color: white;
   }
 </style>
+
+<div class="main-content">
+  <slot />
+</div>

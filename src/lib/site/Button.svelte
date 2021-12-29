@@ -14,20 +14,13 @@
 
     background-color: #cec68c;
     color: #333;
-    border-color: #ccc;
-    border: 1px solid transparent;
+    border: 1px solid #ccc;
     text-decoration: none;
-    padding-top: 0.2em;
-    padding-bottom: 0.2em;
+    padding: 6px 12px;
   }
 
-  /* just nav buttons */
   .btn[disabled] {
     color: #ccc;
-  }
-
-  /* all buttons */
-  .btn[disabled] {
     cursor: not-allowed;
     opacity: 0.65;
     box-shadow: none;

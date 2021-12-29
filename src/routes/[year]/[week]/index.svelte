@@ -7,9 +7,7 @@
 </script>
 
 <script lang="ts">
-    import Page from "../../../lib/site/Page.svelte";
     import Header from "../../../lib/site/Header.svelte";
-    import Footer from "../../../lib/site/Footer.svelte";
     import Nav from "../../../lib/site/Nav.svelte";
     import PageContent from "../../../lib/site/PageContent.svelte";
     import MainContent from "../../../lib/site/MainContent.svelte";
@@ -28,39 +26,36 @@
 	<title>{week}-{year}</title>
 </svelte:head>
 
-<Page>
-    <Header>
-      <span slot="title">{week}-{year}</span>
-    </Header>
-    <Nav>
-      <PrevButton title="Dec 12" href="/2021/12-12" />
-      <UpButton title="2021" href="/2021" />
-      <NextButton disabled />
-    </Nav>
-    <PageContent>
-      <MainContent>
-        <Section>
-          <span slot="title">Album Description</span>
-          This week, we flew to the moon on Elon Musk's shuttle service.
-        </Section>  
-        <Thumbnails>
-          <Thumbnail
-            title="Brothers"
-            href="/2021/12-20/brothers"
-            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-          />
-          <Thumbnail
-            title="Fancy Dinner"
-            href="/2021/12-20/fancy_dinner"
-            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-          />
-          <Thumbnail
-            title="Christmas"
-            href="/2021/12-20/christmas"
-            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-          />
-        </Thumbnails>
-      </MainContent>
-    </PageContent>
-    <Footer />
-  </Page>
+<Header>
+  <span slot="title">{week}-{year}</span>
+</Header>
+<Nav>
+  <PrevButton title="Dec 12" href="/2021/12-12" />
+  <UpButton title="2021" href="/2021" />
+  <NextButton disabled />
+</Nav>
+<PageContent>
+  <MainContent>
+    <Section>
+      <span slot="title">Album Description</span>
+      This week, we flew to the moon on Elon Musk's shuttle service.
+    </Section>  
+    <Thumbnails>
+      <Thumbnail
+        title="Brothers"
+        href="/2021/12-20/brothers"
+        src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
+      />
+      <Thumbnail
+        title="Fancy Dinner"
+        href="/2021/12-20/fancy_dinner"
+        src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
+      />
+      <Thumbnail
+        title="Christmas"
+        href="/2021/12-20/christmas"
+        src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
+      />
+    </Thumbnails>
+  </MainContent>
+</PageContent>

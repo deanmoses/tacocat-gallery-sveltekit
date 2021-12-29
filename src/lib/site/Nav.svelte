@@ -7,8 +7,6 @@
 <style>
   nav {
     display: flex;
-    border-left: var(--default-border);
-    border-right: var(--default-border);
     border-bottom: var(--default-border);
   }
   :global(.btn:nth-child(2)) {

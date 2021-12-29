@@ -6,9 +6,7 @@
 </script>
 
 <script lang="ts">
-    import Page from "../../lib/site/Page.svelte";
     import Header from "../../lib/site/Header.svelte";
-    import Footer from "../../lib/site/Footer.svelte";
     import Nav from "../../lib/site/Nav.svelte";
     import PageContent from "../../lib/site/PageContent.svelte";
     import Sidebar from "../../lib/site/Sidebar.svelte";
@@ -27,41 +25,38 @@
 	<title>{year}</title>
 </svelte:head>
 
-<Page>
-    <Header>
-      <span slot="title">{year}</span>
-    </Header>
-    <Nav>
-      <PrevButton title="2019" href="2019" />
-      <UpButton title="All Years" href="../" />
-      <NextButton disabled />
-    </Nav>
-    <PageContent>
-      <Sidebar>
-        <Section>
-          <span slot="title">Year In Review</span>
-          The Year In Review
-        </Section>
-      </Sidebar>
-      <MainContent>
-        <Thumbnails>
-          <Thumbnail
-            title="Dec 12"
-            href="2021/12-20"
-            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-          />
-          <Thumbnail
-            title="Dec 20"
-            href="2021/12-20"
-            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-          />
-          <Thumbnail
-            title="Dec 28"
-            href="2021/12-20"
-            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-          />
-      </Thumbnails>
-      </MainContent>
-    </PageContent>
-    <Footer />
-  </Page>
+<Header>
+  <span slot="title">{year}</span>
+</Header>
+<Nav>
+  <PrevButton title="2019" href="2019" />
+  <UpButton title="All Years" href="../" />
+  <NextButton disabled />
+</Nav>
+<PageContent>
+  <Sidebar>
+    <Section>
+      <span slot="title">Year In Review</span>
+      The Year In Review
+    </Section>
+  </Sidebar>
+  <MainContent>
+    <Thumbnails>
+      <Thumbnail
+        title="Dec 12"
+        href="2021/12-20"
+        src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
+      />
+      <Thumbnail
+        title="Dec 20"
+        href="2021/12-20"
+        src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
+      />
+      <Thumbnail
+        title="Dec 28"
+        href="2021/12-20"
+        src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
+      />
+  </Thumbnails>
+  </MainContent>
+</PageContent>
