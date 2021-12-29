@@ -6,7 +6,7 @@
     import Thumbnails from "$lib/site/Thumbnails.svelte";
     import Thumbnail from "$lib/site/Thumbnail.svelte";
 
-    export let album = null;
+    export let album = {};
 </script>
 
 <style>
@@ -28,7 +28,7 @@
 </svelte:head>
 
 <Header>
-  <span slot="title">Dean, Lucie, Felix and Milo Moses {$album.title}</span>
+  <span slot="title">Dean, Lucie, Felix and Milo Moses {album.title}</span>
   <span slot="short-title">The Moses Family</span>
 </Header>
 <PageContent>
