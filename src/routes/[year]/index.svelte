@@ -21,25 +21,29 @@
 </script>
 
 <style>
-  :global(.months) {
-    display: flex;
-    flex-direction: column;
-    gap: calc(var(--default-padding) * 2);
+  h2 {
+    display: none;
   }
 
-  :global(.month) {
-    display: flex;
-    flex-direction: column;
-    gap: calc(var(--default-padding) * 2);
-  }
-
-  :global(h3) {
+  h3 {
     background-color: var(--header-color);
     font-weight: bold;
     font-size: 1.3em;
     line-height: 1.1;
     padding: 0.3em 0.4em;
     width: 100%;
+  }
+
+  .months {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--default-padding) * 2);
+  }
+
+  .month {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--default-padding) * 2);
   }
 </style>
 
@@ -58,14 +62,13 @@
 <PageContent>
   <Sidebar>
     <section>
-      <h2 style="display:none">Year In Review</h2>
+      <h2>Year In Review</h2>
       The Year In Review
     </section>
   </Sidebar>
   <MainContent>
-
     <section class="months">
-      <h2 style="display:none">Thumbnails</h2>
+      <h2>Thumbnails</h2>
 
       <section class="month">
         <h3>December</h3>
