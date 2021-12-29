@@ -13,11 +13,4 @@
     padding: calc(var(--default-padding) * 2);
     background-color: white;
   }
-
-  @media (max-width: 456px) {
-    .main-content {
-      align-items: center;
-      justify-content: center;
-    }
-  }
 </style>

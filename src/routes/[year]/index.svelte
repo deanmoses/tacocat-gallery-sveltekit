@@ -13,6 +13,7 @@
     import PageContent from "../../lib/site/PageContent.svelte";
     import Sidebar from "../../lib/site/Sidebar.svelte";
     import MainContent from "../../lib/site/MainContent.svelte";
+    import Section from "../../lib/site/Section.svelte";
     import Thumbnails from "../../lib/site/Thumbnails.svelte";
     import Thumbnail from "../../lib/site/Thumbnail.svelte";
     import PrevButton from "../../lib/site/PrevButton.svelte";
@@ -36,7 +37,12 @@
       <NextButton disabled />
     </Nav>
     <PageContent>
-      <Sidebar>The Year In Review</Sidebar>
+      <Sidebar>
+        <Section>
+          <span slot="title">Year In Review</span>
+          The Year In Review
+        </Section>
+      </Sidebar>
       <MainContent>
         <Thumbnails>
           <Thumbnail

@@ -13,6 +13,7 @@
     import Nav from "../../../lib/site/Nav.svelte";
     import PageContent from "../../../lib/site/PageContent.svelte";
     import MainContent from "../../../lib/site/MainContent.svelte";
+    import Section from "../../../lib/site/Section.svelte";
     import Thumbnails from "../../../lib/site/Thumbnails.svelte";
     import Thumbnail from "../../../lib/site/Thumbnail.svelte";
     import PrevButton from "../../../lib/site/PrevButton.svelte";
@@ -38,10 +39,10 @@
     </Nav>
     <PageContent>
       <MainContent>
-        <section>
-          <h2 style="display:none">Album Description</h2>
+        <Section>
+          <span slot="title">Album Description</span>
           This week, we flew to the moon on Elon Musk's shuttle service.
-        </section>
+        </Section>  
         <Thumbnails>
           <Thumbnail
             title="Brothers"

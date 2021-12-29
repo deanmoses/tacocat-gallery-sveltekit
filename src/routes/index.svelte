@@ -2,7 +2,6 @@
     import Page from "../lib/site/Page.svelte";
     import Header from "../lib/site/Header.svelte";
     import Footer from "../lib/site/Footer.svelte";
-    import Nav from "../lib/site/Nav.svelte";
     import PageContent from "../lib/site/PageContent.svelte";
     import Sidebar from "../lib/site/Sidebar.svelte";
     import MainContent from "../lib/site/MainContent.svelte";
@@ -21,12 +20,14 @@
     </Header>
     <PageContent>
       <Sidebar>
-        latest album
-        <Thumbnail
-        title="Dec 20"
-        href="2021/12-20"
-        src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-      />
+        <aside>
+          latest album
+          <Thumbnail
+            title="Dec 20"
+            href="2021/12-20"
+            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
+          />
+        </aside>
       </Sidebar>
       <MainContent>
         <Thumbnails>

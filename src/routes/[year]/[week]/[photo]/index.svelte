@@ -12,6 +12,7 @@
     import Nav from "../../../../lib/site/Nav.svelte";
     import PageContent from "../../../../lib/site/PageContent.svelte";
     import MainContent from "../../../../lib/site/MainContent.svelte";
+    import Section from "../../../../lib/site/Section.svelte";
     import PrevButton from "../../../../lib/site/PrevButton.svelte";
     import UpButton from "../../../../lib/site/UpButton.svelte";
     import NextButton from "../../../../lib/site/NextButton.svelte";
@@ -29,10 +30,10 @@
     </Header>
     <PageContent>
       <MainContent>
-        <section>
-          <h2 style="display:none">Photo Description</h2>
+        <Section>
+          <span slot="title">Caption</span>
           No animals were harmed in the making of this photo
-        </section>
+        </Section>
         <Nav>
             <PrevButton href="/2021/12-12/christmas" />
             <UpButton title="December 20, 2021" href="/2021/12-20" />
