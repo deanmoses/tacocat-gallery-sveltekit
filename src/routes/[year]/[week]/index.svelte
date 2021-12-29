@@ -22,6 +22,29 @@
     export let year;
 </script>
 
+<style>
+  :global(.months) {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--default-padding) * 2);
+  }
+
+  :global(.month) {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--default-padding) * 2);
+  }
+
+  :global(h3) {
+    background-color: var(--header-color);
+    font-weight: bold;
+    font-size: 1.3em;
+    line-height: 1.1;
+    padding: 0.3em 0.4em;
+    width: 100%;
+  }
+</style>
+
 <svelte:head>
 	<title>{week}-{year}</title>
 </svelte:head>
@@ -39,23 +62,71 @@
     <Section>
       <span slot="title">Album Description</span>
       This week, we flew to the moon on Elon Musk's shuttle service.
-    </Section>  
-    <Thumbnails>
-      <Thumbnail
-        title="Brothers"
-        href="/2021/12-20/brothers"
-        src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-      />
-      <Thumbnail
-        title="Fancy Dinner"
-        href="/2021/12-20/fancy_dinner"
-        src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-      />
-      <Thumbnail
-        title="Christmas"
-        href="/2021/12-20/christmas"
-        src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-      />
-    </Thumbnails>
+    </Section>
+
+    <Section class="months">
+      <span slot="title">Thumbnails</span>
+
+      <Section class="month">
+        <h3>December</h3>
+        <Thumbnails>
+          <Thumbnail
+            title="Brothers"
+            href="/2021/12-20/brothers"
+            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
+          />
+          <Thumbnail
+            title="Fancy Dinner"
+            href="/2021/12-20/fancy_dinner"
+            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
+          />
+          <Thumbnail
+            title="Christmas"
+            href="/2021/12-20/christmas"
+            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
+          />
+          <Thumbnail
+            title="Christmas"
+            href="/2021/12-20/christmas"
+            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
+          />
+        </Thumbnails>
+      </Section>
+
+      <Section class="month">
+        <h3>December</h3>
+        <Thumbnails>
+          <Thumbnail
+            title="Brothers"
+            href="/2021/12-20/brothers"
+            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
+          />
+        </Thumbnails>
+      </Section>
+
+      <Section class="month">
+        <h3>December</h3>
+        <Thumbnails>
+          <Thumbnail
+            title="Brothers"
+            href="/2021/12-20/brothers"
+            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
+          />
+          <Thumbnail
+            title="Fancy Dinner"
+            href="/2021/12-20/fancy_dinner"
+            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
+          />
+          <Thumbnail
+            title="Christmas"
+            href="/2021/12-20/christmas"
+            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
+          />
+        </Thumbnails>
+      </Section>
+
+    </Section>
+
+
   </MainContent>
 </PageContent>
