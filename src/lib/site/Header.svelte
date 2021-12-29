@@ -7,7 +7,7 @@
   header {
     padding: var(--default-padding);
     padding-left: calc(var(--default-padding) * 2);
-    background-color: #f7de5a;
+    background-color: var(--header-color);
     border: var(--default-border);
   }
 
