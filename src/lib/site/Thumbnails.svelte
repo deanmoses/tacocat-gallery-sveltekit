@@ -1,21 +1,16 @@
-<script lang="ts">
-  import Section from "./Section.svelte";
-</script>
-
 <style>
-  :global(.thumbnails) {
+  div {
     display: flex;
     flex-wrap: wrap;
     gap: calc(var(--default-padding) * 2);
   }
   @media (max-width: 456px) {
-    :global(.thumbnails) {
+    div {
       justify-content: center;
     }
   }
 </style>
 
-<Section class="thumbnails">
-  <span slot="title">Thumbnails</span>
-  <slot>thumbnails</slot>
-</Section>  
+<div>
+  <slot></slot>
+</div>
