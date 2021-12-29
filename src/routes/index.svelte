@@ -1,10 +1,10 @@
 <script lang="ts">
-    import Header from "../lib/site/Header.svelte";
-    import PageContent from "../lib/site/PageContent.svelte";
-    import Sidebar from "../lib/site/Sidebar.svelte";
-    import MainContent from "../lib/site/MainContent.svelte";
-    import Thumbnails from "../lib/site/Thumbnails.svelte";
-    import Thumbnail from "../lib/site/Thumbnail.svelte";
+    import Header from "$lib/site/Header.svelte";
+    import PageContent from "$lib/site/PageContent.svelte";
+    import Sidebar from "$lib/site/Sidebar.svelte";
+    import MainContent from "$lib/site/MainContent.svelte";
+    import Thumbnails from "$lib/site/Thumbnails.svelte";
+    import Thumbnail from "$lib/site/Thumbnail.svelte";
 </script>
 
 <style>

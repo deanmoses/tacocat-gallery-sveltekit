@@ -6,13 +6,13 @@
 </script>
 
 <script lang="ts">
-    import Header from "../../../../lib/site/Header.svelte";
-    import PhotoNav from "../../../../lib/site/PhotoNav.svelte";
-    import PageContent from "../../../../lib/site/PageContent.svelte";
-    import MainContent from "../../../../lib/site/MainContent.svelte";
-    import PrevButton from "../../../../lib/site/PrevButton.svelte";
-    import UpButton from "../../../../lib/site/UpButton.svelte";
-    import NextButton from "../../../../lib/site/NextButton.svelte";
+    import Header from "$lib/site/Header.svelte";
+    import PhotoNav from "$lib/site/PhotoNav.svelte";
+    import PageContent from "$lib/site/PageContent.svelte";
+    import MainContent from "$lib/site/MainContent.svelte";
+    import PrevButton from "$lib/site/PrevButton.svelte";
+    import UpButton from "$lib/site/UpButton.svelte";
+    import NextButton from "$lib/site/NextButton.svelte";
 
     export let slug;
 </script>
