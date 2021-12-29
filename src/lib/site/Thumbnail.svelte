@@ -2,6 +2,7 @@
   export let src: string = "";
   export let href: string = "";
   export let title: string = "";
+  export let summary: string = "";
 </script>
 
 <style>
@@ -26,8 +27,12 @@
     height: 200px;
     border: var(--default-border);
   }
+  .summary {
+    color: #333;
+  }
 </style>
 
 <div class="thumbnail">
   <a {href}><img {src} alt={title} /></a><a {href}>{title}</a>
+  <div class="summary">{summary}</div>
 </div>
