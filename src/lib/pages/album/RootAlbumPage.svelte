@@ -28,7 +28,7 @@
 </svelte:head>
 
 <Header>
-  <span slot="title">Dean, Lucie, Felix and Milo Moses {album.title}</span>
+  <span slot="title">Dean, Lucie, Felix and Milo Moses {$album.title}</span>
   <span slot="short-title">The Moses Family</span>
 </Header>
 <PageContent>
@@ -60,6 +60,6 @@
         href="2019"
         src="https://cdn.tacocat.com/zenphoto/cache/2015/10-26/portrait-seated4b_200_w200_h200_cw200_ch200_thumb.jpg?cached=1548530109"
       />
-  </Thumbnails>
+    </Thumbnails>
   </MainContent>
 </PageContent>
