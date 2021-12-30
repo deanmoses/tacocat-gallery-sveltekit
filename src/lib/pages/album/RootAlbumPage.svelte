@@ -28,7 +28,7 @@
 </svelte:head>
 
 <Header>
-  <span slot="title">Dean, Lucie, Felix and Milo Moses {$album.title}</span>
+  <span slot="title">Dean, Lucie, Felix and Milo Moses {$album.date.toLocaleString()}</span>
   <span slot="short-title">The Moses Family</span>
 </Header>
 <PageContent>

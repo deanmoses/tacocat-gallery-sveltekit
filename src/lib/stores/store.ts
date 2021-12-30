@@ -9,7 +9,9 @@ import produce from "immer";
 const initialState = {
     album : {
         year: "2000",
-        title: "Awesome Title"
+        title: "Awesome Title",
+        date: new Date(),
+        isLoading: true
     },
     visible: false,
     dogs: 0
@@ -30,6 +32,12 @@ const actions = {
     },
     dec(state) {
         if (state.dogs > 0) state.dogs--
+    },
+    setDate(state, date: Date) {
+        state.album.date = date;
+    },
+    setLoaded(state) {
+        state.album.isLoading = false;
     }
 }
 
