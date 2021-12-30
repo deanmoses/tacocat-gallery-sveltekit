@@ -7,6 +7,7 @@
   <style>
     nav {
         display: flex;
+        background-color: var(--button-color);
     }
 
     :global(.btn:nth-child(2)) {

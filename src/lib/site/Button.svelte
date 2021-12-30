@@ -12,7 +12,7 @@
     align-items: center;
     column-gap: 0.2em;
 
-    background-color: #cec68c;
+    /*background-color: #cec68c;*/
     color: #333;
     border: 1px solid #ccc;
     text-decoration: none;
@@ -22,8 +22,8 @@
   .btn[disabled] {
     color: #ccc;
     cursor: not-allowed;
-    opacity: 0.65;
-    box-shadow: none;
+    /*opacity: 0.65;*/
+    background-color: var(--button-disabled-color);
   }
 </style>
 

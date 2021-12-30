@@ -1,9 +1,26 @@
 <style>
+    /* defaults for years with no styling */
+    .app-container {
+      --body-color: #3f64ee; /* outermost part of screen */
+      --header-color: #ffe793; /* page header, month headers */
+      --sidebar-color: #ffd02d; /* sidebar */
+      --button-color: #e2c1bf; /* buttons */
+      --button-disabled-color: #f1d6d5; /* grayed-out buttons */
+    }
+
+    .app-container[data-year="2022"] {
+      --body-color: #686aab;
+      --header-color: #d2927f;
+      --sidebar-color: #a0838f;
+      --button-color: #e2c1bf;
+      --button-disabled-color: #f1d6d5; /* Lucie would like #F1D6D5 for grayed-out header nav buttons */
+    }
+
     .app-container[data-year="2021"] {
       --body-color: #94949c;
       --header-color: #f7de5a;
       --sidebar-color: #838470;
-      --nav-color: #cec68c;
+      --button-color: #cec68c;
     }
   
     .app-container {
@@ -28,7 +45,7 @@
     }  
   </style>
   
-  <div class="app-container" data-year="2021">
+  <div class="app-container" data-year="2022">
     <div class="page-container">
       <slot></slot>
     </div>
