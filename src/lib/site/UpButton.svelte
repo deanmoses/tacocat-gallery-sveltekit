@@ -3,9 +3,10 @@
 
   export let href: string = "";
   export let title: string = "";
+  export let disabled: boolean | null = null;
 </script>
 
-<Button {href}
+<Button {href} {disabled}
   ><svg class="icon" style="width: 1.2em; height: 1.25em;" viewBox="0 0 20 20">
     <title>All Years</title>
     <path
