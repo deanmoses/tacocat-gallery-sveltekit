@@ -8,10 +8,11 @@
 
   h1 {
     font-size: 28px;
+    min-height: 1.5em; /* for when there's no h1 text */
   }
 </style>
 
 <header>
-  <h1 class="hidden-xs"><slot name="title" /></h1>
-  <h1 class="visible-xs"><slot name="short-title" /></h1>
+  <h1 class="hidden-xs"><slot name="title" /> </h1>
+  <h1 class="visible-xs"><slot name="short-title" /> </h1>
 </header>
