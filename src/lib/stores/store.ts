@@ -7,7 +7,10 @@ import { writable } from 'svelte/store';
 import produce from "immer";
 
 const initialState = {
-    album : {
+    // Key: album path like 2001/12-31
+    // Value: an album in JSON format
+    albums: {},
+    album: {
         year: "2000",
         title: "Awesome Title",
         date: new Date(),
@@ -21,23 +24,15 @@ const actions = {
     reset() {
         return initialState
     },
-    show(state) {
-        state.visible = true
-    },
-    hide(state) {
-        state.visible = false
-    },
-    inc(state) {
-        state.dogs++
-    },
-    dec(state) {
-        if (state.dogs > 0) state.dogs--
-    },
     setDate(state, date: Date) {
         state.album.date = date;
     },
-    setLoaded(state) {
-        state.album.isLoading = false;
+    setLoading(state) {
+        state.album.isLoading = true;
+    },
+    setAlbum(state, album) {
+        album.isLoading = false;
+        state.album = album;
     }
 }
 
