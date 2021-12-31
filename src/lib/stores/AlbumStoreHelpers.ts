@@ -1,3 +1,4 @@
+import RootAlbum from '$lib/models/album-root';
 import { store } from '$lib/stores/store';
 import { derived } from 'svelte/store';
 
@@ -25,9 +26,12 @@ export default {
             try {
                 const uri = "https://tacocat.com/p_json/2021.json";
                 const response = await fetch(uri);
-                const data = await response.json();
-                console.log("fetchAlbum(): data: ", data);
-                store.actions.setAlbum(data.album);
+                const json = await response.json();
+                console.log("fetchAlbum(): data: ", json);
+                const jsonAlbum = json.album;
+                const album = new RootAlbum(jsonAlbum.path);
+                Object.assign(album, jsonAlbum);
+                store.actions.setAlbum(album);
             }
             catch(e) {
                 //$store.album.error = e;

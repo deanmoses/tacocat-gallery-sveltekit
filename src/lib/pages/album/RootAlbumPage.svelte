@@ -45,21 +45,14 @@
   </Sidebar>
   <MainContent>
     <Thumbnails>
-      <Thumbnail
-        title="2021"
-        href="2021"
-        src="https://cdn.tacocat.com/zenphoto/cache/2015/10-26/portrait-seated4b_200_w200_h200_cw200_ch200_thumb.jpg?cached=1548530109"
-      />
-      <Thumbnail
-        title="2020"
-        href="2020"
-        src="https://cdn.tacocat.com/zenphoto/cache/2015/10-26/portrait-seated4b_200_w200_h200_cw200_ch200_thumb.jpg?cached=1548530109"
-      />
-      <Thumbnail
-        title="2019"
-        href="2019"
-        src="https://cdn.tacocat.com/zenphoto/cache/2015/10-26/portrait-seated4b_200_w200_h200_cw200_ch200_thumb.jpg?cached=1548530109"
-      />
+      {#each $album.albums as childAlbum (childAlbum.path)}
+        <Thumbnail
+          title="{childAlbum.title}"
+          summary="{childAlbum.customdata}"
+          href="/{childAlbum.path}"
+          src="https://cdn.tacocat.com{childAlbum.url_thumb}"
+        />
+      {/each}
     </Thumbnails>
   </MainContent>
 </PageContent>
