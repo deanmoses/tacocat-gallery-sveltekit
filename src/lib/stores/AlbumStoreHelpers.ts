@@ -1,4 +1,4 @@
-import RootAlbum from '$lib/models/album-root';
+import createAlbumFromObject from '$lib/models/album-creator';
 import { store } from '$lib/stores/store';
 import Config from '$lib/utils/config';
 import { derived } from 'svelte/store';
@@ -30,8 +30,7 @@ export default {
         const json = await response.json();
         console.log(`fetchAlbum(${path}) fetched album:`, json.album);
         const jsonAlbum = json.album;
-        const album = new RootAlbum(jsonAlbum.path);
-        Object.assign(album, jsonAlbum);
+        const album = createAlbumFromObject(jsonAlbum);
         store.actions.setAlbum(album);
     }
 }
