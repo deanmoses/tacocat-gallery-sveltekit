@@ -9,16 +9,17 @@
     import PrevButton from "$lib/site/PrevButton.svelte";
     import UpButton from "$lib/site/UpButton.svelte";
     import NextButton from "$lib/site/NextButton.svelte";
+    import {shortDate} from "$lib/utils/date-utils";
 
     export let album;
 
 /**
  * Groups the child albums by month.
- * Assumes you are passing in an album whose subalbums are all within the same year.
+ * Assumes passed-in albums are all within the same year.
  */
-function childAlbumsByMonth(albums) {
+function albumsByMonth(albums) {
 	// array to return
-	let childAlbumsByMonth = [];
+	let albumsByMonth = [];
 
 	if (albums) {
 		// month names to add to the results, to make rendering even simpler
@@ -37,22 +38,22 @@ function childAlbumsByMonth(albums) {
 			'December'
 		];
 
-		// iterate over this album's subalbums, putting them into the correct month
-		albums.forEach(childAlbum => {
+		// iterate over the albums, putting them into the correct month
+		albums.forEach(album => {
 			// create Date object based on album's timestamp
 			// multiply by 1000 to turn seconds into milliseconds
-			const month: number = new Date(childAlbum.date * 1000).getMonth();
-			if (!childAlbumsByMonth[month]) {
-				childAlbumsByMonth[month] = {
+			const month: number = new Date(album.date * 1000).getMonth();
+			if (!albumsByMonth[month]) {
+				albumsByMonth[month] = {
 					monthName: monthNames[month],
 					albums: []
 				};
 			}
-			childAlbumsByMonth[month].albums.push(childAlbum);
+			albumsByMonth[month].albums.push(album);
 		});
 	}
 
-	return childAlbumsByMonth.reverse();
+	return albumsByMonth.reverse();
 }
 </script>
 
@@ -113,13 +114,13 @@ function childAlbumsByMonth(albums) {
   <MainContent>
     <section class="months">
       <h2>Thumbnails</h2>
-      {#each childAlbumsByMonth($album.albums) as month (month.monthName)}
+      {#each albumsByMonth($album.albums) as month (month.monthName)}
         <section class="month">
           <h3>{month.monthName}</h3>
           <Thumbnails>
             {#each month.albums as childAlbum (childAlbum.path)}
               <Thumbnail
-                title="{childAlbum.title}"
+                title="{shortDate(childAlbum.date)}"
                 summary="{childAlbum.customdata}"
                 href="/{childAlbum.path}"
                 src="https://cdn.tacocat.com{childAlbum.url_thumb}"
