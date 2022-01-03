@@ -36,7 +36,7 @@
 <PageContent>
   <MainContent>
     {#if $album.desc}
-    <section>
+    <section class="caption">
       <h2 style="display:none">Album Description</h2>
       {@html $album.desc}
     </section>

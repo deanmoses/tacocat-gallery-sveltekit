@@ -21,7 +21,7 @@
 <PageContent>
   <MainContent>
     {#if photo.desc}
-    <section>
+    <section class="caption">
       <h2 style="display:none">Caption</h2>
       {@html photo.desc}
     </section>

@@ -19,3 +19,8 @@
 		display: none !important;
 	}
 }
+
+/* In captions, add a margin to every <p> except the first */
+.caption > p:nth-of-type(n + 2) {
+	margin-top: 0.7em;
+}
