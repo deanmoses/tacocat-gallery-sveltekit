@@ -9,9 +9,8 @@
     import PrevButton from "$lib/site/PrevButton.svelte";
     import UpButton from "$lib/site/UpButton.svelte";
     import NextButton from "$lib/site/NextButton.svelte";
-    import type { Album } from "$lib/models/models";
 
-    export let album = {};
+    export let album;
     const months = childAlbumsByMonth($album.albums);
 
 /**

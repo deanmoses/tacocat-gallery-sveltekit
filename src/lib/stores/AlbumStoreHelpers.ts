@@ -1,5 +1,6 @@
 import RootAlbum from '$lib/models/album-root';
 import { store } from '$lib/stores/store';
+import Config from '$lib/utils/config';
 import { derived } from 'svelte/store';
 
 export default {
@@ -25,7 +26,7 @@ export default {
      * @returns Promise which returns no data.  Instead, the album returned by getAlbum() will be updated
      */
     async fetchAlbum(path = "root") {
-        const uri = `https://tacocat.com/p_json/${path}.json`;
+        const uri = Config.albumUrl(path);
         const response = await fetch(uri);
         const json = await response.json();
         console.log(`fetchAlbum(${path}) fetched album:`, json.album);

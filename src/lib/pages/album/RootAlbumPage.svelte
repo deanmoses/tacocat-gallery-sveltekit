@@ -6,8 +6,7 @@
     import Thumbnails from "$lib/site/Thumbnails.svelte";
     import Thumbnail from "$lib/site/Thumbnail.svelte";
 
-    
-    export let album = {};
+    export let album;
 </script>
 
 <style>

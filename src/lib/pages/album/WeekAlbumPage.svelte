@@ -9,16 +9,15 @@
   import UpButton from "$lib/site/UpButton.svelte";
   import NextButton from "$lib/site/NextButton.svelte";
 
-  export let week;
-  export let year;
+  export let album;
 </script>
 
 <svelte:head>
-	<title>{week}-{year}</title>
+	<title>{$album.title}</title>
 </svelte:head>
 
 <Header>
-  <span slot="title">{week}-{year}</span>
+  <span slot="title">{$album.title}</span>
 </Header>
 <Nav>
   <PrevButton title="Dec 12" href="/2021/12-12" />
