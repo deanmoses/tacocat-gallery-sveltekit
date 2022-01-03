@@ -20,9 +20,9 @@
 
 <Header/>
 <Nav>
-    <PrevButton disabled/>
-    <UpButton disabled/>
-    <NextButton disabled/>
+    <PrevButton />
+    <UpButton />
+    <NextButton />
 </Nav>
 <div>
     <WaitingSpinner />

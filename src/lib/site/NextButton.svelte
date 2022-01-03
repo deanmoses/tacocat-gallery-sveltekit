@@ -1,12 +1,11 @@
 <script lang="ts">
   import Button from "./Button.svelte";
 
-  export let href: string | null = "";
-  export let title: string | null = "";
-  export let disabled: boolean | null = null;
+  export let href: string = "";
+  export let title: string = "";
 </script>
 
-<Button {href} {disabled}
+<Button {href}
   ><span class="hidden-xs">{title}</span><svg
     class="icon"
     style="width: 1em; height: 1em;"

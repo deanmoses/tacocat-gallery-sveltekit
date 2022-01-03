@@ -1,6 +1,7 @@
 <script lang="ts">
-  export let href: string | null = "";
-  export let disabled: boolean | null = null;
+  export let href: string = "";
+
+  $: disabled  = !href ? '' : null;
 </script>
 
 <style>
