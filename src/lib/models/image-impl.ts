@@ -27,7 +27,7 @@ export class ImageImpl implements Image {
 	 */
 	get nextImageHref(): string {
 		const next = this.next;
-		return next ? '#' + next.path : null;
+		return next ? '/' + next.path : null;
 	}
 
 	/**
@@ -63,7 +63,7 @@ export class ImageImpl implements Image {
 	 */
 	get prevImageHref(): string {
 		const prev = this.prev;
-		return prev ? '#' + prev.path : null;
+		return prev ? '/' + prev.path : null;
 	}
 
 	/**

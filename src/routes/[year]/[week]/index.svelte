@@ -1,8 +1,8 @@
 <script context="module" lang="ts">
 	export async function load({ page }) {
-    const week = page.params.week;
     const year = page.params.year;
-    return {props: {week, year}}
+    const week = page.params.week;
+    return {props: {year, week}}
   }
 </script>
 
@@ -11,13 +11,11 @@
   import WeekAlbumPage from "$lib/pages/album/WeekAlbumPage.svelte";
   import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
 
-  export let week;
   export let year;
+  export let week;
   const path = `${year}/${week}`;
   const album = AlbumStoreHelpers.getAlbum(path);
 </script>
-
-<!-- <WeekAlbumPage {week} {year} /> -->
 
 {#await AlbumStoreHelpers.fetchAlbum(path)}
   <AlbumLoadingPage />
