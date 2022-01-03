@@ -6,12 +6,9 @@
     import PrevButton from "$lib/site/PrevButton.svelte";
     import UpButton from "$lib/site/UpButton.svelte";
     import NextButton from "$lib/site/NextButton.svelte";
-    import type {Image} from "$lib/models/models";
 
     export let album;
-    export let photoPath;
-
-    const photo = $album.getImage(photoPath) as Image;
+    export let photo;
 </script>
 
 <svelte:head>

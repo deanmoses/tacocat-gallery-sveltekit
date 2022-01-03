@@ -14,11 +14,11 @@ const initialState = {
 
 const actions = {
     setAlbum(state, album) {
-        const path = !!album.path ? album.path : "root";
+        const path = album.path ? album.path : "root";
         state.albums[path] = album;
     },
     initAlbum(state, path) {
-        if (!!state.albums[path]) {
+        if (state.albums[path] === undefined || state.albums[path] === null) {
             state.albums[path] = {
                 "path": path
             }

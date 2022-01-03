@@ -1,6 +1,4 @@
 <script context="module" lang="ts">
-  import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
-
 	export async function load({ params }) {
     const albumPath = `${params.year}/${params.week}`;
     const photoPath = `${albumPath}/${params.photo}`
@@ -15,6 +13,7 @@
 </script>
 
 <script lang="ts">
+  import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
   import PhotoPage from "$lib/pages/photo/PhotoPage.svelte";
   
   export let albumPath;
@@ -25,7 +24,7 @@
 {#await AlbumStoreHelpers.fetchAlbum(albumPath)}
   LOADING
 {:then}
-  <PhotoPage album={album} photoPath={photoPath}/>
+  <PhotoPage album={album} photo={$album.getImage(photoPath)}/>
 {:catch error}
   Error fetching album: {error}
 {/await}

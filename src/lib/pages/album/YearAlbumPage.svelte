@@ -11,7 +11,6 @@
     import NextButton from "$lib/site/NextButton.svelte";
 
     export let album;
-    const months = childAlbumsByMonth($album.albums);
 
 /**
  * Groups the child albums by month.
