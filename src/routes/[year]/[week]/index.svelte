@@ -1,8 +1,13 @@
 <script context="module" lang="ts">
+  /** @type {import('@sveltejs/kit').Load} */
 	export async function load({ page }) {
-    const year = page.params.year;
-    const week = page.params.week;
-    return {props: {year, week}}
+    const albumPath = `${page.params.year}/${page.params.week}`;
+    return {
+      props: {
+        albumPath,
+        album: AlbumStoreHelpers.getAlbum(albumPath)
+      }
+    }
   }
 </script>
 
@@ -11,14 +16,11 @@
   import WeekAlbumPage from "$lib/pages/album/WeekAlbumPage.svelte";
   import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
 
-  export let year;
-  export let week;
-  
-  const path = `${year}/${week}`;
-  const album = AlbumStoreHelpers.getAlbum(path);
+  export let albumPath;
+  export let album;
 </script>
 
-{#await AlbumStoreHelpers.fetchAlbum(path)}
+{#await AlbumStoreHelpers.fetchAlbum(albumPath)}
   <AlbumLoadingPage />
 {:then}
   <WeekAlbumPage album={album} />

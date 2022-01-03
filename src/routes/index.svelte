@@ -2,9 +2,9 @@
   import AlbumLoadingPage from "$lib/pages/album/AlbumLoadingPage.svelte";
   import RootAlbumPage from "$lib/pages/album/RootAlbumPage.svelte";
   import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
-    
-    const path = "root";
-    const album = AlbumStoreHelpers.getAlbum(path);
+  
+  const path = "root";
+  const album = AlbumStoreHelpers.getAlbum(path);
 </script>
 
 {#await AlbumStoreHelpers.fetchAlbum(path)}
