@@ -20,40 +20,41 @@
   <span slot="title">{$album.title}</span>
 </Header>
 <Nav>
-  <PrevButton title="Dec 12" href="/2021/12-12" />
-  <UpButton title="2021" href="/2021" />
-  <NextButton disabled />
+  <PrevButton
+    href={album.nextAlbumHref}
+    title={album.nextAlbumTitle}
+  />
+  <UpButton
+    href={album.parentAlbumHref}
+    title={album.parentAlbumTitle}
+  />
+  <NextButton 
+    href={album.prevAlbumHref}
+    title={album.prevAlbumTitle}
+  />
 </Nav>
 <PageContent>
   <MainContent>
+    {#if $album.desc}
     <section>
       <h2 style="display:none">Album Description</h2>
-      This week, we flew to the moon on Elon Musk's shuttle service.
+      {@html $album.desc}
     </section>
+    {/if}
 
     <section>
       <h2 style="display:none">Thumbnails</h2>
       <Thumbnails>
-        <Thumbnail
-          title="Brothers"
-          href="/2021/12-20/brothers"
-          src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-        />
-        <Thumbnail
-          title="Fancy Dinner"
-          href="/2021/12-20/fancy_dinner"
-          src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-        />
-        <Thumbnail
-          title="Christmas"
-          href="/2021/12-20/christmas"
-          src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-        />
-        <Thumbnail
-          title="Christmas"
-          href="/2021/12-20/christmas"
-          src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-        />
+        {#if $album.images}
+        {#each $album.images as image (image.path)}
+          <Thumbnail
+            title="{image.title}"
+            summary="{image.customdata}"
+            href="/{image.path}"
+            src="https://cdn.tacocat.com{image.url_thumb}"
+          />
+        {/each}
+        {/if}
       </Thumbnails>
     </section>
   </MainContent>

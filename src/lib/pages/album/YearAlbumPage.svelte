@@ -101,7 +101,7 @@ function childAlbumsByMonth(albums) {
     {#if $album.desc}
     <section>
       <h2 style="display:none">Year In Review</h2>
-      {$album.desc}
+      {@html $album.desc}
     </section>
     {/if}
   </Sidebar>
