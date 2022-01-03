@@ -14,6 +14,7 @@
 
 <script lang="ts">
   import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
+  import PhotoLoadingPage from "$lib/pages/photo/PhotoLoadingPage.svelte";
   import PhotoPage from "$lib/pages/photo/PhotoPage.svelte";
   
   export let albumPath;
@@ -22,7 +23,7 @@
 </script>
 
 {#await AlbumStoreHelpers.fetchAlbum(albumPath)}
-  LOADING
+  <PhotoLoadingPage />
 {:then}
   <PhotoPage album={album} photo={$album.getImage(photoPath)}/>
 {:catch error}
