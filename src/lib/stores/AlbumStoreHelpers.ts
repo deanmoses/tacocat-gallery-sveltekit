@@ -13,7 +13,6 @@ export default {
     getAlbum(path = "root") {
         // Create empty album if it doesn't exist locally
         store.actions.initAlbum(path);
-
         return derived(
             store,
             $store => $store.albums[path]

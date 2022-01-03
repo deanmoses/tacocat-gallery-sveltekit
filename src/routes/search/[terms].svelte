@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
-	export async function load({ page }) {
-        const terms = page.params.terms;
+	export async function load({ params }) {
+        const terms = params.terms;
         return {props: {terms}}
     }
 </script>

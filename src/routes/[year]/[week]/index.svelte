@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
   /** @type {import('@sveltejs/kit').Load} */
-	export async function load({ page }) {
-    const albumPath = `${page.params.year}/${page.params.week}`;
+	export async function load({ params }) {
+    const albumPath = `${params.year}/${params.week}`;
     return {
       props: {
         albumPath,

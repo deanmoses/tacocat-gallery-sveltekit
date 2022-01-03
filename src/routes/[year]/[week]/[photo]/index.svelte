@@ -1,7 +1,9 @@
 <script context="module" lang="ts">
-	export async function load({ page }) {
-    const albumPath = `${page.params.year}/${page.params.week}`;
-    const photoPath = `${albumPath}/${page.params.photo}`
+  import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
+
+	export async function load({ params }) {
+    const albumPath = `${params.year}/${params.week}`;
+    const photoPath = `${albumPath}/${params.photo}`
     return {
       props: {
         albumPath,
@@ -14,8 +16,7 @@
 
 <script lang="ts">
   import PhotoPage from "$lib/pages/photo/PhotoPage.svelte";
-  import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
-
+  
   export let albumPath;
   export let photoPath;
   export let album;
