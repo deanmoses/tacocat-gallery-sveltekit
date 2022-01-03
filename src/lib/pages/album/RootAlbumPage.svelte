@@ -6,6 +6,7 @@
     import Thumbnails from "$lib/site/Thumbnails.svelte";
     import Thumbnail from "$lib/site/Thumbnail.svelte";
 
+    
     export let album = {};
 </script>
 
@@ -28,7 +29,7 @@
 </svelte:head>
 
 <Header>
-  <span slot="title">Dean, Lucie, Felix and Milo Moses {$album.title}</span>
+  <span slot="title">Dean, Lucie, Felix and Milo Moses</span>
   <span slot="short-title">The Moses Family</span>
 </Header>
 <PageContent>
@@ -45,6 +46,7 @@
   </Sidebar>
   <MainContent>
     <Thumbnails>
+      {#if $album.albums}
       {#each $album.albums as childAlbum (childAlbum.path)}
         <Thumbnail
           title="{childAlbum.title}"
@@ -53,6 +55,7 @@
           src="https://cdn.tacocat.com{childAlbum.url_thumb}"
         />
       {/each}
+      {/if}
     </Thumbnails>
   </MainContent>
 </PageContent>

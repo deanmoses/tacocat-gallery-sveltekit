@@ -9,7 +9,14 @@ import produce from "immer";
 const initialState = {
     // Key: album path like 2001/12-31
     // Value: an album in JSON format
-    albums: {},
+    albums: {
+        "root" : {
+            isLoading: true
+        },
+        "2021" : {
+            isLoading: true
+        }
+    },
     album: {
         year: "2000",
         title: "Awesome Title",
@@ -32,7 +39,8 @@ const actions = {
     },
     setAlbum(state, album) {
         album.isLoading = false;
-        state.album = album;
+        const path = !!album.path ? album.path : "root";
+        state.albums[path] = album;
     }
 }
 

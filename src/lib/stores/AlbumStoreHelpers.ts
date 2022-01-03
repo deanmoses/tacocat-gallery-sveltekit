@@ -21,13 +21,13 @@ export default {
      * 
      * @returns nothing.  The album returned by getAlbum() will be updated
      */
-    fetchAlbum(): void {
+    fetchAlbum(path = "root"): void {
         (async() => {
             try {
-                const uri = "https://tacocat.com/p_json/2021.json";
+                const uri = `https://tacocat.com/p_json/${path}.json`;
                 const response = await fetch(uri);
                 const json = await response.json();
-                console.log("fetchAlbum(): data: ", json);
+                console.log(`fetchAlbum(${path}) fetched album:`, json.album);
                 const jsonAlbum = json.album;
                 const album = new RootAlbum(jsonAlbum.path);
                 Object.assign(album, jsonAlbum);

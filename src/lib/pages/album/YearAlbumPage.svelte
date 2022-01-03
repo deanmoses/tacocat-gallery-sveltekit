@@ -9,8 +9,53 @@
     import PrevButton from "$lib/site/PrevButton.svelte";
     import UpButton from "$lib/site/UpButton.svelte";
     import NextButton from "$lib/site/NextButton.svelte";
+    import type { Album } from "$lib/models/models";
 
-    export let year = null;
+    export let album = {};
+    const months = childAlbumsByMonth($album.albums);
+
+/**
+ * Groups the child albums by month.
+ * Assumes you are passing in an album whose subalbums are all within the same year.
+ */
+function childAlbumsByMonth(albums) {
+	// array to return
+	let childAlbumsByMonth = [];
+
+	if (albums) {
+		// month names to add to the results, to make rendering even simpler
+		const monthNames = [
+			'January',
+			'February',
+			'March',
+			'April',
+			'May',
+			'June',
+			'July',
+			'August',
+			'September',
+			'October',
+			'November',
+			'December'
+		];
+
+		// iterate over this album's subalbums, putting them into the correct month
+		albums.forEach(childAlbum => {
+			// create Date object based on album's timestamp
+			// multiply by 1000 to turn seconds into milliseconds
+			const month: number = new Date(childAlbum.date * 1000).getMonth();
+			if (!childAlbumsByMonth[month]) {
+				childAlbumsByMonth[month] = {
+					monthName: monthNames[month],
+					albums: []
+				};
+			}
+			childAlbumsByMonth[month].albums.push(childAlbum);
+		});
+	}
+
+	return childAlbumsByMonth.reverse();
+}
 </script>
 
 <style>
@@ -41,11 +86,11 @@
 </style>
 
 <svelte:head>
-	<title>{year}</title>
+	<title>{$album.title}</title>
 </svelte:head>
 
 <Header>
-  <span slot="title">{year}</span>
+  <span slot="title">{$album.title}</span>
 </Header>
 <Nav>
   <PrevButton title="2019" href="2019" />
@@ -54,84 +99,31 @@
 </Nav>
 <PageContent>
   <Sidebar>
+    {#if $album.desc}
     <section>
-      <h2>Year In Review</h2>
-      The Year In Review
+      <h2 style="display:none">Year In Review</h2>
+      {$album.desc}
     </section>
+    {/if}
   </Sidebar>
   <MainContent>
     <section class="months">
       <h2>Thumbnails</h2>
-
-      <section class="month">
-        <h3>December</h3>
-        <Thumbnails>
-          <Thumbnail
-            title="Dec 31"
-            href="2021/12-31"
-            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-          />
-          <Thumbnail
-            title="Dec 26"
-            href="2021/12-26"
-            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-          />
-          <Thumbnail
-            title="Dec 20"
-            href="2021/12-20"
-            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-          />
-          <Thumbnail
-            title="Dec 12"
-            href="2021/12-12"
-            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-          />
-          <Thumbnail
-            title="Dec 4"
-            href="2021/12-04"
-            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-          />
-        </Thumbnails>
-      </section>
-
-      <section class="month">
-        <h3>November</h3>
-        <Thumbnails>
-          <Thumbnail
-            title="Nov 30"
-            href="2021/11-30"
-            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-          />
-          <Thumbnail
-            title="Nov 20"
-            href="2021/12-20"
-            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-          />
-        </Thumbnails>
-      </section>
-
-      <section class="month">
-        <h3>October</h3>
-        <Thumbnails>
-          <Thumbnail
-            title="Oct 31"
-            summary="Halloween"
-            href="2021/10-31"
-            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-          />
-          <Thumbnail
-            title="Oct 22"
-            href="2021/10-22"
-            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-          />
-          <Thumbnail
-            title="Oct 17"
-            href="2021/10-17"
-            src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-          />
-        </Thumbnails>
-      </section>
-
+      {#each childAlbumsByMonth($album.albums) as month (month.monthName)}
+        <section class="month">
+          <h3>{month.monthName}</h3>
+          <Thumbnails>
+            {#each month.albums as childAlbum (childAlbum.path)}
+              <Thumbnail
+                title="{childAlbum.title}"
+                summary="{childAlbum.customdata}"
+                href="/{childAlbum.path}"
+                src="https://cdn.tacocat.com{childAlbum.url_thumb}"
+              />
+            {/each}
+          </Thumbnails>
+        </section>
+      {/each}
     </section>
   </MainContent>
 </PageContent>
