@@ -10,17 +10,12 @@ export default {
      * @returns album as a reactive Svelte store
      */
     getAlbum(path = "root") {
+        // Create empty album if it doesn't exist locally
+        store.actions.initAlbum(path);
+
         return derived(
             store,
-            $store => {
-                // Create empty album if it doesn't exist locally
-                if (!!$store.albums[path]) {
-                    const realPath = path === "root" ? "" : path;
-                    console.log(`getAlbum(${path}): need to set store here`);
-                    //store.actions.setAlbum({"path":realPath});
-                }
-                return $store.albums[path]
-            }
+            $store => $store.albums[path]
         );
     },
 

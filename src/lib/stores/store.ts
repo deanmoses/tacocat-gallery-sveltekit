@@ -9,16 +9,20 @@ import produce from "immer";
 const initialState = {
     // Key: album path like 2001/12-31
     // Value: an album in JSON format
-    albums: {
-        "root" : {},
-        "2021" : {}
-    }
+    albums: {}
 }
 
 const actions = {
     setAlbum(state, album) {
         const path = !!album.path ? album.path : "root";
         state.albums[path] = album;
+    },
+    initAlbum(state, path) {
+        if (!!state.albums[path]) {
+            state.albums[path] = {
+                "path": path
+            }
+        }
     }
 }
 
