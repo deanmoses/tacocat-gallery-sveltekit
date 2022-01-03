@@ -13,6 +13,7 @@
 
   export let year;
   export let week;
+  
   const path = `${year}/${week}`;
   const album = AlbumStoreHelpers.getAlbum(path);
 </script>
