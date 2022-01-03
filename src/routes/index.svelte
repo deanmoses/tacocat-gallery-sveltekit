@@ -2,20 +2,15 @@
   import AlbumLoadingPage from "$lib/pages/album/AlbumLoadingPage.svelte";
   import RootAlbumPage from "$lib/pages/album/RootAlbumPage.svelte";
   import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
-  import { store } from "$lib/stores/store";
-  import { derived } from 'svelte/store';
     
-    AlbumStoreHelpers.fetchAlbum("root");
-
-    //export const album = AlbumStoreHelpers.getAlbum();
-    const album = derived(
-      store,
-      $store => $store.albums["root"]
-    );
+    const path = "root";
+    const album = AlbumStoreHelpers.getAlbum(path);
 </script>
 
-{#if $album.isLoading}
+{#await AlbumStoreHelpers.fetchAlbum(path)}
   <AlbumLoadingPage />
-{:else}
+{:then}
   <RootAlbumPage album={album} />
-{/if}
+{:catch error}
+  Error fetching album: {error}
+{/await}

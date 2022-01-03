@@ -10,18 +10,13 @@ const initialState = {
     // Key: album path like 2001/12-31
     // Value: an album in JSON format
     albums: {
-        "root" : {
-            isLoading: true
-        },
-        "2021" : {
-            isLoading: true
-        }
+        "root" : {},
+        "2021" : {}
     },
     album: {
         year: "2000",
         title: "Awesome Title",
-        date: new Date(),
-        isLoading: true
+        date: new Date()
     },
     visible: false,
     dogs: 0
@@ -34,11 +29,7 @@ const actions = {
     setDate(state, date: Date) {
         state.album.date = date;
     },
-    setLoading(state) {
-        state.album.isLoading = true;
-    },
     setAlbum(state, album) {
-        album.isLoading = false;
         const path = !!album.path ? album.path : "root";
         state.albums[path] = album;
     }
