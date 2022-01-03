@@ -12,23 +12,10 @@ const initialState = {
     albums: {
         "root" : {},
         "2021" : {}
-    },
-    album: {
-        year: "2000",
-        title: "Awesome Title",
-        date: new Date()
-    },
-    visible: false,
-    dogs: 0
+    }
 }
 
 const actions = {
-    reset() {
-        return initialState
-    },
-    setDate(state, date: Date) {
-        state.album.date = date;
-    },
     setAlbum(state, album) {
         const path = !!album.path ? album.path : "root";
         state.albums[path] = album;
