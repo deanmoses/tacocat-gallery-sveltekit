@@ -21,16 +21,16 @@
 </Header>
 <Nav>
   <PrevButton
-    href={album.nextAlbumHref}
-    title={album.nextAlbumTitle}
+    href={$album.nextAlbumHref}
+    title={$album.nextAlbumTitle}
   />
   <UpButton
-    href={album.parentAlbumHref}
-    title={album.parentAlbumTitle}
+    href={$album.parentAlbumHref}
+    title={$album.parentAlbumTitle}
   />
   <NextButton 
-    href={album.prevAlbumHref}
-    title={album.prevAlbumTitle}
+    href={$album.prevAlbumHref}
+    title={$album.prevAlbumTitle}
   />
 </Nav>
 <PageContent>

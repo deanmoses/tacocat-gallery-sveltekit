@@ -12,8 +12,6 @@
     export let photoPath;
 
     const photo = $album.getImage(photoPath) as Image;
-    console.log(`album.getImage(${photoPath}):`, photo)
-    console.log(`photo.title:`, photo.title)
 </script>
 
 <svelte:head>

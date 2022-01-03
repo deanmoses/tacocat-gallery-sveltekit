@@ -59,7 +59,7 @@ export class AlbumImpl implements Album {
 	 * URL (including hashtag) to screen displaying album, like #2014/12-31
 	 */
 	get href(): string {
-		return '#' + this.path;
+		return '/' + this.path;
 	}
 
 	/**
@@ -75,7 +75,7 @@ export class AlbumImpl implements Album {
 	 * Blank if no next album
 	 */
 	get nextAlbumHref(): string {
-		return this.next ? '#' + this.next.path : '';
+		return this.next ? '/' + this.next.path : '';
 	}
 
 	/**
@@ -91,7 +91,7 @@ export class AlbumImpl implements Album {
 	 * Blank if no previous album
 	 */
 	get prevAlbumHref(): string {
-		return this.prev ? '#' + this.prev.path : '';
+		return this.prev ? '/' + this.prev.path : '';
 	}
 
 	/**
@@ -99,7 +99,7 @@ export class AlbumImpl implements Album {
 	 * Blank if no parent album
 	 */
 	get parentAlbumHref(): string {
-		return this.parent_album ? '#' + this.parent_album.path : '';
+		return this.parent_album ? '/' + this.parent_album.path : '';
 	}
 
 	/**

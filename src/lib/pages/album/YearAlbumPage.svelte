@@ -92,9 +92,15 @@ function childAlbumsByMonth(albums) {
   <span slot="title">{$album.title}</span>
 </Header>
 <Nav>
-  <PrevButton title="2019" href="2019" />
-  <UpButton title="All Years" href="../" />
-  <NextButton disabled />
+  <PrevButton 
+    href={$album.nextAlbumHref}
+    title={$album.nextAlbumTitle}
+  />
+  <UpButton href="../" title="All Years" />
+  <NextButton
+    href={$album.prevAlbumHref}
+    title={$album.prevAlbumTitle}
+  />
 </Nav>
 <PageContent>
   <Sidebar>
