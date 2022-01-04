@@ -1,7 +1,7 @@
 // I stole the initial code for this Immer-based Svelte store from this article:
 // https://monad.fi/en/blog/svelte-custom-stores/
 // ... whose git repo is here: 
-// https://github.com/RikuVan/svelte-custom-stores-demo/blob/immer_store/package.json
+// https://github.com/RikuVan/svelte-custom-stores-demo/tree/immer_store
 
 import { writable } from 'svelte/store';
 import produce from "immer";
@@ -18,10 +18,17 @@ const actions = {
         state.albums[path] = album;
     },
     setLatestAlbum(state, album) {
-        state.albums["latest"] = album;
+        const path = "latest";
+        state.albums[path] = album;
+    },
+    setSearchResults(state, searchResults) {
+        console.log(`setSearchResults(${searchResults.terms}): `, searchResults.results);
+        const path = `search:${searchResults.terms}`;
+        state.albums[path] = searchResults.results;
     },
     initAlbum(state, path) {
         if (state.albums[path] === undefined || state.albums[path] === null) {
+            console.log(`initAlbum(${path}): initializing empty album`);
             state.albums[path] = {
                 "path": path
             }

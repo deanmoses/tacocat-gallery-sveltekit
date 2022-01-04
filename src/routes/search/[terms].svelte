@@ -1,14 +1,28 @@
 <script context="module" lang="ts">
 	export async function load({ params }) {
-        const terms = params.terms;
-        return {props: {terms}}
+        const searchTerms = params.terms;
+        return {
+            props: {
+                searchTerms,
+                searchResults: AlbumStoreHelpers.getSearchResults(searchTerms)
+            }
+        }
     }
 </script>
 
 <script lang="ts">
+    import SearchLoadingPage from "$lib/components/pages/search/SearchLoadingPage.svelte";
     import SearchResultsPage from "$lib/components/pages/search/SearchResultsPage.svelte";
+    import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
 
-    export let terms;
+    export let searchTerms;
+    export let searchResults;
 </script>
 
-<SearchResultsPage {terms}/>
+{#await AlbumStoreHelpers.fetchSearchResults(searchTerms)}
+    <SearchLoadingPage {searchTerms} />
+{:then}
+    <SearchResultsPage {searchTerms} {searchResults}/>
+{:catch error}
+    Error searching: <div>{error}</div>
+{/await}

@@ -23,6 +23,18 @@ export default {
     getLatestAlbum() {
         // Create empty album if it doesn't exist locally
         const path = "latest";
+        // TODO: using initAlbum here is a hack, need an initLatestAlbum
+        store.actions.initAlbum(path);
+        return derived(
+            store,
+            $store => $store.albums[path]
+        );
+    },
+
+    getSearchResults(searchTerms:string) {
+        // Create search results if they don't exist locally
+        const path = `search:${searchTerms}`;
+        // TODO: using initAlbum here is a hack, need an initSearchResults
         store.actions.initAlbum(path);
         return derived(
             store,
@@ -35,7 +47,7 @@ export default {
      * 
      * @returns Promise which returns no data.  Instead, the album returned by getAlbum() will be updated
      */
-    async fetchAlbum(path = "root") {
+    async fetchAlbum(path = "root") : Promise<void> {
         const uri = Config.albumUrl(path);
         const response = await fetch(uri);
         const json = await response.json();
@@ -48,7 +60,7 @@ export default {
     /**
      * Fetch latest album from server
      */
-    async fetchLatestAlbum() {
+    async fetchLatestAlbum() : Promise<void> {
         const uri = Config.latestAlbumUrl();
         const response = await fetch(uri);
         const json = await response.json();
@@ -57,5 +69,20 @@ export default {
         const latestAlbum: AlbumThumb = json.album.stats.album.latest[0] as AlbumThumb;
         console.log(`fetchLatestAlbum() fetched:`, latestAlbum);
         store.actions.setLatestAlbum(latestAlbum);
+    },
+
+    /**
+     * Fetch search results from the server
+     */
+    async fetchSearchResults(searchTerms:string) : Promise<void> {
+        const uri = Config.searchUrl(searchTerms);
+        const response = await fetch(uri);
+        const json = await response.json();
+        const searchResults = {
+            terms: searchTerms,
+            results: json.search
+        };
+        console.log(`fetchSearchResults(${searchTerms}) fetched:`, searchResults);
+        store.actions.setSearchResults(searchResults);
     }
 }
