@@ -13,11 +13,11 @@
 </script>
 
 <svelte:head>
-	<title>{$album.title}</title>
+	<title>{$album.pageTitle}</title>
 </svelte:head>
 
 <Header>
-  <span slot="title">{$album.title}</span>
+  <span slot="title">{$album.pageTitle}</span>
 </Header>
 <Nav>
   <PrevButton
