@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Thumbnail from "$lib/site/Thumbnail.svelte";
+  import Thumbnail from "$lib/components/site/Thumbnail.svelte";
   import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
   import {shortDate} from "$lib/utils/date-utils";
 

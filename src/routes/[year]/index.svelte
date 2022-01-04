@@ -12,8 +12,8 @@
 </script>
 
 <script lang="ts">
-    import AlbumLoadingPage from "$lib/pages/album/AlbumLoadingPage.svelte";
-    import YearAlbumPage from "$lib/pages/album/YearAlbumPage.svelte";
+    import AlbumLoadingPage from "$lib/components/pages/album/AlbumLoadingPage.svelte";
+    import YearAlbumPage from "$lib/components/pages/album/YearAlbumPage.svelte";
     import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
 
     export let albumPath;

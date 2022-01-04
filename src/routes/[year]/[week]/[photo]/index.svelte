@@ -14,8 +14,8 @@
 
 <script lang="ts">
   import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
-  import PhotoLoadingPage from "$lib/pages/photo/PhotoLoadingPage.svelte";
-  import PhotoPage from "$lib/pages/photo/PhotoPage.svelte";
+  import PhotoLoadingPage from "$lib/components/pages/photo/PhotoLoadingPage.svelte";
+  import PhotoPage from "$lib/components/pages/photo/PhotoPage.svelte";
   
   export let albumPath;
   export let photoPath;

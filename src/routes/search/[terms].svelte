@@ -6,7 +6,7 @@
 </script>
 
 <script lang="ts">
-    import SearchResultsPage from "$lib/pages/search/SearchResultsPage.svelte";
+    import SearchResultsPage from "$lib/components/pages/search/SearchResultsPage.svelte";
 
     export let terms;
 </script>

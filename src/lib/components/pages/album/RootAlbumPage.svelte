@@ -1,10 +1,10 @@
 <script lang="ts">
-    import Header from "$lib/site/Header.svelte";
-    import PageContent from "$lib/site/PageContent.svelte";
-    import Sidebar from "$lib/site/Sidebar.svelte";
-    import MainContent from "$lib/site/MainContent.svelte";
-    import Thumbnails from "$lib/site/Thumbnails.svelte";
-    import Thumbnail from "$lib/site/Thumbnail.svelte";
+    import Header from "$lib/components/site/Header.svelte";
+    import PageContent from "$lib/components/site/PageContent.svelte";
+    import Sidebar from "$lib/components/site/Sidebar.svelte";
+    import MainContent from "$lib/components/site/MainContent.svelte";
+    import Thumbnails from "$lib/components/site/Thumbnails.svelte";
+    import Thumbnail from "$lib/components/site/Thumbnail.svelte";
     import LatestAlbumThumbnail from "$lib/components/data-aware/LatestAlbumThumbnail.svelte";
 
     export let album;
