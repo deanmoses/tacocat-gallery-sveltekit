@@ -5,23 +5,10 @@
     import MainContent from "$lib/site/MainContent.svelte";
     import Thumbnails from "$lib/site/Thumbnails.svelte";
     import Thumbnail from "$lib/site/Thumbnail.svelte";
+    import LatestAlbumThumbnail from "$lib/components/data-aware/LatestAlbumThumbnail.svelte";
 
     export let album;
 </script>
-
-<style>
-  aside {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.7em;
-  }
-  aside h2 {
-      font-size: 16px;
-      font-weight: bold;
-      color: #333;
-  }
-</style>
 
 <svelte:head>
 	<title>Dean, Lucie, Felix and Milo Moses</title>
@@ -33,15 +20,7 @@
 </Header>
 <PageContent>
   <Sidebar>
-    <aside>
-      <h2>Latest Album</h2>
-      <Thumbnail
-        title="Dec 20"
-        summary="Christmas"
-        href="2021/12-20"
-        src="https://cdn.tacocat.com/zenphoto/cache/2021/12-20/xmas_restaurant2_200_w200_h200_cw200_ch200_thumb.jpg?cached=1640062642"
-      />
-    </aside>
+    <LatestAlbumThumbnail />
   </Sidebar>
   <MainContent>
     <Thumbnails>

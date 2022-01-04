@@ -34,5 +34,5 @@
 
 <div class="thumbnail">
   <a {href}><img {src} alt={title} /></a><a {href}>{title}</a>
-  <div class="summary">{summary}</div>
+  {#if summary}<div class="summary">{summary}</div>{/if}
 </div>

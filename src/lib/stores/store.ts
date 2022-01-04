@@ -17,6 +17,9 @@ const actions = {
         const path = album.path ? album.path : "root";
         state.albums[path] = album;
     },
+    setLatestAlbum(state, album) {
+        state.albums["latest"] = album;
+    },
     initAlbum(state, path) {
         if (state.albums[path] === undefined || state.albums[path] === null) {
             state.albums[path] = {
