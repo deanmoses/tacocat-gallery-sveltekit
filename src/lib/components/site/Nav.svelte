@@ -1,9 +1,3 @@
-<script>
-  import PrevButton from "./PrevButton.svelte";
-  import UpButton from "./UpButton.svelte";
-  import NextButton from "./NextButton.svelte";
-</script>
-
 <style>
   nav {
     display: flex;

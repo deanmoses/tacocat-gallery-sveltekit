@@ -12,5 +12,4 @@
       style="fill: currentcolor;"
       d="M749 198L397 551l352 353-197 198L0 550 552 0z"
     />
-  </svg><span class="hidden-xs">{title}</span></Button
->
+  </svg><span class="hidden-xs">{title}</span></Button>

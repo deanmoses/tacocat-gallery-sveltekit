@@ -1,9 +1,9 @@
 <script lang="ts">
-    export let searchTerms = "";
+    import SearchPage from "$lib/components/pages/search/SearchPage.svelte";
+
+    export let searchTerms;
 </script>
 
-<svelte:head>
-	<title>Searching for {searchTerms}...</title>
-</svelte:head>
-
-Searching for {searchTerms}...
+<SearchPage {searchTerms}>
+    Searching for {searchTerms}...
+</SearchPage>
