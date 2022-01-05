@@ -12,9 +12,9 @@
     import MainContent from "$lib/components/site/MainContent.svelte";
     import Thumbnails from "$lib/components/site/Thumbnails.svelte";
     import Thumbnail from "$lib/components/site/Thumbnail.svelte";
-    import PrevButton from "$lib/components/site/PrevButton.svelte";
-    import UpButton from "$lib/components/site/UpButton.svelte";
-    import NextButton from "$lib/components/site/NextButton.svelte";
+    import PrevButton from "$lib/components/site/buttons/PrevButton.svelte";
+    import UpButton from "$lib/components/site/buttons/UpButton.svelte";
+    import NextButton from "$lib/components/site/buttons/NextButton.svelte";
     import {shortDate} from "$lib/utils/date-utils";
 
     export let album;

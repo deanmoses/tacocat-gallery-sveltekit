@@ -7,9 +7,9 @@
 <script lang="ts">
     import Header from "$lib/components/site/Header.svelte";
     import Nav from "$lib/components/site/Nav.svelte";
-    import PrevButton from "$lib/components/site/PrevButton.svelte";
-    import UpButton from "$lib/components/site/UpButton.svelte";
-    import NextButton from "$lib/components/site/NextButton.svelte";
+    import PrevButton from "$lib/components/site/buttons/PrevButton.svelte";
+    import UpButton from "$lib/components/site/buttons/UpButton.svelte";
+    import NextButton from "$lib/components/site/buttons/NextButton.svelte";
     import WaitingSpinner from "$lib/components/site/WaitingSpinner.svelte"
 </script>
 
