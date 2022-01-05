@@ -1,6 +1,6 @@
 # Pages
 
-Components that represent full pages of the Tacocat photo gallery site.  
+Components that represent entire screens of the Tacocat photo gallery.
 
 ## These are (almost) pure presentation components
 
