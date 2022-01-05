@@ -41,8 +41,8 @@
 </style>
 
 <header>
-  <h1 class="hidden-xs"><slot name="title" /></h1>
-  <h1 class="visible-xs"><slot name="short-title" /></h1>
+  {#if $$slots.title}<h1 class="hidden-xs"><slot name="title" /></h1>{/if}
+  {#if $$slots.shortTitle}<h1 class="visible-xs"><slot name="shortTitle" /></h1>{/if}
 
   <div>
     {#if !hideSiteTitle}
