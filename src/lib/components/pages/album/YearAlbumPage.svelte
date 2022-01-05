@@ -90,6 +90,7 @@ function albumsByMonth(albums) {
 
 <Header>
   <span slot="title">{$album.title}</span>
+  <span slot="short-title">{$album.title}</span>
 </Header>
 <Nav>
   <PrevButton 
