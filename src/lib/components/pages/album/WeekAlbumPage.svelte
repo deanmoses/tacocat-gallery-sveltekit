@@ -24,7 +24,7 @@
 
 <Header>
   <span slot="title">{$album.pageTitle}</span>
-  <span slot="short-title">{$album.pageTitle}</span>
+  <span slot="shortTitle">{$album.pageTitle}</span>
 </Header>
 <Nav>
   <PrevButton

@@ -22,7 +22,7 @@
 
 <Header hideSiteTitle>
   <span slot="title">Dean, Lucie, Felix and Milo Moses</span>
-  <span slot="short-title">The Moses Family</span>
+  <span slot="shortTitle">The Moses Family</span>
 </Header>
 <PageContent>
   <Sidebar>

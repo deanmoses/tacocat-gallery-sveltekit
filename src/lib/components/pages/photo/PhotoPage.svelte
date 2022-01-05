@@ -17,7 +17,7 @@
 
 <Header>
   <span slot="title">{photo.title}</span>
-  <span slot="short-title">{photo.title}</span>
+  <span slot="shortTitle">{photo.title}</span>
 </Header>
 <PageContent>
   <MainContent>
