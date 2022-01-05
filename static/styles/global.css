@@ -26,7 +26,20 @@
 	}
 }
 
-/* In captions, add a margin to every <p> except the first */
+body {
+	--default-padding: 0.5em;
+	--default-border: solid black 1px;
+	--default-text-color: #333;
+
+	font-family: 'Trebuchet MS', Verdana, Arial, Helvetica, sans-serif;
+	font-size: 16px;
+}
+
+/* 
+	The CSS reset zeros out all margins.  However, album and photo captions 
+	have actual paragraphs of content that need space between them.  So
+	add a top margin to every <p> except the first.
+*/
 .caption > p:nth-of-type(n + 2) {
 	margin-top: 0.7em;
 }
