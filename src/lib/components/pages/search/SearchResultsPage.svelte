@@ -3,8 +3,9 @@
     import Thumbnails from "$lib/components/site/Thumbnails.svelte";
     import SearchPage from "$lib/components/pages/search/SearchPage.svelte";
 
-    export let searchTerms;
+    export let searchTerms: string;
     export let searchResults;
+    export let returnUrl: string;
 </script>
 
 <style>
@@ -13,7 +14,7 @@
         padding: var(--default-padding);
     }
 </style>
-<SearchPage {searchTerms}>
+<SearchPage {searchTerms} {returnUrl}>
     <section>
         <h2 style="display:none">Thumbnails</h2>
         <Thumbnails>
