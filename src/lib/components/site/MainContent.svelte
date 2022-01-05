@@ -1,3 +1,9 @@
+<!--
+  @component
+
+  The main content of a page.  In a photo page, that'd be the caption and photo.  In an album, the thumbnails.
+-->
+
 <style>
   .main-content {
     flex: 3;
