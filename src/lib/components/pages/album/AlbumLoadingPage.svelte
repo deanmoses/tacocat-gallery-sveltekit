@@ -1,3 +1,9 @@
+<!--
+  @component
+
+  A blank "Album is Loading" stencil page to show while waiting for an album to load
+-->
+
 <script lang="ts">
     import Header from "$lib/components/site/Header.svelte";
     import Nav from "$lib/components/site/Nav.svelte";

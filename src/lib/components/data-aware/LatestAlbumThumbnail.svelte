@@ -1,3 +1,9 @@
+<!--
+  @component
+
+  Fetches and displays a thumbnail of the latest album
+-->
+
 <script lang="ts">
   import Thumbnail from "$lib/components/site/Thumbnail.svelte";
   import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";

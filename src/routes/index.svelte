@@ -1,3 +1,8 @@
+<!--
+  @component
+
+  The root route of the gallery
+-->
 <script lang="ts">
   import AlbumLoadingPage from "$lib/components/pages/album/AlbumLoadingPage.svelte";
   import RootAlbumPage from "$lib/components/pages/album/RootAlbumPage.svelte";

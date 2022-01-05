@@ -1,3 +1,9 @@
+<!--
+  @component
+
+  Page showing a year album
+-->
+
 <script lang="ts">
     import Header from "$lib/components/site/Header.svelte";
     import Nav from "$lib/components/site/Nav.svelte";

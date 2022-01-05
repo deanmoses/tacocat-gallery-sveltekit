@@ -1,3 +1,9 @@
+<!--
+  @component
+
+  A waiting spinner
+-->
+
 <svg
     class="lds-camera"
     width="200px"

@@ -1,3 +1,9 @@
+<!--
+  @component
+
+  Route for a year album
+-->
+
 <script context="module" lang="ts">
   /** @type {import('@sveltejs/kit').Load} */
 	export async function load({ params }) {

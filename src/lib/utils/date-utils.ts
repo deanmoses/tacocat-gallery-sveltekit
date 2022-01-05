@@ -2,8 +2,8 @@
 // date utilities
 //
 
-export function shortDate(seconds: number) {
-	var month_names = new Array(
+export function shortDate(seconds: number): string {
+	const month_names = [
 		'Jan',
 		'Feb',
 		'Mar',
@@ -16,16 +16,16 @@ export function shortDate(seconds: number) {
 		'Oct',
 		'Nov',
 		'Dec'
-	);
+	];
 
-	var d = new Date(seconds * 1000);
-	var curr_day = d.getDate();
-	var curr_month = d.getMonth();
+	const d = new Date(seconds * 1000);
+	const curr_day = d.getDate();
+	const curr_month = d.getMonth();
 	return month_names[curr_month] + ' ' + curr_day;
 }
 
-export function longDate(seconds: number) {
-	var month_names = new Array(
+export function longDate(seconds: number): string {
+	const month_names = [
 		'January',
 		'February',
 		'March',
@@ -38,16 +38,16 @@ export function longDate(seconds: number) {
 		'October',
 		'November',
 		'December'
-	);
+	];
 
-	var d = new Date(seconds * 1000);
-	var curr_day = d.getDate();
-	var curr_month = d.getMonth();
-	var curr_year = d.getFullYear();
+	const d = new Date(seconds * 1000);
+	const curr_day = d.getDate();
+	const curr_month = d.getMonth();
+	const curr_year = d.getFullYear();
 	return month_names[curr_month] + ' ' + curr_day + ', ' + curr_year;
 }
 
-export function year(seconds: number) {
-	var d = new Date(seconds * 1000);
+export function year(seconds: number): string {
+	const d = new Date(seconds * 1000);
 	return '' + d.getFullYear();
 }

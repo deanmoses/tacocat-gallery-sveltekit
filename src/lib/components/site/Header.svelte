@@ -1,4 +1,11 @@
+<!--
+  @component
+
+  Header of the site
+-->
+
 <script lang="ts">
+    /** Don't show the site's title */
     export let hideSiteTitle = false;
 </script>
 

@@ -1,3 +1,9 @@
+<!--
+  @component
+
+  Sidebar of the site
+-->
+
 <style>
   .sidebar {
     flex: 1;

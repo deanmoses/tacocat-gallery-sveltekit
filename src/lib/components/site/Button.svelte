@@ -1,3 +1,9 @@
+<!--
+  @component
+
+  A button component
+-->
+
 <script lang="ts">
   export let href: string = "";
 

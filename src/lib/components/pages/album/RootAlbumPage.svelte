@@ -1,3 +1,9 @@
+<!--
+  @component
+
+  Page displaying the root album
+-->
+
 <script lang="ts">
     import Header from "$lib/components/site/Header.svelte";
     import PageContent from "$lib/components/site/PageContent.svelte";

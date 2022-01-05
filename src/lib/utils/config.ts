@@ -81,7 +81,7 @@ export default abstract class Config {
 			// Not having the final slash messes up POSTing to the edit URL,
 			// because as of late 2016 zenphoto started redirecting
 			// to the version with the slash.
-			var finalSlash = path.endsWith('/') ? '' : '/';
+			const finalSlash = path.endsWith('/') ? '' : '/';
 			return 'https://tacocat.com/zenphoto/' + path + finalSlash;
 		}
 	}
@@ -93,7 +93,7 @@ export default abstract class Config {
 	 */
 	public static refreshAlbumCacheUrl(albumPath: string) {
 		// strip the '/' off if it exists, so that "/2001" becomes "2001"
-		var slashlessAlbumPath = albumPath.replace('/', '');
+		const slashlessAlbumPath = albumPath.replace('/', '');
 		return 'https://tacocat.com/p_json/refresh.php?album=' + slashlessAlbumPath;
 	}
 

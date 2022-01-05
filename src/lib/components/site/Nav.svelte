@@ -1,3 +1,9 @@
+<!--
+  @component
+
+  For grouping a set of navigation buttons together
+-->
+
 <style>
   nav {
     display: flex;

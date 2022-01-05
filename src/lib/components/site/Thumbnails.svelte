@@ -1,3 +1,9 @@
+<!--
+  @component
+
+  A grid of thumbnails
+-->
+
 <style>
   div {
     display: flex;
