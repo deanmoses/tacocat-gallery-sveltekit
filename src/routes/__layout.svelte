@@ -26,6 +26,7 @@
     .app-container {
       --default-padding: 0.5em;
       --default-border: solid black 1px;
+      --default-text-color: #333;
   
       font-family: "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
       font-size: 16px;

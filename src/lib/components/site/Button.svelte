@@ -14,7 +14,7 @@
     column-gap: 0.2em;
 
     /*background-color: #cec68c;*/
-    color: #333;
+    color: var(--default-text-color);
     border: 1px solid #ccc;
     text-decoration: none;
     padding: 6px 12px;

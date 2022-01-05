@@ -17,7 +17,7 @@
   aside h2 {
       font-size: 16px;
       font-weight: bold;
-      color: #333;
+      color: var(--default-text-color);
   }
 </style>
 

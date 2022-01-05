@@ -28,7 +28,7 @@
     border: var(--default-border);
   }
   .summary {
-    color: #333;
+    color: var(--default-text-color);
   }
 </style>
 
