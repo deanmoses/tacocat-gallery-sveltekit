@@ -14,7 +14,7 @@
 	<title>Dean, Lucie, Felix and Milo Moses</title>
 </svelte:head>
 
-<Header>
+<Header hideSiteTitle>
   <span slot="title">Dean, Lucie, Felix and Milo Moses</span>
   <span slot="short-title">The Moses Family</span>
 </Header>

@@ -5,7 +5,7 @@
 
     export let searchTerms: string;
     export let searchResults;
-    export let returnUrl: string;
+    export let returnPath: string;
 </script>
 
 <style>
@@ -14,7 +14,7 @@
         padding: var(--default-padding);
     }
 </style>
-<SearchPage {searchTerms} {returnUrl}>
+<SearchPage {searchTerms} {returnPath}>
     <section>
         <h2 style="display:none">Thumbnails</h2>
         <Thumbnails>

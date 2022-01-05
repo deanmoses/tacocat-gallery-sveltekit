@@ -3,10 +3,10 @@
     import WaitingSpinner from "$lib/components/site/WaitingSpinner.svelte";
 
     export let searchTerms: string;
-    export let returnUrl: string;
+    export let returnPath: string;
 </script>
 
-<SearchPage {searchTerms} {returnUrl}>
+<SearchPage {searchTerms} {returnPath}>
     Searching for {searchTerms}...
 
     <WaitingSpinner />

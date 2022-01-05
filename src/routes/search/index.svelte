@@ -1,10 +1,9 @@
 <script context="module" lang="ts">
 	export async function load({ url }) {
-        const returnUrl = url.searchParams.get('return')
-        console.log(`returnUrl: ${returnUrl}`)
+        const returnPath = url.searchParams.get('return')
         return {
             props: {
-                returnUrl
+                returnPath
             }
         }
     }
@@ -13,7 +12,7 @@
 <script lang="ts">
     import SearchPage from "$lib/components/pages/search/SearchPage.svelte";
 
-    export let returnUrl: string;
+    export let returnPath: string;
 </script>
 
-<SearchPage {returnUrl} />
+<SearchPage {returnPath} />

@@ -1,11 +1,10 @@
 <script context="module" lang="ts">
 	export async function load({ params, url }) {
         const searchTerms = params.terms;
-        const returnUrl = url.searchParams.get('return')
-        console.log(`returnUrl: ${returnUrl}`)
+        const returnPath = url.searchParams.get('return')
         return {
             props: {
-                returnUrl,
+                returnPath: returnPath,
                 searchTerms,
                 searchResults: AlbumStoreHelpers.getSearchResults(searchTerms)
             }
@@ -19,15 +18,15 @@
     import SearchResultsPage from "$lib/components/pages/search/SearchResultsPage.svelte";
     import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
 
-    export let returnUrl;
+    export let returnPath;
     export let searchTerms;
     export let searchResults;
 </script>
 
 {#await AlbumStoreHelpers.fetchSearchResults(searchTerms)}
-    <SearchLoadingPage {searchTerms} {returnUrl} />
+    <SearchLoadingPage {searchTerms} {returnPath} />
 {:then}
-    <SearchResultsPage {searchTerms} {searchResults} {returnUrl} />
+    <SearchResultsPage {searchTerms} {searchResults} {returnPath} />
 {:catch error}
     <SearchPage {searchTerms}>
         Error searching: <div>{error}</div>
