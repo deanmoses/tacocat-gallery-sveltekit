@@ -26,12 +26,16 @@ export type Draft = {
 	content?: DraftContent;
 	errorMessage?: string;
 };
-export type DraftContent = Album | Image;
 export enum DraftState {
 	UNSAVED_CHANGES = 'UNSAVED_CHANGES',
 	SAVING = 'SAVING',
 	SAVED = 'SAVED',
 	ERRORED = 'ERRORED'
+};
+//export type DraftContent = Album | Image;
+export type DraftContent = {
+	title?: string;
+	desc?: string;
 };
 
 /**

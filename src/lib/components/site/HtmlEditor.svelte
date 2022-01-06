@@ -10,6 +10,12 @@
 	/** The HTML content to be made editable */
 	export let htmlContent = "";
 
+	/** 
+	 * The edited content
+	 * Don't pass in anything to this; instead, bind:newHtmlContent to get the value
+	 */
+	export let newHtmlContent = null;
+
 	let editor;
 
 	// The buttons to show in Quill's toolbar
@@ -37,14 +43,21 @@
 		// TODO: confirm this is actually prevents the bits from being included in the initial bundle
 		const { default: Quill } = await import("quill");
 
-		const quill = new Quill(editor, {
+		let quill = new Quill(editor, {
 			theme: "bubble", // The "bubble" theme pops up the toolbar when text is selected, rather than it being there permanently
 			modules: {
 					toolbar: toolbar
 			},
 			formats: formats
 		});
+
+		// Every time the text in Quill changes, update my public newHtmlContent property
+		// so that my parent component can listen to it changing via Svelte's bind: syntax.
+		quill.on('text-change', (delta, oldDelta, source) => {
+			newHtmlContent = quill.root.innerHTML;
+		});
 	});
+
 </script>
 
 <style>

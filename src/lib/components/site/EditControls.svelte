@@ -6,6 +6,11 @@
 
 <script lang="ts">
   import { editMode } from "$lib/stores/EditModeStore";
+	import draftStore from "$lib/stores/DraftStore";
+	import { DraftState } from "$lib/models/models";
+	import { page } from "$app/stores";
+
+	const status = draftStore.getStatus();
 
   function onEditButtonClick() {
     const isEditing = true;
@@ -13,12 +18,29 @@
   }
 
   function onCancelButtonClick() {
+		draftStore.cancel();
     const isEditing = false;
     editMode.set(isEditing);
   }
 
 	function onSaveButtonClick() {
-		console.log("TODO: Save button clicked");
+		draftStore.save();
+	}
+
+	// Cancel the draft when any navigation happens
+	// The $: is Svelte syntax.  This gets compiled into a
+	// reactive statement that executes whenever any of the 
+	// variables referenced within it changes.
+	// So while I don't use the $page variable, I must
+	// reference it
+	$: {
+		if ($editMode) {
+			console.log("Navigated to ", $page.url.pathname);
+			draftStore.init($page.url.pathname);
+		}
+		else {
+			console.log("If I were in edit mode I'd be clearing the draft state right now");
+		}
 	}
 </script>
 
@@ -28,7 +50,14 @@
   </div>
 {:else}
   <div class="editing-controls">
-    <button class="cancel" on:click|once={onCancelButtonClick}>Cancel</button> 
+		<button class="cancel" on:click|once={onCancelButtonClick}>Cancel</button> 
+		<div class="status">
+			{#if $status === DraftState.SAVING}
+				🔄 Saving... 
+			{:else if $status === DraftState.SAVED}
+				✅ Saved
+			{/if}
+		</div>
     <button class="save" on:click|once={onSaveButtonClick}>Save</button>
   </div>
 {/if}
@@ -54,13 +83,18 @@
 	.editing-controls {
 			display: flex;
 			justify-content: flex-end;
-			gap: .5em;
+			align-items: center;
+			gap: 1em;
 			padding: .5em;
 			background-color: rgb(65, 64, 64);
 			border-bottom: 1px solid black;
 	}
 
-	.editing-controls .cancel {
+	.cancel {
 		margin-right: auto;
+	}
+
+	.status {
+		color: rgb(211, 211, 211);
 	}
 </style>
