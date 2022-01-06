@@ -27,6 +27,10 @@
 		draftStore.save();
 	}
 
+	function onPublishedChange(event) {
+		draftStore.setPublished(event.target.checked);
+	}
+
 	// Cancel the draft when any navigation happens
 	// The $: is Svelte syntax.  This gets compiled into a
 	// reactive statement that executes whenever any of the 
@@ -50,15 +54,18 @@
   </div>
 {:else}
   <div class="editing-controls">
-		<button class="cancel" on:click|once={onCancelButtonClick}>Cancel</button> 
-		<div class="status">
-			{#if $status === DraftStatus.SAVING}
-				🔄 Saving... 
-			{:else if $status === DraftStatus.SAVED}
-				✅ Saved
-			{/if}
+		<div class="left">
+			<button on:click|once={onCancelButtonClick}>Cancel</button> 
+			<div>
+				{#if $status === DraftStatus.SAVING}
+					🔄 saving... 
+				{:else if $status === DraftStatus.SAVED}
+					✅ saved
+				{/if}
+			</div>
 		</div>
-    <button class="save" on:click|once={onSaveButtonClick}>Save</button>
+		<div><input type="checkbox" on:change={onPublishedChange}/> published</div>
+    <button on:click|once={onSaveButtonClick}>Save</button>
   </div>
 {/if}
 
@@ -77,7 +84,7 @@
 	}
 
 	.not-yet-editing-controls:hover button {
-			display: inherit;/* */
+			display: inherit;
 	}
 
 	.editing-controls {
@@ -86,15 +93,15 @@
 			align-items: center;
 			gap: 1em;
 			padding: .5em;
-			background-color: rgb(65, 64, 64);
 			border-bottom: 1px solid black;
+			background-color: rgb(65, 64, 64);
+			color: rgb(211, 211, 211);
 	}
 
-	.cancel {
+	.left {
 		margin-right: auto;
-	}
-
-	.status {
-		color: rgb(211, 211, 211);
+		display: flex;
+		align-items: center;
+		gap: 1em;
 	}
 </style>

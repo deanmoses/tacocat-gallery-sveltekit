@@ -82,6 +82,14 @@ class DraftStore {
 		});
 	}
 
+	setPublished(published: boolean): void {
+		console.log("draft published: ", published);
+		this._draft.update((state) => {
+			state.content.published = published;
+			return state;
+		});
+	}
+
 	/**
 	 * Throw away all draft edits; reset the store
 	 */

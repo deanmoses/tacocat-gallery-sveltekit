@@ -32,10 +32,11 @@ export enum DraftStatus {
 	SAVED = 'SAVED',
 	ERRORED = 'ERRORED'
 };
-//export type DraftContent = Album | Image;
+
 export type DraftContent = {
 	title?: string;
 	desc?: string;
+	published?: boolean;
 };
 
 /**
