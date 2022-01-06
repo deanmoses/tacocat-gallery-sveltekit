@@ -1,32 +1,28 @@
 <script lang="ts">
-    import Header from "$lib/components/site/Header.svelte";
-    import PhotoNav from "$lib/components/site/PhotoNav.svelte";
-    import PageContent from "$lib/components/site/PageContent.svelte";
-    import MainContent from "$lib/components/site/MainContent.svelte";
-    import PrevButton from "$lib/components/site/buttons/PrevButton.svelte";
-    import UpButton from "$lib/components/site/buttons/UpButton.svelte";
-    import NextButton from "$lib/components/site/buttons/NextButton.svelte";
+	import Header from "$lib/components/site/Header.svelte";
+	import PhotoNav from "$lib/components/site/PhotoNav.svelte";
+	import PageContent from "$lib/components/site/PageContent.svelte";
+	import MainContent from "$lib/components/site/MainContent.svelte";
+	import PrevButton from "$lib/components/site/buttons/PrevButton.svelte";
+	import UpButton from "$lib/components/site/buttons/UpButton.svelte";
+	import NextButton from "$lib/components/site/buttons/NextButton.svelte";
+	import EditableHtml from "$lib/components/site/EditableHtml.svelte";
 
-    export let album;
-    export let photo;
+	export let album;
+	export let photo;
 </script>
 
 <svelte:head>
 	<title>{photo.title}</title>
 </svelte:head>
 
-<Header>
-  <span slot="title">{photo.title}</span>
-  <span slot="shortTitle">{photo.title}</span>
-</Header>
+<Header title="{photo.title}" hideSiteTitle/>
 <PageContent>
   <MainContent>
-    {#if photo.desc}
-    <section class="caption">
+    <section>
       <h2 style="display:none">Caption</h2>
-      {@html photo.desc}
+      <EditableHtml htmlContent={photo.desc}/>
     </section>
-    {/if}
     <div>
       <PhotoNav>
         <PrevButton href={photo.prevImageHref} />

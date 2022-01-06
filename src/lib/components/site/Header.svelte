@@ -5,8 +5,16 @@
 -->
 
 <script lang="ts">
-    /** Don't show the site's title */
-    export let hideSiteTitle = false;
+	import PageTitle from "./PageTitle.svelte";
+
+	/** Title of page.  Required. */
+	export let title:string;
+
+	/** Short title of page.  Optional. */
+	export let shortTitle:string = null;
+
+	/** Don't show the site's title (this is different than the page title)*/
+	export let hideSiteTitle = false;
 </script>
 
 <style>
@@ -20,11 +28,6 @@
     border-bottom: var(--default-border);
 
     color: var(--default-text-color);
-  }
-
-  h1 {
-    font-size: 28px;
-    min-height: 1.5em; /* for when there's no h1 text */
   }
 
   div {
@@ -41,8 +44,7 @@
 </style>
 
 <header>
-  {#if $$slots.title}<h1 class="hidden-xs"><slot name="title" /></h1>{/if}
-  {#if $$slots.shortTitle}<h1 class="visible-xs"><slot name="shortTitle" /></h1>{/if}
+  <PageTitle {title} {shortTitle} />
 
   <div>
     {#if !hideSiteTitle}

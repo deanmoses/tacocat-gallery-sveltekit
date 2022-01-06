@@ -17,13 +17,10 @@
 </script>
 
 <svelte:head>
-	<title>Dean, Lucie, Felix and Milo Moses</title>
+	<title>The Moses Family</title>
 </svelte:head>
 
-<Header hideSiteTitle>
-  <span slot="title">Dean, Lucie, Felix and Milo Moses</span>
-  <span slot="shortTitle">The Moses Family</span>
-</Header>
+<Header hideSiteTitle title="Dean, Lucie, Felix and Milo Moses" shortTitle="The Moses Family" />
 <PageContent>
   <Sidebar>
     <LatestAlbumThumbnail />

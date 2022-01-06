@@ -5,62 +5,63 @@
 -->
 
 <script lang="ts">
-    import Header from "$lib/components/site/Header.svelte";
-    import Nav from "$lib/components/site/Nav.svelte";
-    import PageContent from "$lib/components/site/PageContent.svelte";
-    import Sidebar from "$lib/components/site/Sidebar.svelte";
-    import MainContent from "$lib/components/site/MainContent.svelte";
-    import Thumbnails from "$lib/components/site/Thumbnails.svelte";
-    import Thumbnail from "$lib/components/site/Thumbnail.svelte";
-    import PrevButton from "$lib/components/site/buttons/PrevButton.svelte";
-    import UpButton from "$lib/components/site/buttons/UpButton.svelte";
-    import NextButton from "$lib/components/site/buttons/NextButton.svelte";
-    import {shortDate} from "$lib/utils/date-utils";
+	import Header from "$lib/components/site/Header.svelte";
+	import Nav from "$lib/components/site/Nav.svelte";
+	import PageContent from "$lib/components/site/PageContent.svelte";
+	import Sidebar from "$lib/components/site/Sidebar.svelte";
+	import MainContent from "$lib/components/site/MainContent.svelte";
+	import Thumbnails from "$lib/components/site/Thumbnails.svelte";
+	import Thumbnail from "$lib/components/site/Thumbnail.svelte";
+	import PrevButton from "$lib/components/site/buttons/PrevButton.svelte";
+	import UpButton from "$lib/components/site/buttons/UpButton.svelte";
+	import NextButton from "$lib/components/site/buttons/NextButton.svelte";
+	import {shortDate} from "$lib/utils/date-utils";
+	import EditableHtml from "$lib/components/site/EditableHtml.svelte";
 
-    export let album;
+	export let album;
 
-/**
- * Groups the child albums by month.
- * Assumes passed-in albums are all within the same year.
- */
-function albumsByMonth(albums) {
-	// array to return
-	let albumsByMonth = [];
+	/**
+	 * Groups the child albums by month.
+	 * Assumes passed-in albums are all within the same year.
+	 */
+	function albumsByMonth(albums) {
+		// array to return
+		let albumsByMonth = [];
 
-	if (albums) {
-		// month names to add to the results, to make rendering even simpler
-		const monthNames = [
-			'January',
-			'February',
-			'March',
-			'April',
-			'May',
-			'June',
-			'July',
-			'August',
-			'September',
-			'October',
-			'November',
-			'December'
-		];
+		if (albums) {
+			// month names to add to the results, to make rendering even simpler
+			const monthNames = [
+				'January',
+				'February',
+				'March',
+				'April',
+				'May',
+				'June',
+				'July',
+				'August',
+				'September',
+				'October',
+				'November',
+				'December'
+			];
 
-		// iterate over the albums, putting them into the correct month
-		albums.forEach(album => {
-			// create Date object based on album's timestamp
-			// multiply by 1000 to turn seconds into milliseconds
-			const month: number = new Date(album.date * 1000).getMonth();
-			if (!albumsByMonth[month]) {
-				albumsByMonth[month] = {
-					monthName: monthNames[month],
-					albums: []
-				};
-			}
-			albumsByMonth[month].albums.push(album);
-		});
+			// iterate over the albums, putting them into the correct month
+			albums.forEach(album => {
+				// create Date object based on album's timestamp
+				// multiply by 1000 to turn seconds into milliseconds
+				const month: number = new Date(album.date * 1000).getMonth();
+				if (!albumsByMonth[month]) {
+					albumsByMonth[month] = {
+						monthName: monthNames[month],
+						albums: []
+					};
+				}
+				albumsByMonth[month].albums.push(album);
+			});
+		}
+
+		return albumsByMonth.reverse();
 	}
-
-	return albumsByMonth.reverse();
-}
 </script>
 
 <style>
@@ -91,13 +92,10 @@ function albumsByMonth(albums) {
 </style>
 
 <svelte:head>
-	<title>{$album.title}</title>
+	<title>{$album.pageTitle}</title>
 </svelte:head>
 
-<Header>
-  <span slot="title">{$album.title}</span>
-  <span slot="shortTitle">{$album.title}</span>
-</Header>
+<Header title={$album.pageTitle} />
 <Nav>
   <PrevButton 
     href={$album.nextAlbumHref}
@@ -111,12 +109,10 @@ function albumsByMonth(albums) {
 </Nav>
 <PageContent>
   <Sidebar>
-    {#if $album.desc}
     <section>
       <h2 style="display:none">Year In Review</h2>
-      {@html $album.desc}
+			<EditableHtml htmlContent={$album.desc}/>
     </section>
-    {/if}
   </Sidebar>
   <MainContent>
     <section class="months">

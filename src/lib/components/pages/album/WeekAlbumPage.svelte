@@ -23,10 +23,7 @@
 	<title>{$album.pageTitle}</title>
 </svelte:head>
 
-<Header>
-  <span slot="title">{$album.pageTitle}</span>
-  <span slot="shortTitle">{$album.pageTitle}</span>
-</Header>
+<Header title={$album.pageTitle} />
 <Nav>
   <PrevButton
     href={$album.nextAlbumHref}
