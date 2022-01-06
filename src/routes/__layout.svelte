@@ -13,7 +13,7 @@
 </script>
 
 <style>
-  /* defaults for years with no styling */
+  /* default colors for years with no styling of their own */
   .site-container, 
   /* colors for a specific year */
   .site-container[data-year="2022"] {
