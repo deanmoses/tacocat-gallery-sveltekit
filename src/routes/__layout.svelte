@@ -1,7 +1,7 @@
 <!--
   @component
 
-  A layout that Sveltekit applies to every route
+  Lays out the shell of the app.  Sveltekit applies this layout to every route
 -->
 
 <script lang="ts">
