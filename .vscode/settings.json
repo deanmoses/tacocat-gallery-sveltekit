@@ -11,8 +11,9 @@
 	"editor.insertSpaces": false,
 
 	// Format a file on save
-	// A formatter must be available, the file must not be auto-saved, and editor must not be shutting down
+	// A formatter must be available, the file must not be auto-saved and VS Code must not be shutting down
 	"editor.formatOnSave": true,
+	"editor.formatOnType": true,
 
 	// Trim all new lines after the final new line at the end of the file when saving it
 	"files.trimFinalNewlines": true
