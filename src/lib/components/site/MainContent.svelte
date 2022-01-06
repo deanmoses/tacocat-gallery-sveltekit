@@ -1,7 +1,7 @@
 <!--
   @component
 
-  The main content of a page.  In a photo page, that'd be the caption and photo.  In an album, the thumbnails.
+  The main content of a page.  In an image page, that'd be the caption and image.  In an album, the thumbnails.
 -->
 
 <style>

@@ -1,6 +1,6 @@
 <script lang="ts">
     import Header from "$lib/components/site/Header.svelte";
-    import PhotoNav from "$lib/components/site/PhotoNav.svelte";
+    import ImageNav from "$lib/components/site/ImageNav.svelte";
     import PageContent from "$lib/components/site/PageContent.svelte";
     import MainContent from "$lib/components/site/MainContent.svelte";
     import PrevButton from "$lib/components/site/buttons/PrevButton.svelte";
@@ -27,11 +27,11 @@
       <h2 style="display:none">Caption</h2>
     </section>
     <div>
-      <PhotoNav>
+      <ImageNav>
         <PrevButton />
         <UpButton />
         <NextButton />
-      </PhotoNav>
+      </ImageNav>
       <section class="waiting">
         <h2 style="display:none">Photo</h2>
         <WaitingSpinner />
