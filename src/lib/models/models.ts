@@ -22,11 +22,11 @@ export type DraftsByPath = {
  */
 export type Draft = {
 	path: string;
-	state?: DraftState;
+	status?: DraftStatus;
 	content?: DraftContent;
 	errorMessage?: string;
 };
-export enum DraftState {
+export enum DraftStatus {
 	UNSAVED_CHANGES = 'UNSAVED_CHANGES',
 	SAVING = 'SAVING',
 	SAVED = 'SAVED',

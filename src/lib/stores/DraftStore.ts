@@ -4,10 +4,10 @@
 
 import { writable, type Writable, derived, type Readable, get} from 'svelte/store';
 import type { Draft } from '$lib/models/models';
-import { DraftState } from '$lib/models/models';
+import { DraftStatus } from '$lib/models/models';
 
 const initialState: Draft = {
-	state: DraftState.UNSAVED_CHANGES,
+	status: DraftStatus.UNSAVED_CHANGES,
 	path: "/1800", // TODO FIX THIS
 	content: {}
 };
@@ -34,7 +34,7 @@ class DraftStore {
 	init(path: string): void {
 		console.log("Init draft: ", path);
 		const initialState: Draft = {
-			state: DraftState.UNSAVED_CHANGES,
+			status: DraftStatus.UNSAVED_CHANGES,
 			path: path,
 			content: {}
 		};
@@ -46,16 +46,16 @@ class DraftStore {
 	 */
 	getStatus(): Readable<string> {
 		return derived(this._draft, ($draft) => {
-			return $draft.state;
+			return $draft.status;
 		});
 	}
 
 	/**
 	 * Change the status of the draft
 	 */
-	private setStatus(newDraftState: DraftState): void {
+	private setStatus(newStatus: DraftStatus): void {
 		this._draft.update((state) => {
-			state.state = newDraftState;
+			state.status = newStatus;
 			return state;
 		});
 	}
@@ -95,11 +95,11 @@ class DraftStore {
 	 */
 	save(): void {
 		console.log("TODO: save the draft: ", get(this._draft));
-		this.setStatus(DraftState.SAVING);
+		this.setStatus(DraftStatus.SAVING);
 		// Simulate a save
 		setTimeout(() => {
 			console.log("TODO: saved the draft");
-			this.setStatus(DraftState.SAVED);
+			this.setStatus(DraftStatus.SAVED);
 		}, 1000)
 	}
 

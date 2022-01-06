@@ -7,7 +7,7 @@
 <script lang="ts">
   import { editMode } from "$lib/stores/EditModeStore";
 	import draftStore from "$lib/stores/DraftStore";
-	import { DraftState } from "$lib/models/models";
+	import { DraftStatus } from "$lib/models/models";
 	import { page } from "$app/stores";
 
 	const status = draftStore.getStatus();
@@ -52,9 +52,9 @@
   <div class="editing-controls">
 		<button class="cancel" on:click|once={onCancelButtonClick}>Cancel</button> 
 		<div class="status">
-			{#if $status === DraftState.SAVING}
+			{#if $status === DraftStatus.SAVING}
 				🔄 Saving... 
-			{:else if $status === DraftState.SAVED}
+			{:else if $status === DraftStatus.SAVED}
 				✅ Saved
 			{/if}
 		</div>
