@@ -8,8 +8,9 @@
   import { page } from "$app/stores";
   import EditControls from "$lib/components/site/EditControls.svelte";
 
+	// make the year reactive, so that the DOM always gets updated
   let year: string;
-  $: year = $page.params ? $page.params.year : ""; // make the year reactive, so that the DOM always gets updated
+  $: year = $page.params ? $page.params.year : "";
 </script>
 
 <style>
