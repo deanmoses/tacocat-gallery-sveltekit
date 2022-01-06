@@ -14,6 +14,7 @@
   import PrevButton from "$lib/components/site/buttons/PrevButton.svelte";
   import UpButton from "$lib/components/site/buttons/UpButton.svelte";
   import NextButton from "$lib/components/site/buttons/NextButton.svelte";
+  import EditableHtml from "$lib/components/site/EditableHtml.svelte";
 
   export let album;
 </script>
@@ -42,12 +43,10 @@
 </Nav>
 <PageContent>
   <MainContent>
-    {#if $album.desc}
-    <section class="caption">
+    <section>
       <h2 style="display:none">Album Description</h2>
-      {@html $album.desc}
+      <EditableHtml htmlContent={$album.desc}/>
     </section>
-    {/if}
 
     <section>
       <h2 style="display:none">Thumbnails</h2>
