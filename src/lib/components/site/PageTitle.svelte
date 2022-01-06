@@ -8,10 +8,10 @@
 	import { editMode } from "$lib/stores/EditModeStore";
 	import EditableText from "./EditableText.svelte";
 
-	/** Normal length title of page.  Required. */
-	export let title:string;
+	/** Normal length title of page */
+	export let title:string = null;
 
-	/** Short title of page.  Optional.*/
+	/** Short title of page*/
 	export let shortTitle:string = null;
 </script>
 
@@ -24,7 +24,7 @@
 
 {#if $editMode}
 	<h1><EditableText textContent={title} /></h1>
-{:else if shortTitle}	
+{:else if title && shortTitle}	
 	<h1 class="hidden-xs">{title}</h1>
 	<h1 class="visible-xs">{shortTitle}</h1>
 {:else if title}

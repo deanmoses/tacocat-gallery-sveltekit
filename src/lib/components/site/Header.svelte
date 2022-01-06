@@ -7,10 +7,10 @@
 <script lang="ts">
 	import PageTitle from "./PageTitle.svelte";
 
-	/** Title of page.  Required. */
-	export let title:string;
+	/** Title of page */
+	export let title:string = null;
 
-	/** Short title of page.  Optional. */
+	/** Short title of page */
 	export let shortTitle:string = null;
 
 	/** Don't show the site's title (this is different than the page title)*/
