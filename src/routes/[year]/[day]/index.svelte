@@ -1,11 +1,16 @@
+<!--
+  @component
+
+  Route for a day album
+-->
+
 <script context="module" lang="ts">
+  /** @type {import('@sveltejs/kit').Load} */
 	export async function load({ params }) {
-    const albumPath = `${params.year}/${params.week}`;
-    const photoPath = `${albumPath}/${params.photo}`
+    const albumPath = `${params.year}/${params.day}`;
     return {
       props: {
         albumPath,
-        photoPath,
         album: AlbumStoreHelpers.getAlbum(albumPath)
       }
     }
@@ -13,19 +18,18 @@
 </script>
 
 <script lang="ts">
+  import AlbumLoadingPage from "$lib/components/pages/album/AlbumLoadingPage.svelte";
+  import DayAlbumPage from "$lib/components/pages/album/DayAlbumPage.svelte";
   import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
-  import PhotoLoadingPage from "$lib/components/pages/photo/PhotoLoadingPage.svelte";
-  import PhotoPage from "$lib/components/pages/photo/PhotoPage.svelte";
-  
+
   export let albumPath;
-  export let photoPath;
   export let album;
 </script>
 
 {#await AlbumStoreHelpers.fetchAlbum(albumPath)}
-  <PhotoLoadingPage />
+  <AlbumLoadingPage />
 {:then}
-  <PhotoPage album={album} photo={$album.getImage(photoPath)}/>
+  <DayAlbumPage album={album} />
 {:catch error}
   Error fetching album: {error}
 {/await}

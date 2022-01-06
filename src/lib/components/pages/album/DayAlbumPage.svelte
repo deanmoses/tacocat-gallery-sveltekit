@@ -1,7 +1,7 @@
 <!--
   @component
 
-  Page showing a week album
+  Page showing a day album
 -->
 
 <script lang="ts">
