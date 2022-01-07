@@ -34,7 +34,7 @@ class DraftStore {
 	init(path: string): void {
 		console.log("Init draft: ", path);
 		const initialState: Draft = {
-			status: DraftStatus.UNSAVED_CHANGES,
+			status: DraftStatus.NO_CHANGES,
 			path: path,
 			content: {}
 		};
@@ -66,6 +66,7 @@ class DraftStore {
 	setTitle(title: string): void {
 		console.log("draft title: ", title);
 		this._draft.update((state) => {
+			state.status = DraftStatus.UNSAVED_CHANGES;
 			state.content.title = title;
 			return state;
 		});
@@ -77,6 +78,7 @@ class DraftStore {
 	setDesc(desc: string): void {
 		console.log("draft desc: ", desc);
 		this._draft.update((state) => {
+			state.status = DraftStatus.UNSAVED_CHANGES;
 			state.content.desc = desc;
 			return state;
 		});
@@ -85,6 +87,7 @@ class DraftStore {
 	setPublished(published: boolean): void {
 		console.log("draft published: ", published);
 		this._draft.update((state) => {
+			state.status = DraftStatus.UNSAVED_CHANGES;
 			state.content.published = published;
 			return state;
 		});
@@ -102,12 +105,22 @@ class DraftStore {
 	 * Save the current draft to the server
 	 */
 	save(): void {
-		console.log("TODO: save the draft: ", get(this._draft));
 		this.setStatus(DraftStatus.SAVING);
+
+		console.log("TODO: save the draft: ", get(this._draft));
+
 		// Simulate a save
 		setTimeout(() => {
 			console.log("TODO: saved the draft");
 			this.setStatus(DraftStatus.SAVED);
+			
+			// Clear the saved status after a while
+			setTimeout(() => {
+				// Only clear saved status if the status is actually still saved
+				if (get(this._draft).status == DraftStatus.SAVED) {
+					this.setStatus(DraftStatus.NO_CHANGES);
+				}
+			}, 4000)
 		}, 1000)
 	}
 

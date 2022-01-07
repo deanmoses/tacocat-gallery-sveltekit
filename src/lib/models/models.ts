@@ -27,6 +27,7 @@ export type Draft = {
 	errorMessage?: string;
 };
 export enum DraftStatus {
+	NO_CHANGES = 'NO_CHANGES',
 	UNSAVED_CHANGES = 'UNSAVED_CHANGES',
 	SAVING = 'SAVING',
 	SAVED = 'SAVED',
