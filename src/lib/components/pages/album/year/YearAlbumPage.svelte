@@ -6,6 +6,7 @@
 
 <script lang="ts">
 	import YearAlbumPageLayout from "./YearAlbumPageLayout.svelte";
+	import EditToggle from "$lib/components/site/editControls/EditToggle.svelte";
 	import PrevButton from "$lib/components/site/nav/PrevButton.svelte";
 	import UpButton from "$lib/components/site/nav/UpButton.svelte";
 	import NextButton from "$lib/components/site/nav/NextButton.svelte";
@@ -17,6 +18,10 @@
 </script>
 
 <YearAlbumPageLayout {year}>
+
+	<svelte:fragment slot="editControls">
+		<EditToggle />
+	</svelte:fragment>
 
 	<svelte:fragment slot="nav">
 		<PrevButton 

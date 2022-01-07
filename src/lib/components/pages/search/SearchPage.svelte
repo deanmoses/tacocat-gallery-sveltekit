@@ -11,7 +11,7 @@
 		const formData = new FormData(e.target);
 		const searchTerms = formData.get("searchTerms");
 		if (searchTerms) {
-			goto(`/search/${searchTerms}?return=${returnPath}`)
+			goto(`/search/${searchTerms}?return=${returnPath}`);
 		}
 	}
 </script>
