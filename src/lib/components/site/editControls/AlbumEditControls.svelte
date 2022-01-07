@@ -10,14 +10,21 @@
 	import { DraftStatus } from "$lib/models/models";
 	import { page } from "$app/stores";
 	import { goto } from "$app/navigation";
+	import { unEditUrl } from "$lib/utils/path-utils";
 
 	const status = draftStore.getStatus();
 
+	let path:string;
+	$:path = unEditUrl($page.url.pathname);
+
+	let hasUnsavedChanges: boolean;
+	$: hasUnsavedChanges = $status == DraftStatus.UNSAVED_CHANGES;
+
+	// Cancel the draft when any navigation happens
+	$: draftStore.init(path);
+
   function onCancelButtonClick() {
 		draftStore.cancel();
-
-		let path:string = $page.url.pathname;
-		path = path.replace("/edit", "");
 		goto(path);
   }
 
@@ -28,12 +35,6 @@
 	function onPublishedChange(event) {
 		draftStore.setPublished(event.target.checked);
 	}
-
-	let hasUnsavedChanges: boolean;
-	$: hasUnsavedChanges = $status == DraftStatus.UNSAVED_CHANGES;
-
-	// Cancel the draft when any navigation happens
-	$: draftStore.init($page.url.pathname);
 </script>
 
 <EditControlsLayout>

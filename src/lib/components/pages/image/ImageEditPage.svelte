@@ -12,14 +12,12 @@
 	import NextButton from "$lib/components/site/nav/NextButton.svelte";
 	import EditableText from "$lib/components/site/EditableText.svelte";
 	import EditableHtml from "$lib/components/site/EditableHtml.svelte";
+	import { editUrl } from "$lib/utils/path-utils";
 
 	export let year: string;
 	export let album;
 	export let image;
 
-	function editUrl(url:string):string {
-		return url ? `${url}/edit` : null;
-	}
 </script>
 
 <ImagePageLayout {year} title={image.title}>

@@ -12,13 +12,10 @@
 	import NextButton from "$lib/components/site/nav/NextButton.svelte";
 	import EditableHtml from "$lib/components/site/EditableHtml.svelte";
 	import YearAlbumThumbnails from "./YearAlbumThumbnails.svelte";
+	import { editUrl } from "$lib/utils/path-utils";
 
 	export let album;
 	export let year: string;
-
-	function editUrl(url:string):string {
-		return url ? `${url}/edit` : null;
-	}
 </script>
 
 <YearAlbumPageLayout {year}>

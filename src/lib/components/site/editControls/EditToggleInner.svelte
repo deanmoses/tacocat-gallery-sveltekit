@@ -7,10 +7,11 @@
 <script lang="ts">
 	import { page } from "$app/stores";
 	import { goto } from "$app/navigation";
+	import { editUrl } from "$lib/utils/path-utils";
 
 	function onEditButtonClick() {
 		const path = $page.url.pathname;
-    goto(`${path}/edit`);
+		goto(editUrl(path));
   }
 </script>
 

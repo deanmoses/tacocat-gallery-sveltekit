@@ -77,3 +77,19 @@ export function getAlbumType(path: string): AlbumType {
 		return AlbumType.DAY;
 	}
 }
+
+/**
+ * @param path path not in edit mode, like /2001/12-31
+ * @returns the edit version of the URL, like /2001/12-31/edit
+ */
+export function editUrl(path:string):string {
+	return path ? `${path}/edit` : null;
+}
+
+/**
+ * @param path path in edit mode, like /2001/12-31/edit
+ * @returns the non-edit version of the URL, like /2001/12-31
+ */
+export function unEditUrl(path: string): string {
+	return path.replace("/edit", "");
+}
