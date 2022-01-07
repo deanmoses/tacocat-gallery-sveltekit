@@ -6,14 +6,14 @@
 
 <script lang="ts">
   import Header from "$lib/components/site/Header.svelte";
-  import Nav from "$lib/components/site/Nav.svelte";
+  import Nav from "$lib/components/site/nav/Nav.svelte";
+	import PrevButton from "$lib/components/site/nav/PrevButton.svelte";
+  import UpButton from "$lib/components/site/nav/UpButton.svelte";
+  import NextButton from "$lib/components/site/nav/NextButton.svelte";
   import PageContent from "$lib/components/site/PageContent.svelte";
   import MainContent from "$lib/components/site/MainContent.svelte";
   import Thumbnails from "$lib/components/site/Thumbnails.svelte";
   import Thumbnail from "$lib/components/site/Thumbnail.svelte";
-  import PrevButton from "$lib/components/site/buttons/PrevButton.svelte";
-  import UpButton from "$lib/components/site/buttons/UpButton.svelte";
-  import NextButton from "$lib/components/site/buttons/NextButton.svelte";
   import EditableHtml from "$lib/components/site/EditableHtml.svelte";
 	import SiteLayout from "$lib/components/site/SiteLayout.svelte";
 

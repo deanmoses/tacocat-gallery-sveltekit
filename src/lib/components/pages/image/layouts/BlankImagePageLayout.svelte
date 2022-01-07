@@ -8,9 +8,9 @@
 <script lang="ts">
 	import ImagePageLayout from "./ImagePageLayout.svelte";
 	import Header from "$lib/components/site/Header.svelte";
-	import PrevButton from "$lib/components/site/buttons/PrevButton.svelte";
-	import UpButton from "$lib/components/site/buttons/UpButton.svelte";
-	import NextButton from "$lib/components/site/buttons/NextButton.svelte";
+	import PrevButton from "$lib/components/site/nav/PrevButton.svelte";
+	import UpButton from "$lib/components/site/nav/UpButton.svelte";
+	import NextButton from "$lib/components/site/nav/NextButton.svelte";
 	import FullPageMessage from "$lib/components/site/FullPageMessage.svelte";
 
 	export let year: string;

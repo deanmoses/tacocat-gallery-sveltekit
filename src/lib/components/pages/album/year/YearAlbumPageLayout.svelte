@@ -7,7 +7,7 @@
 <script lang="ts">
 	import SiteLayout from "$lib/components/site/SiteLayout.svelte";
 	import Header from "$lib/components/site/Header.svelte";
-	import Nav from "$lib/components/site/Nav.svelte";
+	import Nav from "$lib/components/site/nav/Nav.svelte";
 	import PageContent from "$lib/components/site/PageContent.svelte";
 	import Sidebar from "$lib/components/site/Sidebar.svelte";
 	import MainContent from "$lib/components/site/MainContent.svelte";

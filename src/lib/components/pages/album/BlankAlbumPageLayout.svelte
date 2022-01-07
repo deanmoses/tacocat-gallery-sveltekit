@@ -8,10 +8,10 @@
 <script lang="ts">
 	import SiteLayout from "$lib/components/site/SiteLayout.svelte";
 	import Header from "$lib/components/site/Header.svelte";
-	import Nav from "$lib/components/site/Nav.svelte";
-	import PrevButton from "$lib/components/site/buttons/PrevButton.svelte";
-	import UpButton from "$lib/components/site/buttons/UpButton.svelte";
-	import NextButton from "$lib/components/site/buttons/NextButton.svelte";
+	import Nav from "$lib/components/site/nav/Nav.svelte";
+	import PrevButton from "$lib/components/site/nav/PrevButton.svelte";
+	import UpButton from "$lib/components/site/nav/UpButton.svelte";
+	import NextButton from "$lib/components/site/nav/NextButton.svelte";
 	
 	export let year:string = null;
 </script>

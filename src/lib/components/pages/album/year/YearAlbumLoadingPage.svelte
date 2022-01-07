@@ -6,9 +6,9 @@
 
 <script lang="ts">
 	import YearAlbumPageLayout from "./YearAlbumPageLayout.svelte";
-	import PrevButton from "$lib/components/site/buttons/PrevButton.svelte";
-	import UpButton from "$lib/components/site/buttons/UpButton.svelte";
-	import NextButton from "$lib/components/site/buttons/NextButton.svelte";
+	import PrevButton from "$lib/components/site/nav/PrevButton.svelte";
+	import UpButton from "$lib/components/site/nav/UpButton.svelte";
+	import NextButton from "$lib/components/site/nav/NextButton.svelte";
 	import FullPageMessage from "$lib/components/site/FullPageMessage.svelte";
 	import WaitingSpinner from "$lib/components/site/WaitingSpinner.svelte";
 
