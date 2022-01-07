@@ -6,17 +6,19 @@
 
 <script lang="ts">
 	import EditControlsLayout from "./EditControlsLayout.svelte";
-  import { editMode } from "$lib/stores/EditModeStore";
 	import draftStore from "$lib/stores/DraftStore";
 	import { DraftStatus } from "$lib/models/models";
 	import { page } from "$app/stores";
+	import { goto } from "$app/navigation";
 
 	const status = draftStore.getStatus();
 
   function onCancelButtonClick() {
 		draftStore.cancel();
-    const isEditing = false;
-    editMode.set(isEditing);
+
+		let path:string = $page.url.pathname;
+		path = path.replace("/edit", "");
+		goto(path);
   }
 
 	function onSaveButtonClick() {
@@ -34,13 +36,8 @@
 	// So while I don't use the $page variable, I must
 	// reference it
 	$: {
-		if ($editMode) {
-			console.log("Navigated to ", $page.url.pathname);
-			draftStore.init($page.url.pathname);
-		}
-		else {
-			console.log("If I were in edit mode I'd be clearing the draft state right now");
-		}
+		console.log("Navigated to ", $page.url.pathname);
+		draftStore.init($page.url.pathname);
 	}
 </script>
 
