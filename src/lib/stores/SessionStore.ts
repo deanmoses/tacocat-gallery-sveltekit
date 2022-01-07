@@ -10,33 +10,35 @@ import { writable, type Writable, derived, type Readable } from 'svelte/store';
  */
 class SessionStore {
 
-    /**
-     * A private writable Svelte store holding whether the user is an admin
-     */
-    private _isAdmin: Writable<boolean> = writable(false);
+	/**
+	 * A private writable Svelte store holding whether the user is an admin
+	 */
+	private _isAdmin: Writable<boolean> = writable(false);
 
-    /**
-     * @returns a read-only Svelte store that says whether the current user is an admin
-     */
-    isAdmin(): Readable<boolean> {
-        // create a derived store
-        return derived(this._isAdmin, ($isAdmin) => {
-            return $isAdmin;
-        });
-    }
+	/**
+	 * @returns a read-only Svelte store that says whether the current user is an admin
+	 */
+	isAdmin(): Readable<boolean> {
+		// create a derived store
+		return derived(this._isAdmin, ($isAdmin) => {
+			// HARDCODE ADMIN = TRUE UNTIL I'M READY FOR ONLINE TESTING
+			return true; // TODO: REMOVE
+			// return $isAdmin;
+		});
+	}
 
-    /**
-     * Fetch current user's status from server
-     */
-    async fetchUserStatus() : Promise<void> {
-        const uri = Config.checkAuthenticationUrl();
-        const response = await fetch(uri, {credentials: 'include'});
-        const json = await response.json();
-        console.log(`fetchUserStatus() fetched`, json);
-        const isAdmin = !!json.isAdmin;
-        console.log(isAdmin ? 'user is an admin' : 'user is not an admin');
-        this._isAdmin.set(isAdmin);
-    }
+	/**
+	 * Fetch current user's status from server
+	 */
+	async fetchUserStatus() : Promise<void> {
+		const uri = Config.checkAuthenticationUrl();
+		const response = await fetch(uri, {credentials: 'include'});
+		const json = await response.json();
+		console.log(`fetchUserStatus() fetched`, json);
+		const isAdmin = !!json.isAdmin;
+		console.log(isAdmin ? 'user is an admin' : 'user is not an admin');
+		this._isAdmin.set(isAdmin);
+	}
 }
 
 const store = new SessionStore();
