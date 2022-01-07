@@ -19,21 +19,21 @@
 </svelte:head>
 
 <SiteLayout {year}>
-	<svelte:fragment slot="editControls"><slot name="editControls"></slot></svelte:fragment>
-	<slot name="header"></slot>
+	<svelte:fragment slot="editControls"><slot name="editControls" /></svelte:fragment>
+	<slot name="header" />
 	<PageContent>
 		<MainContent>
 			<section>
 				<h2 style="display:none">Caption</h2>
-				<slot name="caption"></slot>
+				<slot name="caption" />
 			</section>
 			<div>
 				<ImageNav>
-					<slot name="nav"></slot>
+					<slot name="nav" />
 				</ImageNav>
 				<section>
 					<h2 style="display:none">Photo</h2>
-					<slot name="image"></slot>
+					<slot name="image" />
 				</section>
 			</div>
 		</MainContent>

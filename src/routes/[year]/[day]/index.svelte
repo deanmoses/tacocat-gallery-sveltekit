@@ -21,7 +21,7 @@
 
 <script lang="ts">
 	import AlbumLoadingPage from "$lib/components/pages/album/AlbumLoadingPage.svelte";
-  import DayAlbumPage from "$lib/components/pages/album/DayAlbumPage.svelte";
+  import DayAlbumPage from "$lib/components/pages/album/day/DayAlbumPage.svelte";
 	import AlbumErrorPage from "$lib/components/pages/album/AlbumErrorPage.svelte";
   import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
 

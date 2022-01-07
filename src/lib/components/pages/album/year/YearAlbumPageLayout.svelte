@@ -32,6 +32,7 @@
 </svelte:head>
 
 <SiteLayout {year}>
+	<svelte:fragment slot="editControls"><slot name="editControls" /></svelte:fragment>
 	<Header title={year} />
 	<Nav>
 		<slot name="nav" />

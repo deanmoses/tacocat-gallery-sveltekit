@@ -5,7 +5,7 @@
 -->
 
 <script lang="ts">
-	import BlankAlbumPageLayout from "./layouts/BlankAlbumPageLayout.svelte";
+	import BlankAlbumPageLayout from "./BlankAlbumPageLayout.svelte";
 	import WaitingSpinner from "$lib/components/site/WaitingSpinner.svelte";
 
 	export let year:string = null;

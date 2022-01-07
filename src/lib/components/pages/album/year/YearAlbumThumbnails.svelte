@@ -1,23 +1,15 @@
 <!--
   @component
 
-  Page showing a year album
+  A year album's thumbnails by month
 -->
 
 <script lang="ts">
-	import YearAlbumPageLayout from "./layouts/YearAlbumPageLayout.svelte";
 	import Thumbnails from "$lib/components/site/Thumbnails.svelte";
 	import Thumbnail from "$lib/components/site/Thumbnail.svelte";
-	import PrevButton from "$lib/components/site/buttons/PrevButton.svelte";
-	import UpButton from "$lib/components/site/buttons/UpButton.svelte";
-	import NextButton from "$lib/components/site/buttons/NextButton.svelte";
 	import {shortDate} from "$lib/utils/date-utils";
-	import EditableHtml from "$lib/components/site/EditableHtml.svelte";
 
 	export let album;
-	export let year: string;
-
-	let pageTitle = $album.pageTitle;
 
 	/**
 	 * Groups the child albums by month.
@@ -80,40 +72,18 @@
   }
 </style>
 
-<YearAlbumPageLayout {year}>
-
-	<svelte:fragment slot="nav">
-		<PrevButton 
-			href={$album.nextAlbumHref}
-			title={$album.nextAlbumTitle}
-		/>
-		<UpButton href="../" title="All Years" />
-		<NextButton
-			href={$album.prevAlbumHref}
-			title={$album.prevAlbumTitle}
-		/>
-	</svelte:fragment>
-
-	<svelte:fragment slot="caption">
-		<EditableHtml htmlContent={$album.desc}/>
-	</svelte:fragment>
-
-	<svelte:fragment slot="thumbnails">
-		{#each albumsByMonth($album.albums) as month (month.monthName)}
-			<section class="month">
-				<h3>{month.monthName}</h3>
-				<Thumbnails>
-					{#each month.albums as childAlbum (childAlbum.path)}
-						<Thumbnail
-							title="{shortDate(childAlbum.date)}"
-							summary="{childAlbum.customdata}"
-							href="/{childAlbum.path}"
-							src="https://cdn.tacocat.com{childAlbum.url_thumb}"
-						/>
-					{/each}
-				</Thumbnails>
-			</section>
-		{/each}
-	</svelte:fragment>
-
-</YearAlbumPageLayout>
+{#each albumsByMonth($album.albums) as month (month.monthName)}
+	<section class="month">
+		<h3>{month.monthName}</h3>
+		<Thumbnails>
+			{#each month.albums as childAlbum (childAlbum.path)}
+				<Thumbnail
+					title="{shortDate(childAlbum.date)}"
+					summary="{childAlbum.customdata}"
+					href="/{childAlbum.path}"
+					src="https://cdn.tacocat.com{childAlbum.url_thumb}"
+				/>
+			{/each}
+		</Thumbnails>
+	</section>
+{/each}

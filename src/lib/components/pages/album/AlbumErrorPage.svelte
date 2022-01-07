@@ -5,9 +5,9 @@
 -->
 
 <script lang="ts">
-	import BlankAlbumPageLayout from "./layouts/BlankAlbumPageLayout.svelte";
+	import BlankAlbumPageLayout from "./BlankAlbumPageLayout.svelte";
 
-	export let year:string;
+	export let year:string = null;;
 </script>
 
 <BlankAlbumPageLayout {year}>

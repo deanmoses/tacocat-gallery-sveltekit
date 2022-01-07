@@ -20,8 +20,8 @@
 </script>
 
 <script lang="ts">
-	import YearAlbumLoadingPage from "$lib/components/pages/album/YearAlbumLoadingPage.svelte";
-	import YearAlbumPage from "$lib/components/pages/album/YearAlbumPage.svelte";
+	import YearAlbumLoadingPage from "$lib/components/pages/album/year/YearAlbumLoadingPage.svelte";
+	import YearAlbumPage from "$lib/components/pages/album/year/YearAlbumPage.svelte";
 	import AlbumErrorPage from "$lib/components/pages/album/AlbumErrorPage.svelte";
 	import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
 
