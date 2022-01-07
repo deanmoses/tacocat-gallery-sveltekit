@@ -26,6 +26,7 @@ export type Draft = {
 	content?: DraftContent;
 	errorMessage?: string;
 };
+
 export enum DraftStatus {
 	NO_CHANGES = 'NO_CHANGES',
 	UNSAVED_CHANGES = 'UNSAVED_CHANGES',
