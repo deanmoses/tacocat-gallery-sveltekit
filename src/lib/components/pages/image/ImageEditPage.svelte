@@ -7,10 +7,10 @@
 <script lang="ts">
 	import ImagePageLayout from "./layouts/ImagePageLayout.svelte";
 	import ImageEditControls from "$lib/components/site/editControls/ImageEditControls.svelte";
-	import Header from "$lib/components/site/Header.svelte";
 	import PrevButton from "$lib/components/site/nav/PrevButton.svelte";
 	import UpButton from "$lib/components/site/nav/UpButton.svelte";
 	import NextButton from "$lib/components/site/nav/NextButton.svelte";
+	import EditableText from "$lib/components/site/EditableText.svelte";
 	import EditableHtml from "$lib/components/site/EditableHtml.svelte";
 
 	export let year: string;
@@ -28,8 +28,8 @@
 		<ImageEditControls />
 	</svelte:fragment>
 
-	<svelte:fragment slot="header">
-		<Header title={image.title} hideSiteTitle/>
+	<svelte:fragment slot="title">
+		<EditableText textContent={image.title} />
 	</svelte:fragment>
 
 	<svelte:fragment slot="caption">

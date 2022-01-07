@@ -7,6 +7,7 @@
 <script lang="ts">
 	import SiteLayout from "$lib/components/site/SiteLayout.svelte";
   import Header from "$lib/components/site/Header.svelte";
+	import ResponsiveTitle from "$lib/components/site/ResponsiveTitle.svelte";
 	import PageContent from "$lib/components/site/PageContent.svelte";
 	import Sidebar from "$lib/components/site/Sidebar.svelte";
 	import MainContent from "$lib/components/site/MainContent.svelte";
@@ -22,7 +23,9 @@
 </svelte:head>
 
 <SiteLayout>
-	<Header hideSiteTitle title="Dean, Lucie, Felix and Milo Moses" shortTitle="The Moses Family" />
+	<Header hideSiteTitle>
+		<ResponsiveTitle title="Dean, Lucie, Felix and Milo Moses" shortTitle="The Moses Family" />
+	</Header>
 	<PageContent>
 		<Sidebar>
 			<LatestAlbumThumbnail />

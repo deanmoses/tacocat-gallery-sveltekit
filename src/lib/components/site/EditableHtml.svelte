@@ -1,10 +1,10 @@
 <!--
   @component
 
-  Make the passed-in HTML editable if we're in edit mode
+  Make the passed-in HTML editable
+	When you select some text, it pops up a rich text editor
 -->
 <script lang="ts">
-	import { editMode } from "$lib/stores/EditModeStore";
 	import HtmlEditor from "./HtmlEditor.svelte";
 	import DraftStore from "$lib/stores/DraftStore";
 
@@ -22,8 +22,4 @@
 	}
 </script>
 
-{#if $editMode}
-	<HtmlEditor {htmlContent} bind:newHtmlContent />
-{:else}
-	<div class="caption">{@html htmlContent}</div>
-{/if}
+<HtmlEditor {htmlContent} bind:newHtmlContent />

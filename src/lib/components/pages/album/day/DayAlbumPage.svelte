@@ -26,7 +26,9 @@
 </svelte:head>
 
 <SiteLayout {year}>
-	<Header title={$album.pageTitle} />
+	<Header>
+		{$album.pageTitle}
+	</Header>
 	<Nav>
 		<PrevButton
 			href={$album.nextAlbumHref}

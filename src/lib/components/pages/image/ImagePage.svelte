@@ -24,8 +24,8 @@
 		<EditToggle />
 	</svelte:fragment>
 
-	<svelte:fragment slot="header">
-		<Header title={image.title} hideSiteTitle/>
+	<svelte:fragment slot="title">
+		{image.title}
 	</svelte:fragment>
 
 	<svelte:fragment slot="caption">

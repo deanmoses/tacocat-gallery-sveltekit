@@ -5,10 +5,11 @@
 -->
 
 <script lang="ts">
-	import ImageNav from "$lib/components/site/ImageNav.svelte";
+	import SiteLayout from "$lib/components/site/SiteLayout.svelte";
+	import Header from "$lib/components/site/Header.svelte";
 	import PageContent from "$lib/components/site/PageContent.svelte";
 	import MainContent from "$lib/components/site/MainContent.svelte";
-	import SiteLayout from "$lib/components/site/SiteLayout.svelte";
+	import ImageNav from "$lib/components/site/nav/ImageNav.svelte";
 
 	export let year: string;
 	export let title: string;
@@ -20,7 +21,9 @@
 
 <SiteLayout {year}>
 	<svelte:fragment slot="editControls"><slot name="editControls" /></svelte:fragment>
-	<slot name="header" />
+	<Header hideSiteTitle>
+		<slot name="title" />
+	</Header>
 	<PageContent>
 		<MainContent>
 			<section>

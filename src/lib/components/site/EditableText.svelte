@@ -1,15 +1,14 @@
 <!--
   @component
 
-  Make the passed-in text editable if we're in edit mode
+  Make the passed-in text editable
 	Plain text, not HTML
 -->
 <script lang="ts">
-	import { editMode } from "$lib/stores/EditModeStore";
 	import DraftStore from "$lib/stores/DraftStore";
 
 	/** The text content to be made editable */
-	export let textContent = "";
+	export let textContent:string = "";
 
 	// Update the draft store any time the text is edited.
 	// The $: is Svelte syntax.  This gets compiled into a
@@ -20,8 +19,4 @@
 	}
 </script>
 
-{#if $editMode}
-	<div contenteditable bind:textContent={textContent}/>
-{:else}
-	{textContent}
-{/if}
+<div contenteditable bind:textContent={textContent}/>
