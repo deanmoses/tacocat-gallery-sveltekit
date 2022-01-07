@@ -7,7 +7,8 @@
 <script lang="ts">
   export let href: string = "";
 
-  $: disabled  = !href ? '' : null;
+	let disabled: boolean;
+  $: disabled  = !href ? true : null;
 </script>
 
 <style>
