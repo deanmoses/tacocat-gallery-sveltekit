@@ -16,17 +16,16 @@
 	export let year: string;
 	export let album;
 	export let image;
-	let title = image.title;
 </script>
 
-<ImagePageLayout {title} {year}>
+<ImagePageLayout {year} title={image.title}>
 
 	<svelte:fragment slot="editControls">
 		<EditToggle />
 	</svelte:fragment>
 
 	<svelte:fragment slot="header">
-		<Header title="{image.title}" hideSiteTitle/>
+		<Header title={image.title} hideSiteTitle/>
 	</svelte:fragment>
 
 	<svelte:fragment slot="caption">

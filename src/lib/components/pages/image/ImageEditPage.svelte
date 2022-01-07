@@ -16,17 +16,20 @@
 	export let year: string;
 	export let album;
 	export let image;
-	let title = image.title;
+
+	function editUrl(url:string):string {
+		return url ? `${url}/edit` : null;
+	}
 </script>
 
-<ImagePageLayout {title} {year}>
+<ImagePageLayout {year} title={image.title}>
 
 	<svelte:fragment slot="editControls">
 		<ImageEditControls />
 	</svelte:fragment>
 
 	<svelte:fragment slot="header">
-		<Header {title} hideSiteTitle/>
+		<Header title={image.title} hideSiteTitle/>
 	</svelte:fragment>
 
 	<svelte:fragment slot="caption">
@@ -34,9 +37,9 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="nav">
-		<PrevButton href={image.prevImageHref} />
-		<UpButton href={$album.href} title={$album.pageTitle}/>
-		<NextButton href={image.nextImageHref}  />
+		<PrevButton href={editUrl(image.prevImageHref)} />
+		<UpButton href={editUrl($album.href)} title={$album.pageTitle}/>
+		<NextButton href={editUrl(image.nextImageHref)}  />
 	</svelte:fragment>
 
 	<svelte:fragment slot="image">
