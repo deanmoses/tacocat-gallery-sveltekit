@@ -29,16 +29,11 @@
 		draftStore.setPublished(event.target.checked);
 	}
 
+	let hasUnsavedChanges: boolean;
+	$: hasUnsavedChanges = $status == DraftStatus.UNSAVED_CHANGES;
+
 	// Cancel the draft when any navigation happens
-	// The $: is Svelte syntax.  This gets compiled into a
-	// reactive statement that executes whenever any of the 
-	// variables referenced within it changes.
-	// So while I don't use the $page variable, I must
-	// reference it
-	$: {
-		console.log("Navigated to ", $page.url.pathname);
-		draftStore.init($page.url.pathname);
-	}
+	$: draftStore.init($page.url.pathname);
 </script>
 
 <EditControlsLayout>
@@ -56,7 +51,7 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="rightControls">
-		<button on:click|once={onSaveButtonClick}>Save</button>
+		<button on:click|once={onSaveButtonClick} disabled={!hasUnsavedChanges}>Save</button>
 	</svelte:fragment>
 
 </EditControlsLayout>
