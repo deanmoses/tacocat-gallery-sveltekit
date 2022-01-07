@@ -33,7 +33,7 @@
 {#await AlbumStoreHelpers.fetchAlbum(albumPath)}
   <YearAlbumLoadingPage {year} />
 {:then}
-  <YearAlbumEditPage album={album} {year}/>
+  <YearAlbumEditPage {year} album={album} />
 {:catch error}
 	<AlbumErrorPage {year}>
 		Error fetching album: {error}

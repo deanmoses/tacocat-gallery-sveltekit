@@ -5,31 +5,28 @@
 -->
 
 <script lang="ts">
-  import Header from "$lib/components/site/Header.svelte";
-  import Nav from "$lib/components/site/nav/Nav.svelte";
+	import DayAlbumPageLayout from "./DayAlbumPageLayout.svelte";
+	import EditToggle from "$lib/components/site/editControls/EditToggle.svelte";
 	import PrevButton from "$lib/components/site/nav/PrevButton.svelte";
   import UpButton from "$lib/components/site/nav/UpButton.svelte";
   import NextButton from "$lib/components/site/nav/NextButton.svelte";
-  import PageContent from "$lib/components/site/PageContent.svelte";
-  import MainContent from "$lib/components/site/MainContent.svelte";
-  import Thumbnails from "$lib/components/site/Thumbnails.svelte";
-  import Thumbnail from "$lib/components/site/Thumbnail.svelte";
-  import EditableHtml from "$lib/components/site/EditableHtml.svelte";
-	import SiteLayout from "$lib/components/site/SiteLayout.svelte";
+	import DayAlbumThumbnails from "./DayAlbumThumbnails.svelte";
 
 	export let year:string;
   export let album;
 </script>
 
-<svelte:head>
-	<title>{$album.pageTitle}</title>
-</svelte:head>
+<DayAlbumPageLayout {year} title={$album.pageTitle}>
 
-<SiteLayout {year}>
-	<Header>
+	<svelte:fragment slot="editControls">
+		<EditToggle />
+	</svelte:fragment>
+
+	<svelte:fragment slot="title">
 		{$album.pageTitle}
-	</Header>
-	<Nav>
+	</svelte:fragment>
+
+	<svelte:fragment slot="nav">
 		<PrevButton
 			href={$album.nextAlbumHref}
 			title={$album.nextAlbumTitle}
@@ -42,29 +39,14 @@
 			href={$album.prevAlbumHref}
 			title={$album.prevAlbumTitle}
 		/>
-	</Nav>
-	<PageContent>
-		<MainContent>
-			<section>
-				<h2 style="display:none">Album Description</h2>
-				<EditableHtml htmlContent={$album.desc}/>
-			</section>
+	</svelte:fragment>
 
-			<section>
-				<h2 style="display:none">Thumbnails</h2>
-				<Thumbnails>
-					{#if $album.images}
-					{#each $album.images as image (image.path)}
-						<Thumbnail
-							title="{image.title}"
-							summary="{image.customdata}"
-							href="/{image.path}"
-							src="https://cdn.tacocat.com{image.url_thumb}"
-						/>
-					{/each}
-					{/if}
-				</Thumbnails>
-			</section>
-		</MainContent>
-	</PageContent>
-</SiteLayout>
+	<svelte:fragment slot="caption">
+		{@html $album.desc}
+	</svelte:fragment>
+
+	<svelte:fragment slot="thumbnails">
+		<DayAlbumThumbnails {album} />
+	</svelte:fragment>
+
+</DayAlbumPageLayout>
