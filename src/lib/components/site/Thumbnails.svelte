@@ -18,5 +18,5 @@
 </style>
 
 <div>
-  <slot></slot>
+  <slot />
 </div>

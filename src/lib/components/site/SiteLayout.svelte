@@ -1,17 +1,23 @@
 <!--
   @component
 
-  Lays out the shell of the app.  Sveltekit applies this layout to every route
+  Lays out the shell of the app
 -->
 
 <script lang="ts">
-  import { page } from "$app/stores";
-  import EditControls from "$lib/components/site/EditControls.svelte";
+	import Footer from "./Footer.svelte";
 
-	// make the year reactive, so that the DOM always gets updated
-  let year: string;
-  $: year = $page.params ? $page.params.year : "";
+  export let year: string = null;
+	export let hideFooter = false;
 </script>
+
+<slot name="editControls"/>
+<div class="site-container" data-year={year}>
+  <div class="page-container">
+    <slot />
+  </div>
+	{#if !hideFooter}<Footer />{/if}
+</div>
 
 <style>
   /* default colors for years with no styling of their own */
@@ -62,23 +68,4 @@
   .page-container {
     border: var(--default-border);
   }
-
-  footer {
-    flex: 0 0 1.7em;
-    padding-top: calc(var(--default-padding) * 2);
-  }
 </style>
-
-<EditControls />
-<div class="site-container" data-year={year}>
-  <div class="page-container">
-    <slot></slot>
-  </div>
-  <footer class="hidden-sm">
-      <picture>
-        <source srcset="/images/tacocat-logo.webp">
-        <source srcset="/images/tacocat-logo.png">
-        <img src="/images/tacocat-logo.png" width="102px" height="19px" alt="Tacocat Logo"/>
-      </picture>
-  </footer>
-</div>

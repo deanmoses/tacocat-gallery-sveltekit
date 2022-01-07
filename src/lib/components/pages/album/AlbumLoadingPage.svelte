@@ -1,35 +1,16 @@
 <!--
   @component
 
-  A blank "Album is Loading" stencil page to show while waiting for an album to load
+  An "Album is Loading" stencil page to show while waiting for an album to load
 -->
 
 <script lang="ts">
-    import Header from "$lib/components/site/Header.svelte";
-    import Nav from "$lib/components/site/Nav.svelte";
-    import PrevButton from "$lib/components/site/buttons/PrevButton.svelte";
-    import UpButton from "$lib/components/site/buttons/UpButton.svelte";
-    import NextButton from "$lib/components/site/buttons/NextButton.svelte";
-    import WaitingSpinner from "$lib/components/site/WaitingSpinner.svelte"
+	import BlankAlbumPageLayout from "./layouts/BlankAlbumPageLayout.svelte";
+	import WaitingSpinner from "$lib/components/site/WaitingSpinner.svelte";
+
+	export let year:string = null;
 </script>
 
-<style>
-    div {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: white;
-        padding-top: 5em;
-        padding-bottom: 5em;
-    }
-</style>
-
-<Header/>
-<Nav>
-    <PrevButton />
-    <UpButton />
-    <NextButton />
-</Nav>
-<div>
-    <WaitingSpinner />
-</div>
+<BlankAlbumPageLayout {year}>
+	<WaitingSpinner />
+</BlankAlbumPageLayout>

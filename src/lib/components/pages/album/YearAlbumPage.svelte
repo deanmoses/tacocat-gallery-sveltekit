@@ -5,11 +5,7 @@
 -->
 
 <script lang="ts">
-	import Header from "$lib/components/site/Header.svelte";
-	import Nav from "$lib/components/site/Nav.svelte";
-	import PageContent from "$lib/components/site/PageContent.svelte";
-	import Sidebar from "$lib/components/site/Sidebar.svelte";
-	import MainContent from "$lib/components/site/MainContent.svelte";
+	import YearAlbumPageLayout from "./layouts/YearAlbumPageLayout.svelte";
 	import Thumbnails from "$lib/components/site/Thumbnails.svelte";
 	import Thumbnail from "$lib/components/site/Thumbnail.svelte";
 	import PrevButton from "$lib/components/site/buttons/PrevButton.svelte";
@@ -19,6 +15,9 @@
 	import EditableHtml from "$lib/components/site/EditableHtml.svelte";
 
 	export let album;
+	export let year: string;
+
+	let pageTitle = $album.pageTitle;
 
 	/**
 	 * Groups the child albums by month.
@@ -65,10 +64,6 @@
 </script>
 
 <style>
-  h2 {
-    display: none;
-  }
-
   h3 {
     background-color: var(--header-color);
     font-weight: bold;
@@ -78,12 +73,6 @@
     width: 100%;
   }
 
-  .months {
-    display: flex;
-    flex-direction: column;
-    gap: calc(var(--default-padding) * 2);
-  }
-
   .month {
     display: flex;
     flex-direction: column;
@@ -91,47 +80,40 @@
   }
 </style>
 
-<svelte:head>
-	<title>{$album.pageTitle}</title>
-</svelte:head>
+<YearAlbumPageLayout {year}>
 
-<Header title={$album.pageTitle} />
-<Nav>
-  <PrevButton 
-    href={$album.nextAlbumHref}
-    title={$album.nextAlbumTitle}
-  />
-  <UpButton href="../" title="All Years" />
-  <NextButton
-    href={$album.prevAlbumHref}
-    title={$album.prevAlbumTitle}
-  />
-</Nav>
-<PageContent>
-  <Sidebar>
-    <section>
-      <h2 style="display:none">Year In Review</h2>
-			<EditableHtml htmlContent={$album.desc}/>
-    </section>
-  </Sidebar>
-  <MainContent>
-    <section class="months">
-      <h2>Thumbnails</h2>
-      {#each albumsByMonth($album.albums) as month (month.monthName)}
-        <section class="month">
-          <h3>{month.monthName}</h3>
-          <Thumbnails>
-            {#each month.albums as childAlbum (childAlbum.path)}
-              <Thumbnail
-                title="{shortDate(childAlbum.date)}"
-                summary="{childAlbum.customdata}"
-                href="/{childAlbum.path}"
-                src="https://cdn.tacocat.com{childAlbum.url_thumb}"
-              />
-            {/each}
-          </Thumbnails>
-        </section>
-      {/each}
-    </section>
-  </MainContent>
-</PageContent>
+	<svelte:fragment slot="nav">
+		<PrevButton 
+			href={$album.nextAlbumHref}
+			title={$album.nextAlbumTitle}
+		/>
+		<UpButton href="../" title="All Years" />
+		<NextButton
+			href={$album.prevAlbumHref}
+			title={$album.prevAlbumTitle}
+		/>
+	</svelte:fragment>
+
+	<svelte:fragment slot="caption">
+		<EditableHtml htmlContent={$album.desc}/>
+	</svelte:fragment>
+
+	<svelte:fragment slot="thumbnails">
+		{#each albumsByMonth($album.albums) as month (month.monthName)}
+			<section class="month">
+				<h3>{month.monthName}</h3>
+				<Thumbnails>
+					{#each month.albums as childAlbum (childAlbum.path)}
+						<Thumbnail
+							title="{shortDate(childAlbum.date)}"
+							summary="{childAlbum.customdata}"
+							href="/{childAlbum.path}"
+							src="https://cdn.tacocat.com{childAlbum.url_thumb}"
+						/>
+					{/each}
+				</Thumbnails>
+			</section>
+		{/each}
+	</svelte:fragment>
+
+</YearAlbumPageLayout>
