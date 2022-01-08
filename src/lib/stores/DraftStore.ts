@@ -41,9 +41,19 @@ class DraftStore {
 	/**
 	 * @returns the status of the draft
 	 */
-	getStatus(): Readable<string> {
+	getStatus(): Readable<DraftStatus> {
 		return derived(this._draft, ($draft) => {
 			return $draft.status;
+		});
+	}
+
+	/**
+	 * @returns whether there are unsaved changes that should block navigation away from the page
+	 */
+	getOkToNavigate(): Readable<boolean> {
+		return derived(this._draft, ($draft) => {
+			const status = $draft.status;
+			return status !== DraftStatus.UNSAVED_CHANGES && status != DraftStatus.SAVING
 		});
 	}
 

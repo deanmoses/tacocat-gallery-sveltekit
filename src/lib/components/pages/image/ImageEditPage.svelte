@@ -14,16 +14,12 @@
 	import EditableHtml from "$lib/components/site/edit/EditableHtml.svelte";
 	import { editUrl } from "$lib/utils/path-utils";
 	import DraftStore from "$lib/stores/DraftStore";
-	import { DraftStatus } from "$lib/models/models";
 	
 	export let year: string;
 	export let album;
 	export let image;
 
-	let status = DraftStore.getStatus();
-
-	let okToNavigate: boolean;
-	$: okToNavigate =  $status !== DraftStatus.UNSAVED_CHANGES && $status != DraftStatus.SAVING;
+	let okToNavigate = DraftStore.getOkToNavigate();
 </script>
 
 <ImagePageLayout {year} title={image.title}>
@@ -41,7 +37,7 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="nav">
-		{#if okToNavigate}
+		{#if $okToNavigate}
 			<PrevButton href={editUrl(image.prevImageHref)} />
 			<UpButton href={editUrl($album.href)} title={$album.pageTitle}/>
 			<NextButton href={editUrl(image.nextImageHref)}  />

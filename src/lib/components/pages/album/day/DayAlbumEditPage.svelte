@@ -13,9 +13,12 @@
 	import AlbumEditControls from "$lib/components/site/edit/controls/AlbumEditControls.svelte";
 	import EditableHtml from "$lib/components/site/edit/EditableHtml.svelte";
 	import { editUrl } from "$lib/utils/path-utils";
+	import DraftStore from "$lib/stores/DraftStore";
 
 	export let year:string;
   export let album;
+
+	let okToNavigate = DraftStore.getOkToNavigate();
 </script>
 
 <DayAlbumPageLayout {year} title={$album.pageTitle}>
@@ -29,18 +32,24 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="nav">
-		<PrevButton
-			href={editUrl($album.nextAlbumHref)}
-			title={$album.nextAlbumTitle}
-		/>
-		<UpButton
-			href={editUrl($album.parentAlbumHref)}
-			title={$album.parentAlbumTitle}
-		/>
-		<NextButton 
-			href={editUrl($album.prevAlbumHref)}
-			title={$album.prevAlbumTitle}
-		/>
+		{#if $okToNavigate}
+			<PrevButton
+				href={editUrl($album.nextAlbumHref)}
+				title={$album.nextAlbumTitle}
+			/>
+			<UpButton
+				href={editUrl($album.parentAlbumHref)}
+				title={$album.parentAlbumTitle}
+			/>
+			<NextButton 
+				href={editUrl($album.prevAlbumHref)}
+				title={$album.prevAlbumTitle}
+			/>
+		{:else}
+			<PrevButton title={$album.nextAlbumTitle} />
+			<UpButton title={$album.pageTitle} />
+			<NextButton title={$album.prevAlbumTitle} />
+		{/if}
 	</svelte:fragment>
 
 	<svelte:fragment slot="caption">
