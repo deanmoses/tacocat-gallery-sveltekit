@@ -91,7 +91,7 @@ export default abstract class Config {
 	 *
 	 * This should only be called for year albums (/2001) or the root album (/)
 	 */
-	public static refreshAlbumCacheUrl(albumPath: string) {
+	public static refreshAlbumCacheUrl(albumPath: string): string {
 		// strip the '/' off if it exists, so that "/2001" becomes "2001"
 		const slashlessAlbumPath = albumPath.replace('/', '');
 		return 'https://tacocat.com/p_json/refresh.php?album=' + slashlessAlbumPath;

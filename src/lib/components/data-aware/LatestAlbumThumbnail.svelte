@@ -9,7 +9,6 @@
   import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
   import {shortDate} from "$lib/utils/date-utils";
 
-  const path = "root";
   const album = AlbumStoreHelpers.getLatestAlbum();
 </script>
 

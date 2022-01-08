@@ -1,8 +1,9 @@
 import createAlbumFromObject from '$lib/models/album-creator';
-import type { AlbumThumb } from '$lib/models/models';
+import type { Album, AlbumThumb } from '$lib/models/models';
 import { store } from '$lib/stores/AlbumStore';
 import Config from '$lib/utils/config';
 import { derived } from 'svelte/store';
+import type { Readable } from 'svelte/store';
 
 export default {
 
@@ -11,7 +12,7 @@ export default {
      * 
      * @returns album as a reactive Svelte store
      */
-    getAlbum(path = "root") {
+    getAlbum(path = ""): Readable<Album> {
         // Create empty album if it doesn't exist locally
         store.actions.initAlbum(path);
         return derived(
@@ -20,7 +21,7 @@ export default {
         );
     },
 
-    getLatestAlbum() {
+    getLatestAlbum(): Readable<AlbumThumb>  {
         // Create empty album if it doesn't exist locally
         const path = "latest";
         // TODO: using initAlbum here is a hack, need an initLatestAlbum
@@ -47,7 +48,7 @@ export default {
      * 
      * @returns Promise which returns no data.  Instead, the album returned by getAlbum() will be updated
      */
-    async fetchAlbum(path = "root") : Promise<void> {
+    async fetchAlbum(path = ""): Promise<void> {
         const uri = Config.albumUrl(path);
         const response = await fetch(uri);
         const json = await response.json();
@@ -60,7 +61,7 @@ export default {
     /**
      * Fetch latest album from server
      */
-    async fetchLatestAlbum() : Promise<void> {
+    async fetchLatestAlbum(): Promise<void> {
         const uri = Config.latestAlbumUrl();
         const response = await fetch(uri);
         const json = await response.json();
@@ -74,7 +75,7 @@ export default {
     /**
      * Fetch search results from the server
      */
-    async fetchSearchResults(searchTerms:string) : Promise<void> {
+    async fetchSearchResults(searchTerms:string): Promise<void> {
         const uri = Config.searchUrl(searchTerms);
         const response = await fetch(uri);
         const json = await response.json();

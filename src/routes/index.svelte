@@ -9,11 +9,11 @@
 	import AlbumErrorPage from "$lib/components/pages/album/AlbumErrorPage.svelte";
   import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
   
-  const path = "root";
-  const album = AlbumStoreHelpers.getAlbum(path);
+  const pathToRootAlbum = "";
+  const album = AlbumStoreHelpers.getAlbum(pathToRootAlbum);
 </script>
 
-{#await AlbumStoreHelpers.fetchAlbum(path)}
+{#await AlbumStoreHelpers.fetchAlbum(pathToRootAlbum)}
   <AlbumLoadingPage />
 {:then}
   <RootAlbumPage album={album} />

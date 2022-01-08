@@ -1,6 +1,7 @@
 import { AlbumType } from '$lib/models/models';
 
 const dateBasedPathRegex = /^\/?(\d\d\d\d)\/?(\d\d-\d\d)?(\/[^\/\.]+\.[^\/\.]{3,4})?\/?$/; // finds 2000 or 2000/12-31 or 2000/12-31/someImage.jpg
+const yearRegex = /^\/?(\d\d\d\d)\/?$/
 
 /**
  * Return the year (like 2001) from a path (like 2001/12-31/myImage.jpg)
@@ -61,18 +62,36 @@ export function isAlbumPath(path: string): boolean {
 }
 
 /**
+ * @param path path of an album
+ * @returns true if path is for a root album
+ */
+export function isRootAlbumPath(path: string): boolean {
+	return !path || path.length <= 0 || path === '/';
+}
+
+/**
+ * @param path of an album
+ * @returns true if path is for a year album 
+ */
+export function isYearAlbumPath(path: string): boolean {
+	return yearRegex.test(path)
+}
+
+/**
  * Return the type of album.  If it's an image, throws exception
  * @param path path of an album
  */
 export function getAlbumType(path: string): AlbumType {
-	if (!path || path.length <= 0 || path === '/') {
+	if (isRootAlbumPath(path)) {
 		return AlbumType.ROOT;
-	} else if (path.indexOf('/') < 0) {
-		// no slashes:  it's a year album (like /2001)
+	}
+	else if (isYearAlbumPath(path)) {
 		return AlbumType.YEAR;
-	} else if (isImagePath(path)) {
+	}
+	else if (isImagePath(path)) {
 		throw Error(`This is an image path, not an album: ${path}`);
-	} else {
+	}
+	else {
 		// else it's a day album (like /2005/12-31)
 		return AlbumType.DAY;
 	}
