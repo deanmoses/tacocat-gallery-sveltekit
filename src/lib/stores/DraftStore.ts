@@ -5,6 +5,7 @@
 import { writable, type Writable, derived, type Readable, get} from 'svelte/store';
 import type { Draft } from '$lib/models/models';
 import { DraftStatus } from '$lib/models/models';
+import produce from "immer";
 
 const initialState: Draft = {
 	status: DraftStatus.NO_CHANGES,
@@ -33,9 +34,10 @@ class DraftStore {
 	 */
 	init(path: string): void {
 		console.log("Init draft: ", path);
-		const state = initialState;
-		state.path = path;
-		this._draft.set(initialState);
+		const state = produce(initialState, newState => { 
+			newState.path = path;
+		})
+		this._draft.set(state);
 	}
 
 	/**
@@ -61,10 +63,10 @@ class DraftStore {
 	 * Change the status of the draft
 	 */
 	private setStatus(newStatus: DraftStatus): void {
-		this._draft.update((state) => {
-			state.status = newStatus;
-			return state;
-		});
+		const state = produce(get(this._draft), newState => { 
+			newState.status = newStatus;
+		})
+		this._draft.set(state);
 	}
 	
 	/**
@@ -72,11 +74,11 @@ class DraftStore {
 	 */
 	setTitle(title: string): void {
 		console.log("draft title: ", title);
-		this._draft.update((state) => {
-			state.status = DraftStatus.UNSAVED_CHANGES;
-			state.content.title = title;
-			return state;
-		});
+		const state = produce(get(this._draft), newState => { 
+			newState.status = DraftStatus.UNSAVED_CHANGES;
+			newState.content.title = title;
+		})
+		this._draft.set(state);
 	}
 
 	/**
@@ -84,20 +86,20 @@ class DraftStore {
 	 */
 	setDesc(desc: string): void {
 		console.log("draft desc: ", desc);
-		this._draft.update((state) => {
-			state.status = DraftStatus.UNSAVED_CHANGES;
-			state.content.desc = desc;
-			return state;
-		});
+		const state = produce(get(this._draft), newState => { 
+			newState.status = DraftStatus.UNSAVED_CHANGES;
+			newState.content.desc = desc;
+		})
+		this._draft.set(state);
 	}
 
 	setPublished(published: boolean): void {
 		console.log("draft published: ", published);
-		this._draft.update((state) => {
-			state.status = DraftStatus.UNSAVED_CHANGES;
-			state.content.published = published;
-			return state;
-		});
+		const state = produce(get(this._draft), newState => { 
+			newState.status = DraftStatus.UNSAVED_CHANGES;
+			newState.content.published = published;
+		})
+		this._draft.set(state);
 	}
 
 	/**
