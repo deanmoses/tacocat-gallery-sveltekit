@@ -21,9 +21,7 @@ class SessionStore {
 	isAdmin(): Readable<boolean> {
 		// create a derived store
 		return derived(this._isAdmin, ($isAdmin) => {
-			// HARDCODE ADMIN = TRUE UNTIL I'M READY FOR ONLINE TESTING
-			return true; // TODO: REMOVE
-			// return $isAdmin;
+			return $isAdmin;
 		});
 	}
 
@@ -35,8 +33,9 @@ class SessionStore {
 		const response = await fetch(uri, {credentials: 'include'});
 		const json = await response.json();
 		console.log(`fetchUserStatus() fetched`, json);
-		const isAdmin = !!json.isAdmin;
-		console.log(isAdmin ? 'user is an admin' : 'user is not an admin');
+		let isAdmin = !!json.isAdmin;
+		console.log(isAdmin ? 'user is an admin' : 'user is not an admin, but pretending they are for now');
+		isAdmin = true; // TODO: REMOVE WHEN I'M READY FOR ONLINE TESTING
 		this._isAdmin.set(isAdmin);
 	}
 }

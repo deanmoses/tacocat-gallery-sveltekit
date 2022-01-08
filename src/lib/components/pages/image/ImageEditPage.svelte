@@ -6,12 +6,12 @@
 
 <script lang="ts">
 	import ImagePageLayout from "./layouts/ImagePageLayout.svelte";
-	import ImageEditControls from "$lib/components/site/editControls/ImageEditControls.svelte";
 	import PrevButton from "$lib/components/site/nav/PrevButton.svelte";
 	import UpButton from "$lib/components/site/nav/UpButton.svelte";
 	import NextButton from "$lib/components/site/nav/NextButton.svelte";
-	import EditableText from "$lib/components/site/EditableText.svelte";
-	import EditableHtml from "$lib/components/site/EditableHtml.svelte";
+	import ImageEditControls from "$lib/components/site/edit/controls/ImageEditControls.svelte";
+	import EditableText from "$lib/components/site/edit/EditableText.svelte";
+	import EditableHtml from "$lib/components/site/edit/EditableHtml.svelte";
 	import { editUrl } from "$lib/utils/path-utils";
 
 	export let year: string;

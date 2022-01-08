@@ -6,12 +6,10 @@
 
 <script lang="ts">
 	import ImagePageLayout from "./layouts/ImagePageLayout.svelte";
-	import EditToggle from "$lib/components/site/editControls/EditToggle.svelte";
-	import Header from "$lib/components/site/Header.svelte";
 	import PrevButton from "$lib/components/site/nav/PrevButton.svelte";
 	import UpButton from "$lib/components/site/nav/UpButton.svelte";
 	import NextButton from "$lib/components/site/nav/NextButton.svelte";
-	import EditableHtml from "$lib/components/site/EditableHtml.svelte";
+	import EditToggle from "$lib/components/site/edit/toggle/EditToggle.svelte";
 
 	export let year: string;
 	export let album;
@@ -29,7 +27,9 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="caption">
-		<EditableHtml htmlContent={image.desc}/>
+		{#if image.desc}
+			{@html image.desc}
+		{/if}
 	</svelte:fragment>
 
 	<svelte:fragment slot="nav">

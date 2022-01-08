@@ -6,12 +6,11 @@
 
 <script lang="ts">
 	import YearAlbumPageLayout from "./YearAlbumPageLayout.svelte";
-	import EditToggle from "$lib/components/site/editControls/EditToggle.svelte";
 	import PrevButton from "$lib/components/site/nav/PrevButton.svelte";
 	import UpButton from "$lib/components/site/nav/UpButton.svelte";
 	import NextButton from "$lib/components/site/nav/NextButton.svelte";
-	import EditableHtml from "$lib/components/site/EditableHtml.svelte";
 	import YearAlbumThumbnails from "./YearAlbumThumbnails.svelte";
+	import EditToggle from "$lib/components/site/edit/toggle/EditToggle.svelte";
 
 	export let album;
 	export let year: string;
@@ -36,7 +35,9 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="caption">
-		<EditableHtml htmlContent={$album.desc}/>
+		{#if $album.desc}
+			{@html $album.desc}
+		{/if}
 	</svelte:fragment>
 
 	<svelte:fragment slot="thumbnails">

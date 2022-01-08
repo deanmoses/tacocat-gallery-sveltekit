@@ -6,7 +6,7 @@
 
 <script lang="ts">
 	import DayAlbumPageLayout from "./DayAlbumPageLayout.svelte";
-	import EditToggle from "$lib/components/site/editControls/EditToggle.svelte";
+	import EditToggle from "$lib/components/site/edit/toggle/EditToggle.svelte";
 	import PrevButton from "$lib/components/site/nav/PrevButton.svelte";
   import UpButton from "$lib/components/site/nav/UpButton.svelte";
   import NextButton from "$lib/components/site/nav/NextButton.svelte";
@@ -42,7 +42,9 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="caption">
-		{@html $album.desc}
+		{#if $album.desc}
+			{@html $album.desc}
+		{/if}
 	</svelte:fragment>
 
 	<svelte:fragment slot="thumbnails">
