@@ -8,15 +8,14 @@
 	import DraftStore from "$lib/stores/DraftStore";
 
 	/** The text content to be made editable */
-	export let textContent:string = "";
+	export let textContent = "";
 
-	// Update the draft store any time the text is edited.
-	// The $: is Svelte syntax.  This gets compiled into a
-	// reactive statement that executes whenever any of the 
-	// variables referenced within it changes.
-	$: {
-		DraftStore.setTitle(textContent);
+	let div;
+
+	function onInput(e) {
+		let editedText = div.innerText;
+		DraftStore.setTitle(editedText)
 	}
 </script>
 
-<div contenteditable bind:textContent={textContent}/>
+<div contenteditable bind:this={div} on:input={onInput}>{textContent}</div>
