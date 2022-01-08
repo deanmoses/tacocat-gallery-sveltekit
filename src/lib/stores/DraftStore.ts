@@ -7,7 +7,7 @@ import type { Draft } from '$lib/models/models';
 import { DraftStatus } from '$lib/models/models';
 
 const initialState: Draft = {
-	status: DraftStatus.UNSAVED_CHANGES,
+	status: DraftStatus.NO_CHANGES,
 	path: "/1800", // TODO FIX THIS
 	content: {}
 };
@@ -33,11 +33,8 @@ class DraftStore {
 	 */
 	init(path: string): void {
 		console.log("Init draft: ", path);
-		const initialState: Draft = {
-			status: DraftStatus.NO_CHANGES,
-			path: path,
-			content: {}
-		};
+		const state = initialState;
+		state.path = path;
 		this._draft.set(initialState);
 	}
 
