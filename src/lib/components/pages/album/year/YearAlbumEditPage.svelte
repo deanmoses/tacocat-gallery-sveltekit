@@ -13,9 +13,12 @@
 	import AlbumEditControls from "$lib/components/site/edit/controls/AlbumEditControls.svelte";
 	import EditableHtml from "$lib/components/site/edit/EditableHtml.svelte";
 	import { editUrl } from "$lib/utils/path-utils";
+	import DraftStore from "$lib/stores/DraftStore";
 
 	export let album;
 	export let year: string;
+
+	let okToNavigate = DraftStore.getOkToNavigate();
 </script>
 
 <YearAlbumPageLayout {year}>
@@ -26,12 +29,14 @@
 
 	<svelte:fragment slot="nav">
 		<PrevButton
-			href={editUrl($album.nextAlbumHref)}
+			href={$okToNavigate ? editUrl($album.nextAlbumHref) : null}
 			title={$album.nextAlbumTitle}
 		/>
-		<UpButton href="../" title="All Years" />
+		<UpButton 
+			href={$okToNavigate ? "../" : null}
+			title="All Years" />
 		<NextButton 
-			href={editUrl($album.prevAlbumHref)}
+			href={$okToNavigate ? editUrl($album.prevAlbumHref) : null}
 			title={$album.prevAlbumTitle}
 		/>
 	</svelte:fragment>

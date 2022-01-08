@@ -32,24 +32,18 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="nav">
-		{#if $okToNavigate}
-			<PrevButton
-				href={editUrl($album.nextAlbumHref)}
-				title={$album.nextAlbumTitle}
-			/>
-			<UpButton
-				href={editUrl($album.parentAlbumHref)}
-				title={$album.parentAlbumTitle}
-			/>
-			<NextButton 
-				href={editUrl($album.prevAlbumHref)}
-				title={$album.prevAlbumTitle}
-			/>
-		{:else}
-			<PrevButton title={$album.nextAlbumTitle} />
-			<UpButton title={$album.pageTitle} />
-			<NextButton title={$album.prevAlbumTitle} />
-		{/if}
+		<PrevButton
+			href={$okToNavigate ? editUrl($album.nextAlbumHref): null}
+			title={$album.nextAlbumTitle}
+		/>
+		<UpButton
+			href={$okToNavigate ? editUrl($album.parentAlbumHref) : null}
+			title={$album.parentAlbumTitle}
+		/>
+		<NextButton 
+			href={$okToNavigate ? editUrl($album.prevAlbumHref) : null}
+			title={$album.prevAlbumTitle}
+		/>
 	</svelte:fragment>
 
 	<svelte:fragment slot="caption">
