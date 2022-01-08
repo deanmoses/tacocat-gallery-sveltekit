@@ -7,14 +7,16 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 
-	/** The HTML content to be made editable */
+	/** 
+	 * The HTML content to be made editable 
+	 */
 	export let htmlContent = "";
 
 	/** 
-	 * The edited content
-	 * Don't pass in anything to this; instead, bind:newHtmlContent to get the value
+	 * The edited content.
+	 * Don't pass in anything to this; instead, do a bind:newHtmlContent to get the value
 	 */
-	export let newHtmlContent = null;
+	export let newHtmlContent:string = null;
 
 	let editor;
 
