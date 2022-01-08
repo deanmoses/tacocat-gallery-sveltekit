@@ -3,7 +3,7 @@
  */
 
 import { writable, type Writable, derived, type Readable, get} from 'svelte/store';
-import type { Draft } from '$lib/models/models';
+import type { Draft, DraftContent } from '$lib/models/models';
 import { DraftStatus } from '$lib/models/models';
 import produce from "immer";
 
@@ -60,46 +60,21 @@ class DraftStore {
 	}
 
 	/**
-	 * Change the status of the draft
-	 */
-	private setStatus(newStatus: DraftStatus): void {
-		const state = produce(get(this._draft), newState => { 
-			newState.status = newStatus;
-		})
-		this._draft.set(state);
-	}
-	
-	/**
 	 * Set the title of the current draft
 	 */
-	setTitle(title: string): void {
-		console.log("draft title: ", title);
-		const state = produce(get(this._draft), newState => { 
-			newState.status = DraftStatus.UNSAVED_CHANGES;
-			newState.content.title = title;
-		})
-		this._draft.set(state);
+	 setTitle(title: string): void {
+		 this.updateContent(content => (content.title = title));
 	}
 
 	/**
 	 * Set the desc of the current draft
 	 */
 	setDesc(desc: string): void {
-		console.log("draft desc: ", desc);
-		const state = produce(get(this._draft), newState => { 
-			newState.status = DraftStatus.UNSAVED_CHANGES;
-			newState.content.desc = desc;
-		})
-		this._draft.set(state);
+		this.updateContent(content => (content.desc = desc));
 	}
 
 	setPublished(published: boolean): void {
-		console.log("draft published: ", published);
-		const state = produce(get(this._draft), newState => { 
-			newState.status = DraftStatus.UNSAVED_CHANGES;
-			newState.content.published = published;
-		})
-		this._draft.set(state);
+		this.updateContent(content => (content.published = published));
 	}
 
 	/**
@@ -131,6 +106,28 @@ class DraftStore {
 				}
 			}, 4000)
 		}, 1000)
+	}
+
+	/**
+	 * Change the status of the draft
+	 */
+	private setStatus(newStatus: DraftStatus): void {
+		const state = produce(get(this._draft), newState => { 
+			newState.status = newStatus;
+		})
+		this._draft.set(state);
+	}
+	
+	/**
+	 * Update the content of the draft
+	 */
+	private updateContent(applyChangesToDraftContent: (draftContent: DraftContent) => void): void {
+		const newState: Draft = produce(get(this._draft), originalState => {
+			originalState.status = DraftStatus.UNSAVED_CHANGES;
+			applyChangesToDraftContent(originalState.content);
+		});
+		console.log("Update draft: ", newState.content);
+		this._draft.set(newState);
 	}
 
 }
