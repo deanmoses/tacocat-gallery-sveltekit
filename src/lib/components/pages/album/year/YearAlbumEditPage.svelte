@@ -11,7 +11,7 @@
 	import NextButton from "$lib/components/site/nav/NextButton.svelte";
 	import YearAlbumThumbnails from "./YearAlbumThumbnails.svelte";
 	import AlbumEditControls from "$lib/components/site/edit/controls/AlbumEditControls.svelte";
-	import EditableHtml from "$lib/components/site/editEditableHtml.svelte";
+	import EditableHtml from "$lib/components/site/edit/EditableHtml.svelte";
 	import { editUrl } from "$lib/utils/path-utils";
 
 	export let album;
