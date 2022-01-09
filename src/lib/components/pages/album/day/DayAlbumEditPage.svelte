@@ -61,7 +61,7 @@
 				href={$okToNavigate ? `/${editUrl(image.path)}` : null}
 				src={Config.cdnUrl(image.url_thumb)}>
 				<svelte:fragment slot="selectionControls">
-					<SelectableStar />
+					<SelectableStar selected={image.url_thumb.endsWith($album.url_thumb)} />
 				</svelte:fragment>
 			</Thumbnail>
 		{/each}
