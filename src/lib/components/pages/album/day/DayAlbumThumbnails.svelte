@@ -10,8 +10,8 @@
 	{#if $album.images}
 	{#each $album.images as image (image.path)}
 		<Thumbnail
-			title="{image.title}"
-			summary="{image.customdata}"
+			title={image.title}
+			summary={image.customdata}
 			href="/{image.path}"
 			src="https://cdn.tacocat.com{image.url_thumb}"
 		/>

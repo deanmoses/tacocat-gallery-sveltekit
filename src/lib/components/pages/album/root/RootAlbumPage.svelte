@@ -35,8 +35,8 @@
 				{#if $album.albums}
 				{#each $album.albums as childAlbum (childAlbum.path)}
 					<Thumbnail
-						title="{childAlbum.title}"
-						summary="{childAlbum.customdata}"
+						title={childAlbum.title}
+						summary={childAlbum.customdata}
 						href="/{childAlbum.path}"
 						src="https://cdn.tacocat.com{childAlbum.url_thumb}"
 					/>

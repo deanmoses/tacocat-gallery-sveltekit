@@ -78,8 +78,8 @@
 		<Thumbnails>
 			{#each month.albums as childAlbum (childAlbum.path)}
 				<Thumbnail
-					title="{shortDate(childAlbum.date)}"
-					summary="{childAlbum.customdata}"
+					title={shortDate(childAlbum.date)}
+					summary={childAlbum.customdata}
 					href="/{childAlbum.path}"
 					src="https://cdn.tacocat.com{childAlbum.url_thumb}"
 				/>
