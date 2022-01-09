@@ -1,7 +1,7 @@
 <!--
   @component
 
-  Layout for pages showing a day album
+  Layout for day album pages
 -->
 
 <script lang="ts">
@@ -10,6 +10,7 @@
   import Nav from "$lib/components/site/nav/Nav.svelte";
   import PageContent from "$lib/components/site/PageContent.svelte";
   import MainContent from "$lib/components/site/MainContent.svelte";
+	import Thumbnails from "$lib/components/site/Thumbnails.svelte";
 
 	export let year:string;
   export let title:string;
@@ -33,10 +34,11 @@
 				<h2 style="display:none">Album Description</h2>
 				<slot name="caption" />
 			</section>
-
 			<section>
 				<h2 style="display:none">Thumbnails</h2>
-				<slot name="thumbnails" />
+				<Thumbnails>
+					<slot name="thumbnails" />
+				</Thumbnails>
 			</section>
 		</MainContent>
 	</PageContent>

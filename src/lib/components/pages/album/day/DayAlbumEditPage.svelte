@@ -9,7 +9,8 @@
 	import PrevButton from "$lib/components/site/nav/PrevButton.svelte";
   import UpButton from "$lib/components/site/nav/UpButton.svelte";
   import NextButton from "$lib/components/site/nav/NextButton.svelte";
-	import DayAlbumThumbnails from "./DayAlbumThumbnails.svelte";
+	import Thumbnail from "$lib/components/site/Thumbnail.svelte";
+	import Config from "$lib/utils/config";
 	import AlbumEditControls from "$lib/components/site/edit/controls/AlbumEditControls.svelte";
 	import EditableHtml from "$lib/components/site/edit/EditableHtml.svelte";
 	import { editUrl } from "$lib/utils/path-utils";
@@ -51,7 +52,16 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="thumbnails">
-		<DayAlbumThumbnails {album} />
+		{#if $album.images}
+		{#each $album.images as image (image.path)}
+			<Thumbnail
+				title={image.title}
+				summary={image.customdata}
+				href={$okToNavigate ? `/${editUrl(image.path)}` : null}
+				src={Config.cdnUrl(image.url_thumb)}
+			/>
+		{/each}
+		{/if}
 	</svelte:fragment>
 
 </DayAlbumPageLayout>
