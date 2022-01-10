@@ -1,13 +1,16 @@
 import { store } from '$lib/stores/AlbumStore';
 
-
 /**
  * Set specified thumbnail as specified album's thumbnail
  *
  * @param albumPath path of album I'm setting the thumbnail on
  * @param thumbnailLeafPath leaf path of the thumbnail item, like 'felix.jpg'
  */
-export async function setAlbumThumbnail(albumPath: string, thumbnailLeafPath: string): Promise<void> {
+export function setAlbumThumbnail(albumPath: string, thumbnailLeafPath: string): void {
+	_setAlbumThumbnail(albumPath, thumbnailLeafPath);
+}
+
+async function _setAlbumThumbnail(albumPath: string, thumbnailLeafPath: string): Promise<void> {
 	console.log(`TODO: save thumbnail ${thumbnailLeafPath}) on album ${albumPath}`);
 
 	// Simulate a save
@@ -24,6 +27,7 @@ export async function setAlbumThumbnail(albumPath: string, thumbnailLeafPath: st
 	}
 	store.actions.setThumbnail(payload);
 }
+
 
 function timeout(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
