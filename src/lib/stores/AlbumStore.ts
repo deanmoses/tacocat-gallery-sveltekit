@@ -25,7 +25,16 @@ const actions = {
 		const path = `search:${searchResults.terms}`;
 		state.albums[path] = searchResults.results;
 	},
-	initAlbum(state, path) {
+	// TODO: editing actions shouldn't be in the same file
+	// as the load actions, so that non-admin users aren't 
+	// downloading more code than they need to
+	setThumbnail(state, payload: { albumPath: string, thumbnailUrl: string }) {
+		const albumPath = payload.albumPath;
+		const thumbnailUrl = payload.thumbnailUrl;
+		console.log(`AlbumStore: setThumbnail(${albumPath}):`, thumbnailUrl);
+		state.albums[albumPath].url_thumb = thumbnailUrl;
+	},
+	initAlbum(state, path: string) {
 		if (state.albums[path] === undefined || state.albums[path] === null) {
 			console.log(`initAlbum(${path}): initializing empty album`);
 			state.albums[path] = {

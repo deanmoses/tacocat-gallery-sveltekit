@@ -16,6 +16,7 @@
 	import EditableHtml from "$lib/components/site/edit/EditableHtml.svelte";
 	import { editUrl } from "$lib/utils/path-utils";
 	import DraftStore from "$lib/stores/DraftStore";
+	import { setAlbumThumbnail } from "$lib/stores/AlbumThumbnailHelper";
 	import type { Readable } from "svelte/store";
 	import type { Album } from "$lib/models/models";
 
@@ -28,6 +29,8 @@
 		const selected = e.detail.selected;
 		const imagePath = e.detail.path;
 		console.log(`<DayAlbumEditPage>: thumbnail ${imagePath} selected: ${selected}`, e.detail);
+
+		await setAlbumThumbnail($album.path, imagePath);
 	}
 </script>
 
@@ -71,7 +74,7 @@
 					src={Config.cdnUrl(image.url_thumb)}
 				>
 					<svelte:fragment slot="selectionControls">
-						<SelectableStar selected={image.url_thumb.endsWith($album.url_thumb)} path={image.path} on:selected={albumThumbnailSelected} />
+						<SelectableStar selected={image.url_thumb.endsWith($album.url_thumb)} path={image.url_thumb} on:selected={albumThumbnailSelected} />
 					</svelte:fragment>
 				</Thumbnail>
 			{:else}
