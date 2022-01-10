@@ -10,8 +10,8 @@ import { getAlbumType } from '$lib/utils/path-utils';
  * @param json JSON or any Object
  */
 export default function createAlbumFromObject(json: any): Album {
-	const alb: Album = instantiateAlbum(json);
-	return Object.assign(alb, json);
+	const album: Album = instantiateAlbum(json);
+	return Object.assign(album, json);
 }
 
 function instantiateAlbum(json: any): Album {
@@ -27,6 +27,6 @@ function instantiateAlbum(json: any): Album {
 			return new DayAlbum(json.path);
 		}
 		default:
-			throw new Error('Unexpected type');
+			throw new Error('Unexpected album type');
 	}
 }

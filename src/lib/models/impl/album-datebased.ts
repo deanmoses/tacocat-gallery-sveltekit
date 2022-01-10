@@ -6,6 +6,7 @@ import { shortDate } from '$lib/utils/date-utils';
  * on dates and not what the admin typed in.
  */
 export default class DateBasedAlbum extends AlbumImpl {
+	
 	/**
 	 * Title of next album
 	 * Blank if no next album
