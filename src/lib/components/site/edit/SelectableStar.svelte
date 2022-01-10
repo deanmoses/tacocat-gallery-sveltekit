@@ -7,17 +7,23 @@
 <script lang="ts">
 	import EmptyStarIcon from "../icons/EmptyStarIcon.svelte";
 	import FilledStarIcon from "../icons/FilledStarIcon.svelte";
+	import { createEventDispatcher } from "svelte";
 
 	export let selected = false;
+	export let path: string;
+
+	const dispatch = createEventDispatcher<{selected: {selected: boolean, path: string}}>();
 
 	function onFilledStarClick() {
 		console.log("filled star click");
 		selected = false;
+		dispatch("selected", {selected, path});
 	}
 
 	function onEmptyStarClick() {
 		console.log("empty star click");
 		selected = true;
+		dispatch("selected", {selected, path});
 	}
 </script>
 
