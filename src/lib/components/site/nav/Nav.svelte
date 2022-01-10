@@ -4,6 +4,10 @@
   For grouping a set of navigation buttons together
 -->
 
+<nav role="navigation">
+  <slot />
+</nav>
+
 <style>
   nav {
     display: flex;
@@ -15,7 +19,3 @@
 	  border-right: 1px solid rgb(132, 132, 132);
   }
 </style>
-
-<nav role="navigation">
-  <slot />
-</nav>

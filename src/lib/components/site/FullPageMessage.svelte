@@ -4,6 +4,10 @@
   For displaying some big message or waiting spinner in the main content area of a page
 -->
 
+<div>
+	<slot />
+</div>
+
 <style>
 	div {
 		display: flex;
@@ -14,7 +18,3 @@
 		padding-bottom: 5em;
 	}
 </style>
-
-<div>
-	<slot />
-</div>

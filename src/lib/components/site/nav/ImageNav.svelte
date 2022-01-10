@@ -1,3 +1,7 @@
+<nav role="navigation">
+  <slot />
+</nav>
+
 <style>
   nav {
       display: flex;
@@ -9,7 +13,3 @@
       border-right: 1px solid #ccc;
   }
 </style>
-
-<nav role="navigation">
-  <slot />
-</nav>

@@ -62,6 +62,8 @@
 
 </script>
 
+<div bind:this={editor}>{@html htmlContent}</div>
+
 <style>
   @import 'https://cdn.quilljs.com/1.3.7/quill.bubble.css';
 
@@ -78,5 +80,3 @@
 		z-index: 3;
 	}
 </style>
-
-<div bind:this={editor}>{@html htmlContent}</div>

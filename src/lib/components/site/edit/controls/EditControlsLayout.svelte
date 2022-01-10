@@ -4,6 +4,18 @@
   The layout for the image and album editing controls
 -->
 
+<div class="editing-controls-container">
+	<div class="editing-controls">
+		<div class="left">
+			<slot name="leftControls" />
+			<div>
+				<slot name="status" />
+			</div>
+		</div>
+		<slot name="rightControls" />
+	</div>
+</div>
+
 <style>
 	.editing-controls-container {
 		background-color: rgb(65, 64, 64);
@@ -32,15 +44,3 @@
 		gap: 1em;
 	}
 </style>
-
-<div class="editing-controls-container">
-	<div class="editing-controls">
-		<div class="left">
-			<slot name="leftControls" />
-			<div>
-				<slot name="status" />
-			</div>
-		</div>
-		<slot name="rightControls" />
-	</div>
-</div>

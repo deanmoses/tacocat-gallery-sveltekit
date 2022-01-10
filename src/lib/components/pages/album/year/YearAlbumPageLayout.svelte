@@ -15,18 +15,6 @@
 	export let year: string;
 </script>
 
-<style>
-  h2 {
-    display: none;
-  }
-	
-  .months {
-    display: flex;
-    flex-direction: column;
-    gap: calc(var(--default-padding) * 2);
-  }
-</style>
-
 <svelte:head>
 	<title>{year}</title>
 </svelte:head>
@@ -54,3 +42,15 @@
 		</MainContent>
 	</PageContent>
 </SiteLayout>
+
+<style>
+  h2 {
+    display: none;
+  }
+	
+  .months {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--default-padding) * 2);
+  }
+</style>

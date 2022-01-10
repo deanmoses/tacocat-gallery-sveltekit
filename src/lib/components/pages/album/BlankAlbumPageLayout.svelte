@@ -16,17 +16,6 @@
 	export let year:string = null;
 </script>
 
-<style>
-	div {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			background-color: white;
-			padding-top: 5em;
-			padding-bottom: 5em;
-	}
-</style>
-
 <SiteLayout {year}>
 	<Header/>
 	<Nav>
@@ -38,3 +27,14 @@
 		<slot/>
 	</div>
 </SiteLayout>
+
+<style>
+	div {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: white;
+		padding-top: 5em;
+		padding-bottom: 5em;
+	}
+</style>

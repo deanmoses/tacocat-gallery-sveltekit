@@ -12,7 +12,7 @@
 	import { goto } from "$app/navigation";
 	import { unEditUrl } from "$lib/utils/path-utils";
 	import CancelIcon from "../../icons/CancelIcon.svelte";
-import SaveIcon from "../../icons/SaveIcon.svelte";
+	import SaveIcon from "../../icons/SaveIcon.svelte";
 
 	const status = draftStore.getStatus();
 

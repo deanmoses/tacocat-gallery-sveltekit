@@ -4,6 +4,10 @@
   A grid of thumbnails
 -->
 
+<div>
+  <slot />
+</div>
+
 <style>
   div {
     display: flex;
@@ -16,7 +20,3 @@
     }
   }
 </style>
-
-<div>
-  <slot />
-</div>

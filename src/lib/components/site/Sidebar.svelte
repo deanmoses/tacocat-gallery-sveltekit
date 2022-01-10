@@ -4,6 +4,10 @@
   Sidebar of the site
 -->
 
+<div class="sidebar hidden-sm">
+  <slot />
+</div>
+
 <style>
   .sidebar {
     flex: 1;
@@ -13,7 +17,3 @@
     border-right: var(--default-border);
   }
 </style>
-
-<div class="sidebar hidden-sm">
-  <slot />
-</div>

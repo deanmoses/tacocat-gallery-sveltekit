@@ -11,6 +11,8 @@
   $: disabled  = !href ? true : null;
 </script>
 
+<a class="btn" {href} {disabled}><slot /></a>
+
 <style>
   .btn {
     flex: 1;
@@ -34,5 +36,3 @@
     background-color: var(--button-disabled-color);
   }
 </style>
-
-<a class="btn" {href} {disabled}><slot /></a>

@@ -4,6 +4,10 @@
   The main content of a page.  In an image page, that'd be the caption and image.  In an album, the thumbnails.
 -->
 
+<div class="main-content">
+  <slot />
+</div>
+
 <style>
   .main-content {
     flex: 3;
@@ -16,7 +20,3 @@
     background-color: white;
   }
 </style>
-
-<div class="main-content">
-  <slot />
-</div>
