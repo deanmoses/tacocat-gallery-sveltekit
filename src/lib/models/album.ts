@@ -44,6 +44,14 @@ export interface Album {
 };
 
 /**
+ * An image in an album
+ */
+ export interface Image extends Thumbable {
+	nextImageHref: string;
+	prevImageHref: string;
+};
+
+/**
  * Something that can be displayed as a thumbnail image
  */
 export interface Thumbable {
@@ -60,20 +68,12 @@ export interface Thumbable {
 };
 
 /**
- * Enough information to display an Album as a thumbnail image
+ * Just enough information to display an Album as a thumbnail image
  */
 export interface AlbumThumb extends Thumbable { };
 
 /**
- * An image in an album
- */
-export interface Image extends Thumbable {
-	nextImageHref: string;
-	prevImageHref: string;
-};
-
-/**
- * Enough information to navigate to an Album
+ * Just enough information to navigate to an Album
  */
 export interface AlbumNavInfo {
 	path?: string;
@@ -82,7 +82,7 @@ export interface AlbumNavInfo {
 };
 
 /**
- * Enough information to navigate to an Image
+ * Just enough information to navigate to an Image
  */
 export interface ImageNavInfo {
 	path: string;
@@ -91,9 +91,6 @@ export interface ImageNavInfo {
 
 /**
  * Types of albums
- * TODO: I really want to get rid of this:
- * 1) The root concept (Album) should not know about its children.
- * 2) If I want to add new types of albums, new renderers, I shouldn't have to touch the data model.
  */
 export enum AlbumType {
 	ROOT = 'ROOT',
