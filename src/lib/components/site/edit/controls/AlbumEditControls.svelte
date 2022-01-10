@@ -53,7 +53,13 @@
 
 	<svelte:fragment slot="rightControls">
 		<div><input type="checkbox" on:change={onPublishedChange}/> published</div>
-		<button on:click|once={onSaveButtonClick} disabled={!hasUnsavedChanges}>Save</button>
+		<button on:click|once={onSaveButtonClick} disabled={!hasUnsavedChanges}>
+			{#if hasUnsavedChanges}
+				Save*
+			{:else}
+				Save
+			{/if}
+		</button>
 	</svelte:fragment>
 
 </EditControlsLayout>
