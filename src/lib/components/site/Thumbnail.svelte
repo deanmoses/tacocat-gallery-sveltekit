@@ -24,7 +24,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		position: relative; /* need to support the absolute positioning of my child star, if any */
+		position: relative; /* to support the absolute positioning of my child star, if any */
   }
 
   a {
