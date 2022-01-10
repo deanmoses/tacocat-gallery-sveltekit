@@ -25,11 +25,9 @@
 
 	let okToNavigate = DraftStore.getOkToNavigate();
 
-	async function albumThumbnailSelected(e: CustomEvent<{selected: boolean, path: string}>) {		
-		const selected = e.detail.selected;
+	async function albumThumbnailSelected(e: CustomEvent<{path: string}>) {		
 		const imagePath = e.detail.path;
-		console.log(`<DayAlbumEditPage>: thumbnail ${imagePath} selected: ${selected}`, e.detail);
-
+		console.log(`<DayAlbumEditPage>: thumbnail ${imagePath}`, e.detail);
 		await setAlbumThumbnail($album.path, imagePath);
 	}
 </script>

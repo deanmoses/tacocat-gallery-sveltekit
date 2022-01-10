@@ -12,21 +12,15 @@
 	export let selected = false;
 	export let path: string;
 
-	const dispatch = createEventDispatcher<{selected: {selected: boolean, path: string}}>();
-
-	function onFilledStarClick() {
-		selected = false;
-		dispatch("selected", {selected, path});
-	}
+	const dispatch = createEventDispatcher<{selected: {path: string}}>();
 
 	function onEmptyStarClick() {
-		selected = true;
-		dispatch("selected", {selected, path});
+		dispatch("selected", {path});
 	}
 </script>
 
 {#if selected}
-	<div class="selected"><FilledStarIcon on:click={onFilledStarClick} /></div>
+	<div class="selected"><FilledStarIcon /></div>
 {:else}
 	<div class="notSelected"><EmptyStarIcon on:click={onEmptyStarClick} /></div>
 {/if}
