@@ -16,11 +16,19 @@
 	import EditableHtml from "$lib/components/site/edit/EditableHtml.svelte";
 	import { editUrl } from "$lib/utils/path-utils";
 	import DraftStore from "$lib/stores/DraftStore";
+	import type { Readable } from "svelte/store";
+	import type { Album } from "$lib/models/models";
 
-	export let year:string;
-  export let album;
+	export let year: string;
+  export let album: Readable<Album>;
 
 	let okToNavigate = DraftStore.getOkToNavigate();
+
+	async function albumThumbnailSelected(e: CustomEvent<{selected: boolean, path: string}>) {		
+		const selected = e.detail.selected;
+		const imagePath = e.detail.path;
+		console.log(`<DayAlbumEditPage>: thumbnail ${imagePath} selected: ${selected}`, e.detail);
+	}
 </script>
 
 <DayAlbumPageLayout {year} title={$album.pageTitle}>
@@ -55,17 +63,34 @@
 	<svelte:fragment slot="thumbnails">
 		{#if $album.images}
 		{#each $album.images as image (image.path)}
-			<Thumbnail
-				title={image.title}
-				summary={image.customdata}
-				href={$okToNavigate ? `/${editUrl(image.path)}` : null}
-				src={Config.cdnUrl(image.url_thumb)}>
-				<svelte:fragment slot="selectionControls">
-					<SelectableStar selected={image.url_thumb.endsWith($album.url_thumb)} />
-				</svelte:fragment>
-			</Thumbnail>
+			{#if $okToNavigate}
+				<Thumbnail
+					title={image.title}
+					summary={image.customdata}
+					href={`/${editUrl(image.path)}`}
+					src={Config.cdnUrl(image.url_thumb)}
+				>
+					<svelte:fragment slot="selectionControls">
+						<SelectableStar selected={image.url_thumb.endsWith($album.url_thumb)} path={image.path} on:selected={albumThumbnailSelected} />
+					</svelte:fragment>
+				</Thumbnail>
+			{:else}
+				<div title="💾 Save changes before navigating">
+					<Thumbnail
+						title={image.title}
+						summary={image.customdata}
+						src={Config.cdnUrl(image.url_thumb)}
+					/>
+				</div>
+			{/if}
 		{/each}
 		{/if}
 	</svelte:fragment>
 
 </DayAlbumPageLayout>
+
+<style>
+	div {
+		cursor: not-allowed;
+	}
+</style>
