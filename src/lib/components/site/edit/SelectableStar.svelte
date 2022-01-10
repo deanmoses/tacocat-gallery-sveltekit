@@ -36,6 +36,7 @@
 	}
 	.notSelected {
 		color: white;
+		display: none;
 	}
 	.notSelected:hover {
 		color: yellow;

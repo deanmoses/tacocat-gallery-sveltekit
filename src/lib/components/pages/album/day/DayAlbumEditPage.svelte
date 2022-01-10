@@ -94,4 +94,7 @@
 	div {
 		cursor: not-allowed;
 	}
+	:global(.thumbnail:hover .notSelected) {
+		display: inherit;
+	}
 </style>
