@@ -11,6 +11,8 @@
 	import { page } from "$app/stores";
 	import { goto } from "$app/navigation";
 	import { unEditUrl } from "$lib/utils/path-utils";
+	import CancelIcon from "../../icons/CancelIcon.svelte";
+import SaveIcon from "../../icons/SaveIcon.svelte";
 
 	const status = draftStore.getStatus();
 
@@ -40,7 +42,7 @@
 <EditControlsLayout>
 
 	<svelte:fragment slot="leftControls">
-		<button on:click|once={onCancelButtonClick}>Cancel</button>
+		<button on:click|once={onCancelButtonClick}><CancelIcon /> Cancel</button>
 	</svelte:fragment>
 
 	<svelte:fragment slot="status">
@@ -55,11 +57,19 @@
 		<div><input type="checkbox" on:change={onPublishedChange}/> published</div>
 		<button on:click|once={onSaveButtonClick} disabled={!hasUnsavedChanges}>
 			{#if hasUnsavedChanges}
-				Save*
+				<SaveIcon /> Save*
 			{:else}
-				Save
+			<SaveIcon /> Save
 			{/if}
 		</button>
 	</svelte:fragment>
 
 </EditControlsLayout>
+
+<style>
+	button {
+		display: flex;
+		align-items: center;
+		gap: 0.3em;
+	}
+</style>

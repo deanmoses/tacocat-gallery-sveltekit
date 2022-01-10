@@ -9,6 +9,8 @@
 	import { goto } from "$app/navigation";
 	import { editUrl, isImagePath, isYearAlbumPath} from "$lib/utils/path-utils";
 	import Config from "$lib/utils/config";
+	import EditIcon from "../../icons/EditIcon.svelte";
+	import EditExternalIcon from "../../icons/EditExternalIcon.svelte";
 
 	let path: string;
 	$: path = $page.url.pathname;
@@ -33,8 +35,8 @@
 
 <div>
 	<nav class="editing-controls">
-		<button on:click|once={onEditButtonClick}>Edit</button>
-		<button on:click|once={onZenButtonClick}>Zenphoto</button>
+		<button on:click|once={onEditButtonClick}><EditIcon/>Edit</button>
+		<button on:click|once={onZenButtonClick}><EditExternalIcon/>Zenphoto</button>
 		{#if isYearAlbumPath(path)}
 			<button on:click|once={onRefreshClick}>Refresh</button>
 		{/if}
@@ -70,5 +72,11 @@
 	@keyframes fadeIn {
 		0% {opacity:0;}
 		100% {opacity:1;}
+	}
+
+	button {
+		display: flex;
+		align-items: center;
+		gap: 0.3em;
 	}
 </style>
