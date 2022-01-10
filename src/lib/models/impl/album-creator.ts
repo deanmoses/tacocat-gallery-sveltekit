@@ -1,8 +1,8 @@
-import type { Album } from '$lib/models/models';
-import { AlbumType } from '$lib/models/models';
-import RootAlbum from '$lib/models/album-year';
-import YearAlbum from '$lib/models/album-year';
-import DayAlbum from '$lib/models/album-day';
+import type { Album } from '$lib/models/album';
+import { AlbumType } from '$lib/models/album';
+import RootAlbum from '$lib/models/impl/album-year';
+import YearAlbum from '$lib/models/impl/album-year';
+import DayAlbum from '$lib/models/impl/album-day';
 import { getAlbumType } from '$lib/utils/path-utils';
 
 /**

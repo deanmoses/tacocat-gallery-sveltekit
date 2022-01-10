@@ -7,7 +7,7 @@
 <script lang="ts">
 	import EditControlsLayout from "./EditControlsLayout.svelte";
 	import draftStore from "$lib/stores/DraftStore";
-	import { DraftStatus } from "$lib/models/models";
+	import { DraftStatus } from "$lib/models/draft";
 	import { page } from "$app/stores";
 	import { goto } from "$app/navigation";
 	import { unEditUrl } from "$lib/utils/path-utils";

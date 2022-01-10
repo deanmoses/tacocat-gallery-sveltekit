@@ -1,5 +1,5 @@
 import { isImagePath, getAlbumType } from '$lib/utils/path-utils';
-import { AlbumType } from '$lib/models/models';
+import { AlbumType } from '$lib/models/album';
 import { getParentFromPath, getLeafItemOnPath } from '$lib/utils/path-utils';
 
 /**

@@ -1,5 +1,5 @@
-import { AlbumImpl } from '$lib/models/album-impl';
-import * as DateUtils from '$lib/utils/date-utils';
+import { AlbumImpl } from '$lib/models/impl/album-impl';
+import { shortDate } from '$lib/utils/date-utils';
 
 /**
  * Overrides the default album class with behavior specific to any album that shows titles based
@@ -11,7 +11,7 @@ export default class DateBasedAlbum extends AlbumImpl {
 	 * Blank if no next album
 	 */
 	get nextAlbumTitle(): string {
-		return this.next ? DateUtils.shortDate(this.next.date) : '';
+		return this.next ? shortDate(this.next.date) : '';
 	}
 
 	/**
@@ -19,6 +19,6 @@ export default class DateBasedAlbum extends AlbumImpl {
 	 * Blank if no previous album
 	 */
 	get prevAlbumTitle(): string {
-		return this.prev ? DateUtils.shortDate(this.prev.date) : '';
+		return this.prev ? shortDate(this.prev.date) : '';
 	}
 }

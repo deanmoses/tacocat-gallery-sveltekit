@@ -3,8 +3,8 @@
  */
 
 import { writable, type Writable, derived, type Readable, get} from 'svelte/store';
-import type { Draft, DraftContent } from '$lib/models/models';
-import { DraftStatus } from '$lib/models/models';
+import type { Draft, DraftContent } from '$lib/models/draft';
+import { DraftStatus }  from '$lib/models/draft';
 import produce from "immer";
 
 const initialState: Draft = {

@@ -1,4 +1,4 @@
-import DateBasedAlbum from '$lib/models/album-datebased';
+import DateBasedAlbum from '$lib/models/impl/album-datebased';
 
 /**
  * Overrides the default album class with  behavior specific to year albums.

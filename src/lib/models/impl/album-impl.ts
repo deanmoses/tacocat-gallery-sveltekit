@@ -1,10 +1,6 @@
-import { ImageImpl } from '$lib/models/image-impl';
+import { ImageImpl } from '$lib/models/impl/image-impl';
 import { getYearFromPath } from '$lib/utils/path-utils';
-import type { Album } from '$lib/models/models';
-import type { Image } from '$lib/models/models';
-import type { AlbumNavInfo } from '$lib/models/models';
-import type { AlbumThumb } from '$lib/models/models';
-import type { FetchError } from '$lib/models/models';
+import type { Album, Image, AlbumNavInfo, AlbumThumb } from '$lib/models/album';
 
 /**
  * Album implementation
@@ -24,8 +20,6 @@ export class AlbumImpl implements Album {
 	parent_album?: AlbumNavInfo;
 	next?: AlbumNavInfo;
 	prev?: AlbumNavInfo;
-	isLoading?: boolean;
-	err?: FetchError;
 
 	constructor(path: string) {
 		if (!(typeof path === 'string'))

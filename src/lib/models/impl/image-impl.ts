@@ -1,5 +1,4 @@
-import type { Album } from "$lib/models/models";
-import type { Image } from "$lib/models/models";
+import type { Album, Image } from "$lib/models/album";
 
 /**
  * Image implementaiton

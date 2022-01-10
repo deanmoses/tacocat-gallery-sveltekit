@@ -18,7 +18,7 @@
 	import DraftStore from "$lib/stores/DraftStore";
 	import { setAlbumThumbnail } from "$lib/stores/AlbumThumbnailHelper";
 	import type { Readable } from "svelte/store";
-	import type { Album } from "$lib/models/models";
+	import type { Album } from "$lib/models/album";
 
 	export let year: string;
   export let album: Readable<Album>;

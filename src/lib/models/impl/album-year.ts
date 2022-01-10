@@ -1,6 +1,6 @@
-import type { AlbumNavInfo } from '$lib/models/models';
-import DateBasedAlbum from '$lib/models/album-datebased';
-import * as DateUtils from '$lib/utils/date-utils';
+import type { AlbumNavInfo } from '$lib/models/album';
+import DateBasedAlbum from '$lib/models/impl/album-datebased';
+import { year } from '$lib/utils/date-utils';
 
 /**
  * Overrides the default album class with  behavior specific to year albums.
@@ -10,7 +10,7 @@ export default class YearAlbum extends DateBasedAlbum {
 	 * Friendly title of page
 	 */
 	get pageTitle(): string {
-		return DateUtils.year(this.date);
+		return year(this.date);
 	}
 
 	/**
@@ -33,6 +33,6 @@ export default class YearAlbum extends DateBasedAlbum {
 	 * Return title of another album to navigate to
 	 */
 	private albumTitle(anotherAlbum: AlbumNavInfo): string {
-		return anotherAlbum ? DateUtils.year(anotherAlbum.date) : '';
+		return anotherAlbum ? year(anotherAlbum.date) : '';
 	}
 }

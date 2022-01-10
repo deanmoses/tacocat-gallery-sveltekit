@@ -1,4 +1,4 @@
-import { AlbumType } from '$lib/models/models';
+import { AlbumType } from '$lib/models/album';
 
 const dateBasedPathRegex = /^\/?(\d\d\d\d)\/?(\d\d-\d\d)?(\/[^\/\.]+\.[^\/\.]{3,4})?\/?$/; // finds 2000 or 2000/12-31 or 2000/12-31/someImage.jpg
 const yearRegex = /^\/?(\d\d\d\d)\/?$/

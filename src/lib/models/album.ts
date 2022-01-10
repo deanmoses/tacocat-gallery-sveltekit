@@ -1,80 +1,16 @@
-//
-// Interfaces for the application state
-//
-
-/**
- * A data store of albums retrievable by their path
- */
-export type AlbumsByPath = {
-	[albumPath: string]: Album;
-};
-
-/**
- * A data store of draft edits of both albums and images,
- * retrievable by the path of that album or image
- */
-export type DraftsByPath = {
-	[path: string]: Draft;
-};
-
-/**
- * An unsaved draft edit of an album or an image
- */
-export type Draft = {
-	path: string;
-	status?: DraftStatus;
-	content?: DraftContent;
-	errorMessage?: string;
-};
-
-export enum DraftStatus {
-	NO_CHANGES = 'NO_CHANGES',
-	UNSAVED_CHANGES = 'UNSAVED_CHANGES',
-	SAVING = 'SAVING',
-	SAVED = 'SAVED',
-	ERRORED = 'ERRORED'
-};
-
-export type DraftContent = {
-	title?: string;
-	desc?: string;
-	published?: boolean;
-};
-
-/**
- * A data store of search results,
- * retrievably by their search terms.
- */
-export type SearchesBySearchTerms = {
-	[searchTerms: string]: Search;
-};
-
-/**
- * A set of search results for a particular set of search terms
- */
-export type Search = {
-	results?: any;
-	state?: SearchState;
-	errorMessage?: string;
-};
-
-export enum SearchState {
-	SEARCHING = 'SEARCHING',
-	SUCCESS = 'SUCCESS',
-	ERROR = 'ERROR'
-};
-
 /**
  * A photo album
  */
 export interface Album {
 	path: string;
 	title?: string;
+	 
 	/**
 	 * Used by tacocat.com as a short summary of the album
 	 */
 	customdata?: string;
 	desc?: string;
+	 
 	/**
 	 * True: album is NOT available to the public
 	 */
@@ -92,8 +28,6 @@ export interface Album {
 	albums?: AlbumThumb[];
 	parent_album?: AlbumNavInfo;
 	next?: AlbumNavInfo;
-	isLoading?: boolean;
-	err?: FetchError;
 	pageTitle?: string;
 	href?: string;
 	nextAlbumHref?: string;
@@ -102,6 +36,7 @@ export interface Album {
 	prevAlbumTitle?: string;
 	parentAlbumHref?: string;
 	parentAlbumTitle?: string;
+	 
 	/**
 	 * Return image at specified path, or null
 	 */
@@ -164,37 +99,4 @@ export enum AlbumType {
 	ROOT = 'ROOT',
 	YEAR = 'YEAR',
 	DAY = 'DAY'
-};
-
-/**
- * Error for fetching from server
- */
-export interface FetchError {
-	/**
-	 * Suitable for display to end user
-	 */
-	message: string;
-
-	/**
-	 * Type of error
-	 */
-	type: FetchErrorType;
-};
-
-/**
- * Types of errors that fetching from server can generate
- */
-export enum FetchErrorType {
-	NotFound = 'NotFound',
-	Other = 'Other'
-};
-
-export class FetchErrorImpl implements FetchError {
-	message: string;
-	type: FetchErrorType;
-
-	constructor(message: string, type?: FetchErrorType) {
-		this.message = message;
-		this.type = type ? type : FetchErrorType.Other;
-	}
 };
