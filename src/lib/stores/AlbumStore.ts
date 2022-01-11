@@ -27,12 +27,23 @@ class AlbumStore {
 	private albums: Map<string, Writable<AlbumEntry>> = new Map<string, Writable<AlbumEntry>>();
 
 	/**
-	 * Get an album from the store (but do not attempt to fetch it)
+	 * Get an album.
+	 * 
+	 * This will:
+	 * 
+	 * 1) Immediately return a Svelte store containing an AlbumEntry.
+	 * It will only have an album in it if was already requested
+	 * since the last page refresh.
+	 * 
+	 * 2) It'll then asynchronously look for a version cached on the 
+	 * browser's local disk.
+	 * 
+	 * 3) And then it will async fetch a live version over the network.
+	 * 
 	 * @param path path of the album
+	 * @returns a Svelte store containing an AlbumEntry
 	 */
 	get(path: string): Readable<AlbumEntry> {
-		console.log(`AlbumStore.get(${path})`);
-
 		// Get or create the writable version of the album
 		const albumEntry = this.getOrCreateWritableStore(path);
 
@@ -44,17 +55,18 @@ class AlbumStore {
 	}
 
 	/**
-	 * Fetch album from disk
-	 * @param path 
+	 * Fetch album from browser's local disk, 
+	 * then fetch from server
+	 * 
+	 * @param path path of the album
 	 */
-	fetchFromDisk(path: string): void {
+	private fetchFromDisk(path: string): void {
 		const pathInIdb = `a:${path}`;
 		getFromIdb(pathInIdb)
 			.then((data) => {
 				if (data) {
-					console.log(`Fetched [${path}] from idb: `, data);
+					console.log(`Found album [${path}] in idb: `, data);
 					const album = createAlbumFromObject(data);
-					console.log("album: ", album);
 					const albumEntry = this.getOrCreateWritableStore(path);
 					const newState = produce(get(albumEntry), (draftState: AlbumEntry) => {
 						draftState.loadStatus = AlbumLoadStatus.LOADED;
@@ -63,20 +75,25 @@ class AlbumStore {
 					albumEntry.set(newState);
 				}
 				else {
-					console.log(`Did not find ${path} in idb`);
-					this.fetchFromServer(path);
+					console.log(`Did not find album [${path}] in idb`);
 				}
 			})
 			.catch((error) => {
-				console.log(`Error fetching album [${path}] from disk: `, error);
+				console.log(`Error fetching album [${path}] from disk`, error);
+			})
+			// Always fetch from server regardless of whether it was found on
+			// disk or not
+			.finally(() => { 
+				this.fetchFromServer(path);
 			});
 	}
 
 	/**
 	 * Fetch album from server
-	 * @param path 
+	 * 
+	 * @param path path of the album 
 	 */
-	fetchFromServer(path: string): void {
+	private fetchFromServer(path: string): void {
 		this.setLoadStatus(path, AlbumLoadStatus.LOADING);
 
 		fetch(Config.albumUrl(path))
@@ -84,23 +101,8 @@ class AlbumStore {
 			.then(json => {
 				console.log(`fetched album [${path}] from server:`, json.album);
 				const jsonAlbum = json.album;
-
-				// Update store
-				const album = createAlbumFromObject(jsonAlbum);
-				const albumEntry = this.getOrCreateWritableStore(path);
-				const newState = produce(get(albumEntry), (draftState: AlbumEntry) => {
-					draftState.loadStatus = AlbumLoadStatus.LOADED;
-					draftState.album = album;
-				})
-				albumEntry.set(newState);
-
-				// Add to disk storage
-				// TODO: this is where Redux is great, this should fire an ALBUM_UPDATED
-				// and something else should take care of updating disk storage
-				console.log(`Storing [${path} in idb]`);
-				const pathInIdb = `a:${path}`;
-				setToIdb(pathInIdb, jsonAlbum);
-				console.log(`Stored ${path} in idb`);
+				// Put album in Svelte store and browser's local disk cache
+				this.setAlbum(path, jsonAlbum);
 			})
 			.catch((error) => {
 				this.setLoadStatus(path, AlbumLoadStatus.ERROR_LOADING);
@@ -109,8 +111,45 @@ class AlbumStore {
 	}
 
 	/**
+	 * Store the album in Svelte store and the browser's local disk storage
 	 * 
-	 * @param path 
+	 * @param path path of the album 
+	 * @param jsonAlbum JSON of the album
+	 */
+	private setAlbum(path: string, jsonAlbum: JSON): void {
+
+		// Update Svelte store
+		const album = createAlbumFromObject(jsonAlbum);
+		const albumEntry = this.getOrCreateWritableStore(path);
+		const newState = produce(get(albumEntry), (draftState: AlbumEntry) => {
+			draftState.loadStatus = AlbumLoadStatus.LOADED;
+			draftState.album = album;
+		})
+		albumEntry.set(newState);
+
+		// Add to disk storage
+		// TODO: this is where Redux is great, this should fire an ALBUM_UPDATED
+		// and something else should take care of updating disk storage
+		this.writeToDisk(path, jsonAlbum);
+	}
+
+	/**
+	 * Store the album in the browser's local disk storage
+	 * 
+	 * @param path path of the album 
+	 * @param jsonAlbum JSON of the album
+	 */
+	private writeToDisk(path: string, jsonAlbum: JSON): void {
+		const pathInIdb = `a:${path}`;
+		setToIdb(pathInIdb, jsonAlbum)
+			.then(() => console.log(`Stored ${path} in idb`))
+			.catch((e) => console.log(`Error saving album [${path}] to idb`, e));
+	}
+
+	/**
+	 * Set the load status of the album
+	 * 
+	 * @param path path of the album 
 	 * @param loadStatus 
 	 */
 	private setLoadStatus(path: string, loadStatus: AlbumLoadStatus): void {
@@ -123,14 +162,18 @@ class AlbumStore {
 
 	/**
 	 * Get the private read-write version of the album
-	 * @param path 
+	 * 
+	 * If I don't have the album in memory, kick off an 
+	 * async fetch of it from the browser's local disk.
+	 * 
+	 * @param path path of the album 
 	 */
 	private getOrCreateWritableStore(path: string): Writable<AlbumEntry> {
 		let albumEntry = this.albums.get(path);
 
-		// If I don't know about the album
+		// If the album wasn't found in memory
 		if (!albumEntry) {
-
+			console.log(`Did not find album [${path}] in memory`);
 			// Create blank entry so that consumers have some object 
 			// to which they can subscribe to changes
 			albumEntry = writable({
