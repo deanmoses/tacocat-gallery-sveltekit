@@ -43,9 +43,16 @@ class AlbumStore {
 	 * @param path path of the album
 	 * @returns a Svelte store containing an AlbumEntry
 	 */
-	get(path: string): Readable<AlbumEntry> {
+	get(path: string, refetch = true): Readable<AlbumEntry> {
+		console.log(`AlbumStore.get(${path})`);
+
 		// Get or create the writable version of the album
 		const albumEntry = this.getOrCreateWritableStore(path);
+
+		// Maybe fetch the album
+		if (this.shouldFetch(refetch, get(albumEntry).loadStatus)) {
+			this.fetchFromDiskThenServer(path);
+		}
 
 		// Derive a read-only Svelte store over the album
 		return derived(
@@ -55,24 +62,30 @@ class AlbumStore {
 	}
 
 	/**
+	 * Return true if I should fetch the album
+	 * @param refetch 
+	 * @param status 
+	 */
+	private shouldFetch(refetch: boolean, status: AlbumLoadStatus): boolean {
+		return (AlbumLoadStatus.NOT_LOADED === status) // ... it isn't loaded
+			|| (refetch && AlbumLoadStatus.LOADING !== status); // ... if the caller asked for it, and it's not already loading
+	}
+
+	/**
 	 * Fetch album from browser's local disk, 
 	 * then fetch from server
 	 * 
 	 * @param path path of the album
 	 */
-	private fetchFromDisk(path: string): void {
+	private fetchFromDiskThenServer(path: string): void {
 		const pathInIdb = `a:${path}`;
 		getFromIdb(pathInIdb)
-			.then((data) => {
-				if (data) {
+			.then((jsonAlbum) => {
+				if (jsonAlbum) {
 					console.log(`Found album [${path}] in idb: `, data);
-					const album = createAlbumFromObject(data);
-					const albumEntry = this.getOrCreateWritableStore(path);
-					const newState = produce(get(albumEntry), (draftState: AlbumEntry) => {
-						draftState.loadStatus = AlbumLoadStatus.LOADED;
-						draftState.album = album;
-					})
-					albumEntry.set(newState);
+
+					// Put album in Svelte store
+					this.setAlbum(path, jsonAlbum);
 				}
 				else {
 					console.log(`Did not find album [${path}] in idb`);
@@ -111,8 +124,12 @@ class AlbumStore {
 				else {
 					console.log(`fetched album [${path}] from server:`, json.album);
 					const jsonAlbum = json.album;
-					// Put album in Svelte store and browser's local disk cache
+
+					// Put album in Svelte store
 					this.setAlbum(path, jsonAlbum);
+
+					// Put album in browser's local disk cache
+					this.writeToDisk(path, jsonAlbum);
 				}
 			})
 			.catch((error) => {
@@ -122,14 +139,12 @@ class AlbumStore {
 	}
 
 	/**
-	 * Store the album in Svelte store and the browser's local disk storage
+	 * Store the album in Svelte store
 	 * 
 	 * @param path path of the album 
 	 * @param jsonAlbum JSON of the album
 	 */
 	private setAlbum(path: string, jsonAlbum: JSON): void {
-
-		// Update Svelte store
 		const album = createAlbumFromObject(jsonAlbum);
 		const albumEntry = this.getOrCreateWritableStore(path);
 		const newState = produce(get(albumEntry), (draftState: AlbumEntry) => {
@@ -137,11 +152,6 @@ class AlbumStore {
 			draftState.album = album;
 		})
 		albumEntry.set(newState);
-
-		// Add to disk storage
-		// TODO: this is where Redux is great, this should fire an ALBUM_UPDATED
-		// and something else should take care of updating disk storage
-		this.writeToDisk(path, jsonAlbum);
 	}
 
 	/**
@@ -153,7 +163,7 @@ class AlbumStore {
 	private writeToDisk(path: string, jsonAlbum: JSON): void {
 		const pathInIdb = `a:${path}`;
 		setToIdb(pathInIdb, jsonAlbum)
-			.then(() => console.log(`Stored ${path} in idb`))
+			.then(() => console.log(`Stored album [${path}] in idb`))
 			.catch((e) => console.log(`Error saving album [${path}] to idb`, e));
 	}
 
@@ -172,10 +182,8 @@ class AlbumStore {
 	}
 
 	/**
-	 * Get the private read-write version of the album
-	 * 
-	 * If I don't have the album in memory, kick off an 
-	 * async fetch of it from the browser's local disk.
+	 * Get the private read-write version of the album,
+	 * creating a stand-in if it doesn't exist.
 	 * 
 	 * @param path path of the album 
 	 */
@@ -191,9 +199,6 @@ class AlbumStore {
 				loadStatus: AlbumLoadStatus.NOT_LOADED
 			});
 			this.albums.set(path, albumEntry);
-
-			// Kick off a fetch from disk
-			this.fetchFromDisk(path);
 		}
 
 		return albumEntry;

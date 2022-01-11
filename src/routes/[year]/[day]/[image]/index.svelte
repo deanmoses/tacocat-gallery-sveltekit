@@ -8,11 +8,12 @@
 		const year = params.year;
     const albumPath = `${params.year}/${params.day}`;
     const imagePath = `${albumPath}/${params.image}`
+		const refetch = false; // don't refetch the album
     return {
       props: {
 				year,
         imagePath,
-        albumEntry: albumStore.get(albumPath)
+        albumEntry: albumStore.get(albumPath, refetch)
       }
     }
   }
