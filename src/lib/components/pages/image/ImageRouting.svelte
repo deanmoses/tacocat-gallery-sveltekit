@@ -23,7 +23,8 @@
 	</ImageErrorPage>
 {:else if status === AlbumLoadStatus.DOES_NOT_EXIST}
 	<ImageErrorPage {year}>
-		Album does not exist
+		<p>Album does not exist</p>
+		<p><a href="/">Go back home?</a></p>
 	</ImageErrorPage>
 {:else}
 	Unknown album status: {status}

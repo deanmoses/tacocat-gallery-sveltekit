@@ -22,7 +22,8 @@
 	</AlbumErrorPage>
 {:else if status === AlbumLoadStatus.DOES_NOT_EXIST}
 	<AlbumErrorPage>
-		Album does not exist
+		<p>Album does not exist</p>
+		<p><a href="/">Go back home?</a></p>
 	</AlbumErrorPage>
 {:else}
 	Unknown album status: {status}

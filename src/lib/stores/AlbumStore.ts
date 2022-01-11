@@ -99,14 +99,25 @@ class AlbumStore {
 		fetch(Config.albumUrl(path))
 			.then(response => response.json())
 			.then(json => {
-				console.log(`fetched album [${path}] from server:`, json.album);
-				const jsonAlbum = json.album;
-				// Put album in Svelte store and browser's local disk cache
-				this.setAlbum(path, jsonAlbum);
+				if (json.error) {
+					if (json.status == 404) {
+						this.setLoadStatus(path, AlbumLoadStatus.DOES_NOT_EXIST);
+					}
+					else {
+						console.log(`Error fetching album [${path}] from server: `, json.message);
+						this.setLoadStatus(path, AlbumLoadStatus.ERROR_LOADING);
+					}
+				}
+				else {
+					console.log(`fetched album [${path}] from server:`, json.album);
+					const jsonAlbum = json.album;
+					// Put album in Svelte store and browser's local disk cache
+					this.setAlbum(path, jsonAlbum);
+				}
 			})
 			.catch((error) => {
-				this.setLoadStatus(path, AlbumLoadStatus.ERROR_LOADING);
 				console.log(`Error fetching album [${path}] from server: `, error);
+				this.setLoadStatus(path, AlbumLoadStatus.ERROR_LOADING);
 			});
 	}
 
