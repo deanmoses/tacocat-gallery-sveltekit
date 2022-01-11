@@ -5,7 +5,6 @@ export type Draft = {
 	path: string;
 	status?: DraftStatus;
 	content?: DraftContent;
-	errorMessage?: string;
 };
 
 export enum DraftStatus {

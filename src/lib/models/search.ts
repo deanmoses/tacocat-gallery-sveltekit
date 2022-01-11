@@ -4,7 +4,6 @@
 export type Search = {
 	results?: any;
 	state?: SearchState;
-	errorMessage?: string;
 };
 
 export enum SearchState {
