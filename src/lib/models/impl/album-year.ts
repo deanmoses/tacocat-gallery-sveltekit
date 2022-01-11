@@ -1,5 +1,5 @@
-import type { AlbumNavInfo } from '$lib/models/album';
 import DateBasedAlbum from '$lib/models/impl/album-datebased';
+import type { AlbumNavInfo } from '$lib/models/album';
 import { year } from '$lib/utils/date-utils';
 
 /**

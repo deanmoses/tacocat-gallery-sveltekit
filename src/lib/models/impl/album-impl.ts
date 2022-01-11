@@ -1,6 +1,6 @@
+import type { Album, Image, AlbumNavInfo, AlbumThumb } from '$lib/models/album';
 import { ImageImpl } from '$lib/models/impl/image-impl';
 import { getYearFromPath } from '$lib/utils/path-utils';
-import type { Album, Image, AlbumNavInfo, AlbumThumb } from '$lib/models/album';
 
 /**
  * Album implementation

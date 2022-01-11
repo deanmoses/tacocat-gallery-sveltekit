@@ -1,5 +1,4 @@
-import type { Album } from '$lib/models/album';
-import { AlbumType } from '$lib/models/album';
+import { type Album, AlbumType } from '$lib/models/album';
 import RootAlbum from '$lib/models/impl/album-year';
 import YearAlbum from '$lib/models/impl/album-year';
 import DayAlbum from '$lib/models/impl/album-day';
