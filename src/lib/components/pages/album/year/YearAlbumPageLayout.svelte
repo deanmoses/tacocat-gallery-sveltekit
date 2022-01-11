@@ -29,7 +29,7 @@
 	</Nav>
 	<PageContent>
 		<Sidebar>
-			<section>
+			<section class="caption">
 				<h2>Year In Review</h2>
 				<slot name="caption" />
 			</section>

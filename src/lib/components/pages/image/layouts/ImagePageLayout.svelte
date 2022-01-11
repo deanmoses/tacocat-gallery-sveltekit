@@ -26,7 +26,7 @@
 	</Header>
 	<PageContent>
 		<MainContent>
-			<section>
+			<section class="caption">
 				<h2 style="display:none">Caption</h2>
 				<slot name="caption" />
 			</section>

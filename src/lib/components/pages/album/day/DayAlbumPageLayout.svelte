@@ -30,7 +30,7 @@
 	</Nav>
 	<PageContent>
 		<MainContent>
-			<section>
+			<section class="caption">
 				<h2 style="display:none">Album Description</h2>
 				<slot name="caption" />
 			</section>
