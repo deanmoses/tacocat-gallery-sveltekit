@@ -1,4 +1,4 @@
-import { store } from '$lib/stores/AlbumStore';
+import { store } from '$lib/stores/AlbumStoreOld';
 
 /**
  * Set specified thumbnail as specified album's thumbnail

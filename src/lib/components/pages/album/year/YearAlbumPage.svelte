@@ -11,8 +11,9 @@
 	import NextButton from "$lib/components/site/nav/NextButton.svelte";
 	import YearAlbumThumbnails from "./YearAlbumThumbnails.svelte";
 	import EditToggle from "$lib/components/site/edit/toggle/EditToggle.svelte";
-
-	export let album;
+	import type { Album } from '$lib/models/album';
+	
+	export let album: Album;
 	export let year: string;
 </script>
 
@@ -24,19 +25,19 @@
 
 	<svelte:fragment slot="nav">
 		<PrevButton 
-			href={$album.nextAlbumHref}
-			title={$album.nextAlbumTitle}
+			href={album.nextAlbumHref}
+			title={album.nextAlbumTitle}
 		/>
 		<UpButton href="../" title="All Years" />
 		<NextButton
-			href={$album.prevAlbumHref}
-			title={$album.prevAlbumTitle}
+			href={album.prevAlbumHref}
+			title={album.prevAlbumTitle}
 		/>
 	</svelte:fragment>
 
 	<svelte:fragment slot="caption">
-		{#if $album.desc}
-			{@html $album.desc}
+		{#if album.desc}
+			{@html album.desc}
 		{/if}
 	</svelte:fragment>
 

@@ -14,8 +14,9 @@
 	import Thumbnails from "$lib/components/site/Thumbnails.svelte";
 	import Thumbnail from "$lib/components/site/Thumbnail.svelte";
 	import LatestAlbumThumbnail from "$lib/components/data-aware/LatestAlbumThumbnail.svelte";
+	import type { Album } from "$lib/models/album";
 
-	export let album;
+	export let album: Album;
 </script>
 
 <svelte:head>
@@ -32,8 +33,8 @@
 		</Sidebar>
 		<MainContent>
 			<Thumbnails>
-				{#if $album.albums}
-				{#each $album.albums as childAlbum (childAlbum.path)}
+				{#if album.albums}
+				{#each album.albums as childAlbum (childAlbum.path)}
 					<Thumbnail
 						title={childAlbum.title}
 						summary={childAlbum.customdata}

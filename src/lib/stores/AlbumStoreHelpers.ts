@@ -1,6 +1,6 @@
 import createAlbumFromObject from '$lib/models/impl/album-creator';
 import type { Album, AlbumThumb } from '$lib/models/album';
-import { store } from '$lib/stores/AlbumStore';
+import { store } from '$lib/stores/AlbumStoreOld';
 import Config from '$lib/utils/config';
 import { derived } from 'svelte/store';
 import type { Readable } from 'svelte/store';

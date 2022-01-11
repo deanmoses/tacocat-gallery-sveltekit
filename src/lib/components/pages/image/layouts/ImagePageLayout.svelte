@@ -1,7 +1,7 @@
 <!--
   @component
 
-  Layout of an image page.  
+  Layout of an image page.
 -->
 
 <script lang="ts">

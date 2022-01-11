@@ -1,6 +1,15 @@
 {
   "name": "tacocat-gallery-svelte-kit",
   "version": "0.0.1",
+  "description": "Javascript front end for the tacocat.com photo gallery, built with Sveltekit",
+  "keywords": [
+    "javascript",
+    "typescript",
+    "svelte",
+    "sveltekit"
+  ],
+  "license": "MIT",
+  "author": "Dean Moses",
   "scripts": {
     "dev": "svelte-kit dev",
     "build": "svelte-kit build",
@@ -28,6 +37,7 @@
     "typescript": "^4.4.3"
   },
   "dependencies": {
+    "idb-keyval": "^6.0.3",
     "immer": "^9.0.0",
     "quill": "^1.3.7"
   },

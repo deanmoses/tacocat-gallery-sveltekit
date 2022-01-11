@@ -17,53 +17,52 @@
 	import { editUrl } from "$lib/utils/path-utils";
 	import DraftStore from "$lib/stores/DraftStore";
 	import { setAlbumThumbnail } from "$lib/stores/AlbumThumbnailHelper";
-	import type { Readable } from "svelte/store";
 	import type { Album } from "$lib/models/album";
 
 	export let year: string;
-  export let album: Readable<Album>;
+  export let album: Album;
 
 	let okToNavigate = DraftStore.getOkToNavigate();
 
 	function albumThumbnailSelected(e: CustomEvent<{path: string}>) {		
 		const imagePath = e.detail.path;
 		console.log(`<DayAlbumEditPage>: thumbnail ${imagePath}`, e.detail);
-		setAlbumThumbnail($album.path, imagePath);
+		setAlbumThumbnail(album.path, imagePath);
 	}
 </script>
 
-<DayAlbumPageLayout {year} title={$album.pageTitle}>
+<DayAlbumPageLayout {year} title={album.pageTitle}>
 
 	<svelte:fragment slot="editControls">
 		<AlbumEditControls />
 	</svelte:fragment>
 
 	<svelte:fragment slot="title">
-		{$album.pageTitle}
+		{album.pageTitle}
 	</svelte:fragment>
 
 	<svelte:fragment slot="nav">
 		<PrevButton
-			href={$okToNavigate ? editUrl($album.nextAlbumHref): null}
-			title={$album.nextAlbumTitle}
+			href={$okToNavigate ? editUrl(album.nextAlbumHref): null}
+			title={album.nextAlbumTitle}
 		/>
 		<UpButton
-			href={$okToNavigate ? editUrl($album.parentAlbumHref) : null}
-			title={$album.parentAlbumTitle}
+			href={$okToNavigate ? editUrl(album.parentAlbumHref) : null}
+			title={album.parentAlbumTitle}
 		/>
 		<NextButton 
-			href={$okToNavigate ? editUrl($album.prevAlbumHref) : null}
-			title={$album.prevAlbumTitle}
+			href={$okToNavigate ? editUrl(album.prevAlbumHref) : null}
+			title={album.prevAlbumTitle}
 		/>
 	</svelte:fragment>
 
 	<svelte:fragment slot="caption">
-		<EditableHtml htmlContent={$album.desc}/>
+		<EditableHtml htmlContent={album.desc}/>
 	</svelte:fragment>
 
 	<svelte:fragment slot="thumbnails">
-		{#if $album.images}
-		{#each $album.images as image (image.path)}
+		{#if album.images}
+		{#each album.images as image (image.path)}
 			{#if $okToNavigate}
 				<Thumbnail
 					title={image.title}
@@ -72,7 +71,7 @@
 					src={Config.cdnUrl(image.url_thumb)}
 				>
 					<svelte:fragment slot="selectionControls">
-						<SelectableStar selected={image.url_thumb.endsWith($album.url_thumb)} path={image.url_thumb} on:selected={albumThumbnailSelected} />
+						<SelectableStar selected={image.url_thumb.endsWith(album.url_thumb)} path={image.url_thumb} on:selected={albumThumbnailSelected} />
 					</svelte:fragment>
 				</Thumbnail>
 			{:else}

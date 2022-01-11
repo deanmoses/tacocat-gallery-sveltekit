@@ -97,3 +97,22 @@ export enum AlbumType {
 	YEAR = 'YEAR',
 	DAY = 'DAY'
 };
+
+export enum AlbumLoadStatus {
+	/** The album has never been loaded and nobody's asked for it */
+	NOT_LOADED = 'NOT_LOADED',
+	/** The album has never been loaded but it's being retrieved */
+	LOADING = 'LOADING',
+	/** The album has never been loaded because there was an error loading the album. */
+	ERROR_LOADING = 'ERROR_LOADING', 
+	/** The album definitely does not exist */
+	DOES_NOT_EXIST = 'DOES_NOT_EXIST',
+	/** The album has been loaded */
+	LOADED = 'LOADED'
+};
+
+export enum AlbumUpdateStatus {
+	NOT_UPDATING = 'NOT_UPDATING',
+	UPDATING = 'UPDATING',
+	ERROR_UPDATING = 'ERROR_UPDATING'
+};

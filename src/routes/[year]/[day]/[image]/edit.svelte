@@ -1,6 +1,6 @@
 
 <!--
-  Image route
+  Image edit route
 -->
 
 <script context="module" lang="ts">
@@ -22,8 +22,8 @@
 	import type { Readable } from "svelte/store";
 	import { AlbumEntry, albumStore } from "$lib/stores/AlbumStore";
 	import ImageRouting from "$lib/components/pages/image/ImageRouting.svelte";
-  import ImagePage from "$lib/components/pages/image/ImagePage.svelte";
-
+  import ImageEditPage from "$lib/components/pages/image/ImageEditPage.svelte";
+  
 	export let year: string;
   export let imagePath: string;
   export let albumEntry: Readable<AlbumEntry>;
@@ -31,6 +31,6 @@
 
 <ImageRouting status={$albumEntry.loadStatus} {year}>
 	<svelte:fragment slot="loaded">
-		<ImagePage {year} album={$albumEntry.album} image={$albumEntry.album.getImage(imagePath)} />
+		<ImageEditPage {year} album={$albumEntry.album} image={$albumEntry.album.getImage(imagePath)} />
 	</svelte:fragment>
 </ImageRouting>

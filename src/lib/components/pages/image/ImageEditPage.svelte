@@ -14,10 +14,11 @@
 	import EditableHtml from "$lib/components/site/edit/EditableHtml.svelte";
 	import { editUrl } from "$lib/utils/path-utils";
 	import DraftStore from "$lib/stores/DraftStore";
+	import type { Album, Image } from "$lib/models/album";
 	
 	export let year: string;
-	export let album;
-	export let image;
+	export let album: Album;
+	export let image: Image;
 
 	let okToNavigate = DraftStore.getOkToNavigate();
 </script>
@@ -39,11 +40,11 @@
 	<svelte:fragment slot="nav">
 		{#if $okToNavigate}
 			<PrevButton href={editUrl(image.prevImageHref)} />
-			<UpButton href={editUrl($album.href)} title={$album.pageTitle}/>
+			<UpButton href={editUrl(album.href)} title={album.pageTitle}/>
 			<NextButton href={editUrl(image.nextImageHref)}  />
 		{:else}
 			<PrevButton />
-			<UpButton title={$album.pageTitle}/>
+			<UpButton title={album.pageTitle}/>
 			<NextButton />
 		{/if}
 	</svelte:fragment>

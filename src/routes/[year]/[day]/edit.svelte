@@ -12,30 +12,24 @@
     return {
       props: {
 				year,
-        albumPath,
-        album: AlbumStoreHelpers.getAlbum(albumPath)
+        albumEntry: albumStore.get(albumPath)
       }
     }
   }
 </script>
 
 <script lang="ts">
-	import AlbumLoadingPage from "$lib/components/pages/album/AlbumLoadingPage.svelte";
+	import type { Readable } from "svelte/store";
+	import { AlbumEntry, albumStore } from "$lib/stores/AlbumStore";
+	import DayAlbumRouting from "$lib/components/pages/album/day/DayAlbumRouting.svelte";
   import DayAlbumEditPage from "$lib/components/pages/album/day/DayAlbumEditPage.svelte";
-	import AlbumErrorPage from "$lib/components/pages/album/AlbumErrorPage.svelte";
-  import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
 
 	export let year:string;
-  export let albumPath:string;
-  export let album;
+  export let albumEntry: Readable<AlbumEntry>;
 </script>
 
-{#await AlbumStoreHelpers.fetchAlbum(albumPath)}
-  <AlbumLoadingPage />
-{:then}
-  <DayAlbumEditPage album={album} {year} />
-{:catch error}
-	<AlbumErrorPage>
-		Error fetching album: {error}
-	</AlbumErrorPage>
-{/await}
+<DayAlbumRouting status={$albumEntry.loadStatus} {year}>
+	<svelte:fragment slot="loaded">
+		<DayAlbumEditPage album={$albumEntry.album} {year}/>
+	</svelte:fragment>
+</DayAlbumRouting>

@@ -14,8 +14,9 @@
 	import EditableHtml from "$lib/components/site/edit/EditableHtml.svelte";
 	import { editUrl } from "$lib/utils/path-utils";
 	import DraftStore from "$lib/stores/DraftStore";
+	import type { Album } from "$lib/models/album";
 
-	export let album;
+	export let album: Album;
 	export let year: string;
 
 	let okToNavigate = DraftStore.getOkToNavigate();
@@ -29,20 +30,20 @@
 
 	<svelte:fragment slot="nav">
 		<PrevButton
-			href={$okToNavigate ? editUrl($album.nextAlbumHref) : null}
-			title={$album.nextAlbumTitle}
+			href={$okToNavigate ? editUrl(album.nextAlbumHref) : null}
+			title={album.nextAlbumTitle}
 		/>
 		<UpButton 
 			href={$okToNavigate ? "../" : null}
 			title="All Years" />
 		<NextButton 
-			href={$okToNavigate ? editUrl($album.prevAlbumHref) : null}
-			title={$album.prevAlbumTitle}
+			href={$okToNavigate ? editUrl(album.prevAlbumHref) : null}
+			title={album.prevAlbumTitle}
 		/>
 	</svelte:fragment>
 
 	<svelte:fragment slot="caption">
-		<EditableHtml htmlContent={$album.desc}/>
+		<EditableHtml htmlContent={album.desc}/>
 	</svelte:fragment>
 
 	<svelte:fragment slot="thumbnails">

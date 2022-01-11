@@ -8,8 +8,9 @@
 	import Thumbnails from "$lib/components/site/Thumbnails.svelte";
 	import Thumbnail from "$lib/components/site/Thumbnail.svelte";
 	import {shortDate} from "$lib/utils/date-utils";
+	import type { Album } from '$lib/models/album';
 
-	export let album;
+	export let album: Album;
 
 	/**
 	 * Groups the child albums by month.
@@ -55,6 +56,22 @@
 	}
 </script>
 
+{#each albumsByMonth(album.albums) as month (month.monthName)}
+	<section class="month">
+		<h3>{month.monthName}</h3>
+		<Thumbnails>
+			{#each month.albums as childAlbum (childAlbum.path)}
+				<Thumbnail
+					title={shortDate(childAlbum.date)}
+					summary={childAlbum.customdata}
+					href="/{childAlbum.path}"
+					src="https://cdn.tacocat.com{childAlbum.url_thumb}"
+				/>
+			{/each}
+		</Thumbnails>
+	</section>
+{/each}
+
 <style>
   h3 {
     background-color: var(--header-color);
@@ -71,19 +88,3 @@
     gap: calc(var(--default-padding) * 2);
   }
 </style>
-
-{#each albumsByMonth($album.albums) as month (month.monthName)}
-	<section class="month">
-		<h3>{month.monthName}</h3>
-		<Thumbnails>
-			{#each month.albums as childAlbum (childAlbum.path)}
-				<Thumbnail
-					title={shortDate(childAlbum.date)}
-					summary={childAlbum.customdata}
-					href="/{childAlbum.path}"
-					src="https://cdn.tacocat.com{childAlbum.url_thumb}"
-				/>
-			{/each}
-		</Thumbnails>
-	</section>
-{/each}
