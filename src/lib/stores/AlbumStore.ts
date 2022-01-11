@@ -7,12 +7,11 @@ import { get as getFromIdb, set as setToIdb } from 'idb-keyval';
 import produce from "immer";
 import Config from '$lib/utils/config';
 import type { Album } from '$lib/models/album';
-import { AlbumLoadStatus } from '$lib/models/album';
+import { AlbumLoadStatus, AlbumUpdateStatus } from '$lib/models/album';
 import createAlbumFromObject from '$lib/models/impl/album-creator';
 
 export type AlbumEntry = {
 	loadStatus: AlbumLoadStatus;
-//	updateStatus: AlbumUpdateStatus;
 	album?: Album;
 };
 
@@ -22,9 +21,14 @@ export type AlbumEntry = {
 class AlbumStore {
 
 	/**
-	 * An internal-only set of Svelte stores holding the albums
+	 * A set of Svelte stores holding the albums
 	 */
 	private albums: Map<string, Writable<AlbumEntry>> = new Map<string, Writable<AlbumEntry>>();
+
+	/**
+	 * A set of Svelte stores holding the album update state
+	 */
+	private albumUpdateStatuses: Map<string, Writable<AlbumUpdateStatus>> = new Map<string, Writable<AlbumUpdateStatus>>();
 
 	/**
 	 * Get an album.
@@ -47,9 +51,17 @@ class AlbumStore {
 		// Get or create the writable version of the album
 		const albumEntry = this.getOrCreateWritableStore(path);
 
-		// Maybe fetch the album
-		if (this.shouldFetch(refetch, get(albumEntry).loadStatus)) {
+		const status = get(albumEntry).loadStatus;
+
+		// I don't have a copy in memory.  Go get it
+		if (AlbumLoadStatus.NOT_LOADED === status) {
+			this.setLoadStatus(path, AlbumLoadStatus.LOADING);
 			this.fetchFromDiskThenServer(path);
+		}
+		// I have a copy in memory, but the caller has asked to re-fetch
+		else if (refetch && AlbumLoadStatus.LOADING !== status) {
+			this.setUpdateStatus(path, AlbumUpdateStatus.UPDATING);
+			this.fetchFromServer(path);
 		}
 
 		// Derive a read-only Svelte store over the album
@@ -57,16 +69,6 @@ class AlbumStore {
 			albumEntry,
 			$store => $store
 		);
-	}
-
-	/**
-	 * Return true if I should fetch the album
-	 * @param refetch 
-	 * @param status 
-	 */
-	private shouldFetch(refetch: boolean, status: AlbumLoadStatus): boolean {
-		return (AlbumLoadStatus.NOT_LOADED === status) // ... it isn't loaded
-			|| (refetch && AlbumLoadStatus.LOADING !== status); // ... if the caller asked for it, and it's not already loading
 	}
 
 	/**
@@ -80,7 +82,7 @@ class AlbumStore {
 		getFromIdb(pathInIdb)
 			.then((jsonAlbum) => {
 				if (jsonAlbum) {
-					console.log(`Album [${path}] found in idb: `, jsonAlbum);
+					console.log(`Album [${path}] found in idb`);
 
 					// Put album in Svelte store
 					this.setAlbum(path, jsonAlbum);
@@ -90,11 +92,11 @@ class AlbumStore {
 				}
 			})
 			.catch((error) => {
-				console.log(`Error fetching album [${path}] from disk`, error);
+				console.log(`Album [${path}] error fetching from disk`, error);
 			})
 			// Always fetch from server regardless of whether it was found on
 			// disk or not
-			.finally(() => { 
+			.finally(() => {
 				this.fetchFromServer(path);
 			});
 	}
@@ -105,8 +107,6 @@ class AlbumStore {
 	 * @param path path of the album 
 	 */
 	private fetchFromServer(path: string): void {
-		this.setLoadStatus(path, AlbumLoadStatus.LOADING);
-
 		fetch(Config.albumUrl(path))
 			.then(response => response.json())
 			.then(json => {
@@ -115,12 +115,11 @@ class AlbumStore {
 						this.setLoadStatus(path, AlbumLoadStatus.DOES_NOT_EXIST);
 					}
 					else {
-						console.log(`Error fetching album [${path}] from server: `, json.message);
-						this.setLoadStatus(path, AlbumLoadStatus.ERROR_LOADING);
+						this.handleFetchError(path, json.error);
 					}
 				}
 				else {
-					console.log(`Album [${path}] fetched from server:`, json.album);
+					console.log(`Album [${path}] fetched from server`);
 					const jsonAlbum = json.album;
 
 					// Put album in Svelte store
@@ -131,9 +130,28 @@ class AlbumStore {
 				}
 			})
 			.catch((error) => {
-				console.log(`Error fetching album [${path}] from server: `, error);
-				this.setLoadStatus(path, AlbumLoadStatus.ERROR_LOADING);
+				this.handleFetchError(path, error);
 			});
+	}
+
+	private handleFetchError(path: string, error: string): void {
+		console.log(`Album [${path}] error fetching from server: `, error);
+
+		switch (this.getLoadStatus(path)) {
+			case
+				AlbumLoadStatus.LOADING,
+				AlbumLoadStatus.NOT_LOADED,
+				AlbumLoadStatus.DOES_NOT_EXIST:
+				this.setLoadStatus(path, AlbumLoadStatus.ERROR_LOADING);
+				break;
+			case
+				AlbumLoadStatus.LOADED:
+				this.setUpdateStatus(path, AlbumUpdateStatus.ERROR_UPDATING);
+				break;
+			case
+				AlbumLoadStatus.ERROR_LOADING:
+				// already in correct state
+		}
 	}
 
 	/**
@@ -150,6 +168,8 @@ class AlbumStore {
 			draftState.album = album;
 		})
 		albumEntry.set(newState);
+
+		this.setUpdateStatus(path, AlbumUpdateStatus.NOT_UPDATING);
 	}
 
 	/**
@@ -160,9 +180,11 @@ class AlbumStore {
 	 */
 	private writeToDisk(path: string, jsonAlbum: JSON): void {
 		const pathInIdb = this.pathInIdb(path);
+		// TODO: maybe don't write it if the value is unchanged?
+		// Or maybe refresh some sort of last_fetched timestamp?
 		setToIdb(pathInIdb, jsonAlbum)
 			.then(() => console.log(`Album [${path}] stored in idb`))
-			.catch((e) => console.log(`Error saving album [${path}] to idb`, e));
+			.catch((e) => console.log(`Album [${path}] error storing in idb`, e));
 	}
 
 	private pathInIdb(path: string): string {
@@ -181,6 +203,37 @@ class AlbumStore {
 			draftState.loadStatus = loadStatus;
 		})
 		albumEntry.set(newState);
+	}
+
+	private getLoadStatus(path: string): AlbumLoadStatus {
+		return get(this.albums.get(path)).loadStatus;
+	}
+
+	private setUpdateStatus(path: string, status: AlbumUpdateStatus): void {
+		//console.log(`Album [${path}] set update status:`, status);
+		const updateStatusStore = this.getOrCreateUpdateStatusStore(path);
+		updateStatusStore.set(status);
+	}
+
+	private getUpdateStatus(path: string): AlbumUpdateStatus {
+		return get(this.getOrCreateUpdateStatusStore(path));
+	}
+
+	/**
+	 * Get the private read-write Svelte store containing the album's update status,
+	 * creating it if it doesn't exist
+	 * 
+	 * @param path path of the album 
+	 */
+	private getOrCreateUpdateStatusStore(path: string): Writable<AlbumUpdateStatus> {
+		let entryStore: Writable<AlbumUpdateStatus>;
+		entryStore = this.albumUpdateStatuses.get(path);
+		if (!entryStore) {
+			const newEntry: AlbumUpdateStatus = AlbumUpdateStatus.NOT_UPDATING;
+			entryStore = writable(newEntry);
+		}
+		this.albumUpdateStatuses.set(path, entryStore);
+		return entryStore
 	}
 
 	/**
@@ -205,7 +258,6 @@ class AlbumStore {
 
 		return albumEntry;
 	}
-
 }
 
 export const albumStore:AlbumStore = new AlbumStore();
