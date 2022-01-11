@@ -6,27 +6,35 @@
 
 <script lang="ts">
   import Thumbnail from "$lib/components/site/Thumbnail.svelte";
-  import AlbumStoreHelpers from "$lib/stores/AlbumStoreHelpers";
+	import { AlbumLoadStatus, AlbumThumb } from "$lib/models/album";
+	import { latestAlbumThumbnailEntry } from "$lib/stores/LatestAlbumStore";
+	import Config from "$lib/utils/config";
   import {shortDate} from "$lib/utils/date-utils";
 
-  const album = AlbumStoreHelpers.getLatestAlbum();
+	let status: AlbumLoadStatus;
+	$: status = $latestAlbumThumbnailEntry.status;
+
+	let thumb: AlbumThumb;
+	$: thumb = $latestAlbumThumbnailEntry.thumbnail;
 </script>
 
-{#await AlbumStoreHelpers.fetchLatestAlbum()}
-  <!-- display nothing until it's loaded -->
-{:then}
-  <aside>
-    <h2>Latest Album</h2>
-    <Thumbnail
-      title="{shortDate($album.date)}"
-      summary="{$album.customdata}"
-      href="/{$album.path}"
-      src="https://cdn.tacocat.com{$album.url_thumb}"
-    />
-  </aside>
-{:catch error}
-  Error fetching latest album: <div>{error}</div>
-{/await}
+{#if AlbumLoadStatus.NOT_LOADED == status || AlbumLoadStatus.LOADING == status}
+	<!-- display nothing until it's loaded -->
+{:else if AlbumLoadStatus.ERROR_LOADING == status}
+	Error fetching latest album
+{:else if AlbumLoadStatus.LOADED == status}
+	<aside>
+		<h2>Latest Album</h2>
+		<Thumbnail
+			title="{shortDate(thumb.date)}"
+			summary="{thumb.customdata}"
+			href="/{thumb.path}"
+			src={Config.cdnUrl(thumb.url_thumb)}
+		/>
+	</aside>
+{:else}
+	Unhandled status: {status}
+{/if}
 
 <style>
   aside {
