@@ -44,8 +44,6 @@ class AlbumStore {
 	 * @returns a Svelte store containing an AlbumEntry
 	 */
 	get(path: string, refetch = true): Readable<AlbumEntry> {
-		console.log(`AlbumStore.get(${path})`);
-
 		// Get or create the writable version of the album
 		const albumEntry = this.getOrCreateWritableStore(path);
 
@@ -82,13 +80,13 @@ class AlbumStore {
 		getFromIdb(pathInIdb)
 			.then((jsonAlbum) => {
 				if (jsonAlbum) {
-					console.log(`Found album [${path}] in idb: `, data);
+					console.log(`Album [${path}] found in idb: `, jsonAlbum);
 
 					// Put album in Svelte store
 					this.setAlbum(path, jsonAlbum);
 				}
 				else {
-					console.log(`Did not find album [${path}] in idb`);
+					console.log(`Album [${path}] not found in idb`);
 				}
 			})
 			.catch((error) => {
@@ -122,7 +120,7 @@ class AlbumStore {
 					}
 				}
 				else {
-					console.log(`fetched album [${path}] from server:`, json.album);
+					console.log(`Album [${path}] fetched from server:`, json.album);
 					const jsonAlbum = json.album;
 
 					// Put album in Svelte store
@@ -163,7 +161,7 @@ class AlbumStore {
 	private writeToDisk(path: string, jsonAlbum: JSON): void {
 		const pathInIdb = `a:${path}`;
 		setToIdb(pathInIdb, jsonAlbum)
-			.then(() => console.log(`Stored album [${path}] in idb`))
+			.then(() => console.log(`Album [${path}] stored in idb`))
 			.catch((e) => console.log(`Error saving album [${path}] to idb`, e));
 	}
 
@@ -192,7 +190,7 @@ class AlbumStore {
 
 		// If the album wasn't found in memory
 		if (!albumEntry) {
-			console.log(`Did not find album [${path}] in memory`);
+			console.log(`Album [${path}] not found in memory`);
 			// Create blank entry so that consumers have some object 
 			// to which they can subscribe to changes
 			albumEntry = writable({
