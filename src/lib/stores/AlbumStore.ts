@@ -1,5 +1,5 @@
 /**
- * A Svelte store representing the draft changes to an album or a image
+ * A store of photo albums
  */
 
 import { writable, type Writable, derived, type Readable, get } from 'svelte/store';
