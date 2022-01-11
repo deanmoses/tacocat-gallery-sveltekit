@@ -76,7 +76,7 @@ class AlbumStore {
 	 * @param path path of the album
 	 */
 	private fetchFromDiskThenServer(path: string): void {
-		const pathInIdb = `a:${path}`;
+		const pathInIdb = this.pathInIdb(path);
 		getFromIdb(pathInIdb)
 			.then((jsonAlbum) => {
 				if (jsonAlbum) {
@@ -159,10 +159,14 @@ class AlbumStore {
 	 * @param jsonAlbum JSON of the album
 	 */
 	private writeToDisk(path: string, jsonAlbum: JSON): void {
-		const pathInIdb = `a:${path}`;
+		const pathInIdb = this.pathInIdb(path);
 		setToIdb(pathInIdb, jsonAlbum)
 			.then(() => console.log(`Album [${path}] stored in idb`))
 			.catch((e) => console.log(`Error saving album [${path}] to idb`, e));
+	}
+
+	private pathInIdb(path: string): string {
+		return `/${path}`;
 	}
 
 	/**
