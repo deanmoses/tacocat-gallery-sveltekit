@@ -1,3 +1,9 @@
+<!--
+  @component
+
+  An icon representing the concept of "cancel"
+-->
+
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 

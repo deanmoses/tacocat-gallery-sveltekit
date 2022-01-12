@@ -1,3 +1,9 @@
+<!--
+  @component
+
+  A hollow outline (not filled-in) of a star
+-->
+
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 

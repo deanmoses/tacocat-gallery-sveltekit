@@ -1,3 +1,9 @@
+<!--
+  @component
+
+  A filled-in star icon
+-->
+
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 

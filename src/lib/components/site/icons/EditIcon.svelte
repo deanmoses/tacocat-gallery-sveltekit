@@ -1,3 +1,9 @@
+<!--
+  @component
+
+  An icon repepresenting the concept of "edit"
+-->
+
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 

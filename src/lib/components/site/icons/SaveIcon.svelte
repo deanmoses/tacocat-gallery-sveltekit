@@ -1,3 +1,9 @@
+<!--
+  @component
+
+  An icon representing the concept of "save"
+-->
+
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 

@@ -1,3 +1,9 @@
+<!--
+  @component
+
+  An icon representing "edit in an external site"
+-->
+
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 
