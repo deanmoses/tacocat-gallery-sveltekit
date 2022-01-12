@@ -1,4 +1,4 @@
-import { store } from '$lib/stores/AlbumStoreOld';
+import { albumStore } from '$lib/stores/AlbumStore';
 
 /**
  * Set specified thumbnail as specified album's thumbnail
@@ -21,13 +21,8 @@ async function _setAlbumThumbnail(albumPath: string, thumbnailLeafPath: string):
 	// Update thumb on cached version of album
 	// TODO: this is where Redux is great. Here I should just fire a THUMB_UPDATED action
 	// and another part of the system takes care of updating the album
-	const payload = { 
-		albumPath, 
-		thumbnailUrl: thumbnailLeafPath 
-	}
-	store.actions.setThumbnail(payload);
+	albumStore.setThumbnail(albumPath, thumbnailLeafPath);
 }
-
 
 function timeout(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));

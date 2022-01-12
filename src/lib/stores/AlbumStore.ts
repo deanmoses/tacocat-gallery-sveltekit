@@ -74,6 +74,29 @@ class AlbumStore {
 	}
 
 	/**
+	 * Set which thumbnail is selected as the thumbnail
+	 * for the album.
+	 * 
+	 * TODO: editing actions shouldn't be in the same file
+	 * as the load actions, so that non-admin users aren't
+	 * downloading more code than they need to.
+	 * 
+	 * @param state 
+	 * @param payload 
+	 */
+	setThumbnail(albumPath: string, thumbnailUrl: string) {
+		console.log(`Album [${albumPath}] set thumbnail:`, thumbnailUrl);
+
+		const albumEntry = this.albums.get(albumPath);
+		if (!albumEntry) throw new Error(`Did not find album [${albumPath}] on which to set selected thumbnail`);
+		
+		albumEntry.update((draftAlbumEntry) => { 
+			draftAlbumEntry.album.url_thumb = thumbnailUrl;
+			return draftAlbumEntry;
+		})
+	}
+
+	/**
 	 * Fetch album from browser's local disk, 
 	 * then fetch from server
 	 * 
