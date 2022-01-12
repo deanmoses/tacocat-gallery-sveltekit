@@ -5,13 +5,11 @@
 -->
 
 <svg
-    class="lds-camera"
     width="200px"
     height="200px"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 100 100"
     preserveAspectRatio="xMidYMid"
-    style="background: none"
 >
     <g transform="translate(50,50)">
         <g transform="scale(0.8)">
@@ -64,3 +62,10 @@
         </g>
     </g>
 </svg>
+
+<style>
+	svg {
+		display: inline;
+		background: none;
+	}
+</style>
