@@ -34,6 +34,62 @@
 	--button-color: #a65e68;
 }
 
+.site-container[data-year='2018'] {
+	--body-color: #676559;
+	--header-color: #87679f;
+	--sidebar-color: #879099;
+	--button-color: #a1b9bd;
+}
+
+.site-container[data-year='2017'] {
+	--body-color: #5c7148;
+	--header-color: #d1af94;
+	--sidebar-color: #be869f;
+	--button-color: #efcec5;
+}
+
+.site-container[data-year='2016'] {
+	--body-color: #034f84;
+	--header-color: #98ddde;
+	--sidebar-color: #91a8d0;
+	--button-color: #c6f7f7;
+}
+
+.site-container[data-year='2015'] {
+	--body-color: #692f55;
+	--header-color: #c56d69;
+	--sidebar-color: #837d54;
+	--button-color: #e2b6b4;
+}
+
+.site-container[data-year='2014'] {
+	--body-color: #8d5f5f;
+	--header-color: #e8ddc7;
+	--sidebar-color: #cebfa1;
+	--button-color: #f7f3eb;
+}
+
+.site-container[data-year='2013'] {
+	--body-color: #917d61;
+	--header-color: #b7c8a4;
+	--sidebar-color: #8a9e75;
+	--button-color: #e9eee4;
+}
+
+.site-container[data-year='2012'] {
+	--body-color: #973450;
+	--header-color: #edb79c;
+	--sidebar-color: #e77f4b;
+	--button-color: #fdf6f2;
+}
+
+.site-container[data-year='2011'] {
+	--body-color: #4d3087;
+	--header-color: #e0ee83;
+	--sidebar-color: #f6fadd;
+	--button-color: #c2d543;
+}
+
 /*
 	Global styles
 	Almost all styling should be embedded in components, not here
