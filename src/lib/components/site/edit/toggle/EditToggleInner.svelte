@@ -36,7 +36,7 @@
 <div>
 	<nav class="editing-controls">
 		<button on:click|once={onEditButtonClick}><EditIcon/>Edit</button>
-		<button on:click|once={onZenButtonClick}><EditExternalIcon/>Zenphoto</button>
+		<button on:click|once={onZenButtonClick}><EditExternalIcon title="Edit in Zenphoto"/>Zenphoto</button>
 		{#if isYearAlbumPath(path)}
 			<button on:click|once={onRefreshClick}>Refresh</button>
 		{/if}
