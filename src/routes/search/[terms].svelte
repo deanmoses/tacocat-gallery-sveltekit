@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
 	export async function load({ params, url }) {
 		const searchTerms = params.terms;
-		const returnPath = url.searchParams.get('return')
+		const returnPath = url.searchParams.get('returnPath')
 		return {
 			props: {
 				returnPath: returnPath,

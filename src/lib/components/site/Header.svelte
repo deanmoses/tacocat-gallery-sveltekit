@@ -6,6 +6,7 @@
 
 <script lang="ts">
 	import SearchIcon from "./icons/SearchIcon.svelte";
+	import { page } from "$app/stores";
 
 	/** Don't show the site's title (this is different than the page title)*/
 	export let hideSiteTitle = false;
@@ -18,7 +19,7 @@
     {#if !hideSiteTitle}
       <span class="site-title hidden-xs">Dean, Lucie, Felix and Milo Moses</span>
     {/if}
-    <a href="/search" class="hidden-xxs">
+    <a href="/search?returnPath={$page.url.pathname}" class="hidden-xxs">
 			<SearchIcon />
     </a>
   </div>

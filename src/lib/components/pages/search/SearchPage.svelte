@@ -1,7 +1,7 @@
 <!--
   @component
 
-  Page that displays a search
+  Page that displays a blank search input
 -->
 
 <script lang="ts">
@@ -18,7 +18,7 @@
 		const formData = new FormData(e.target);
 		const searchTerms = formData.get("searchTerms");
 		if (searchTerms) {
-			goto(`/search/${searchTerms}?return=${returnPath}`);
+			goto(`/search/${searchTerms}?returnPath=${returnPath}`);
 		}
 	}
 </script>
