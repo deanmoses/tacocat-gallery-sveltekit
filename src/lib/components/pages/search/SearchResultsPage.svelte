@@ -17,7 +17,7 @@
 
 <SearchPage {searchTerms} {returnPath}>
 	<section>
-		<h2 style="display:none">Thumbnails</h2>
+		<h2 style="display:none">Search Results</h2>
 		<Thumbnails>
 			{#if searchResults.albums}
 			{#each searchResults.albums as album (album.path)}
