@@ -15,6 +15,7 @@
 	import { editUrl } from "$lib/utils/path-utils";
 	import DraftStore from "$lib/stores/DraftStore";
 	import type { Album, Image } from "$lib/models/album";
+	import Config from "$lib/utils/config";
 	
 	export let year: string;
 	export let album: Album;
@@ -50,7 +51,12 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="image">
-		<a href="https://tacocat.com{image.url_full}" target="zen"><img src="https://cdn.tacocat.com{image.url_sized}" style="object-fit: contain; width: 100%; height: 100%; max-width: 4032px; max-height: 3024px;" alt="{image.title}"></a>
+		<a 
+			href={Config.fullSizeImageUrl(image.url_full)} 
+			target="zen"><img 
+				src={Config.cdnUrl(image.url_sized)} 
+				style="object-fit: contain; width: 100%; height: 100%; max-width: 4032px; max-height: 3024px;" 
+				alt={image.title}></a>
 	</svelte:fragment>
 
 </ImagePageLayout>

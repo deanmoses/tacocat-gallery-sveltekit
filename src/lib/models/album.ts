@@ -70,6 +70,7 @@ export interface Thumbable {
 /**
  * Just enough information to display an Album as a thumbnail image
  */
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AlbumThumb extends Thumbable { };
 
 /**
@@ -98,6 +99,9 @@ export enum AlbumType {
 	DAY = 'DAY'
 };
 
+/**
+ * Status of the initial load of the album
+ */
 export enum AlbumLoadStatus {
 	/** The album has never been loaded and nobody's asked for it */
 	NOT_LOADED = 'NOT_LOADED',
@@ -111,6 +115,12 @@ export enum AlbumLoadStatus {
 	LOADED = 'LOADED'
 };
 
+/**
+ * Status of subsequent updates to the album
+ * 
+ * Update status is different than load status: updates are AFTER the 
+ * initial album has loaded.  You are refreshing the existing album.
+ */
 export enum AlbumUpdateStatus {
 	NOT_UPDATING = 'NOT_UPDATING',
 	UPDATING = 'UPDATING',

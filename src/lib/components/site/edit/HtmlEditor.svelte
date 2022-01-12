@@ -62,7 +62,7 @@
 
 </script>
 
-<div bind:this={editor}>{@html htmlContent}</div>
+<div bind:this={editor}>{#if htmlContent}{@html htmlContent}{/if}</div>
 
 <style>
   @import 'https://cdn.quilljs.com/1.3.7/quill.bubble.css';

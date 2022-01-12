@@ -1,5 +1,5 @@
 /**
- * A store of photo albums
+ * Svelte stores of photo albums
  */
 
 import { writable, type Writable, derived, type Readable, get } from 'svelte/store';
@@ -16,7 +16,7 @@ export type AlbumEntry = {
 };
 
 /**
- * Manages the Svelte store of photo albums
+ * Manages the Svelte stores of photo albums
  */
 class AlbumStore {
 
@@ -27,6 +27,8 @@ class AlbumStore {
 
 	/**
 	 * A set of Svelte stores holding the album update state
+	 * 
+	 * Update status is different than load status: updates are AFTER the album has loaded initially.
 	 */
 	private albumUpdateStatuses: Map<string, Writable<AlbumUpdateStatus>> = new Map<string, Writable<AlbumUpdateStatus>>();
 

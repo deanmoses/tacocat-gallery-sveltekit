@@ -9,6 +9,7 @@
 	import Thumbnail from "$lib/components/site/Thumbnail.svelte";
 	import {shortDate} from "$lib/utils/date-utils";
 	import type { Album } from '$lib/models/album';
+	import Config from "$lib/utils/config";
 
 	export let album: Album;
 
@@ -65,7 +66,7 @@
 					title={shortDate(childAlbum.date)}
 					summary={childAlbum.customdata}
 					href="/{childAlbum.path}"
-					src="https://cdn.tacocat.com{childAlbum.url_thumb}"
+					src={Config.cdnUrl(childAlbum.url_thumb)}
 				/>
 			{/each}
 		</Thumbnails>

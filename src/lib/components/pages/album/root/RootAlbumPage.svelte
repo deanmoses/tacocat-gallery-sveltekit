@@ -15,6 +15,7 @@
 	import Thumbnail from "$lib/components/site/Thumbnail.svelte";
 	import LatestAlbumThumbnail from "$lib/components/data-aware/LatestAlbumThumbnail.svelte";
 	import type { Album } from "$lib/models/album";
+	import Config from "$lib/utils/config";
 
 	export let album: Album;
 </script>
@@ -39,7 +40,7 @@
 						title={childAlbum.title}
 						summary={childAlbum.customdata}
 						href="/{childAlbum.path}"
-						src="https://cdn.tacocat.com{childAlbum.url_thumb}"
+						src={Config.cdnUrl(childAlbum.url_thumb)}
 					/>
 				{/each}
 				{/if}

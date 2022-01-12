@@ -113,7 +113,7 @@ export default abstract class Config {
 	 * URL to view the full sized raw image on Zenphoto
 	 * @param imagePath path to an image
 	 */
-	public static zenphotoImageFullSizeUrl(imagePath: string): string {
+	public static fullSizeImageUrl(imagePath: string): string {
 		return 'https://tacocat.com/zenphoto/albums/' + imagePath;
 	}
 

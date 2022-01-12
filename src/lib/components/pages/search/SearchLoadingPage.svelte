@@ -9,8 +9,6 @@
 
 <SearchPage {searchTerms} {returnPath}>
 	<FullPageMessage>
-		Searching for {searchTerms}...
-
     <WaitingSpinner />
 	</FullPageMessage>
 </SearchPage>
