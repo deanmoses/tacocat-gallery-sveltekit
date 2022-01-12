@@ -1,3 +1,9 @@
+<!--
+  @component
+
+  Page that displays a search
+-->
+
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import SiteLayout from '$lib/components/site/SiteLayout.svelte';
@@ -15,31 +21,6 @@
 		}
 	}
 </script>
-
-<style>
-	header {
-		display: flex;
-		align-items: center;
-
-		padding: var(--default-padding);
-		padding-left: calc(var(--default-padding) * 2);
-		background-color: var(--header-color);
-	}
-  
-	svg {
-		font-size: 28px;
-		min-height: 1.5em; /* for when there's no h1 text */
-		color: var(--default-text-color);
-	}
-
-	form {
-		margin-left: auto
-	}
-
-	button {
-		background-color: var(--button-color);
-	}
-</style>
 
 <svelte:head>
 	<title>{pageTitle}</title>
@@ -66,3 +47,28 @@
 	
 	<slot/>
 </SiteLayout>
+
+<style>
+	header {
+		display: flex;
+		align-items: center;
+
+		padding: var(--default-padding);
+		padding-left: calc(var(--default-padding) * 2);
+		background-color: var(--header-color);
+	}
+  
+	svg {
+		font-size: 28px;
+		min-height: 1.5em; /* for when there's no h1 text */
+		color: var(--default-text-color);
+	}
+
+	form {
+		margin-left: auto
+	}
+
+	button {
+		background-color: var(--button-color);
+	}
+</style>

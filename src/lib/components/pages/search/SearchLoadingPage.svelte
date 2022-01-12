@@ -1,3 +1,9 @@
+<!--
+  @component
+
+  A "Searching..." page
+-->
+
 <script lang="ts">
   import SearchPage from "$lib/components/pages/search/SearchPage.svelte";
 	import FullPageMessage from "$lib/components/site/FullPageMessage.svelte";

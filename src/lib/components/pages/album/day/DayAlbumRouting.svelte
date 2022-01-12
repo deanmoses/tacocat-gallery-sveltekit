@@ -3,6 +3,7 @@
 
   Flip through different statuses of a day album
 -->
+
 <script lang="ts">
 	import AlbumLoadingPage from "$lib/components/pages/album/AlbumLoadingPage.svelte";
 	import AlbumErrorPage from "$lib/components/pages/album/AlbumErrorPage.svelte";
