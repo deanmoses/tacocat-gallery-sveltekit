@@ -8,8 +8,9 @@
 	import BlankImagePageLayout from "./layouts/BlankImagePageLayout.svelte";
 
 	export let year: string;
+	export let title = "Error";
 </script>
 
-<BlankImagePageLayout {year} title="Error">
+<BlankImagePageLayout {year} {title}>
 	<slot />
 </BlankImagePageLayout>

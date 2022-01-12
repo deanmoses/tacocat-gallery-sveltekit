@@ -10,11 +10,17 @@
 
 <style>
 	div {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background-color: white;
+		text-align: center;
+
 		padding-top: 5em;
 		padding-bottom: 5em;
+		
+		background-color: white;
+		color: var(--default-text-color);
+	}
+
+	:global(p) {
+		margin-top: 1em;
+		margin-bottom: 1em;
 	}
 </style>

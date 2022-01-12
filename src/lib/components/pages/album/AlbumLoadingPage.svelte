@@ -11,6 +11,6 @@
 	export let year:string = null;
 </script>
 
-<BlankAlbumPageLayout {year}>
+<BlankAlbumPageLayout {year} title="Loading...">
 	<WaitingSpinner />
 </BlankAlbumPageLayout>

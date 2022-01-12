@@ -7,9 +7,10 @@
 <script lang="ts">
 	import BlankAlbumPageLayout from "./BlankAlbumPageLayout.svelte";
 
-	export let year:string = null;;
+	export let year:string = null;
+	export let title = "Error";
 </script>
 
-<BlankAlbumPageLayout {year}>
+<BlankAlbumPageLayout {year} {title} hideFooter>
 	<slot />
 </BlankAlbumPageLayout>

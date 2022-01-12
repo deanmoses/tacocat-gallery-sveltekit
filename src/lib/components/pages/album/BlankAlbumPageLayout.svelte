@@ -12,29 +12,25 @@
 	import PrevButton from "$lib/components/site/nav/PrevButton.svelte";
 	import UpButton from "$lib/components/site/nav/UpButton.svelte";
 	import NextButton from "$lib/components/site/nav/NextButton.svelte";
+	import FullPageMessage from "$lib/components/site/FullPageMessage.svelte";
 	
 	export let year:string = null;
+	export let title: string;
+	export let hideFooter = false;
 </script>
 
-<SiteLayout {year}>
+<svelte:head>
+	<title>{title}</title>
+</svelte:head>
+
+<SiteLayout {year} {hideFooter}>
 	<Header/>
 	<Nav>
 		<PrevButton />
 		<UpButton />
 		<NextButton />
 	</Nav>
-	<div>
+	<FullPageMessage>
 		<slot/>
-	</div>
+	</FullPageMessage>
 </SiteLayout>
-
-<style>
-	div {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background-color: white;
-		padding-top: 5em;
-		padding-bottom: 5em;
-	}
-</style>

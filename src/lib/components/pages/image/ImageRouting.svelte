@@ -8,6 +8,7 @@
 	import { AlbumLoadStatus } from "$lib/models/album";
 	import ImageLoadingPage from "$lib/components/pages/image/ImageLoadingPage.svelte";
 	import ImageErrorPage from "./ImageErrorPage.svelte";
+	import HomeIcon from "$lib/components/site/icons/HomeIcon.svelte";
 
 	export let year: string;
 	export let status: AlbumLoadStatus;
@@ -22,9 +23,9 @@
 		Error retrieving album
 	</ImageErrorPage>
 {:else if status === AlbumLoadStatus.DOES_NOT_EXIST}
-	<ImageErrorPage {year}>
-		<p>Album does not exist</p>
-		<p><a href="/">Go back home?</a></p>
+	<ImageErrorPage {year} title="Album Not Found">
+		<p>Album does not exist.</p>
+		<p><a href="/">Go back <HomeIcon title="Home" />?</a></p>
 	</ImageErrorPage>
 {:else}
 	Unknown album status: {status}
