@@ -5,10 +5,10 @@
 -->
 
 <script lang="ts">
+	import Icon from './Icon.svelte';
 	import { createEventDispatcher } from 'svelte';
 
-	export let width = "1em";
-	export let height = "1em";
+	export let title = "Edit";
 
 	const d = "M1027 0q19 0 33 13l153 153q13 14 13 33t-13 33l-99 92-214-214 95-96q13-14 32-14zm2 410l-615 614-214-214 614-614zm-696 704L0 1226l110-335z";
 	const viewBox = "0 0 1226 1226";
@@ -20,10 +20,4 @@
 	}
 </script>
 
-<svg on:click={onClick} {width} {height} {viewBox}><path {d}></path></svg>
-
-<style>
-	path {
-		fill: currentcolor;
-	}
-</style>
+<Icon on:click={onClick} {viewBox} {title} {d} />
