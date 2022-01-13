@@ -7,6 +7,7 @@
 <script lang="ts">
 	import SearchIcon from "./icons/SearchIcon.svelte";
 	import { page } from "$app/stores";
+	import Config from "$lib/utils/config";
 
 	/** Hide the header on small viewports */
 	export let hideWhenSmall = false;
@@ -26,7 +27,7 @@
 
   <div>
     {#if !hideSiteTitle}
-      <span class="site-title hidden-xs">Dean, Lucie, Felix and Milo Moses</span>
+      <span class="site-title hidden-xs">{Config.siteTitle}</span>
     {/if}
 		{#if !hideSearch}
 			<a href="/search?returnPath={$page.url.pathname}" class="hidden-xxs">

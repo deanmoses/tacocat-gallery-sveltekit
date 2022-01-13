@@ -26,7 +26,7 @@
 
 <SiteLayout>
 	<Header hideSiteTitle>
-		<ResponsiveTitle title="Dean, Lucie, Felix and Milo Moses" shortTitle="The Moses Family" />
+		<ResponsiveTitle title={Config.siteTitle()} shortTitle={Config.siteShortTitle()} />
 	</Header>
 	<PageContent>
 		<Sidebar>
