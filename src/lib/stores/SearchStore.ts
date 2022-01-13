@@ -6,7 +6,7 @@ import { writable, type Writable, derived, type Readable, get } from 'svelte/sto
 import { get as getFromIdb, set as setToIdb } from 'idb-keyval';
 import produce from "immer";
 import Config from '$lib/utils/config';
-import type { Search } from '$lib/models/search';
+import type { Search, SearchResults } from '$lib/models/search';
 import { SearchLoadStatus, SearchUpdateStatus } from '$lib/models/search';
 
 /**
@@ -114,14 +114,14 @@ class SearchStore {
 						console.log(`Search [${searchTerms}] fetched from server`);
 
 						// TODO: better error handling if we don't get back expected response,
-						// rather than just accepting json.search
-						const jsonSearchResults = json.search;
+						// rather than just accepting the JSON
+						const searchResults: SearchResults = json.search;
 	
 						// Put search results in Svelte store
-						this.setSearch(searchTerms, jsonSearchResults);
+						this.setSearch(searchTerms, searchResults);
 	
 						// Put search results in browser's local disk cache
-						this.writeToDisk(searchTerms, jsonSearchResults);
+						this.writeToDisk(searchTerms, searchResults);
 					}
 				})
 				.catch((error) => {
@@ -155,7 +155,7 @@ class SearchStore {
 		 * @param searchTerms the search terms 
 		 * @param searchResults the search results
 		 */
-		private setSearch(searchTerms: string, searchResults: JSON): void {
+		private setSearch(searchTerms: string, searchResults: SearchResults): void {
 			const searchEntry = this.getOrCreateWritableStore(searchTerms);
 			const newState = produce(get(searchEntry), (draftState: Search) => {
 				draftState.status = SearchLoadStatus.LOADED;
@@ -170,9 +170,9 @@ class SearchStore {
 		 * Store the search results in the browser's local disk storage
 		 * 
 		 * @param searchTerms the search terms 
-		 * @param searchResults JSON of the search results
+		 * @param searchResults the search results
 		 */
-		private writeToDisk(searchTerms: string, searchResults: JSON): void {
+		private writeToDisk(searchTerms: string, searchResults: SearchResults): void {
 			const key = this.idbKey(searchTerms);
 			// TODO: maybe don't write it if the value is unchanged?
 			// Or maybe refresh some sort of last_fetched timestamp?

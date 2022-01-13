@@ -1,10 +1,21 @@
+import type { AlbumThumb, Thumbable } from "./album";
+
 /**
- * A set of search results for a particular set of search terms
+ * An in-progress search
  */
 export type Search = {
 	status: SearchLoadStatus;
-	results?: any;
+	results?: SearchResults;
 };
+
+/**
+ * Search results
+ */
+export type SearchResults = {
+	albums?: AlbumThumb[];
+	images?: Thumbable[];
+	thumb_size?: number;
+}
 
 /**
  * Status of the initial load of the search results
