@@ -69,6 +69,10 @@
 		margin-left: auto
 	}
 
+	input {
+		width: 15em;
+	}
+
 	button {
 		background-color: var(--button-color);
 	}
