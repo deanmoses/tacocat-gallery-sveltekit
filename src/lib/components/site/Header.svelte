@@ -8,6 +8,9 @@
 	import SearchIcon from "./icons/SearchIcon.svelte";
 	import { page } from "$app/stores";
 
+	/** Hide the header on small viewports */
+	export let hideWhenSmall = false;
+
 	/** Don't show the bottom border of the header.  Which you don't when there's nav buttons below the header. */
 	export let hideBottomBorder = false;
 
@@ -18,7 +21,7 @@
 	export let hideSiteTitle = false;
 </script>
 
-<header class:bottomBorder={!hideBottomBorder}>
+<header class:bottomBorder={!hideBottomBorder} class:hidden-sm={hideWhenSmall}>
   <h1><slot /></h1>
 
   <div>
