@@ -1,7 +1,7 @@
 <!--
   @component
 
-  A button component
+  Base component for nav buttons
 -->
 
 <script lang="ts">
@@ -11,28 +11,35 @@
   $: disabled  = !href ? true : null;
 </script>
 
-<a class="btn" {href} {disabled}><slot /></a>
+<a {href} {disabled}><span><slot /></span></a>
 
 <style>
-  .btn {
-    flex: 1;
+	a {
+		flex: 1;
+	}
+
+  span {
+		height: 100%;
 
     display: flex;
     justify-content: center;
     align-items: center;
     column-gap: 0.2em;
 
-    /*background-color: #cec68c;*/
+		background-color: var(--button-color);
     color: var(--default-text-color);
     border: 1px solid #ccc;
     text-decoration: none;
     padding: 6px 12px;
   }
 
-  .btn[disabled] {
+	a[disabled] {
+		background-color: white;
+	}
+
+  a[disabled] span {
     color: #ccc;
     cursor: not-allowed;
-    /*opacity: 0.65;*/
-    background-color: var(--button-disabled-color);
+    opacity: 0.65;
   }
 </style>

@@ -10,7 +10,7 @@
 	--header-color: #d2927f;
 	--sidebar-color: #a0838f;
 	--button-color: #e2c1bf;
-	--button-disabled-color: #f1d6d5;
+	/*--button-disabled-color: #f1d6d5; /* couldn't get this to work when all the other years don't have it */
 }
 
 .site-container[data-year='2021'] {
