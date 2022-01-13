@@ -6,6 +6,7 @@ import { getParentFromPath, getLeafItemOnPath } from '$lib/utils/path-utils';
  * Configuration global to the application
  */
 export default abstract class Config {
+	
 	/**
 	 * The title of the site, such as shown in the header of the site.
 	 */
