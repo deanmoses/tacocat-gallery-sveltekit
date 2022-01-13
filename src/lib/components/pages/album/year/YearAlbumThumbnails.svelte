@@ -13,45 +13,35 @@
 
 	export let album: Album;
 
+	type AlbumsByMonth = Array<{
+		monthName: string, 
+		albums: Album[]
+	}>;
+
 	/**
-	 * Groups the child albums by month.
-	 * Assumes passed-in albums are all within the same year.
+	 * Group the albums by month
 	 */
-	function albumsByMonth(albums) {
+	function albumsByMonth(albums: Album[]): AlbumsByMonth {
 		// array to return
-		let albumsByMonth = [];
+		let albumsByMonth: AlbumsByMonth = [];
 
 		if (albums) {
-			// month names to add to the results, to make rendering even simpler
-			const monthNames = [
-				'January',
-				'February',
-				'March',
-				'April',
-				'May',
-				'June',
-				'July',
-				'August',
-				'September',
-				'October',
-				'November',
-				'December'
-			];
-
 			// iterate over the albums, putting them into the correct month
 			albums.forEach(album => {
-				// create Date object based on album's timestamp
-				// multiply by 1000 to turn seconds into milliseconds
-				const month: number = new Date(album.date * 1000).getMonth();
+				const albumDate = new Date(album.date * 1000);
+				const month: number = albumDate.getMonth();
 				if (!albumsByMonth[month]) {
 					albumsByMonth[month] = {
-						monthName: monthNames[month],
+						monthName: albumDate.toLocaleString('default', { month: 'long' }),
 						albums: []
 					};
 				}
 				albumsByMonth[month].albums.push(album);
 			});
 		}
+
+		// remove empty months
+		albumsByMonth = albumsByMonth.filter(month => month);
 
 		return albumsByMonth.reverse();
 	}
@@ -75,7 +65,7 @@
 
 <style>
   h3 {
-    background-color: var(--header-color);
+    background-color: var(--month-color, var(--header-color));
     font-weight: bold;
     font-size: 1.3em;
     line-height: 1.1;
