@@ -13,7 +13,7 @@
 </script>
 
 <script lang="ts">
-	import SearchPage from "$lib/components/pages/search/SearchPage.svelte";
+	import BlankSearchPageLayout from "$lib/components/pages/search/BlankSearchPageLayout.svelte";
 	import SearchLoadingPage from "$lib/components/pages/search/SearchLoadingPage.svelte";
 	import SearchResultsPage from "$lib/components/pages/search/SearchResultsPage.svelte";
 	import { searchStore } from "$lib/stores/SearchStore";
@@ -31,13 +31,13 @@
 {#if SearchLoadStatus.NOT_LOADED == status || SearchLoadStatus.LOADING == status}
 	<SearchLoadingPage {searchTerms} {returnPath} />
 {:else if SearchLoadStatus.ERROR_LOADING == status}
-	<SearchPage {searchTerms}>
-		There was an error searching
-	</SearchPage>
+	<BlankSearchPageLayout {searchTerms} {returnPath}>
+			There was an error searching
+	</BlankSearchPageLayout>
 {:else if SearchLoadStatus.LOADED == status}
 	<SearchResultsPage {searchTerms} searchResults={$searchResults.results} {returnPath} />
 {:else}
-	<SearchPage {searchTerms}>
+	<BlankSearchPageLayout {searchTerms} {returnPath}>
 		Unhandled status: <div>{status}</div>
-	</SearchPage>
+	</BlankSearchPageLayout>
 {/if}
