@@ -27,7 +27,7 @@
 
   <div>
     {#if !hideSiteTitle}
-      <span class="site-title hidden-xs">{Config.siteTitle}</span>
+      <span class="site-title hidden-xs">{Config.siteTitle()}</span>
     {/if}
 		{#if !hideSearch}
 			<a href="/search?returnPath={$page.url.pathname}" class="hidden-xxs">
