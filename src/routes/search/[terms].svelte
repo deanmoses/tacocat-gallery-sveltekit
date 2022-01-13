@@ -6,7 +6,7 @@
 			props: {
 				returnPath: returnPath,
 				searchTerms,
-				searchResults: searchStore.get(searchTerms)
+				search: searchStore.get(searchTerms)
 			}
 		}
 	}
@@ -22,10 +22,10 @@
 
 	export let returnPath: string;
 	export let searchTerms: string;
-	export let searchResults: Readable<Search>;
+	export let search: Readable<Search>;
 
 	let status: SearchLoadStatus;
-	$: status = $searchResults.status;
+	$: status = $search.status;
 </script>
 
 {#if SearchLoadStatus.NOT_LOADED == status || SearchLoadStatus.LOADING == status}
@@ -35,7 +35,7 @@
 			There was an error searching
 	</BlankSearchPageLayout>
 {:else if SearchLoadStatus.LOADED == status}
-	<SearchResultsPage {searchTerms} searchResults={$searchResults.results} {returnPath} />
+	<SearchResultsPage {searchTerms} searchResults={$search.results} {returnPath} />
 {:else}
 	<BlankSearchPageLayout {searchTerms} {returnPath}>
 		Unhandled status: <div>{status}</div>
