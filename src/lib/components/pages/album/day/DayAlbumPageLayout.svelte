@@ -22,7 +22,7 @@
 
 <slot name="editControls" />
 <SiteLayout {year}>
-	<Header>
+	<Header hideBottomBorder>
 		<slot name="title" />
 	</Header>
 	<Nav>

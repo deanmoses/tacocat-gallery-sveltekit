@@ -11,7 +11,6 @@
 <style>
   nav {
     display: flex;
-    border-bottom: var(--default-border);
     background-color: var(--button-color);
   }
   :global(.btn:nth-child(2)) {

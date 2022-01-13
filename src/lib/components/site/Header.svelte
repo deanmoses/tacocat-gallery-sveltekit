@@ -8,20 +8,28 @@
 	import SearchIcon from "./icons/SearchIcon.svelte";
 	import { page } from "$app/stores";
 
+	/** Don't show the bottom border of the header.  Which you don't when there's nav buttons below the header. */
+	export let hideBottomBorder = false;
+
+	/** Don't show the search icon */
+	export let hideSearch = false;
+
 	/** Don't show the site's title (this is different than the page title)*/
 	export let hideSiteTitle = false;
 </script>
 
-<header>
+<header class:bottomBorder={!hideBottomBorder}>
   <h1><slot /></h1>
 
   <div>
     {#if !hideSiteTitle}
       <span class="site-title hidden-xs">Dean, Lucie, Felix and Milo Moses</span>
     {/if}
-    <a href="/search?returnPath={$page.url.pathname}" class="hidden-xxs">
-			<SearchIcon />
-    </a>
+		{#if !hideSearch}
+			<a href="/search?returnPath={$page.url.pathname}" class="hidden-xxs">
+				<SearchIcon />
+			</a>
+		{/if}
   </div>
 </header>
 
@@ -33,10 +41,12 @@
     padding: var(--default-padding);
     padding-left: calc(var(--default-padding) * 2);
     background-color: var(--header-color);
-    border-bottom: var(--default-border);
-
     color: var(--default-text-color);
   }
+
+	header.bottomBorder {
+		border-bottom: var(--default-border);
+	}
 
 	h1 {
     font-size: 28px;

@@ -24,7 +24,7 @@
 </svelte:head>
 
 <SiteLayout {year} {hideFooter}>
-	<Header/>
+	<Header hideBottomBorder/>
 	<Nav>
 		<PrevButton />
 		<UpButton />

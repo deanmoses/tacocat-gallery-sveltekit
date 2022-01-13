@@ -21,7 +21,7 @@
 
 <SiteLayout {year}>
 	<svelte:fragment slot="editControls"><slot name="editControls" /></svelte:fragment>
-	<Header>
+	<Header hideBottomBorder>
 		{year}
 	</Header>
 	<Nav>
