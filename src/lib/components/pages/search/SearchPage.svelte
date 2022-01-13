@@ -33,6 +33,7 @@
 			<ReturnIcon />
 		</a>
 		<form on:submit|preventDefault={onSubmit}>
+			<!-- svelte-ignore a11y-autofocus -->
 			<input
 				name="searchTerms"
 				type="text"
