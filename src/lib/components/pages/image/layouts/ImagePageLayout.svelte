@@ -25,12 +25,12 @@
 		<slot name="title" />
 	</Header>
 	<PageContent>
-		<MainContent>
+		<div class="captionAndPhoto">
 			<section class="caption">
 				<h2 style="display:none">Caption</h2>
 				<slot name="caption" />
 			</section>
-			<div>
+			<div class="navAndPhoto">
 				<ImageNav>
 					<slot name="nav" />
 				</ImageNav>
@@ -39,6 +39,32 @@
 					<slot name="image" />
 				</section>
 			</div>
-		</MainContent>
+		</div>
 	</PageContent>
 </SiteLayout>
+
+<style>
+  .captionAndPhoto {
+    flex: 3;
+
+    display: flex;
+    gap: calc(var(--default-padding) * 2);
+
+    padding: calc(var(--default-padding) * 2);
+    background-color: white;
+  }
+
+	@media screen and (max-width: 975px) {
+		.captionAndPhoto {
+			flex-direction: column;
+		}
+	}
+
+	.caption {
+		flex: 1;
+	}
+
+	.navAndPhoto {
+		flex: 3;
+	}
+</style>
