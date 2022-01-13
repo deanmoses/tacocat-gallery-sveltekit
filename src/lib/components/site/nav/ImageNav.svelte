@@ -1,15 +1,20 @@
-<nav role="navigation">
+<!--
+  @component
+
+  For grouping a set of navigation buttons together
+-->
+
+<nav>
   <slot />
 </nav>
 
 <style>
   nav {
-      display: flex;
-      background-color: var(--button-color);
+		display: flex;
   }
 
   :global(.btn:nth-child(2)) {
-      border-left: 1px solid #ccc;
-      border-right: 1px solid #ccc;
+		border-left: 1px solid #ccc;
+		border-right: 1px solid #ccc;
   }
 </style>

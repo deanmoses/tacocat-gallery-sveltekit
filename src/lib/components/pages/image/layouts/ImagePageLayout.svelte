@@ -8,8 +8,7 @@
 	import SiteLayout from "$lib/components/site/SiteLayout.svelte";
 	import Header from "$lib/components/site/Header.svelte";
 	import PageContent from "$lib/components/site/PageContent.svelte";
-	import MainContent from "$lib/components/site/MainContent.svelte";
-	import ImageNav from "$lib/components/site/nav/ImageNav.svelte";
+	import Nav from "$lib/components/site/nav/Nav.svelte";
 
 	export let year: string;
 	export let title: string;
@@ -31,9 +30,9 @@
 				<slot name="caption" />
 			</section>
 			<div class="navAndPhoto">
-				<ImageNav>
+				<Nav>
 					<slot name="nav" />
-				</ImageNav>
+				</Nav>
 				<section>
 					<h2 style="display:none">Photo</h2>
 					<slot name="image" />
