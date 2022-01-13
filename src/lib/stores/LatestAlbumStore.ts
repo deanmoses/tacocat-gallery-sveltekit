@@ -124,19 +124,20 @@ class LatestAlbumThumbnailStore {
 	private handleFetchError(error: string): void {
 		console.log(`Latest album thumbnail error fetching from server: `, error);
 
-		switch (this.getLoadStatus()) {
-			case
-				AlbumLoadStatus.LOADING,
-				AlbumLoadStatus.NOT_LOADED,
-				AlbumLoadStatus.DOES_NOT_EXIST:
+		const status = this.getLoadStatus();
+		switch (status) {
+			case AlbumLoadStatus.LOADING:
+			case AlbumLoadStatus.NOT_LOADED:
+			case AlbumLoadStatus.DOES_NOT_EXIST:
 				this.setLoadStatus(AlbumLoadStatus.ERROR_LOADING);
 				break;
-			case
-				AlbumLoadStatus.LOADED:
+			case AlbumLoadStatus.LOADED:
 				break;
-			case
-				AlbumLoadStatus.ERROR_LOADING:
+			case AlbumLoadStatus.ERROR_LOADING:
 				// already in correct state
+				break;
+			default:
+				console.log("Unexepected load status:", status);
 		}
 	}
 

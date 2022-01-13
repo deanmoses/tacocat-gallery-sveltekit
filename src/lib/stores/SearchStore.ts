@@ -132,19 +132,20 @@ class SearchStore {
 		private handleFetchError(searchTerms: string, error: string): void {
 			console.log(`Search [${searchTerms}] error fetching from server: `, error);
 	
-			switch (this.getLoadStatus(searchTerms)) {
-				case
-					SearchLoadStatus.LOADING,
-					SearchLoadStatus.NOT_LOADED:
+			const status = this.getLoadStatus(searchTerms);
+			switch (status) {
+				case SearchLoadStatus.LOADING:
+				case SearchLoadStatus.NOT_LOADED:
 					this.setLoadStatus(searchTerms, SearchLoadStatus.ERROR_LOADING);
 					break;
-				case
-					SearchLoadStatus.LOADED:
+				case SearchLoadStatus.LOADED:
 					this.setUpdateStatus(searchTerms, SearchUpdateStatus.ERROR_UPDATING);
 					break;
-				case
-					SearchLoadStatus.ERROR_LOADING:
+				case SearchLoadStatus.ERROR_LOADING:
 					// already in correct state
+					break;
+				default:
+					console.log("Unexepected load status:", status);
 			}
 		}
 	

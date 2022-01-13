@@ -162,20 +162,21 @@ class AlbumStore {
 	private handleFetchError(path: string, error: string): void {
 		console.log(`Album [${path}] error fetching from server: `, error);
 
-		switch (this.getLoadStatus(path)) {
-			case
-				AlbumLoadStatus.LOADING,
-				AlbumLoadStatus.NOT_LOADED,
-				AlbumLoadStatus.DOES_NOT_EXIST:
+		const status = this.getLoadStatus(path);
+		switch (status) {
+			case AlbumLoadStatus.LOADING:
+			case AlbumLoadStatus.NOT_LOADED:
+			case AlbumLoadStatus.DOES_NOT_EXIST:
 				this.setLoadStatus(path, AlbumLoadStatus.ERROR_LOADING);
 				break;
-			case
-				AlbumLoadStatus.LOADED:
+			case AlbumLoadStatus.LOADED:
 				this.setUpdateStatus(path, AlbumUpdateStatus.ERROR_UPDATING);
 				break;
-			case
-				AlbumLoadStatus.ERROR_LOADING:
+			case AlbumLoadStatus.ERROR_LOADING:
 				// already in correct state
+				break;
+			default:
+				console.log("Unexepected load status:", status);
 		}
 	}
 
