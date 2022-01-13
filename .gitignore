@@ -8,6 +8,9 @@
 # Installed Node.js modules
 node_modules/
 
+# Build directory for Vercel deployments
+.vercel_build_output
+
 # Target build directory for processed, compiled web app
 dist/
 
