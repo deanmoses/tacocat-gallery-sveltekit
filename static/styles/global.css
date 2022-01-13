@@ -86,8 +86,94 @@
 .site-container[data-year='2011'] {
 	--body-color: #4d3087;
 	--header-color: #e0ee83;
-	--sidebar-color: #f6fadd;
-	--button-color: #c2d543;
+	--sidebar-color: #c2d543;
+	--button-color: #f6fadd;
+}
+
+.site-container[data-year='2010'],
+.site-container[data-year='2009'] {
+	--body-color: #3f64ee;
+	--header-color: #ffe793;
+	--sidebar-color: #ffd02d;
+	--button-color: #fff2c6;
+}
+
+.site-container[data-year='2008'] {
+	--body-color: #869e59;
+	--header-color: #d3e0f1;
+	--sidebar-color: #bbcbe0;
+	--button-color: #fafbfd;
+}
+
+.site-container[data-year='2007'],
+.site-container[data-year='2006'],
+.site-container[data-year='2005'] {
+	--body-color: #743a7d;
+	--header-color: #bde6d8;
+	--sidebar-color: #69c7af;
+	--button-color: #e2f4ee;
+}
+
+.site-container[data-year='2004'],
+.site-container[data-year='2003'] {
+	--body-color: #99cc33;
+	--header-color: #e2f8b6;
+	--sidebar-color: #9dc6ef;
+	--button-color: #f4fce5;
+}
+
+.site-container[data-year='2002'],
+.site-container[data-year='2001'] {
+	--body-color: #ff6600;
+	--header-color: #fbefce;
+	--sidebar-color: #ff99ff;
+	--button-color: #fdf7e6;
+	--month-color: #ffccff;
+}
+
+.site-container[data-year='1989'],
+.site-container[data-year='1987'],
+.site-container[data-year='1985'],
+.site-container[data-year='1983'],
+.site-container[data-year='1981'] {
+	--body-color: #3a3a3c;
+	--header-color: #e82e79;
+	--sidebar-color: #bbbbbb;
+	--button-color: #f497bc;
+	--month-color: #6bd4db;
+}
+
+.site-container[data-year='1988'],
+.site-container[data-year='1986'],
+.site-container[data-year='1984'],
+.site-container[data-year='1982'],
+.site-container[data-year='1980'] {
+	--body-color: #4e337a;
+	--header-color: #b1a6d0;
+	--sidebar-color: #ede7d5;
+	--button-color: #d8d3e8;
+}
+
+.site-container[data-year='1979'],
+.site-container[data-year='1977'],
+.site-container[data-year='1975'],
+.site-container[data-year='1973'],
+.site-container[data-year='1971'] {
+	--body-color: #503200;
+	--header-color: #e7b62a;
+	--sidebar-color: #de8b31;
+	--button-color: #f3db95;
+}
+
+.site-container[data-year='1978'],
+.site-container[data-year='1976'],
+.site-container[data-year='1974'],
+.site-container[data-year='1972'],
+.site-container[data-year='1970'] {
+	--body-color: #434210;
+	--header-color: #a2a22c;
+	--sidebar-color: #f6c54c;
+	--button-color: #d1d196;
 }
 
 /*
