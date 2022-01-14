@@ -1,0 +1,3 @@
+# The robots.txt file must be at the root of the domain.
+User-agent: *
+Disallow: /
