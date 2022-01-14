@@ -28,15 +28,20 @@ class SessionStore {
 	/**
 	 * Fetch current user's status from server
 	 */
-	async fetchUserStatus() : Promise<void> {
-		const uri = Config.checkAuthenticationUrl();
-		const response = await fetch(uri, {credentials: 'include'});
-		const json = await response.json();
-		console.log(`fetchUserStatus() fetched`, json);
-		let isAdmin = !!json.isAdmin;
-		console.log(isAdmin ? 'user is an admin' : 'user is not an admin, but pretending they are for now');
-		isAdmin = true; // TODO: REMOVE WHEN I'M READY FOR ONLINE TESTING
-		this._isAdmin.set(isAdmin);
+	async fetchUserStatus(): Promise<void> {
+		console.log("Fetching user status...");
+		try {
+			const uri = Config.checkAuthenticationUrl();
+			const response = await fetch(uri, { credentials: 'include' });
+			const json = await response.json();
+			console.log(`fetchUserStatus() fetched`, json);
+			let isAdmin = !!json.isAdmin;
+			console.log(isAdmin ? 'user is an admin' : 'user is not an admin, but pretending they are for now');
+			isAdmin = true; // TODO: REMOVE WHEN I'M READY FOR ONLINE TESTING
+			this._isAdmin.set(isAdmin);
+		} catch (e) {
+			console.log("Error trying to fetch authentication status: ", e);
+		}
 	}
 }
 
