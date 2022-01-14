@@ -44,10 +44,18 @@
 		<a href={Config.fullSizeImageUrl(image.path)} target="zen">
 			<img 
 				src={Config.cdnUrl(image.url_sized)} 
-				style="object-fit: contain; width: 100%; height: 100%; max-width: 4032px; max-height: 3024px;" 
-				alt="{image.title}" 
+				style="max-width: {image.width}px; max-height: {image.height}px;" 
+				alt={image.title}
 			/>
 		</a>
 	</svelte:fragment>
 
 </ImagePageLayout>
+
+<style>
+	img {
+		object-fit: contain;
+		width: 100%;
+		height: 100%;
+	}
+</style>
