@@ -8,14 +8,14 @@
 	import DayAlbumPageLayout from "./DayAlbumPageLayout.svelte";
 	import EditToggle from "$lib/components/site/edit/toggle/EditToggle.svelte";
 	import PrevButton from "$lib/components/site/nav/PrevButton.svelte";
-  import UpButton from "$lib/components/site/nav/UpButton.svelte";
-  import NextButton from "$lib/components/site/nav/NextButton.svelte";
-  import Thumbnail from "$lib/components/site/Thumbnail.svelte";
+	import UpButton from "$lib/components/site/nav/UpButton.svelte";
+	import NextButton from "$lib/components/site/nav/NextButton.svelte";
+	import Thumbnail from "$lib/components/site/Thumbnail.svelte";
 	import Config from "$lib/utils/config";
 	import type { Album } from "$lib/models/album";
 
 	export let year: string;
-  export let album: Album;
+	export let album: Album;
 </script>
 
 <DayAlbumPageLayout {year} title={album.pageTitle}>
