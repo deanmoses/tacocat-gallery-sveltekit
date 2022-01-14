@@ -41,11 +41,13 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="image">
-		<a href={Config.fullSizeImageUrl(image.url_full)} 
-			target="zen"><img 
+		<a href={Config.fullSizeImageUrl(image.path)} target="zen">
+			<img 
 				src={Config.cdnUrl(image.url_sized)} 
 				style="object-fit: contain; width: 100%; height: 100%; max-width: 4032px; max-height: 3024px;" 
-				alt="{image.title}"></a>
+				alt="{image.title}" 
+			/>
+		</a>
 	</svelte:fragment>
 
 </ImagePageLayout>
