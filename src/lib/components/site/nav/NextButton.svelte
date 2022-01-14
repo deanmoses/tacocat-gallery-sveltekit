@@ -8,8 +8,11 @@
 	import Button from "./Button.svelte";
 	import NextIcon from "../icons/NextIcon.svelte";
 
-  export let href: string = "";
-  export let title: string = "";
+  export let href = "";
+  export let title = "";
+
+	let a11yTitle: string;
+	$: a11yTitle = title ? title : "Next";
 </script>
 
-<Button {href}><span class="hidden-xs">{title}</span><NextIcon title="Next"/></Button>
+<Button {href} title={a11yTitle}><span class="hidden-xs">{title}</span><NextIcon /></Button>

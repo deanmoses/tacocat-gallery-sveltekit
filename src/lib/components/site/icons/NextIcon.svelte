@@ -7,7 +7,7 @@
 <script lang="ts">
 	import Icon from './Icon.svelte';
 
-	export let title = "Next";
+	export let title: string = null;
 
 	const d = "M749 551l-551 551L0 904l353-353L0 198 198 0z";
 	const viewBox = "0 0 749 1102";

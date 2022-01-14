@@ -12,9 +12,11 @@
 <svg on:click {viewBox}><path {d}></path></svg>
 
 <style>
+
 	svg {
 		animation: grow 1400ms;
 	}
+
 	@keyframes grow {
 		0% {
 			height:1em;
@@ -25,6 +27,7 @@
 			width: 2em;
 		}
 	}
+	
 	path {
 		fill: currentcolor;		
 	}

@@ -6,12 +6,13 @@
 
 <script lang="ts">
   export let href: string = "";
+	export let title: string = null;
 
 	let disabled: boolean;
   $: disabled  = !href ? true : null;
 </script>
 
-<a {href} {disabled}><span><slot /></span></a>
+<a {title} {href} {disabled}><span><slot /></span></a>
 
 <style>
 	a {
