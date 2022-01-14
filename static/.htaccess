@@ -1,0 +1,14 @@
+<ifModule mod_rewrite.c>
+    RewriteEngine On
+
+    #
+    # This is a single page app (SPA); serve all requests via index.html
+    #
+    RewriteBase /
+    # if the file doesn't exist...
+    RewriteCond %{REQUEST_FILENAME} !-f
+    # if the directory doesn't exist...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    # ... then serve up index.html
+    RewriteRule (.*) /index.html [QSA,L]
+</ifModule>
