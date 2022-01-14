@@ -29,18 +29,33 @@ class SessionStore {
 	 * Fetch current user's status from server
 	 */
 	async fetchUserStatus(): Promise<void> {
-		console.log("Fetching user status...");
-		try {
-			const uri = Config.checkAuthenticationUrl();
-			const response = await fetch(uri, { credentials: 'include' });
-			const json = await response.json();
-			console.log(`fetchUserStatus() fetched`, json);
-			let isAdmin = !!json.isAdmin;
-			console.log(isAdmin ? 'user is an admin' : 'user is not an admin, but pretending they are for now');
-			isAdmin = true; // TODO: REMOVE WHEN I'M READY FOR ONLINE TESTING
-			this._isAdmin.set(isAdmin);
-		} catch (e) {
-			console.log("Error trying to fetch authentication status: ", e);
+		const uri = Config.checkAuthenticationUrl();
+		const response = await fetch(uri, { credentials: 'include' });
+		this.handleErrors(response);
+		const json = await response.json();
+		const isAdmin = !!json.isAdmin;
+		if (isAdmin) console.log("User is an admin");
+		this._isAdmin.set(isAdmin);
+	}
+
+	handleErrors(response: Response): void {
+		if (!response.ok) {
+			console.log(
+				'Response not OK fetching authentication status: ',
+				response.statusText
+			);
+			throw Error(response.statusText);
+		}
+		else if (response.status === 404) {
+			console.log('404 fetching authentication status: ', response.statusText);
+			throw Error(response.statusText);
+		}
+		else if (response.status !== 200) {
+			console.log(
+				'Non-200 response fetching authentication status: ',
+				response.statusText
+			);
+			throw Error(response.statusText);
 		}
 	}
 }
