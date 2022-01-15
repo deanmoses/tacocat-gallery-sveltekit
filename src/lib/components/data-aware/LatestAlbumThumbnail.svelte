@@ -21,7 +21,7 @@
 {#if AlbumLoadStatus.NOT_LOADED == status || AlbumLoadStatus.LOADING == status}
 	<!-- display nothing until it's loaded -->
 {:else if AlbumLoadStatus.ERROR_LOADING == status}
-	Error fetching latest album
+	<!-- display nothing if there's an error -->
 {:else if AlbumLoadStatus.LOADED == status}
 	<aside>
 		<h2>Latest Album</h2>
