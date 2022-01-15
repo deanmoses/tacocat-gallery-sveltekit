@@ -30,7 +30,7 @@
       <span class="site-title hidden-xs">{Config.siteTitle()}</span>
     {/if}
 		{#if !hideSearch}
-			<a href="/search?returnPath={$page.url.pathname}" class="hidden-xxs">
+			<a href="/search?returnPath={$page.url.pathname}" class="hidden-xxs" title="Search">
 				<SearchIcon />
 			</a>
 		{/if}
