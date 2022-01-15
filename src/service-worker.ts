@@ -7,6 +7,8 @@ import { build, files, timestamp } from '$service-worker';
 const worker = (self as unknown) as ServiceWorkerGlobalScope;
 const FILES = `cache${timestamp}`;
 
+console.log("PWA files to cache: ", files);
+
 const to_cache = build.concat(files);
 const staticAssets = new Set(to_cache);
 
