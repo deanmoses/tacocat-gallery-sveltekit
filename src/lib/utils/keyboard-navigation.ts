@@ -1,67 +1,53 @@
-import { Store } from 'redux';
+import { goto } from '$app/navigation';
+import type { Album } from '$lib/models/album';
+import { albumStore } from '$lib/stores/AlbumStore';
 import { isImagePath, isAlbumPath, getParentFromPath } from '$lib/utils/path-utils';
-import { getAlbum } from '$lib/redux/selectors/album-selectors';
-import { isInEditMode } from '$lib/redux/selectors/edit-mode-selectors';
 
 /**
  * Handle arrow presses by navigating to next and previous photos
  *
- * @param store the root Redux store
- * @param event the keyboard event
+ * @param key the key from KeyboardEvent.key
+ * @param path path to the current album or image
  */
-export function handleKeyboardNavigation(store: Store<any>, event: KeyboardEvent): void {
-	if (event.defaultPrevented) {
-		return;
-	}
-
-	// Disable keyboard navigation when in edit mode:
-	// the user needs the arrow keys to navigate within
-	// the text they're editing.
-	if (isInEditMode(store.getState())) {
-		return;
-	}
-
-	const key = event.key || event.keyCode;
-
-	// left arrow, go to previous photo or album
-	if (key === 'ArrowLeft' || key === 37) {
-		navigateToPeer(store, Direction.Prev);
-	}
-	// right arrow, go to next photo or album
-	else if (key === 'ArrowRight' || key === 39) {
-		navigateToPeer(store, Direction.Next);
-	}
-	// up arrow, go to parent album
-	else if (key === 'ArrowUp' || key === 38) {
-		navigateToParent();
-	}
-	// down arrow, go to first child photo or child album
-	else if (key === 'ArrowDown' || key === 40) {
-		navigateToFirstChild(store);
+export function handleKeyboardNavigation(key: KeyboardEvent["key"], path: string): void {
+	switch (key) {
+		// left arrow: go to previous photo or album
+		case 'ArrowLeft':
+			navigateToPeer(path, Direction.Prev);
+			break;
+		// right arrow: go to next photo or album
+		case 'ArrowRight':
+			navigateToPeer(path, Direction.Next);
+			break;
+		// up arrow: go to parent album
+		case 'ArrowUp':
+			navigateToParent(path);
+			break;
+		// down arrow: go to first child photo or child album
+		case 'ArrowDown':
+			navigateToFirstChild(path);
 	}
 }
 
 enum Direction {
-	Next = 1,
+	Next,
 	Prev
 }
 
 /**
- * Navigate to next photo
+ * Navigate to next or prev photo
  * 
- * @param store the root Redux store
+ * @param path path to the current album or image
  * @param direction Next or Prev
  */
-function navigateToPeer(store: Store<any>, direction: Direction) {
-	const path: string = getPathFromUrl();
-
+function navigateToPeer(path: string, direction: Direction) {
 	// If on an album, go to prev/next album
 	if (isAlbumPath(path)) {
-		const album = getAlbum(store.getState(), path);
-		if (!!album) {
+		const album = getAlbum(path);
+		if (album) {
 			const newPath = (direction === Direction.Next) ? album.prevAlbumHref : album.nextAlbumHref; // album.prevAlbumHref and nextAlbumHref are backwards!
-			if (!!newPath) {
-				setPathOnUrl(newPath);
+			if (newPath) {
+				navigate(newPath);
 			}
 		}
 		else {
@@ -71,13 +57,13 @@ function navigateToPeer(store: Store<any>, direction: Direction) {
 	// If on an image, go to prev/next image
 	else if (isImagePath(path)) {
 		const albumPath: string = getParentFromPath(path);
-		const album = getAlbum(store.getState(), albumPath);
-		if (!!album) {
+		const album = getAlbum(albumPath);
+		if (album) {
 			const image = album.getImage(path);
-			if (!!image) {
+			if (image) {
 				const newPath = (direction === Direction.Next) ? image.nextImageHref : image.prevImageHref;
-				if (!!newPath) {
-					setPathOnUrl(newPath);
+				if (newPath) {
+					navigate(newPath);
 				}
 			}
 			else {
@@ -88,48 +74,51 @@ function navigateToPeer(store: Store<any>, direction: Direction) {
 			console.log('No album found at path: ' + path);
 		}
 	}
+	else {
+		console.log('Path is neither an image nor an album: ' + path);
+	}
 }
 
 /**
  * Navigate to parent album
+ * 
+ * @param path path to the current album or image
  */
-function navigateToParent() {
-	const path: string = getPathFromUrl();
+function navigateToParent(path: string) {
 
 	// If on an image, navigate to the album containing the image
 	if (isImagePath(path)) {
 		const albumPath: string = getParentFromPath(path);
-		setPathOnUrl(albumPath);
+		navigate(albumPath);
 	}
 	// If on an album, navigate to parent album
 	else if (isAlbumPath(path)) {
 		const parentAlbumPath: string = getParentFromPath(path);
-		setPathOnUrl(parentAlbumPath);
+		navigate(parentAlbumPath);
 	}
 	else {
-		console.log('URL is neither an image nor an album: ' + path);
+		console.log('Path is neither an image nor an album: ' + path);
 	}
 }
 
 /**
  * If on an album, navigate to first child photo or child album
  * 
- * @param store the root Redux store
+ * @param path path to the current album or image
  */
-function navigateToFirstChild(store: Store<any>) {
-	const path: string = getPathFromUrl();
+function navigateToFirstChild(path: string) {
 
 	if (isAlbumPath(path)) {
-		const album = getAlbum(store.getState(), path);
-		if (!!album) {
+		const album = getAlbum(path);
+		if (album) {
 			// If we're on an album with images, go to first image
 			if (!!album.images && album.images.length > 0) {
-				setPathOnUrl(album.images[0].path);
+				navigate(album.images[0].path);
 			}
 			// Else we're on an album with no images, but subalbums.
 			// Go to first subalbum.
 			else if (!!album.albums && album.albums.length > 0) {
-				setPathOnUrl(album.albums[0].path);
+				navigate(album.albums[0].path);
 			}
 		}
 		else {
@@ -139,17 +128,22 @@ function navigateToFirstChild(store: Store<any>) {
 }
 
 /**
- * Return the current album or photo path from the browser URL
+ * Get album from store
+ * 
+ * @param path path to album 
  */
-function getPathFromUrl(): string {
-	return window.location.hash.replace('#', '');
+function getAlbum(path: string): Album {
+	return albumStore.getFromInMemory(path);
 }
 
 /**
- * Set the URL to a new album or photo
+ * Navigate to the album or photo
  * 
- * @param path the new album or photo path
+ * @param path path of the album or photo
  */
-function setPathOnUrl(path: string): void {
-	window.location.hash = path;
+function navigate(path: string): void {
+	if (!path.startsWith('/')) {
+		path = '/' + path;
+	}
+	goto(path);
 }

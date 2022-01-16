@@ -33,6 +33,21 @@ class AlbumStore {
 	private albumUpdateStatuses: Map<string, Writable<AlbumUpdateStatus>> = new Map<string, Writable<AlbumUpdateStatus>>();
 
 	/**
+	 * Get an album from in memory only; do not fetch from local storage or network
+	 * 
+	 * @param path path of the album
+	 * @returns null if album not found
+	 */
+	getFromInMemory(path: string): Album {
+		let album: Album = null;
+		const albumEntry = this.albums.get(path);
+		if (albumEntry) {
+			album = get(albumEntry).album;
+		}
+		return album;
+	}
+
+	/**
 	 * Get an album.
 	 * 
 	 * This will:
