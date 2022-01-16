@@ -38,7 +38,7 @@ class SessionStore {
 		this._isAdmin.set(isAdmin);
 	}
 
-	handleErrors(response: Response): void {
+	private handleErrors(response: Response): void {
 		if (!response.ok) {
 			console.log(
 				'Response not OK fetching authentication status: ',
