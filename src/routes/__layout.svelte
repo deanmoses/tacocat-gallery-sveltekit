@@ -4,20 +4,34 @@
 	import "$lib/styles/years.css";
 	import { handleKeyboardNavigation } from "$lib/utils/keyboard-navigation";
 	import { page } from '$app/stores';
+	import { goto } from "$app/navigation";
+	import type { Album } from '$lib/models/album';
+	import { albumStore } from '$lib/stores/AlbumStore';
 
 	/**
 	 * Handle keyboard navigation
 	 */
-	function onKeyPress(event: KeyboardEvent): void {		
+	function onKeyPress(event: KeyboardEvent): void {
 		if (event.defaultPrevented) {
 			return;
 		}
 
-		let path = $page.url.pathname;
-		if (!path.endsWith('edit')) {
-			path = path.replace(/^\//, ''); // remove first character if it's a slash
-			handleKeyboardNavigation(event.key, path);
+		let currentPath = $page.url.pathname;
+		if (!currentPath.endsWith('edit')) {
+			const newPath = handleKeyboardNavigation(event.key, currentPath, getAlbum);
+			if (newPath) {
+				goto(newPath);
+			}
 		}
+	}
+
+	/**
+	 * Get album from store
+	 * 
+	 * @param path path to album 
+	 */
+	function getAlbum(path: string): Album {
+		return albumStore.getFromInMemory(path);
 	}
 </script>
 
