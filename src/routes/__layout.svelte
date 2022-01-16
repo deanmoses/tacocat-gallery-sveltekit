@@ -17,7 +17,7 @@
 		}
 
 		let currentPath = $page.url.pathname;
-		if (!currentPath.endsWith('edit')) {
+		if (!currentPath.startsWith('/edit')) {
 			const newPath = handleKeyboardNavigation(event.key, currentPath, getAlbum);
 			if (newPath) {
 				goto(newPath);
