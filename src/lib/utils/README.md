@@ -1,6 +1,6 @@
 # Utils
 
-Utility classes
+This directory contains utility classes
  
 ## Model-aware
 

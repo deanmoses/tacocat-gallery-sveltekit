@@ -1,3 +1,3 @@
 # Svelte Stores
 
-These are reactive data stores as defined by [Sveltekit](https://kit.svelte.dev/)
+This directory contains [Svelte](https://svelte.dev/) reactive data stores

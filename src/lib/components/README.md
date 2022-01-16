@@ -1,3 +1,3 @@
 # Components
 
-[Svelte](https://svelte.dev) components
+This directory contains [Svelte](https://svelte.dev) components
