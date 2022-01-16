@@ -15,10 +15,18 @@
 	let path: string;
 	$: path = $page.url.pathname;
 
+	/**
+	 * The Edit button was clicked.
+	 * Go to edit version of this page.
+	 */
 	function onEditButtonClick() {
 		goto(editUrl(path));
   }
 
+	/**
+	 * The "Edit in Zenphoto" button was clicked.  
+	 * Open Zenphoto's edit page in new browser tab.
+	 */
 	function onZenButtonClick() {
 		const uri = isImagePath(path) 
 			? Config.zenphotoImageEditUrl(path)
@@ -27,6 +35,10 @@
 		window.open(uri, "zenedit");
 	}
 
+	/**
+	 * The "Refresh Album" button was clicked.  
+	 * Open the album refresh URL in a new browser tab.
+	 */
 	function onRefreshClick() {
 		const uri = Config.refreshAlbumCacheUrl(path);
 		window.open(uri, "refresh");

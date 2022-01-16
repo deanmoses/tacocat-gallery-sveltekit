@@ -15,7 +15,7 @@
 
 	let selecting: boolean;
 	$: {
-		console.log("selected: ", selected); // this is needed so that $: changes every time selected changes
+		console.log("selected: ", selected); // this is needed so that $: changes every time selected changes.  Grr.
 		selecting = false;
 	}
 
