@@ -99,16 +99,17 @@ export function getAlbumType(path: string): AlbumType {
 
 /**
  * @param path path not in edit mode, like /2001/12-31
- * @returns the edit version of the URL, like /2001/12-31/edit
+ * @returns the edit version of the URL, like /edit/2001/12-31
  */
-export function editUrl(path:string):string {
-	return path ? `${path}/edit` : null;
+export function editUrl(path: string): string {
+	console.log('Edit URL: ', `/edit${path}`);
+	return path ? `/edit${path}` : null;
 }
 
 /**
- * @param path path in edit mode, like /2001/12-31/edit
+ * @param path path in edit mode, like /edit/2001/12-31
  * @returns the non-edit version of the URL, like /2001/12-31
  */
 export function unEditUrl(path: string): string {
-	return path.replace(/\/edit$/, '');
+	return path.replace(/^\/edit/, '');
 }
