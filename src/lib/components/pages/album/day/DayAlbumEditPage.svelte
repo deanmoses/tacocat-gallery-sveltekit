@@ -34,7 +34,7 @@
 <DayAlbumPageLayout {year} title={album.pageTitle}>
 
 	<svelte:fragment slot="editControls">
-		<AlbumEditControls unpublished={album.unpublished} />
+		<AlbumEditControls showPublished unpublished={album.unpublished} />
 	</svelte:fragment>
 
 	<svelte:fragment slot="title">

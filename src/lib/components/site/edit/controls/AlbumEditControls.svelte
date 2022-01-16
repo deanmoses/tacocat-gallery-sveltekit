@@ -14,6 +14,10 @@
 	import CancelIcon from "../../icons/CancelIcon.svelte";
 	import SaveIcon from "../../icons/SaveIcon.svelte";
 
+	/** Show the published checkbox.  Should only be shown on day albums, not year albums */
+	export let showPublished: boolean = false;
+
+	/** Whether album is published or not */
 	export let unpublished: boolean;
 
 	const status = draftStore.getStatus();
@@ -56,7 +60,9 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="rightControls">
+		{#if showPublished}
 		<div><input type="checkbox" checked={!unpublished} on:change={onPublishedChange}/> published</div>
+		{/if}
 		<button on:click|once={onSaveButtonClick} disabled={!hasUnsavedChanges}>
 			{#if hasUnsavedChanges}
 				<SaveIcon /> Save*
