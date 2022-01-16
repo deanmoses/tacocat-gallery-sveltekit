@@ -25,7 +25,7 @@
 <YearAlbumPageLayout {year}>
 
 	<svelte:fragment slot="editControls">
-		<AlbumEditControls />
+		<AlbumEditControls unpublished={album.unpublished} />
 	</svelte:fragment>
 
 	<svelte:fragment slot="nav">

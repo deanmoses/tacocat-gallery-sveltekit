@@ -14,10 +14,12 @@
 	import CancelIcon from "../../icons/CancelIcon.svelte";
 	import SaveIcon from "../../icons/SaveIcon.svelte";
 
+	export let unpublished: boolean;
+
 	const status = draftStore.getStatus();
 
 	let path:string;
-	$:path = unEditUrl($page.url.pathname);
+	$: path = unEditUrl($page.url.pathname);
 
 	let hasUnsavedChanges: boolean;
 	$: hasUnsavedChanges = $status == DraftStatus.UNSAVED_CHANGES;
@@ -54,7 +56,7 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="rightControls">
-		<div><input type="checkbox" on:change={onPublishedChange}/> published</div>
+		<div><input type="checkbox" checked={!unpublished} on:change={onPublishedChange}/> published</div>
 		<button on:click|once={onSaveButtonClick} disabled={!hasUnsavedChanges}>
 			{#if hasUnsavedChanges}
 				<SaveIcon /> Save*
