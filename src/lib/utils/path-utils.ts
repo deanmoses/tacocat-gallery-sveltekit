@@ -110,5 +110,5 @@ export function editUrl(path:string):string {
  * @returns the non-edit version of the URL, like /2001/12-31
  */
 export function unEditUrl(path: string): string {
-	return path.replace("/edit", "");
+	return path.replace(/\/edit$/, '');
 }
