@@ -102,7 +102,6 @@ export function getAlbumType(path: string): AlbumType {
  * @returns the edit version of the URL, like /edit/2001/12-31
  */
 export function editUrl(path: string): string {
-	console.log('Edit URL: ', `/edit${path}`);
 	return path ? `/edit${path}` : null;
 }
 
