@@ -106,7 +106,7 @@ class DraftStore {
 		else {
 			// Allow the UI to tell the user that a save is happening
 			this.setStatus(DraftStatus.SAVING);
-
+			
 			// Save
 			const saveUrl = Config.saveUrl(draft.path);
 			const requestConfig = this.getSaveRequestConfig(draft);
@@ -169,7 +169,8 @@ class DraftStore {
 	 * Draft save responded with what I expected, a JSON response
 	 */
 	private handleSaveJsonResponse(draft: Draft, json: any): void {
-		const path = draft.path;
+		let path = draft.path;
+		path = path.replace(/^\//, ''); // strip initial / 
 
 		if (!json || !json.success) {
 			const msg = `Server did not respond with success saving draft for ${path}.  Instead, responded with:`;
@@ -210,6 +211,9 @@ class DraftStore {
 		// Else it was an album that was saved...
 		else {
 			const album: Album = albumStore.getFromInMemory(path);
+
+			if (!album) throw new Error(`Did not find album [${path}] in memory`);
+
 			// This actually updates the object in the Svelte store,
 			// but svelte doesn't know it; Svelte only detects when top-level object changes
 			Object.assign(album, draft.content);
