@@ -33,21 +33,6 @@ class AlbumStore {
 	private albumUpdateStatuses: Map<string, Writable<AlbumUpdateStatus>> = new Map<string, Writable<AlbumUpdateStatus>>();
 
 	/**
-	 * Get an album from in memory only; do not fetch from local storage or network
-	 * 
-	 * @param path path of the album
-	 * @returns null if album not found
-	 */
-	getFromInMemory(path: string): Album {
-		let album: Album = null;
-		const albumEntry = this.albums.get(path);
-		if (albumEntry) {
-			album = get(albumEntry).album;
-		}
-		return album;
-	}
-
-	/**
 	 * Get an album.
 	 * 
 	 * This will:
@@ -86,6 +71,28 @@ class AlbumStore {
 			albumEntry,
 			$store => $store
 		);
+	}
+
+	/**
+	 * Get an album from in memory only; do not fetch from local storage or network
+	 * 
+	 * @param path path of the album
+	 * @returns null if album not found
+	 */
+	getFromInMemory(path: string): AlbumEntry {
+		const albumEntry = this.albums.get(path);
+		return albumEntry ? get(albumEntry) : null;
+	}
+	
+	/**
+	 * Update the album in the Svelte store and on the browser's local disk cache
+	 */
+	updateAlbumEntry(albumEntry: AlbumEntry): void {
+		console.log(`AlbumStore: updateAlbumEntry entry: `, albumEntry);
+		console.log(`AlbumStore: updateAlbumEntry album: `, albumEntry.album);
+		const albumEntryStore = this.albums.get(albumEntry.album.path);
+		albumEntryStore.set(albumEntry);
+		this.writeToDisk(albumEntry.album.path, albumEntry.album);
 	}
 
 	/**
@@ -214,31 +221,17 @@ class AlbumStore {
 	}
 
 	/**
-	 * 
-	 * @param album Update the album in the Svelte store and on the browser's local disk cache
-	 */
-	updateAlbum(album: Album): void {
-		const albumEntry = this.getOrCreateWritableStore(album.path);
-		const newState = produce(get(albumEntry), (draftState: AlbumEntry) => {
-			draftState.loadStatus = AlbumLoadStatus.LOADED;
-			draftState.album = album;
-		})
-		albumEntry.set(newState);
-
-		this.writeToDisk(album.path, newState.album);
-	}
-
-	/**
 	 * Store the album in the browser's local disk storage
 	 * 
 	 * @param path path of the album 
-	 * @param jsonAlbum JSON of the album
+	 * @param album album in JSON or class format
 	 */
-	private writeToDisk(path: string, jsonAlbum: JSON | Album): void {
+	private writeToDisk(path: string, album: JSON | Album): void {
+		console.log(`AlbumStore: writeToDisk ${path}: `, album);
 		const pathInIdb = this.pathInIdb(path);
 		// TODO: maybe don't write it if the value is unchanged?
 		// Or maybe refresh some sort of last_fetched timestamp?
-		setToIdb(pathInIdb, jsonAlbum)
+		setToIdb(pathInIdb, album)
 			.then(() => console.log(`Album [${path}] stored in idb`))
 			.catch((e) => console.log(`Album [${path}] error storing in idb`, e));
 	}

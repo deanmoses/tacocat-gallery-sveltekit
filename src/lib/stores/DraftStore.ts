@@ -9,7 +9,7 @@ import produce from "immer";
 import { getAlbumType, getParentFromPath, isAlbumPath, isImagePath } from '$lib/utils/path-utils';
 import Config from '$lib/utils/config';
 import { type Album, AlbumType, type Image } from '$lib/models/album';
-import { albumStore } from './AlbumStore';
+import { type AlbumEntry, albumStore } from './AlbumStore';
 
 const initialState: Draft = {
 	status: DraftStatus.NO_CHANGES,
@@ -93,6 +93,41 @@ class DraftStore {
 	 * Save the current draft to the server
 	 */
 	save(): void {
+		this.saveFake();
+	}
+
+	/**
+	 * Simulates a successful save, for localhost testing
+	 */
+	private saveFake(): void {
+		this.setStatus(DraftStatus.SAVING);
+
+		const draft: Draft = get(this._draft);
+
+		console.log("FAKE: saving the draft: ", draft);
+
+		// Simulate a save
+		setTimeout(() => {
+			console.log("FAKE: saved the draft");
+
+			this.updateClientStateAfterSave(draft);
+
+			this.setStatus(DraftStatus.SAVED);
+
+			// Clear the saved status after a while
+			setTimeout(() => {
+					// Only clear saved status if the status is actually still saved
+					if (get(this._draft).status == DraftStatus.SAVED) {
+						this.setStatus(DraftStatus.NO_CHANGES);
+					}
+			}, 4000);
+		}, 1000);
+	}
+
+	/**
+	 * Save the current draft to the server
+	 */
+	private saveReal(): void {
 		const draft: Draft = get(this._draft);
 
 		console.log("Saving the draft: ", draft);
@@ -107,13 +142,14 @@ class DraftStore {
 			// Allow the UI to tell the user that a save is happening
 			this.setStatus(DraftStatus.SAVING);
 			
-			// Save
+			// Send the save request
 			const saveUrl = Config.saveUrl(draft.path);
 			const requestConfig = this.getSaveRequestConfig(draft);
 			fetch(saveUrl, requestConfig)
 				.then(response => this.checkForErrors(response))
 				.then(response => response.json())
-				.then(json => this.handleSaveJsonResponse(draft, json))
+				.then(json => this.checkJsonForErrors(json, draft))
+				.then(() => this.updateClientStateAfterSave(draft))
 				.catch(error => this.handleSaveError(error));
 		}
 	}
@@ -166,69 +202,79 @@ class DraftStore {
 	}
 
 	/**
-	 * Draft save responded with what I expected, a JSON response
+	 * Check that the JSON coming back from the save response indicates success
+	 * @throws error if there was anything but a success returned 
 	 */
-	private handleSaveJsonResponse(draft: Draft, json: any): void {
-		let path = draft.path;
-		path = path.replace(/^\//, ''); // strip initial / 
-
+	private checkJsonForErrors(json: any, draft: Draft): void {
 		if (!json || !json.success) {
-			const msg = `Server did not respond with success saving draft for ${path}.  Instead, responded with:`;
+			const msg = `Server did not respond with success saving draft for ${draft.path}.  Instead, responded with:`;
 			console.log(msg, json, 'Draft:', draft);
 			throw new Error(msg + json);
 		}
+		else {
+			console.log(`Draft [${draft.path}] save success.  JSON: `, json);
+		}
+	}
 
-		console.log(`Draft [${path}] save success.  JSON: `, json);
-
-		// Update the in-memory album with the saved values
+	/**
+	 * Draft was successfully saved on the server.  Update the client state.
+	 * Updates both the album in memory and on the browser's local filesystem.
+	 */
+	private updateClientStateAfterSave(draft: Draft): void {
+		let path = draft.path;
+		path = path.replace(/^\//, ''); // strip initial / 
 
 		// If it was an image that was saved...
 		if (isImagePath(path)) {
+
 			// Get the album in which the image resides
 			const albumPath = getParentFromPath(path);
 			console.log(`Image save: parent album: [${albumPath}]`);
-			const album: Album = albumStore.getFromInMemory(albumPath);
+			const albumEntry: AlbumEntry = albumStore.getFromInMemory(albumPath);
 
-			if (!album) throw new Error(`Did not find album [${albumPath}] in memory`);
+			if (!albumEntry) throw new Error(`Did not find album entry [${albumPath}] in memory`);
+			if (!albumEntry.album) throw new Error(`Did not find album [${albumPath}] in memory: entry exists but it has no album`);
 
-			// Get the image
-			const image: Image = !album.images
-				? null
-				: album.images.find((image: Image) => image.path === path);
-			
-			if (!image) throw new Error(`Did not find image [${path}] in album [${albumPath}]`);
-			
-			// Apply contents of draft to image
-			// This actually updates the object in the Svelte store,
-			// but svelte doesn't know it; Svelte only detects when top-level object changes
-			Object.assign(image, draft.content);
+			// Make a copy of the album entry.  Apply changes to the copy
+			const updatedAlbumEntry = produce(albumEntry, albumEntryCopy => {
+				// Get the image
+				const image: Image = albumEntryCopy.album.images.find((image: Image) => image.path === path);
+				
+				if (!image) throw new Error(`Did not find image [${path}] in album [${albumPath}]`);
 
-			// ok, it's updated in the Svelte store now, but svelte doesn't know it; Svelte only detects when top-level object changes
-			// also, it's not written to the browser's local disk cache so the next page load the value will be wrong
-			// this call does those things
-			albumStore.updateAlbum(album);
+				// Apply contents of draft to image
+				Object.assign(image, draft.content);
+			});
+
+			// Update album in store
+			// This also writes the album to the browser's local disk cache;
+			// otherwise, the next page load the value will be wrong
+			albumStore.updateAlbumEntry(updatedAlbumEntry);
 		}
 		// Else it was an album that was saved...
 		else {
-			const album: Album = albumStore.getFromInMemory(path);
+			const albumEntry: AlbumEntry = albumStore.getFromInMemory(path);
 
-			if (!album) throw new Error(`Did not find album [${path}] in memory`);
+			if (!albumEntry) throw new Error(`Did not find album entry [${path}] in memory`);
+			if (!albumEntry.album) throw new Error(`Did not find album [${path}] in memory: entry exists but it has no album`);
 
-			// This actually updates the object in the Svelte store,
-			// but svelte doesn't know it; Svelte only detects when top-level object changes
-			Object.assign(album, draft.content);
+			// Make a copy of the album entry.  Apply changes to the copy
+			const updatedAlbumEntry = produce(albumEntry, albumEntryCopy => {
+				// Apply contents of draft to the album
+				Object.assign(albumEntryCopy.album, draft.content);
+			});
 
-			// ok, it's updated in the Svelte store now, but svelte doesn't know it; Svelte only detects when top-level object changes
-			// also, it's not written to the browser's local disk cache so the next page load the value will be wrong
-			// this call does those things
-			albumStore.updateAlbum(album);
+			// Update album in store
+			// This also writes the album to the browser's local disk cache;
+			// otherwise, the next page load the value will be wrong
+			albumStore.updateAlbumEntry(updatedAlbumEntry);
 		}
 
 		this.setStatus(DraftStatus.SAVED);
 
 		console.log("b4 updating caches");
 
-		// For some types of albums, update the cache of the album on the server
+		// For some types of albums, update the server's cache of the album
 		if (isAlbumPath(path)) {
 			console.log(`isAlbumPath(${path}): ${isAlbumPath(path)}`);
 			const albumType = getAlbumType(path);
@@ -243,15 +289,18 @@ class DraftStore {
 				console.log(`TODO: update cache of parent year album`);
 			}
 		}
+		else {
+			console.log(`just updated a photo not an album, so not updating server cache`);
+		}
 
-		console.log("b4 timeout");
+		console.log("DraftStore: before save clear timeout");
 	
 		// Clear the saved status after a while
 		setTimeout(() => {
-			console.log("timed out");
+			console.log("DraftStore: save clear timed out");
 			// Only clear saved status if the status is actually still saved
 			if (get(this._draft).status == DraftStatus.SAVED) {
-				console.log("In timeout, setting draft status to NO_CHANGES");
+				console.log("DraftStore: in timeout, setting draft status to NO_CHANGES");
 				this.setStatus(DraftStatus.NO_CHANGES);
 			}
 			else {
