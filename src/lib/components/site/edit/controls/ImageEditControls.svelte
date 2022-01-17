@@ -6,6 +6,9 @@
 
 <script lang="ts">
 	import EditControlsLayout from "./EditControlsLayout.svelte";
+	import CancelButton from "./buttons/CancelButton.svelte";
+	import SaveButton from "./buttons/SaveButton.svelte";
+	import StatusMessage from "./buttons/StatusMessage.svelte";
 	import draftStore from "$lib/stores/DraftStore";
 	import { DraftStatus } from "$lib/models/draft";
 	import { page } from "$app/stores";
@@ -36,19 +39,15 @@
 <EditControlsLayout>
 
 	<svelte:fragment slot="leftControls">
-		<button on:click|once={onCancelButtonClick}>Cancel</button>
+		<CancelButton on:click|once={onCancelButtonClick} />
 	</svelte:fragment>
 
 	<svelte:fragment slot="status">
-		{#if $status === DraftStatus.SAVING}
-			🔄 saving... 
-		{:else if $status === DraftStatus.SAVED}
-			✅ saved
-		{/if}
+		<StatusMessage status={$status} />
 	</svelte:fragment>
 
 	<svelte:fragment slot="rightControls">
-		<button on:click|once={onSaveButtonClick} disabled={!hasUnsavedChanges}>Save</button>
+		<SaveButton on:click={onSaveButtonClick} {hasUnsavedChanges} />
 	</svelte:fragment>
 
 </EditControlsLayout>
