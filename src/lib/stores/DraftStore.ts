@@ -8,7 +8,7 @@ import { DraftStatus }  from '$lib/models/draft';
 import produce from "immer";
 import { getAlbumType, getParentFromPath, isAlbumPath, isImagePath } from '$lib/utils/path-utils';
 import Config from '$lib/utils/config';
-import { Album, AlbumType, type Image } from '$lib/models/album';
+import { type Album, AlbumType, type Image } from '$lib/models/album';
 import { albumStore } from './AlbumStore';
 
 const initialState: Draft = {
@@ -111,7 +111,7 @@ class DraftStore {
 			const saveUrl = Config.saveUrl(draft.path);
 			const requestConfig = this.getSaveRequestConfig(draft);
 			fetch(saveUrl, requestConfig)
-				.then(response => this.checkForSaveErrors(response))
+				.then(response => this.checkForErrors(response))
 				.then(response => response.json())
 				.then(json => this.handleSaveJsonResponse(draft, json))
 				.catch(error => this.handleSaveError(error));
@@ -152,7 +152,7 @@ class DraftStore {
 	 * 
 	 * @throws error if there was anything but a success returned 
 	 */
-	private checkForSaveErrors(response: Response): Response {
+	private checkForErrors(response: Response): Response {
 		if (!response.ok) {
 			throw Error(`Response not OK: ${response.statusText}`);
 		}
@@ -170,7 +170,6 @@ class DraftStore {
 	 */
 	private handleSaveJsonResponse(draft: Draft, json: any): void {
 		const path = draft.path;
-		console.log(`Draft [${path}] save success.  JSON: `, json);
 
 		if (!json || !json.success) {
 			const msg = `Server did not respond with success saving draft for ${path}.  Instead, responded with:`;
@@ -178,23 +177,25 @@ class DraftStore {
 			throw new Error(msg + json);
 		}
 
+		console.log(`Draft [${path}] save success.  JSON: `, json);
+
 		// Update the in-memory album with the saved values
 
 		// If it was an image that was saved...
 		if (isImagePath(path)) {
 			// Get the album in which the image resides
 			const albumPath = getParentFromPath(path);
+			console.log(`Image save: parent album: [${albumPath}]`);
 			const album: Album = albumStore.getFromInMemory(albumPath);
+
+			if (!album) throw new Error(`Did not find album [${albumPath}] in memory`);
 
 			// Get the image
 			const image: Image = !album.images
 				? null
 				: album.images.find((image: Image) => image.path === path);
 			
-			if (!image)
-				throw new Error(
-					`Could not find image [${path}] in album [${albumPath}]`
-				);
+			if (!image) throw new Error(`Did not find image [${path}] in album [${albumPath}]`);
 			
 			// Apply contents of draft to image
 			// This actually updates the object in the Svelte store,
