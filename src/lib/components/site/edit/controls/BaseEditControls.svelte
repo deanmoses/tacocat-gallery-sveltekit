@@ -47,6 +47,7 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="rightControls">
+		<slot name="rightControls" />
 		<SaveButton on:click={onSaveButtonClick} {hasUnsavedChanges} />
 	</svelte:fragment>
 
