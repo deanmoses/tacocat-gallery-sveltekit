@@ -27,7 +27,6 @@
 		else {
 			DraftStore.setDesc(newHtmlContent);
 		}
-		
 	}
 </script>
 
