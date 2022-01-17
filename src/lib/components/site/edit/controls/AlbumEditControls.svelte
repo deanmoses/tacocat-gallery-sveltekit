@@ -60,7 +60,9 @@
 
 	<svelte:fragment slot="rightControls">
 		{#if showPublished}
-		<div><input type="checkbox" checked={!unpublished} on:change={onPublishedChange}/> published</div>
+			<div>
+				<input type="checkbox" checked={!unpublished} on:change={onPublishedChange}/> published
+			</div>
 		{/if}
 		<SaveButton on:click={onSaveButtonClick} {hasUnsavedChanges} />
 	</svelte:fragment>
