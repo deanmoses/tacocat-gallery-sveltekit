@@ -93,7 +93,7 @@ class DraftStore {
 	 * Save the current draft to the server
 	 */
 	save(): void {
-		this.saveFake();
+		this.saveReal();
 	}
 
 	/**
