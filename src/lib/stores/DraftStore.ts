@@ -248,9 +248,14 @@ class DraftStore {
 	
 		// Clear the saved status after a while
 		setTimeout(() => {
+			console.log("timed out");
 			// Only clear saved status if the status is actually still saved
 			if (get(this._draft).status == DraftStatus.SAVED) {
+				console.log("In timeout, setting draft status to NO_CHANGES");
 				this.setStatus(DraftStatus.NO_CHANGES);
+			}
+			else {
+				console.log("Draft status was not still SAVED");
 			}
 		}, 4000)
 	}
