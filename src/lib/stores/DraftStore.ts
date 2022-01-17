@@ -226,9 +226,13 @@ class DraftStore {
 
 		this.setStatus(DraftStatus.SAVED);
 
+		console.log("b4 updating caches");
+
 		// For some types of albums, update the cache of the album on the server
 		if (isAlbumPath(path)) {
+			console.log(`isAlbumPath(${path}): ${isAlbumPath(path)}`);
 			const albumType = getAlbumType(path);
+			console.log(`albumType: [${albumType}]`);
 			// If it's a year album, update its cache
 			if (albumType === AlbumType.YEAR) {
 				//TODO updateAlbumServerCache(path);
@@ -239,6 +243,8 @@ class DraftStore {
 				console.log(`TODO: update cache of parent year album`);
 			}
 		}
+
+		console.log("b4 timeout");
 	
 		// Clear the saved status after a while
 		setTimeout(() => {
