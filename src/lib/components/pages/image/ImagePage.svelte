@@ -9,6 +9,7 @@
 	import PrevButton from "$lib/components/site/nav/PrevButton.svelte";
 	import UpButton from "$lib/components/site/nav/UpButton.svelte";
 	import NextButton from "$lib/components/site/nav/NextButton.svelte";
+	import BigImage from "./BigImage.svelte";
 	import EditToggle from "$lib/components/site/edit/toggle/EditToggle.svelte";
 	import type { Album, Image } from "$lib/models/album";
 	import Config from "$lib/utils/config";
@@ -41,21 +42,7 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="image">
-		<a href={Config.fullSizeImageUrl(image.path)} target="zen">
-			<img 
-				src={Config.cdnUrl(image.url_sized)} 
-				style="max-width: {image.width}px; max-height: {image.height}px;" 
-				alt={image.title}
-			/>
-		</a>
+		<BigImage {image} />
 	</svelte:fragment>
 
 </ImagePageLayout>
-
-<style>
-	img {
-		object-fit: contain;
-		width: 100%;
-		height: 100%;
-	}
-</style>

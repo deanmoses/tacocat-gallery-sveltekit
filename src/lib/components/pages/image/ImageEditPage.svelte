@@ -9,13 +9,13 @@
 	import PrevButton from "$lib/components/site/nav/PrevButton.svelte";
 	import UpButton from "$lib/components/site/nav/UpButton.svelte";
 	import NextButton from "$lib/components/site/nav/NextButton.svelte";
+	import BigImage from "./BigImage.svelte";
 	import ImageEditControls from "$lib/components/site/edit/controls/ImageEditControls.svelte";
 	import EditableText from "$lib/components/site/edit/EditableText.svelte";
 	import EditableHtml from "$lib/components/site/edit/EditableHtml.svelte";
 	import { editUrl } from "$lib/utils/path-utils";
 	import DraftStore from "$lib/stores/DraftStore";
 	import type { Album, Image } from "$lib/models/album";
-	import Config from "$lib/utils/config";
 	
 	export let year: string;
 	export let album: Album;
@@ -51,12 +51,7 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="image">
-		<a 
-			href={Config.fullSizeImageUrl(image.url_full)} 
-			target="zen"><img 
-				src={Config.cdnUrl(image.url_sized)} 
-				style="object-fit: contain; width: 100%; height: 100%; max-width: 4032px; max-height: 3024px;" 
-				alt={image.title}></a>
+		<BigImage {image} />
 	</svelte:fragment>
 
 </ImagePageLayout>
