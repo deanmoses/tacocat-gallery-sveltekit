@@ -29,6 +29,7 @@ class SessionStore {
 	 * Fetch current user's status from server
 	 */
 	async fetchUserStatus(): Promise<void> {
+		// this._isAdmin.set(true); // UNCOMMENT TO TEST ADMIN STUFF ON LOCALHOST
 		const uri = Config.checkAuthenticationUrl();
 		const response = await fetch(uri, { credentials: 'include' });
 		this.handleErrors(response);
@@ -40,26 +41,20 @@ class SessionStore {
 
 	private handleErrors(response: Response): void {
 		if (!response.ok) {
-			console.log(
-				'Response not OK fetching authentication status: ',
-				response.statusText
-			);
-			throw Error(response.statusText);
-		}
-		else if (response.status === 404) {
-			console.log('404 fetching authentication status: ', response.statusText);
-			throw Error(response.statusText);
+			const msg = `Response not OK fetching authentication status: ${response.statusText}`;
+			throw Error(msg);
 		}
 		else if (response.status !== 200) {
-			console.log(
-				'Non-200 response fetching authentication status: ',
-				response.statusText
-			);
-			throw Error(response.statusText);
+			const msg = `Non-200 response (${response.status}) fetching authentication status`;
+			throw Error(msg);
+		}
+		else if (!response.headers.get("content-type").startsWith('application/json')) {
+			const msg = `Expected response to be in JSON.  Instead got ${response.headers.get("content-type")}. ${response.statusText}`;
+			throw Error(msg);
 		}
 	}
 }
 
 const store = new SessionStore();
-store.fetchUserStatus(); // this is async, I don't think it blocks, right?
+store.fetchUserStatus();
 export const isAdmin = store.isAdmin();
