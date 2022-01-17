@@ -214,12 +214,27 @@ class AlbumStore {
 	}
 
 	/**
+	 * 
+	 * @param album Update the album in the Svelte store and on the browser's local disk cache
+	 */
+	updateAlbum(album: Album): void {
+		const albumEntry = this.getOrCreateWritableStore(album.path);
+		const newState = produce(get(albumEntry), (draftState: AlbumEntry) => {
+			draftState.loadStatus = AlbumLoadStatus.LOADED;
+			draftState.album = album;
+		})
+		albumEntry.set(newState);
+
+		this.writeToDisk(album.path, newState.album);
+	}
+
+	/**
 	 * Store the album in the browser's local disk storage
 	 * 
 	 * @param path path of the album 
 	 * @param jsonAlbum JSON of the album
 	 */
-	private writeToDisk(path: string, jsonAlbum: JSON): void {
+	private writeToDisk(path: string, jsonAlbum: JSON | Album): void {
 		const pathInIdb = this.pathInIdb(path);
 		// TODO: maybe don't write it if the value is unchanged?
 		// Or maybe refresh some sort of last_fetched timestamp?
