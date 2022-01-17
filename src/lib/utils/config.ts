@@ -77,13 +77,13 @@ export default abstract class Config {
 	 */
 	public static saveUrl(path: string): string {
 		if (isImagePath(path)) {
-			return 'https://tacocat.com/zenphoto/' + path;
+			return 'https://tacocat.com/zenphoto' + path;
 		} else {
 			// Not having the final slash messes up POSTing to the edit URL,
 			// because as of late 2016 zenphoto started redirecting
 			// to the version with the slash.
 			const finalSlash = path.endsWith('/') ? '' : '/';
-			return 'https://tacocat.com/zenphoto/' + path + finalSlash;
+			return 'https://tacocat.com/zenphoto' + path + finalSlash;
 		}
 	}
 
