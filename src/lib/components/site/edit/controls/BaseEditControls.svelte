@@ -1,7 +1,7 @@
 <!--
   @component
 
-  Controls for editing images
+  The base editing controls shared by both images and albums
 -->
 
 <script lang="ts">
