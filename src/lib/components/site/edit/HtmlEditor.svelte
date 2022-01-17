@@ -62,7 +62,16 @@
 
 </script>
 
-<div bind:this={editor}>{#if htmlContent}{@html htmlContent}{/if}</div>
+<!--
+	I wrapped the htmlContent in a <p> to work around a Svelte issue
+	where it'd complain about an undefined parent node when updating
+	after a save.
+-->
+<div bind:this={editor}>
+	{#if htmlContent}
+		<p>{@html htmlContent}</p>
+	{/if}
+</div>
 
 <style>
   @import 'https://cdn.quilljs.com/1.3.7/quill.bubble.css';
