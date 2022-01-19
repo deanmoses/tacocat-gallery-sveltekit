@@ -4,6 +4,7 @@
 
 import Config from '$lib/utils/config';
 import { writable, type Writable, derived, type Readable } from 'svelte/store';
+import { dev } from '$app/env';
 
 /**
  * Manages the Svelte stores about a user session
@@ -29,8 +30,8 @@ class SessionStore {
 	 * Fetch current user's status from server
 	 */
 	async fetchUserStatus(): Promise<void> {
-		const testAdminOnLocalhost = true;
-		if (testAdminOnLocalhost) {
+		const fakeAdmin: boolean = dev;
+		if (fakeAdmin) {
 			console.log("FAKE: setting user to be an admin");
 			this._isAdmin.set(true);
 		}
