@@ -6,9 +6,10 @@ import { writable, type Writable, derived, type Readable, get } from 'svelte/sto
 import { get as getFromIdb, set as setToIdb } from 'idb-keyval';
 import produce from "immer";
 import Config from '$lib/utils/config';
-import type { Album } from '$lib/models/album';
+import { type Album, AlbumType } from '$lib/models/album';
 import { AlbumLoadStatus, AlbumUpdateStatus } from '$lib/models/album';
 import createAlbumFromObject from '$lib/models/impl/album-creator';
+import { getAlbumType } from '$lib/utils/path-utils';
 
 export type AlbumEntry = {
 	loadStatus: AlbumLoadStatus;
@@ -88,8 +89,6 @@ class AlbumStore {
 	 * Update the album in the Svelte store and on the browser's local disk cache
 	 */
 	updateAlbumEntry(albumEntry: AlbumEntry): void {
-		console.log(`AlbumStore: updateAlbumEntry entry: `, albumEntry);
-		console.log(`AlbumStore: updateAlbumEntry album: `, albumEntry.album);
 		const albumEntryStore = this.albums.get(albumEntry.album.path);
 		albumEntryStore.set(albumEntry);
 		this.writeToDisk(albumEntry.album.path, albumEntry.album);
@@ -127,12 +126,12 @@ class AlbumStore {
 	private fetchFromDiskThenServer(path: string): void {
 		const pathInIdb = this.pathInIdb(path);
 		getFromIdb(pathInIdb)
-			.then((jsonAlbum) => {
-				if (jsonAlbum) {
-					console.log(`Album [${path}] found in idb`);
+			.then((albumObject) => {
+				if (albumObject) {
+					console.log(`Album [${path}] found in idb`, albumObject);
 
 					// Put album in Svelte store
-					this.setAlbum(path, jsonAlbum);
+					this.setAlbum(path, albumObject);
 				}
 				else {
 					console.log(`Album [${path}] not found in idb`);
@@ -154,7 +153,9 @@ class AlbumStore {
 	 * @param path path of the album 
 	 */
 	private fetchFromServer(path: string): void {
-		fetch(Config.albumUrl(path))
+		const url = Config.albumUrl(path);
+		const requestConfig = this.buildFetchConfig(path);
+		fetch(url, requestConfig)
 			.then(response => response.json())
 			.then(json => {
 				if (json.error) {
@@ -179,6 +180,39 @@ class AlbumStore {
 			.catch((error) => {
 				this.handleFetchError(path, error);
 			});
+	}
+
+	/**
+	 * Build the configuration for the HTTP fetch
+	 */
+	private buildFetchConfig(albumPath: string): RequestInit {
+		const requestConfig: RequestInit = {};
+
+		const headers = new Headers();
+		headers.append('pragma', 'no-cache');
+		headers.append('cache-control', 'no-cache');
+		requestConfig.headers = headers;
+
+		// Only send credentials if we're in prod.
+		// This helps with testing in development.
+		// The production build process replaces the text 'process.env.NODE_ENV'
+		// with the literal string 'production'
+		if ('production' === process.env.NODE_ENV) {
+
+			// Only send credentials for day albums.
+			// Because the root and year albums are served
+			// from *.json files on disk, and the apache
+			// .htaccess file in that directory is configured
+			// to serve Access-Control-Allow-Origin "*"
+			// And Chrome doesn't allow you to send credentials
+			// to a wildcard domain.  Blech.
+			const albumType = getAlbumType(albumPath);
+			if (albumType == AlbumType.DAY) {
+				requestConfig.credentials = 'include';
+			}
+		}
+
+		return requestConfig;
 	}
 
 	private handleFetchError(path: string, error: string): void {
@@ -224,10 +258,8 @@ class AlbumStore {
 	 * Store the album in the browser's local disk storage
 	 * 
 	 * @param path path of the album 
-	 * @param album album in JSON or class format
 	 */
 	private writeToDisk(path: string, album: JSON | Album): void {
-		console.log(`AlbumStore: writeToDisk ${path}: `, album);
 		const pathInIdb = this.pathInIdb(path);
 		// TODO: maybe don't write it if the value is unchanged?
 		// Or maybe refresh some sort of last_fetched timestamp?
