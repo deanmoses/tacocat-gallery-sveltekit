@@ -11,9 +11,6 @@ import Config from "$lib/utils/config";
  */
 export function updateAlbumServerCache(albumPath: string): void {
 
-	console.log(`TODO: album [${albumPath}] server JSON cache`);
-	if (albumPath) return;
-
 	// Configure the HTTP POST
 	const requestConfig: RequestInit = {
 		method: 'POST',

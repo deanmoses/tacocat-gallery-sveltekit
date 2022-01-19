@@ -283,12 +283,10 @@ class DraftStore {
 			console.log(`albumType: [${albumType}]`);
 			// If it's a year album, update its cache
 			if (albumType === AlbumType.YEAR) {
-				console.log(`TODO: I'm a year album, update my cache`);
 				updateAlbumServerCache(path);
 			}
 			// If it's a day album, update parent year album
 			else if (albumType === AlbumType.DAY) {
-				console.log(`TODO: I'm a day album, update cache of parent year album`);
 				updateAlbumServerCache(getParentFromPath(path));
 			}
 		}
