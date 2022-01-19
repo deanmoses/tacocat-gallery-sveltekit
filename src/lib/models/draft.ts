@@ -15,8 +15,14 @@ export enum DraftStatus {
 	ERRORED = 'ERRORED'
 };
 
+/**
+ * Actual drafted content.
+ * 
+ * Could represent changes to 
+ * either an album or an image.
+ */
 export type DraftContent = {
 	title?: string;
 	desc?: string;
-	published?: boolean;
+	unpublished?: boolean;
 };

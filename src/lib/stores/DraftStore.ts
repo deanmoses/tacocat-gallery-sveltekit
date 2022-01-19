@@ -79,7 +79,7 @@ class DraftStore {
 	}
 
 	setPublished(published: boolean): void {
-		this.updateContent(content => (content.published = published));
+		this.updateContent(content => (content.unpublished = !published));
 	}
 
 	/**
