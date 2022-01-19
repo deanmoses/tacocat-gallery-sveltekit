@@ -23,7 +23,7 @@ export function setAlbumThumbnail(albumPath: string, thumbnailLeafPath: string):
 	fetch(saveUrl, requestConfig)
 		.then(checkForErrors)
 		.then(response => response.json())
-		.then(json => checkJsonForErrors(json, albumPath, thumbnailLeafPath))
+		.then(json => checkJsonForErrors(json, albumPath))
 		.then(thumbnailUrl => updateThumbOnAlbum(thumbnailUrl, albumPath))
 		.then(thumbnailUrl => updateThumbOnParentAlbum(thumbnailUrl, albumPath))
 		.then(() => updateAlbumServerCache(getParentFromPath(albumPath)))
@@ -74,14 +74,19 @@ function checkForErrors(response: Response): Response {
  * @returns URL of new thumbnail
  * @throws error if there was anything but a success returned 
  */
-function checkJsonForErrors(json: any, albumPath: string, thumbnailLeafPath: string): string {
+function checkJsonForErrors(json: any, albumPath: string): string {
 	if (!json || !json.success) {
-		throw new Error(`Album [${albumPath}] server did not respond with success saving thumnail.  Instead, responded with ${json}`);
+		if (json.message) {
+			throw new Error(`Album [${albumPath}] server did not respond with success saving thumbnail: "${json.message}"`);
+		}
+		else {
+			throw new Error(`Album [${albumPath}] server did not respond with success saving thumbnail`);
+		}
 	}
 
 	const thumbnailUrl = json.urlThumb;
 	if (!thumbnailUrl) {
-		throw new Error(`Album [${albumPath}]: did not get thumbnail URL back from server for ${thumbnailLeafPath}.  Instead, responded with: ${thumbnailUrl}`);
+		throw new Error(`Album [${albumPath}]: did not get thumbnail URL back from server`);
 	}
 
 	console.log(`Album [${albumPath}] thumbnail save success.  New thumbnail URL: [${thumbnailUrl}]`);
