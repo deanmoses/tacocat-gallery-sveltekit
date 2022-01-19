@@ -11,6 +11,7 @@ import Config from '$lib/utils/config';
 import { AlbumType, type Image } from '$lib/models/album';
 import { type AlbumEntry, albumStore } from './AlbumStore';
 import { dev } from '$app/env';
+import { updateAlbumServerCache } from './AlbumServerCache';
 
 const initialState: Draft = {
 	status: DraftStatus.NO_CHANGES,
@@ -275,8 +276,6 @@ class DraftStore {
 
 		this.setStatus(DraftStatus.SAVED);
 
-		console.log("b4 updating caches");
-
 		// For some types of albums, update the server's cache of the album
 		if (isAlbumPath(path)) {
 			console.log(`isAlbumPath(${path}): ${isAlbumPath(path)}`);
@@ -284,12 +283,13 @@ class DraftStore {
 			console.log(`albumType: [${albumType}]`);
 			// If it's a year album, update its cache
 			if (albumType === AlbumType.YEAR) {
-				//TODO updateAlbumServerCache(path);
 				console.log(`TODO: I'm a year album, update my cache`);
-			} else if (albumType === AlbumType.DAY) {
-				// If it's a day album, update parent year album
-				//TODO updateAlbumServerCache(getParentFromPath(path));
-				console.log(`TODO: update cache of parent year album`);
+				updateAlbumServerCache(path);
+			}
+			// If it's a day album, update parent year album
+			else if (albumType === AlbumType.DAY) {
+				console.log(`TODO: I'm a day album, update cache of parent year album`);
+				updateAlbumServerCache(getParentFromPath(path));
 			}
 		}
 		else {
