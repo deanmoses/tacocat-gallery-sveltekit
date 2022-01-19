@@ -72,7 +72,7 @@
 					src={Config.cdnUrl(image.url_thumb)}
 				>
 					<svelte:fragment slot="selectionControls">
-						<SelectableStar selected={image.url_thumb.endsWith(album.url_thumb)} path={image.url_thumb} on:selected={albumThumbnailSelected} />
+						<SelectableStar selected={image.url_thumb.endsWith(album.url_thumb)} path={image.path} on:selected={albumThumbnailSelected} />
 					</svelte:fragment>
 				</Thumbnail>
 			{:else}

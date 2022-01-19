@@ -1,5 +1,5 @@
-import { AlbumThumb, AlbumUpdateStatus } from '$lib/models/album';
-import { AlbumEntry, albumStore } from '$lib/stores/AlbumStore';
+import { type AlbumThumb, AlbumUpdateStatus } from '$lib/models/album';
+import { type AlbumEntry, albumStore } from '$lib/stores/AlbumStore';
 import Config from '$lib/utils/config';
 import { getParentFromPath } from '$lib/utils/path-utils';
 import { updateAlbumServerCache } from './AlbumServerCache';
