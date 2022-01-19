@@ -37,7 +37,12 @@ class SessionStore {
 		}
 		else {
 			const uri = Config.checkAuthenticationUrl();
-			const response = await fetch(uri, { credentials: 'include' });
+			const response = await fetch(uri, {
+				// no-store: the browser fetches from the remote server without first looking in the cache, 
+				// and will not update the cache with the downloaded resource
+				cache: 'no-store',
+				credentials: 'include'
+			});
 			this.handleErrors(response);
 			const json = await response.json();
 			const isAdmin = !!json.isAdmin;
