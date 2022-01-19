@@ -75,8 +75,8 @@ class SearchStore {
 		 * @param searchTerms the search terms
 		 */
 		private fetchFromDiskThenServer(searchTerms: string): void {
-			const pathInIdb = this.idbKey(searchTerms);
-			getFromIdb(pathInIdb)
+			const idbKey = this.idbKey(searchTerms);
+			getFromIdb(idbKey)
 				.then((jsonSearch) => {
 					if (jsonSearch) {
 						console.log(`Search [${searchTerms}] found in idb`);
