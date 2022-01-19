@@ -10,6 +10,7 @@ import { getAlbumType, getParentFromPath, isAlbumPath, isImagePath } from '$lib/
 import Config from '$lib/utils/config';
 import { type Album, AlbumType, type Image } from '$lib/models/album';
 import { type AlbumEntry, albumStore } from './AlbumStore';
+import { dev } from '$app/env';
 
 const initialState: Draft = {
 	status: DraftStatus.NO_CHANGES,
@@ -93,7 +94,8 @@ class DraftStore {
 	 * Save the current draft to the server
 	 */
 	save(): void {
-		this.saveReal();
+		if (dev) this.saveFake();
+		else this.saveReal();
 	}
 
 	/**
@@ -130,16 +132,15 @@ class DraftStore {
 	private saveReal(): void {
 		const draft: Draft = get(this._draft);
 
-		console.log("Saving the draft: ", draft);
-
-		// Sanity check: do I actually have anything to save?
+		// Do I actually have anything to save?
 		// This should never happen
 		if (!draft || !draft.path || !draft.content) {
 			console.log("Error saving draft: nothing to save!");
 			this.setStatus(DraftStatus.ERRORED);
 		}
+		// Else I have something to save
 		else {
-			// Allow the UI to tell the user that a save is happening
+			console.log("Saving the draft: ", draft);
 			this.setStatus(DraftStatus.SAVING);
 			
 			// Send the save request
