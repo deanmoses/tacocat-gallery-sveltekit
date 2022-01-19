@@ -291,7 +291,7 @@ class AlbumStore {
 		return get(this.albums.get(path)).loadStatus;
 	}
 
-	private setUpdateStatus(path: string, status: AlbumUpdateStatus): void {
+	setUpdateStatus(path: string, status: AlbumUpdateStatus): void {
 		const updateStatusStore = this.getOrCreateUpdateStatusStore(path);
 		updateStatusStore.set(status);
 	}
