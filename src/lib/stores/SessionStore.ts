@@ -29,14 +29,20 @@ class SessionStore {
 	 * Fetch current user's status from server
 	 */
 	async fetchUserStatus(): Promise<void> {
-		// this._isAdmin.set(true); // UNCOMMENT TO TEST ADMIN STUFF ON LOCALHOST
-		const uri = Config.checkAuthenticationUrl();
-		const response = await fetch(uri, { credentials: 'include' });
-		this.handleErrors(response);
-		const json = await response.json();
-		const isAdmin = !!json.isAdmin;
-		if (isAdmin) console.log("User is an admin");
-		this._isAdmin.set(isAdmin);
+		const testAdminOnLocalhost = true;
+		if (testAdminOnLocalhost) {
+			console.log("FAKE: setting user to be an admin");
+			this._isAdmin.set(true);
+		}
+		else {
+			const uri = Config.checkAuthenticationUrl();
+			const response = await fetch(uri, { credentials: 'include' });
+			this.handleErrors(response);
+			const json = await response.json();
+			const isAdmin = !!json.isAdmin;
+			if (isAdmin) console.log("User is an admin");
+			this._isAdmin.set(isAdmin);
+		}
 	}
 
 	private handleErrors(response: Response): void {
