@@ -8,7 +8,7 @@ import { DraftStatus }  from '$lib/models/draft';
 import produce from "immer";
 import { getAlbumType, getParentFromPath, isAlbumPath, isImagePath } from '$lib/utils/path-utils';
 import Config from '$lib/utils/config';
-import { type Album, AlbumType, type Image } from '$lib/models/album';
+import { AlbumType, type Image } from '$lib/models/album';
 import { type AlbumEntry, albumStore } from './AlbumStore';
 import { dev } from '$app/env';
 
@@ -177,6 +177,8 @@ class DraftStore {
 				Accept: 'application/json'
 			},
 			body: formData,
+			// no-store: the browser fetches from the remote server without first looking in the cache, 
+			// and will not update the cache with the downloaded resource
 			cache: 'no-store',
 			credentials: 'include'
 		};
