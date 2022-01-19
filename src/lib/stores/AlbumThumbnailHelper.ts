@@ -145,7 +145,7 @@ function updateThumbOnParentAlbum(thumbnailUrl: string, albumPath: string): void
 	// Don't bother updating parent if it hasn't been downloaded
 	// TODO: we do still need to update the version in IndexedDB, right?
 	// Otherwise next time we fetch from IndexedDB it'll be wrong
-	if (!albumEntry || !albumEntry.album) {
+	if (!albumEntry || !albumEntry.album || !albumEntry.album.albums) {
 		return; 
 	}
 
