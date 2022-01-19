@@ -124,11 +124,11 @@ class AlbumStore {
 	 * @param path path of the album
 	 */
 	private fetchFromDiskThenServer(path: string): void {
-		const pathInIdb = this.pathInIdb(path);
-		getFromIdb(pathInIdb)
+		const idbKey = this.idbKey(path);
+		getFromIdb(idbKey)
 			.then((albumObject) => {
 				if (albumObject) {
-					console.log(`Album [${path}] found in idb`, albumObject);
+					console.log(`Album [${path}] found in idb`);
 
 					// Put album in Svelte store
 					this.setAlbum(path, albumObject);
@@ -140,8 +140,7 @@ class AlbumStore {
 			.catch((error) => {
 				console.log(`Album [${path}] error fetching from disk`, error);
 			})
-			// Always fetch from server regardless of whether it was found on
-			// disk or not
+			// Fetch from server regardless of whether it was found on disk
 			.finally(() => {
 				this.fetchFromServer(path);
 			});
@@ -188,10 +187,9 @@ class AlbumStore {
 	private buildFetchConfig(albumPath: string): RequestInit {
 		const requestConfig: RequestInit = {};
 
-		const headers = new Headers();
-		headers.append('pragma', 'no-cache');
-		headers.append('cache-control', 'no-cache');
-		requestConfig.headers = headers;
+		// no-store: the browser fetches from the remote server without first looking in the cache, 
+		// and will not update the cache with the downloaded resource
+		requestConfig.cache = 'no-store';
 
 		// Only send credentials if we're in prod.
 		// This helps with testing in development.
@@ -260,15 +258,18 @@ class AlbumStore {
 	 * @param path path of the album 
 	 */
 	private writeToDisk(path: string, album: JSON | Album): void {
-		const pathInIdb = this.pathInIdb(path);
+		const idbKey = this.idbKey(path);
 		// TODO: maybe don't write it if the value is unchanged?
 		// Or maybe refresh some sort of last_fetched timestamp?
-		setToIdb(pathInIdb, album)
+		setToIdb(idbKey, album)
 			.then(() => console.log(`Album [${path}] stored in idb`))
 			.catch((e) => console.log(`Album [${path}] error storing in idb`, e));
 	}
 
-	private pathInIdb(path: string): string {
+	/**
+	 * @returns key of the album in IndexedDB
+	 */
+	private idbKey(path: string): string {
 		return `/${path}`;
 	}
 
@@ -291,7 +292,6 @@ class AlbumStore {
 	}
 
 	private setUpdateStatus(path: string, status: AlbumUpdateStatus): void {
-		//console.log(`Album [${path}] set update status:`, status);
 		const updateStatusStore = this.getOrCreateUpdateStatusStore(path);
 		updateStatusStore.set(status);
 	}
