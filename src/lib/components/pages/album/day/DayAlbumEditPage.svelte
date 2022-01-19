@@ -14,7 +14,7 @@
 	import Config from "$lib/utils/config";
 	import AlbumEditControls from "$lib/components/site/edit/controls/AlbumEditControls.svelte";
 	import EditableHtml from "$lib/components/site/edit/EditableHtml.svelte";
-	import { editUrl } from "$lib/utils/path-utils";
+	import { editUrl, getLeafItemOnPath } from "$lib/utils/path-utils";
 	import DraftStore from "$lib/stores/DraftStore";
 	import { setAlbumThumbnail } from "$lib/stores/AlbumThumbnailHelper";
 	import type { Album } from "$lib/models/album";
@@ -27,7 +27,8 @@
 	function albumThumbnailSelected(e: CustomEvent<{path: string}>) {		
 		const imagePath = e.detail.path;
 		console.log(`<DayAlbumEditPage>: thumbnail ${imagePath}`, e.detail);
-		setAlbumThumbnail(album.path, imagePath);
+		const imageLeafPath = getLeafItemOnPath(imagePath);
+		setAlbumThumbnail(album.path, imageLeafPath);
 	}
 </script>
 
