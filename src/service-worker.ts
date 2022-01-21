@@ -49,8 +49,6 @@ worker.addEventListener('activate', (event) => {
  * Fall back to cache if user is offline.
  */
 async function fetchAndCache(request: Request) {
-	console.log(`FETCH`, request);
-
 	const cache = await caches.open(OFFLINE_CACHE_NAME);
 
 	try {
@@ -58,7 +56,6 @@ async function fetchAndCache(request: Request) {
 		cache.put(request, response.clone());
 		return response;
 	} catch (err) {
-		console.log(`service worker fetchAndCache error: `, err);
 		const response = await cache.match(request);
 		if (response) return response;
 		throw err;
@@ -92,8 +89,6 @@ worker.addEventListener('fetch', (event) => {
 
 	event.respondWith(
 		(async () => {
-			console.log(`service worker: in respondWith`);
-
 			// always serve static files and bundler-generated assets from cache.
 			// if your application has other URLs with data that will never change,
 			// set this variable to true for them and they will only be fetched once.
