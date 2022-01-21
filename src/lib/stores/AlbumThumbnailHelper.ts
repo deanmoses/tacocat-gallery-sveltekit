@@ -47,6 +47,11 @@ function buildRequestConfig(thumbnailLeafPath: string): RequestInit  {
 			Accept: 'application/json'
 		},
 		body: formData,
+		// no-store: bypass the HTTP cache completely.  
+		// This will make the browser not look into the HTTP cache 
+		// on the way to the network, and never store the resulting 
+		// response in the HTTP cache.
+		// Fetch() will behave as if no HTTP cache exists.
 		cache: 'no-store',
 		credentials: 'include'
 	};

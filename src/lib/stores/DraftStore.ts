@@ -178,8 +178,11 @@ class DraftStore {
 				Accept: 'application/json'
 			},
 			body: formData,
-			// no-store: the browser fetches from the remote server without first looking in the cache, 
-			// and will not update the cache with the downloaded resource
+			// no-store: bypass the HTTP cache completely.  
+			// This will make the browser not look into the HTTP cache 
+			// on the way to the network, and never store the resulting 
+			// response in the HTTP cache.
+			// Fetch() will behave as if no HTTP cache exists.
 			cache: 'no-store',
 			credentials: 'include'
 		};
