@@ -18,6 +18,10 @@ const OFFLINE_CACHE_NAME = `offline${timestamp}`;
 const to_cache = build.concat(files);
 const staticAssets = new Set(to_cache);
 
+// remove files that aren't served to clients
+staticAssets.delete('/.htaccess');
+staticAssets.delete('/robots.txt');
+
 worker.addEventListener('install', (event) => {
 
 	// cache all static assets
