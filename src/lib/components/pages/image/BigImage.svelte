@@ -11,13 +11,20 @@
 	export let image: Image;
 </script>
 
-<a href={Config.fullSizeImageUrl(image.path)} target="zen">
-	<img 
-		src={Config.cdnUrl(image.url_sized)} 
-		style="max-width: {image.width}px; max-height: {image.height}px;" 
-		alt={image.title}
-	/>
-</a>
+<!-- 
+	When navigating between images quickly, Svelte wasn't destroying the previous
+	image fast enough: you'd briefly see the old image with the new text.  
+	Wrapping the image in a #key block seems to make this problem go away.
+-->
+{#key image.url_sized}
+	<a href={Config.fullSizeImageUrl(image.path)} target="zen">
+		<img 
+			src={Config.cdnUrl(image.url_sized)} 
+			style="max-width: {image.width}px; max-height: {image.height}px;" 
+			alt={image.title}
+		/>
+	</a>
+{/key}
 
 <style>
 	img {
