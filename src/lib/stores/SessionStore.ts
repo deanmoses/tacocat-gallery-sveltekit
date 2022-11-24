@@ -4,7 +4,7 @@
 
 import Config from '$lib/utils/config';
 import { writable, type Writable, derived, type Readable } from 'svelte/store';
-import { dev } from '$app/env';
+import { dev } from '$app/environment';
 
 /**
  * Manages the Svelte stores about a user session

@@ -5,11 +5,12 @@
 -->
 
 <script lang="ts">
-  import Thumbnail from "$lib/components/site/Thumbnail.svelte";
-	import { AlbumLoadStatus, AlbumThumb } from "$lib/models/album";
+	import Thumbnail from "$lib/components/site/Thumbnail.svelte";
+	import type { AlbumThumb } from "$lib/models/album";
+	import { AlbumLoadStatus } from "$lib/models/album";
 	import { latestAlbumThumbnailEntry } from "$lib/stores/LatestAlbumStore";
 	import Config from "$lib/utils/config";
-  import {shortDate} from "$lib/utils/date-utils";
+	import {shortDate} from "$lib/utils/date-utils";
 
 	let status: AlbumLoadStatus;
 	$: status = $latestAlbumThumbnailEntry.status;

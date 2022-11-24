@@ -1,28 +1,17 @@
-<script context="module" lang="ts">
-	export async function load({ params, url }) {
-		const searchTerms = params.terms;
-		const returnPath = url.searchParams.get('returnPath')
-		return {
-			props: {
-				returnPath: returnPath,
-				searchTerms,
-				search: searchStore.get(searchTerms)
-			}
-		}
-	}
-</script>
-
 <script lang="ts">
-	import BlankSearchPageLayout from "$lib/components/pages/search/BlankSearchPageLayout.svelte";
+    import type { PageData } from './$types';
+	export let data: PageData;
+
+    import BlankSearchPageLayout from "$lib/components/pages/search/BlankSearchPageLayout.svelte";
 	import SearchLoadingPage from "$lib/components/pages/search/SearchLoadingPage.svelte";
 	import SearchResultsPage from "$lib/components/pages/search/SearchResultsPage.svelte";
-	import { searchStore } from "$lib/stores/SearchStore";
-	import { Search, SearchLoadStatus } from "$lib/models/search";
+    import type { Search } from "$lib/models/search";
+	import { SearchLoadStatus } from "$lib/models/search";
 	import type { Readable } from "svelte/store";
 
-	export let returnPath: string;
-	export let searchTerms: string;
-	export let search: Readable<Search>;
+	export let returnPath: string = data.returnPath;
+	export let searchTerms: string = data.searchTerms;
+	export let search: Readable<Search> = data.search;
 
 	let status: SearchLoadStatus;
 	$: status = $search.status;

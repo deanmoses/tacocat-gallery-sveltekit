@@ -10,7 +10,7 @@ import { getAlbumType, getParentFromPath, isAlbumPath, isImagePath } from '$lib/
 import Config from '$lib/utils/config';
 import { AlbumType, type Image } from '$lib/models/album';
 import { type AlbumEntry, albumStore } from './AlbumStore';
-import { dev } from '$app/env';
+import { dev } from '$app/environment';
 import { updateAlbumServerCache } from './AlbumServerCache';
 
 const initialState: Draft = {
