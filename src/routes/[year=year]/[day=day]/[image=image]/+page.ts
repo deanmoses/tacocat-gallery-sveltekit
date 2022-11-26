@@ -1,5 +1,5 @@
 import type { PageLoad } from './$types';
-import { albumStore } from "$lib/stores/AlbumStore";
+import { albumStore } from '$lib/stores/AlbumStore';
 
 export const load: PageLoad = ({ params }) => {
 	const year = params.year;
@@ -12,4 +12,4 @@ export const load: PageLoad = ({ params }) => {
 		imagePath,
 		albumEntry: albumStore.get(albumPath, refetch)
 	};
-}
+};
