@@ -6,10 +6,11 @@ export const load: PageLoad = ({ params }) => {
 	const albumPath = `${params.year}/${params.day}`;
 	const imagePath = `${albumPath}/${params.image}`;
 	const refetch = false; // don't refetch the album
+	const albumEntry = albumStore.get(albumPath, refetch);
 
 	return {
 		year,
 		imagePath,
-		albumEntry: albumStore.get(albumPath, refetch)
+		albumEntry
 	};
 };
