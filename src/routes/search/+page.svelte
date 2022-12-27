@@ -1,10 +1,10 @@
 <script lang="ts">
+	import SearchPage from '$lib/components/pages/search/SearchPage.svelte';
 	import type { PageData } from './$types';
+
 	export let data: PageData;
 
-	import SearchPage from "$lib/components/pages/search/SearchPage.svelte";
-	
-	export let returnPath: string = data.returnPath;
+	$: returnPath = data.returnPath;
 </script>
 
 <SearchPage {returnPath} />
