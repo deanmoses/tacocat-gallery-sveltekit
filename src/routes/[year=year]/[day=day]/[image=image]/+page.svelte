@@ -1,19 +1,20 @@
 <script lang="ts">
-	import type { PageData } from './$types';
-	export let data: PageData;
-
-	import type { Readable } from 'svelte/store';
-	import type { AlbumEntry } from '$lib/stores/AlbumStore';
 	import ImageRouting from '$lib/components/pages/image/ImageRouting.svelte';
 	import ImagePage from '$lib/components/pages/image/ImagePage.svelte';
+	import type { PageData } from './$types';
 
-	export let year: string = data.year;
-	export let imagePath: string = data.imagePath;
-	export let albumEntry: Readable<AlbumEntry> = data.albumEntry;
+	export let data: PageData;
+
+	$: year = data.year;
+	$: albumEntry = data.albumEntry;
+	$: album = $albumEntry.album;
+	$: status = $albumEntry.loadStatus;
+	$: imagePath = data.imagePath;
+	$: image = album.getImage(imagePath);
 </script>
 
-<ImageRouting status={$albumEntry.loadStatus} {year}>
+<ImageRouting {status} {year}>
 	<svelte:fragment slot="loaded">
-		<ImagePage {year} album={$albumEntry.album} image={$albumEntry.album.getImage(imagePath)} />
+		<ImagePage {year} {album} {image} />
 	</svelte:fragment>
 </ImageRouting>

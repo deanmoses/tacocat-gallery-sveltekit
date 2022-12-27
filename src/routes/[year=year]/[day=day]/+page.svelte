@@ -1,18 +1,18 @@
 <script lang="ts">
-	import type { PageData } from './$types';
-	export let data: PageData;
-
-	import type { Readable } from 'svelte/store';
-	import type { AlbumEntry } from '$lib/stores/AlbumStore';
 	import DayAlbumRouting from '$lib/components/pages/album/day/DayAlbumRouting.svelte';
 	import DayAlbumPage from '$lib/components/pages/album/day/DayAlbumPage.svelte';
+	import type { PageData } from './$types';
 
-	export let year: string = data.year;
-	export let albumEntry: Readable<AlbumEntry> = data.albumEntry;
+	export let data: PageData;
+
+	$: year = data.year;
+	$: albumEntry = data.albumEntry;
+	$: album = $albumEntry.album;
+	$: status = $albumEntry.loadStatus;
 </script>
 
-<DayAlbumRouting status={$albumEntry.loadStatus} {year}>
+<DayAlbumRouting {status} {year}>
 	<svelte:fragment slot="loaded">
-		<DayAlbumPage album={$albumEntry.album} {year}/>
+		<DayAlbumPage {album} {year} />
 	</svelte:fragment>
 </DayAlbumRouting>
