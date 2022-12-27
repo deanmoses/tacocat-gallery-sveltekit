@@ -10,17 +10,16 @@ Download this project, `cd` into its directory. Install dependencies with `npm i
 npm run dev
 
 # or start the server and open the app in a new browser tab
-npm run dev -- --open
+npm run dev --open
 ```
 
 ## Production
 
 To create a production version:
-
 ```bash
 npm run build
 ```
 
 You can preview the production build with `npm run preview`.
 
-> To deploy the app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+Deploy production version to staging with `npm run deploy-staging`.
