@@ -3,14 +3,19 @@
 */
 
 /* default colors for years with no styling of their own */
-.site-container, 
-/* colors for a specific year */
-.site-container[data-year="2022"] {
+.site-container,
+.site-container[data-year='2023'] {
+	--body-color: #7a3f0b;
+	--header-color: #c5d5cb;
+	--sidebar-color: #f0ead7;
+	--button-color: #9da694;
+}
+
+.site-container[data-year='2022'] {
 	--body-color: #686aab;
 	--header-color: #d2927f;
 	--sidebar-color: #a0838f;
 	--button-color: #e2c1bf;
-	/*--button-disabled-color: #f1d6d5; /* couldn't get this to work when all the other years don't have it */
 }
 
 .site-container[data-year='2021'] {
