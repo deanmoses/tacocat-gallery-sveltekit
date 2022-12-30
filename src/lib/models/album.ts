@@ -4,13 +4,17 @@
 export interface Album {
 	path: string;
 	title?: string;
-	 
+
 	/**
 	 * Used by tacocat.com as a short summary of the album
 	 */
 	customdata?: string;
+
+	/**
+	 * Album text / photo caption
+	 */
 	desc?: string;
-	 
+
 	/**
 	 * True: album is NOT available to the public
 	 */
@@ -36,20 +40,20 @@ export interface Album {
 	prevAlbumTitle?: string;
 	parentAlbumHref?: string;
 	parentAlbumTitle?: string;
-	 
+
 	/**
 	 * Return image at specified path, or null
 	 */
 	getImage?: (imagePath: string) => Image;
-};
+}
 
 /**
  * An image in an album
  */
- export interface Image extends Thumbable {
+export interface Image extends Thumbable {
 	nextImageHref: string;
 	prevImageHref: string;
-};
+}
 
 /**
  * Something that can be displayed as a thumbnail image
@@ -58,6 +62,10 @@ export interface Thumbable {
 	path: string;
 	title: string;
 	date: number;
+
+	/**
+	 * Album text / photo caption
+	 */
 	desc: string;
 	url_full: string;
 	url_sized: string;
@@ -65,13 +73,13 @@ export interface Thumbable {
 	width: number;
 	height: number;
 	customdata?: string;
-};
+}
 
 /**
  * Just enough information to display an Album as a thumbnail image
  */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AlbumThumb extends Thumbable { };
+export interface AlbumThumb extends Thumbable {}
 
 /**
  * Just enough information to navigate to an Album
@@ -80,7 +88,7 @@ export interface AlbumNavInfo {
 	path?: string;
 	title?: string;
 	date?: number;
-};
+}
 
 /**
  * Just enough information to navigate to an Image
@@ -88,7 +96,7 @@ export interface AlbumNavInfo {
 export interface ImageNavInfo {
 	path: string;
 	title: string;
-};
+}
 
 /**
  * Types of albums
@@ -97,7 +105,7 @@ export enum AlbumType {
 	ROOT = 'ROOT',
 	YEAR = 'YEAR',
 	DAY = 'DAY'
-};
+}
 
 /**
  * Status of the initial load of the album
@@ -108,21 +116,21 @@ export enum AlbumLoadStatus {
 	/** The album has never been loaded but it's being retrieved */
 	LOADING = 'LOADING',
 	/** The album has never been loaded because there was an error loading the album. */
-	ERROR_LOADING = 'ERROR_LOADING', 
+	ERROR_LOADING = 'ERROR_LOADING',
 	/** The album definitely does not exist */
 	DOES_NOT_EXIST = 'DOES_NOT_EXIST',
 	/** The album has been loaded */
 	LOADED = 'LOADED'
-};
+}
 
 /**
  * Status of subsequent updates to the album
- * 
- * Update status is different than load status: updates are AFTER the 
+ *
+ * Update status is different than load status: updates are AFTER the
  * initial album has loaded.  You are refreshing the existing album.
  */
 export enum AlbumUpdateStatus {
 	NOT_UPDATING = 'NOT_UPDATING',
 	UPDATING = 'UPDATING',
 	ERROR_UPDATING = 'ERROR_UPDATING'
-};
+}
