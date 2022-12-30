@@ -2,11 +2,11 @@
 
 import { build, files, version } from '$service-worker';
 
-const worker = (self as unknown) as ServiceWorkerGlobalScope;
+const worker = self as unknown as ServiceWorkerGlobalScope;
 
 // name of the cache of the application's static assets,
 // meaning all the bundler-generated files as well as
-// everything in the`static` directory
+// everything in the `static` directory
 const STATIC_ASSETS_CACHE_NAME = `cache${version}`;
 
 // name of the cache for everything else
@@ -24,7 +24,6 @@ staticAssets.delete('/robots.txt');
 const to_cache = Array.from(staticAssets);
 
 worker.addEventListener('install', (event) => {
-
 	// cache all static assets
 	event.waitUntil(
 		caches
@@ -72,7 +71,7 @@ worker.addEventListener('fetch', (event) => {
 
 	const url = new URL(event.request.url);
 
-	// don't try to handle non-http URIs such as data: 
+	// don't try to handle non-http URIs such as `data:`
 	const isHttp = url.protocol.startsWith('http');
 	if (!isHttp) return;
 
@@ -85,7 +84,9 @@ worker.addEventListener('fetch', (event) => {
 	const isStaticAsset = url.host === self.location.host && staticAssets.has(url.pathname);
 
 	// is the request asking for it to not be cached?
-	const skipBecauseUncached = !isStaticAsset && (event.request.cache === 'only-if-cached' || event.request.cache === 'no-store');
+	const skipBecauseUncached =
+		!isStaticAsset &&
+		(event.request.cache === 'only-if-cached' || event.request.cache === 'no-store');
 	if (skipBecauseUncached) return;
 
 	// is it a request for an image that isn't one of the application's assets?
