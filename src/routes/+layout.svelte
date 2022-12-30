@@ -31,7 +31,7 @@
 	 *
 	 * @param path path to album
 	 */
-	function getAlbum(path: string): Album {
+	function getAlbum(path: string): Album | undefined {
 		return albumStore.getFromInMemory(path).album;
 	}
 </script>

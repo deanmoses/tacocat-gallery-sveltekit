@@ -6,7 +6,7 @@
 <script lang="ts">
 	import BlankAlbumPageLayout from './BlankAlbumPageLayout.svelte';
 
-	export let year: string;
+	export let year: string = '';
 	export let title = 'Error';
 </script>
 
