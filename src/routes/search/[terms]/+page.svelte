@@ -2,10 +2,15 @@
 	import BlankSearchPageLayout from '$lib/components/pages/search/BlankSearchPageLayout.svelte';
 	import SearchLoadingPage from '$lib/components/pages/search/SearchLoadingPage.svelte';
 	import SearchResultsPage from '$lib/components/pages/search/SearchResultsPage.svelte';
-	import { SearchLoadStatus } from '$lib/models/search';
+	import { SearchLoadStatus, type SearchResults } from '$lib/models/search';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
+	let returnPath: string;
+	let searchTerms: string;
+	let status: string;
+	let searchResults: SearchResults | undefined;
+
 	$: returnPath = data.returnPath;
 	$: searchTerms = data.searchTerms;
 	$: search = data.search;
