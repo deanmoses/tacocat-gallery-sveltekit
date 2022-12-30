@@ -3,17 +3,16 @@
 
   Layout for day album pages
 -->
-
 <script lang="ts">
-	import SiteLayout from "$lib/components/site/SiteLayout.svelte";
-  import Header from "$lib/components/site/Header.svelte";
-  import Nav from "$lib/components/site/nav/Nav.svelte";
-  import PageContent from "$lib/components/site/PageContent.svelte";
-  import MainContent from "$lib/components/site/MainContent.svelte";
-	import Thumbnails from "$lib/components/site/Thumbnails.svelte";
+	import SiteLayout from '$lib/components/site/SiteLayout.svelte';
+	import Header from '$lib/components/site/Header.svelte';
+	import Nav from '$lib/components/site/nav/Nav.svelte';
+	import PageContent from '$lib/components/site/PageContent.svelte';
+	import MainContent from '$lib/components/site/MainContent.svelte';
+	import Thumbnails from '$lib/components/site/Thumbnails.svelte';
 
-	export let year:string;
-  export let title:string;
+	export let year: string;
+	export let title: string = '';
 </script>
 
 <svelte:head>
