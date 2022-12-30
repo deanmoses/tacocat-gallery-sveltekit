@@ -92,7 +92,7 @@ function navigateToPeer(
 		const albumPath: string = getParentFromPath(path);
 		const album = getAlbum(albumPath);
 		if (album) {
-			const image = album?.getImage(path);
+			const image = album.getImage(path);
 			if (image) {
 				const newPath = direction === Direction.Next ? image.nextImageHref : image.prevImageHref;
 				if (newPath) {
