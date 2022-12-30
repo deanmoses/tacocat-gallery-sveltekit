@@ -2,16 +2,40 @@
  * A photo album
  */
 export interface Album {
+	/**
+	 * Path of the album, like '2001/12-31'
+	 */
 	path: string;
+
+	/**
+	 * Title of the album, like 'December 31, 2001'
+	 */
 	title?: string;
 
 	/**
-	 * Used by tacocat.com as a short summary of the album
+	 * Short summary of the album, like 'Ski trip'
 	 */
 	customdata?: string;
 
 	/**
-	 * Album text / photo caption
+	 * Album text / photo caption.
+	 *
+	 * Use this instead of the #desc property when
+	 * displaying in the UI because this rewrites legacy
+	 * URL formats.
+	 *
+	 * @see desc
+	 */
+	description: string;
+
+	/**
+	 * Unprocessed album text / photo caption.
+	 *
+	 * Don't display this in the UI; instead use the #description property.
+	 *
+	 * This exists because it's set directly from the JSON API.
+	 *
+	 * @see description
 	 */
 	desc?: string;
 
@@ -44,7 +68,7 @@ export interface Album {
 	/**
 	 * Return image at specified path, or undefined
 	 */
-	getImage?: (imagePath: string) => Image | undefined;
+	getImage: (imagePath: string) => Image | undefined;
 }
 
 /**
@@ -59,19 +83,34 @@ export interface Image extends Thumbable {
  * Something that can be displayed as a thumbnail image
  */
 export interface Thumbable {
+	/**
+	 * Path of the album or image, like '2001/12-31'
+	 */
 	path: string;
+
+	/**
+	 * Title of the album or image, like 'December 31, 2001'
+	 */
 	title: string;
+
+	/**
+	 * Date of the album or image
+	 */
 	date: number;
 
 	/**
 	 * Album text / photo caption
 	 */
-	desc: string;
+	description: string;
 	url_full: string;
 	url_sized: string;
 	url_thumb: string;
 	width: number;
 	height: number;
+
+	/**
+	 * Short summary of the album, like 'Ski trip'
+	 */
 	customdata?: string;
 }
 

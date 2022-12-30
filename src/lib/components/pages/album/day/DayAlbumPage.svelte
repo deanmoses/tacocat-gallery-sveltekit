@@ -33,8 +33,8 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="caption">
-		{#if album.desc}
-			{@html album.desc}
+		{#if album.description}
+			{@html album.description}
 		{/if}
 	</svelte:fragment>
 

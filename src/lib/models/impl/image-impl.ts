@@ -1,4 +1,5 @@
 import type { Album, Image } from '$lib/models/album';
+import { processCaption } from '$lib/utils/legacyUrlHandler';
 
 /**
  * Image implementaiton
@@ -18,6 +19,10 @@ export class ImageImpl implements Image {
 
 	constructor(album: Album) {
 		this.album = album;
+	}
+
+	get description(): string {
+		return processCaption(this.desc);
 	}
 
 	/**

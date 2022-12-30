@@ -27,8 +27,8 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="caption">
-		{#if image.desc}
-			{@html image.desc}
+		{#if image.description}
+			{@html image.description}
 		{/if}
 	</svelte:fragment>
 

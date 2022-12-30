@@ -1,5 +1,6 @@
 import type { Album, Image, AlbumNavInfo, AlbumThumb } from '$lib/models/album';
 import { ImageImpl } from '$lib/models/impl/image-impl';
+import { processCaption } from '$lib/utils/legacyUrlHandler';
 import { getYearFromPath } from '$lib/utils/path-utils';
 
 /**
@@ -24,6 +25,10 @@ export class AlbumImpl implements Album {
 	constructor(path: string) {
 		if (!(typeof path === 'string')) throw new Error('Album path must be a string');
 		this.path = path;
+	}
+
+	get description(): string {
+		return processCaption(this.desc);
 	}
 
 	/**
