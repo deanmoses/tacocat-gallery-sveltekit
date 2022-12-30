@@ -37,7 +37,8 @@ export class AlbumImpl implements Album {
 			return year;
 		} else {
 			// Else look at the publication date
-			return new Date(this.date * 1000).getFullYear();
+			// Default to 1900 if no publication date, I guess
+			return new Date((this.date ?? 1900) * 1000).getFullYear();
 		}
 	}
 
