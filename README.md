@@ -20,6 +20,8 @@ To create a production version:
 npm run build
 ```
 
-You can preview the production build with `npm run preview`.
+Preview the build with `npm run preview`.
 
-Deploy production version to staging with `npm run deploy-staging`.
+Deploy the build to staging with `npm run deploy-staging`.
+
+Deploy the build to production with `npm run deploy-prod`
