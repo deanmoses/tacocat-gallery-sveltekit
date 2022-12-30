@@ -16,14 +16,13 @@ export class AlbumImpl implements Album {
 	url_thumb?: string;
 	date?: number;
 	albums?: AlbumThumb[];
-	images?: (Image)[];
+	images?: Image[];
 	parent_album?: AlbumNavInfo;
 	next?: AlbumNavInfo;
 	prev?: AlbumNavInfo;
 
 	constructor(path: string) {
-		if (!(typeof path === 'string'))
-			throw new Error('Album path must be a string');
+		if (!(typeof path === 'string')) throw new Error('Album path must be a string');
 		this.path = path;
 	}
 
@@ -44,9 +43,10 @@ export class AlbumImpl implements Album {
 
 	/**
 	 * Friendly title of page
+	 * Blank if no title
 	 */
 	get pageTitle(): string {
-		return this.title;
+		return this.title ?? '';
 	}
 
 	/**
@@ -61,7 +61,7 @@ export class AlbumImpl implements Album {
 	 * Blank if no next album
 	 */
 	get nextAlbumPath(): string {
-		return this.next ? this.next.path : '';
+		return this.next?.path ?? '';
 	}
 
 	/**
@@ -77,7 +77,7 @@ export class AlbumImpl implements Album {
 	 * Blank if no previous album
 	 */
 	get prevAlbumPath(): string {
-		return this.prev ? this.prev.path : '';
+		return this.prev?.path ?? '';
 	}
 
 	/**
@@ -101,7 +101,7 @@ export class AlbumImpl implements Album {
 	 * Blank if no next album
 	 */
 	get nextAlbumTitle(): string {
-		return this.next ? this.next.title : '';
+		return this.next?.title ?? '';
 	}
 
 	/**
@@ -109,7 +109,7 @@ export class AlbumImpl implements Album {
 	 * Blank if no previous album
 	 */
 	get prevAlbumTitle(): string {
-		return this.prev ? this.prev.title : '';
+		return this.prev?.title ?? '';
 	}
 
 	/**
@@ -117,19 +117,19 @@ export class AlbumImpl implements Album {
 	 * Blank if no parent album
 	 */
 	get parentAlbumTitle(): string {
-		return this.parent_album ? this.parent_album.title : '';
+		return this.parent_album?.title ?? '';
 	}
 
 	/**
-	 * Return image at specified path, or null
+	 * Return image at specified path, or undefined
 	 */
-	getImage(imagePath: string): Image {
+	getImage(imagePath: string): Image | undefined {
 		if (this.images) {
 			const image = this.images.find((image: Image) => image.path === imagePath);
 			if (image) {
 				return Object.assign(new ImageImpl(this), image);
 			}
 		}
-		return null;
+		return undefined;
 	}
 }

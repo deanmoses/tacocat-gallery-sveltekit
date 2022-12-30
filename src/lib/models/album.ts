@@ -42,9 +42,9 @@ export interface Album {
 	parentAlbumTitle?: string;
 
 	/**
-	 * Return image at specified path, or null
+	 * Return image at specified path, or undefined
 	 */
-	getImage?: (imagePath: string) => Image;
+	getImage?: (imagePath: string) => Image | undefined;
 }
 
 /**
