@@ -1,4 +1,4 @@
-import type { Album, Image } from "$lib/models/album";
+import type { Album, Image } from '$lib/models/album';
 
 /**
  * Image implementaiton
@@ -24,7 +24,7 @@ export class ImageImpl implements Image {
 	 * URL of the next image in my album
 	 * Null if no next image
 	 */
-	get nextImageHref(): string {
+	get nextImageHref(): string | null {
 		const next = this.next;
 		return next ? '/' + next.path : null;
 	}
@@ -33,7 +33,7 @@ export class ImageImpl implements Image {
 	 * Image.path of the next image in my album
 	 * Null if no next image
 	 */
-	get nextImagePath(): string {
+	get nextImagePath(): string | null {
 		const next = this.next;
 		return next ? next.path : null;
 	}
@@ -41,9 +41,9 @@ export class ImageImpl implements Image {
 	/**
 	 * Next image in my album
 	 */
-	get next(): Image {
+	get next(): Image | undefined {
 		let foundMyself = false;
-		return this.album.images.find(img => {
+		return this.album.images.find((img) => {
 			if (foundMyself) {
 				// I don't know my own index in my parent collection, so
 				// first I have to find myself, then find the next image.
@@ -60,7 +60,7 @@ export class ImageImpl implements Image {
 	 * URL of the previous image in my album
 	 * Null if no previous image
 	 */
-	get prevImageHref(): string {
+	get prevImageHref(): string | null {
 		const prev = this.prev;
 		return prev ? '/' + prev.path : null;
 	}
@@ -69,7 +69,7 @@ export class ImageImpl implements Image {
 	 * Image.path of the previous image in my album
 	 * Null if no previous image
 	 */
-	get prevImagePath(): string {
+	get prevImagePath(): string | null {
 		const prev = this.prev;
 		return prev ? prev.path : null;
 	}
@@ -77,9 +77,9 @@ export class ImageImpl implements Image {
 	/**
 	 * Previous image in my album
 	 */
-	get prev(): Image {
-		let prev: Image; // image I will be returning
-		this.album.images.find(img => {
+	get prev(): Image | undefined {
+		let prev: Image | undefined; // image I will be returning
+		this.album.images.find((img) => {
 			// I don't know my own index in my parent collection.
 			// But I do know that once I find myself, I will have
 			// already found my prev in the previous iteration.
