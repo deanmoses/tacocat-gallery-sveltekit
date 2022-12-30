@@ -10,10 +10,10 @@
 	$: album = $albumEntry.album;
 	$: status = $albumEntry.loadStatus;
 	$: imagePath = data.imagePath;
-	$: image = album.getImage(imagePath);
+	$: image = album?.getImage(imagePath);
 </script>
 
-<ImageRouting {status} {year}>
+<ImageRouting {status} {image} {year}>
 	<svelte:fragment slot="loaded">
 		<ImageEditPage {year} {album} {image} />
 	</svelte:fragment>
