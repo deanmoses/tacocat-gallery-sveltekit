@@ -51,8 +51,8 @@ export interface Album {
  * An image in an album
  */
 export interface Image extends Thumbable {
-	nextImageHref: string | null;
-	prevImageHref: string | null;
+	nextImageHref?: string;
+	prevImageHref?: string;
 }
 
 /**

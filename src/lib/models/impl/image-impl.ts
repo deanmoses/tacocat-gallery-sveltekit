@@ -22,20 +22,20 @@ export class ImageImpl implements Image {
 
 	/**
 	 * URL of the next image in my album
-	 * Null if no next image
+	 * Undefined if no next image
 	 */
-	get nextImageHref(): string | null {
+	get nextImageHref(): string | undefined {
 		const next = this.next;
-		return next ? '/' + next.path : null;
+		return next ? '/' + next.path : undefined;
 	}
 
 	/**
 	 * Image.path of the next image in my album
-	 * Null if no next image
+	 * Undefined if no next image
 	 */
-	get nextImagePath(): string | null {
+	get nextImagePath(): string | undefined {
 		const next = this.next;
-		return next ? next.path : null;
+		return next ? next.path : undefined;
 	}
 
 	/**
@@ -58,20 +58,20 @@ export class ImageImpl implements Image {
 
 	/**
 	 * URL of the previous image in my album
-	 * Null if no previous image
+	 * Undefined if no previous image
 	 */
-	get prevImageHref(): string | null {
+	get prevImageHref(): string | undefined {
 		const prev = this.prev;
-		return prev ? '/' + prev.path : null;
+		return prev ? '/' + prev.path : undefined;
 	}
 
 	/**
 	 * Image.path of the previous image in my album
-	 * Null if no previous image
+	 * Undefined if no previous image
 	 */
-	get prevImagePath(): string | null {
+	get prevImagePath(): string | undefined {
 		const prev = this.prev;
-		return prev ? prev.path : null;
+		return prev ? prev.path : undefined;
 	}
 
 	/**
