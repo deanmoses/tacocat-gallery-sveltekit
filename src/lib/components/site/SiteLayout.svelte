@@ -6,7 +6,7 @@
 <script lang="ts">
 	import Footer from './Footer.svelte';
 
-	export let year: string;
+	export let year: string = '';
 	export let hideFooter = false;
 </script>
 
