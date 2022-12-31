@@ -5,16 +5,21 @@
 	Plain text, not HTML
 -->
 <script lang="ts">
-	import DraftStore from "$lib/stores/DraftStore";
+	import DraftStore from '$lib/stores/DraftStore';
 
 	/** The text content to be made editable */
-	export let textContent = "";
+	export let textContent = '';
 
 	let div;
 
 	function onInput(e) {
 		let editedText = div.innerText;
-		DraftStore.setTitle(editedText)
+		// I'm having a problem with a /n being added at some point where I'm
+		// then not able to remove it.  This is a blunt intstrument, but maybe
+		// converting any whitespace to a regular space and then trimming it all.
+		editedText = editedText.replace(/\s/g, ' ');
+		editedText = editedText.trim();
+		DraftStore.setTitle(editedText);
 	}
 </script>
 
