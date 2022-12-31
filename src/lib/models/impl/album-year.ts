@@ -6,12 +6,11 @@ import { year } from '$lib/utils/date-utils';
  * Overrides the default album class with  behavior specific to year albums.
  */
 export default class YearAlbum extends DateBasedAlbum {
-	
 	/**
 	 * Friendly title of page
 	 */
 	get pageTitle(): string {
-		return year(this.date);
+		return this.date ? year(this.date) : '';
 	}
 
 	/**
@@ -33,7 +32,7 @@ export default class YearAlbum extends DateBasedAlbum {
 	/**
 	 * Return title of another album to navigate to
 	 */
-	private albumTitle(anotherAlbum: AlbumNavInfo): string {
-		return anotherAlbum ? year(anotherAlbum.date) : '';
+	private albumTitle(anotherAlbum?: AlbumNavInfo): string {
+		return anotherAlbum && anotherAlbum.date ? year(anotherAlbum.date) : '';
 	}
 }

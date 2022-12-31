@@ -48,7 +48,7 @@ export class ImageImpl implements Image {
 	 */
 	get next(): Image | undefined {
 		let foundMyself = false;
-		return this.album.images.find((img) => {
+		return this.album.images?.find((img) => {
 			if (foundMyself) {
 				// I don't know my own index in my parent collection, so
 				// first I have to find myself, then find the next image.
@@ -84,7 +84,7 @@ export class ImageImpl implements Image {
 	 */
 	get prev(): Image | undefined {
 		let prev: Image | undefined; // image I will be returning
-		this.album.images.find((img) => {
+		this.album.images?.find((img) => {
 			// I don't know my own index in my parent collection.
 			// But I do know that once I find myself, I will have
 			// already found my prev in the previous iteration.
