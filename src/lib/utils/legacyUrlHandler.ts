@@ -17,8 +17,8 @@ export function redirectIfLegacyUrl(hashLocation: string) {
 	}
 }
 
-// href="#2001 or #2001/12-31 or #2001/12-31/felix.jpg -- it's just matching the #2001 and assuming the rest is a valid path
-const oldUrlFormat = /(href\s*=\s*["']\s*)#(\d{4})/gi;
+// href="#2001 or $/2001 or #2001/12-31 or #2001/12-31/felix.jpg -- it's just matching the #2001 and assuming the rest is a valid path
+const oldUrlFormat = /(href\s*=\s*["']\s*)#\/?(\d{4})/gi;
 
 /**
  * Process an album's text or photo's caption.  This can do

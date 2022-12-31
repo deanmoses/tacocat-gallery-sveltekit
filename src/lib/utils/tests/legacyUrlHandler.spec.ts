@@ -25,44 +25,54 @@ test('processCaption: URL format #2001/12-31/felix.jpg', () => {
 			expected: 'This is a control caption, <a href="/2001">Foo</a> no replacement happening'
 		},
 		{
+			original: 'No replacement: <a href="http://tacocat.com/2001">Foo</a>',
+			expected: 'No replacement: <a href="http://tacocat.com/2001">Foo</a>'
+		},
+		{
 			original: 'This is a caption with <a href="#2001">#2001</a>',
 			expected: 'This is a caption with <a href="/2001">#2001</a>'
 		},
 		{
-			original: 'This is a caption with <A HREF="#2001">#2001</A>',
-			expected: 'This is a caption with <A HREF="/2001">#2001</A>'
+			original: 'This is a caption with an extra slash <a href="#/2001">#2001</a>',
+			expected: 'This is a caption with an extra slash <a href="/2001">#2001</a>'
 		},
 		{
-			original: "This is a caption with <a href='#2001'>#2001</a>",
-			expected: "This is a caption with <a href='/2001'>#2001</a>"
+			original: 'This is a caption with uppercase <A HREF="#2001">#2001</A>',
+			expected: 'This is a caption with uppercase <A HREF="/2001">#2001</A>'
 		},
 		{
-			original: "This is a caption with <a href ='#2001'>#2001</a>",
-			expected: "This is a caption with <a href ='/2001'>#2001</a>"
+			original: "This is a caption with single quotes <a href='#2001'>#2001</a>",
+			expected: "This is a caption with single quotes <a href='/2001'>#2001</a>"
 		},
 		{
-			original: 'This is a caption with <a  href= "#2001">#2001</a>',
-			expected: 'This is a caption with <a  href= "/2001">#2001</a>'
+			original: "This is a caption with whitespace and single quotes <a href ='#2001'>#2001</a>",
+			expected: "This is a caption with whitespace and single quotes <a href ='/2001'>#2001</a>"
 		},
 		{
-			original: 'This is a caption with <a href="#2001" >#2001</a>',
-			expected: 'This is a caption with <a href="/2001" >#2001</a>'
+			original: 'This is a caption with whitespace <a  href= "#2001">#2001</a>',
+			expected: 'This is a caption with whitespace <a  href= "/2001">#2001</a>'
 		},
 		{
-			original: 'This is a caption with <a href  =  " #2001 " >#2001</a>',
-			expected: 'This is a caption with <a href  =  " /2001 " >#2001</a>'
+			original: 'This is a caption with whitespace <a href="#2001" >#2001</a>',
+			expected: 'This is a caption with whitespace <a href="/2001" >#2001</a>'
 		},
 		{
-			original: 'This is a caption with <a href="#2001/12-31/felix.jpg"> Felix </a>',
-			expected: 'This is a caption with <a href="/2001/12-31/felix.jpg"> Felix </a>'
+			original: 'This is a caption with whitespace <a href  =  " #2001 " >#2001</a>',
+			expected: 'This is a caption with whitespace <a href  =  " /2001 " >#2001</a>'
 		},
 		{
-			original: '<a href="#2001">One</a> <a href="#2002">Two</a>',
-			expected: '<a href="/2001">One</a> <a href="/2002">Two</a>'
+			original: 'This is a caption with longer URL <a href="#2001/12-31/felix.jpg"> Felix </a>',
+			expected: 'This is a caption with longer URL <a href="/2001/12-31/felix.jpg"> Felix </a>'
 		},
 		{
-			original: '<a href="#2001">One</a> <a href="#2002">Two</a> <a href="#2003">Three</a>',
-			expected: '<a href="/2001">One</a> <a href="/2002">Two</a> <a href="/2003">Three</a>'
+			original: 'Multiple items <a href="#2001">One</a> <a href="#2002">Two</a>',
+			expected: 'Multiple items <a href="/2001">One</a> <a href="/2002">Two</a>'
+		},
+		{
+			original:
+				'Even more items <a href="#2001">One</a> <a href="#2002">Two</a> <a href="#2003">Three</a>',
+			expected:
+				'Even more items <a href="/2001">One</a> <a href="/2002">Two</a> <a href="/2003">Three</a>'
 		}
 	];
 
