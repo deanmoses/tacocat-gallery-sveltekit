@@ -18,6 +18,7 @@
 	export let newHtmlContent: string = null;
 
 	let editor;
+	let quill;
 
 	// The buttons to show in Quill's toolbar
 	const toolbar = [
@@ -49,7 +50,7 @@
 		}
 		Quill.register(MyLink);
 
-		let quill = new Quill(editor, {
+		quill = new Quill(editor, {
 			theme: 'bubble', // The "bubble" theme pops up the toolbar when text is selected, rather than it being there permanently
 			modules: {
 				toolbar: toolbar
@@ -63,6 +64,23 @@
 			newHtmlContent = quill.root.innerHTML;
 		});
 	});
+
+	// When navigating from one photo to the next while in edit mode,
+	// Svelte won't create a new rich text editor component but instead
+	// re-use the existing one containing the caption from the previous
+	// photo.  In this case we need to update the rich text editor to
+	// contain the new photo's caption.
+	//
+	// So here, we detect when a new value of the caption is passed in
+	// and update Quill's contents to match.
+	$: {
+		if (quill && htmlContent != quill.root.innerHTML) {
+			quill.setContents(
+				quill.clipboard.convert(htmlContent),
+				'silent' /* Don't trigger a text-change event */
+			);
+		}
+	}
 </script>
 
 <!--
