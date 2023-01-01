@@ -10,7 +10,6 @@ import { dev } from '$app/environment';
  * Manages the Svelte stores about a user session
  */
 class SessionStore {
-
 	/**
 	 * A private writable Svelte store holding whether the user is an admin
 	 */
@@ -32,13 +31,12 @@ class SessionStore {
 	async fetchUserStatus(): Promise<void> {
 		const fakeAdmin: boolean = dev;
 		if (fakeAdmin) {
-			console.log("FAKE: setting user to be an admin");
+			console.log('FAKE: setting user to be an admin');
 			this._isAdmin.set(true);
-		}
-		else {
+		} else {
 			const uri = Config.checkAuthenticationUrl();
 			const response = await fetch(uri, {
-				// no-store: the browser fetches from the remote server without first looking in the cache, 
+				// no-store: the browser fetches from the remote server without first looking in the cache,
 				// and will not update the cache with the downloaded resource
 				cache: 'no-store',
 				credentials: 'include'
@@ -46,7 +44,7 @@ class SessionStore {
 			this.handleErrors(response);
 			const json = await response.json();
 			const isAdmin = !!json.isAdmin;
-			if (isAdmin) console.log("User is an admin");
+			if (isAdmin) console.log('User is an admin');
 			this._isAdmin.set(isAdmin);
 		}
 	}
@@ -55,13 +53,15 @@ class SessionStore {
 		if (!response.ok) {
 			const msg = `Response not OK fetching authentication status: ${response.statusText}`;
 			throw Error(msg);
-		}
-		else if (response.status !== 200) {
+		} else if (response.status !== 200) {
 			const msg = `Non-200 response (${response.status}) fetching authentication status`;
 			throw Error(msg);
-		}
-		else if (!response.headers.get("content-type").startsWith('application/json')) {
-			const msg = `Expected response to be in JSON.  Instead got ${response.headers.get("content-type")}. ${response.statusText}`;
+		} else if (
+			!!response.headers.get('content-type') ||
+			!response.headers.get('content-type')?.startsWith('application/json')
+		) {
+			const ctnt = response.headers.get('content-type');
+			const msg = `Expected response to be in JSON.  Instead got ${ctnt}. ${response.statusText}`;
 			throw Error(msg);
 		}
 	}
