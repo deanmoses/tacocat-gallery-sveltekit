@@ -6,7 +6,6 @@ import { getParentFromPath, getLeafItemOnPath } from '$lib/utils/path-utils';
  * Configuration global to the application
  */
 export default abstract class Config {
-	
 	/**
 	 * The title of the site, such as shown in the header of the site.
 	 */
@@ -105,7 +104,7 @@ export default abstract class Config {
 	 */
 	public static searchUrl(searchTerms: string): string {
 		return (
-			'https://tacocat.com/zenphoto/page/search/?words=' +
+			'https://tacocat.com/zenphoto/page/search/?search=' +
 			encodeURIComponent(searchTerms) +
 			'&json'
 		);
@@ -133,10 +132,7 @@ export default abstract class Config {
 	public static zenphotoImageEditUrl(imagePath: string): string {
 		return 'https://tacocat.com/zenphoto/zp-core/admin-edit.php?page=edit&album=ALBUM_PATH&singleimage=IMAGE_FILENAME&tab=imageinfo&nopagination'
 			.replace('ALBUM_PATH', encodeURIComponent(getParentFromPath(imagePath)))
-			.replace(
-				'IMAGE_FILENAME',
-				encodeURIComponent(getLeafItemOnPath(imagePath))
-			);
+			.replace('IMAGE_FILENAME', encodeURIComponent(getLeafItemOnPath(imagePath)));
 	}
 
 	/**
