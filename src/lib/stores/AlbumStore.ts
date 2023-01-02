@@ -309,8 +309,7 @@ class AlbumStore {
 	 * @param path path of the album
 	 */
 	private getOrCreateUpdateStatusStore(path: string): Writable<AlbumUpdateStatus> {
-		let entryStore: Writable<AlbumUpdateStatus>;
-		entryStore = this.albumUpdateStatuses.get(path);
+		let entryStore = this.albumUpdateStatuses.get(path);
 		if (!entryStore) {
 			const newEntry: AlbumUpdateStatus = AlbumUpdateStatus.NOT_UPDATING;
 			entryStore = writable(newEntry);
