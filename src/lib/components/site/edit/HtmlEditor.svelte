@@ -66,15 +66,25 @@
 	});
 
 	// When navigating from one photo to the next while in edit mode,
-	// Svelte won't create a new rich text editor component but instead
-	// re-use the existing one containing the caption from the previous
-	// photo.  In this case we need to update the rich text editor to
-	// contain the new photo's caption.
+	// Svelte doesn't create a new rich text editor component, but instead
+	// re-uses the existing one containing the caption from the previous
+	// photo.  So here, we are using Svelte's $: syntax to detect when
+	// the htmlContent property changes and set the contents of the editor.
 	//
-	// So here, we detect when a new value of the caption is passed in
-	// and update Quill's contents to match.
+	// This depends on the onMount() always loading the editor before this
+	// runs. In my testing that is what happens, but I'm not sure if it's
+	// guaranteed.
+	//
+	// I should remove the onMount().  It exists to lazy load the editor
+	// so that non-admin viewers of Tacocat don't have to load it, but
+	// that job is being handled by Svelte's route-level code splitting.
 	$: {
-		if (quill) {
+		if (!quill) {
+			console.log(
+				"The Quill rich text editor isn't loaded yet, so I can't set its contents to ",
+				htmlContent
+			);
+		} else {
 			quill.setContents(
 				quill.clipboard.convert(htmlContent ?? ''),
 				'silent' /* Don't trigger a text-change event */
@@ -83,11 +93,6 @@
 	}
 </script>
 
-<!--
-	I wrapped the htmlContent in a <p> to work around a Svelte issue
-	where it'd complain about an undefined parent node when updating
-	after a save.
--->
 <div bind:this={editor} />
 
 <style>
