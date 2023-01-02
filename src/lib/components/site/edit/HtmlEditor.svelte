@@ -74,9 +74,9 @@
 	// So here, we detect when a new value of the caption is passed in
 	// and update Quill's contents to match.
 	$: {
-		if (quill && htmlContent != quill.root.innerHTML) {
+		if (quill) {
 			quill.setContents(
-				quill.clipboard.convert(htmlContent),
+				quill.clipboard.convert(htmlContent ?? ''),
 				'silent' /* Don't trigger a text-change event */
 			);
 		}
@@ -88,11 +88,7 @@
 	where it'd complain about an undefined parent node when updating
 	after a save.
 -->
-<div bind:this={editor}>
-	{#if htmlContent}
-		<p>{@html htmlContent}</p>
-	{/if}
-</div>
+<div bind:this={editor} />
 
 <style>
 	@import 'https://cdn.quilljs.com/1.3.7/quill.bubble.css';
