@@ -4,38 +4,25 @@
   WYSIWYG editor for HTML content
 -->
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, createEventDispatcher } from 'svelte';
+	import Quill from 'quill';
+
+	const dispatch = createEventDispatcher<{ change: { html: string } }>();
 
 	/**
 	 * The HTML content to be made editable
 	 */
 	export let htmlContent = '';
 
-	/**
-	 * The edited content.
-	 * Don't pass in anything to this; instead, do a bind:newHtmlContent to get the value
-	 */
-	export let newHtmlContent: string = null;
+	// Instance of the Quill rich text editor
+	let quill: Quill;
 
-	let editor;
-	let quill;
+	// The DOM node on which the Quill editor is mounted
+	let editorElement: HTMLDivElement;
 
-	// The buttons to show in Quill's toolbar
-	const toolbar = [
-		['bold', 'italic', 'underline'],
-		[{ list: 'ordered' }, { list: 'bullet' }],
-		['link']
-	];
-
-	// What formatting the Quill.js editor allows, whether via the toolbar
-	// or via keystroke commands (or pasting content in?)
-	const formats = ['header', 'bold', 'italic', 'underline', 'strike', 'list', 'bullet', 'link'];
-
+	// Load the Quill.js WYSIWYG editor when the component is mounted,
+	// so as to be able to pass the DOM node into Quill's constructor
 	onMount(async () => {
-		// Load the Quill.js WYSIWYG editor async
-		// TODO: confirm this is actually prevents the bits from being included in the initial bundle
-		const { default: Quill } = await import('quill');
-
 		// Prevent Quill from adding target="_blank" and rel="noopener noreferrer" to links
 		const Link = Quill.import('formats/link');
 		class MyLink extends Link {
@@ -50,41 +37,37 @@
 		}
 		Quill.register(MyLink);
 
-		quill = new Quill(editor, {
-			theme: 'bubble', // The "bubble" theme pops up the toolbar when text is selected, rather than it being there permanently
+		let editor: HTMLDivElement;
+		quill = new Quill(editorElement, {
+			// This theme pops up the toolbar when text is selected, rather than displaying it permanently
+			theme: 'bubble',
 			modules: {
-				toolbar: toolbar
+				// Toolbar buttons
+				toolbar: [
+					['bold', 'italic', 'underline'],
+					[{ list: 'ordered' }, { list: 'bullet' }],
+					['link']
+				]
 			},
-			formats: formats
+			// The formatting to allow in content, including pasted-in content
+			formats: ['header', 'bold', 'italic', 'underline', 'strike', 'list', 'bullet', 'link']
 		});
 
-		// Every time the text in Quill changes, update my public newHtmlContent property
-		// so that my parent component can listen to it changing via Svelte's bind: syntax.
-		quill.on('text-change', (delta, oldDelta, source) => {
-			newHtmlContent = quill.root.innerHTML;
+		quill.on('text-change', () => {
+			dispatch('change', {
+				html: quill.root.innerHTML
+			});
 		});
 	});
 
 	// When navigating from one photo to the next while in edit mode,
 	// Svelte doesn't create a new rich text editor component, but instead
-	// re-uses the existing one containing the caption from the previous
-	// photo.  So here, we are using Svelte's $: syntax to detect when
-	// the htmlContent property changes and set the contents of the editor.
-	//
-	// This depends on the onMount() always loading the editor before this
-	// runs. In my testing that is what happens, but I'm not sure if it's
-	// guaranteed.
-	//
-	// I should remove the onMount().  It exists to lazy load the editor
-	// so that non-admin viewers of Tacocat don't have to load it, but
-	// that job is being handled by Svelte's route-level code splitting.
+	// re-uses the existing one, which contains the caption from the previous
+	// photo.  So here we use Svelte's $: reactive syntax to ensure when
+	// a new value is passed in to the htmlContent property, it sets the
+	// contents of the editor.
 	$: {
-		if (!quill) {
-			console.log(
-				"The Quill rich text editor isn't loaded yet, so I can't set its contents to ",
-				htmlContent
-			);
-		} else {
+		if (quill) {
 			quill.setContents(
 				quill.clipboard.convert(htmlContent ?? ''),
 				'silent' /* Don't trigger a text-change event */
@@ -93,7 +76,7 @@
 	}
 </script>
 
-<div bind:this={editor} />
+<div bind:this={editorElement} />
 
 <style>
 	@import 'https://cdn.quilljs.com/1.3.7/quill.bubble.css';

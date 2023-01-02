@@ -13,20 +13,14 @@
 	 */
 	export let htmlContent = '';
 
-	// The edited content
-	let newHtmlContent: string;
-
-	// Update the draft store any time the HTML is edited
-	// The $: is Svelte syntax.  This gets compiled into a
-	// reactive statement that executes whenever any of the
-	// variables referenced within it changes.
-	$: {
-		if (newHtmlContent == null) {
-			console.log('<EditableHtml>: newHtmlContent null');
+	function handleChange(event: CustomEvent<{ html: string }>) {
+		if (event.detail.html == null) {
+			console.log('<EditableHtml>: html is null');
 		} else {
-			DraftStore.setDesc(newHtmlContent);
+			// TODO: this class should not know about DraftStore nor the specific field they represent ("desc", "title")
+			DraftStore.setDesc(event.detail.html);
 		}
 	}
 </script>
 
-<HtmlEditor {htmlContent} bind:newHtmlContent />
+<HtmlEditor {htmlContent} on:change={handleChange} />
