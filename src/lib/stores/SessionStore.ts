@@ -57,7 +57,7 @@ class SessionStore {
 			const msg = `Non-200 response (${response.status}) fetching authentication status`;
 			throw Error(msg);
 		} else if (
-			!!response.headers.get('content-type') ||
+			!response.headers.get('content-type') ||
 			!response.headers.get('content-type')?.startsWith('application/json')
 		) {
 			const ctnt = response.headers.get('content-type');
