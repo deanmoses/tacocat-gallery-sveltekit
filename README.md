@@ -1,27 +1,21 @@
 # tacocat-gallery-sveltekit
 
-Prototype of the front end of the Tacocat photo gallery website using [Sveltekit](https://kit.svelte.dev/).
+Front end of the Tacocat photo gallery website using the [Sveltekit](https://kit.svelte.dev/) application framework.
+
+## Installation
+
+Clone this project, `cd` into its directory, install dependencies with `npm install` or `pnpm install` or `yarn`. 
 
 ## Run Development Version
 
-Download this project, `cd` into its directory. Install dependencies with `npm install` (or `pnpm install` or `yarn`). Start development server: 
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev --open
-```
+Start development server: `npm run dev`
 
 ## Production
 
-To create a production version:
-```bash
-npm run build
-```
+1. Create the production assets: `npm run build`
 
-Preview the build with `npm run preview`.
+2. You can preview the build with `npm run preview`, though personally I haven't used this.
 
-Deploy the build to staging with `npm run deploy-staging`.
+3. Deploy the build to staging with `npm run deploy-staging` and see results at https://staging-pix.tacocat.com/
 
-Deploy the build to production with `npm run deploy-prod`
+4. Deploy the build to production with `npm run deploy-prod` and see results at https://pix.tacocat.com/
