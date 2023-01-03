@@ -17,7 +17,7 @@
 	export let showSummary: boolean = false;
 
 	/** Aka Album.customdata */
-	export let summary: string | undefined;
+	export let summary: string = '';
 
 	function onSummaryChange(event: Event & { currentTarget: EventTarget & HTMLInputElement }) {
 		if (event.target) draftStore.setCustomData(event.currentTarget.value);
