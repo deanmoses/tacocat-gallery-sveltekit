@@ -1,23 +1,6 @@
 import { AlbumType } from '$lib/models/album';
 
-const dateBasedPathRegex = /^\/?(\d\d\d\d)\/?(\d\d-\d\d)?(\/[^\/\.]+\.[^\/\.]{3,4})?\/?$/; // finds 2000 or 2000/12-31 or 2000/12-31/someImage.jpg
 const yearRegex = /^\/?(\d\d\d\d)\/?$/;
-
-/**
- * Return the year (like 2001) from a path (like 2001/12-31/myImage.jpg)
- *
- * @param path Path to an image or an album
- * @return numerical year or null if the path can't be parsed into a number
- */
-export function getYearFromPath(path: string): number {
-	const regexResults = dateBasedPathRegex.exec(path);
-	if (regexResults) {
-		const year = Number(dateBasedPathRegex.exec(path)[1]);
-		return !isNaN(year) ? year : null;
-	} else {
-		return null;
-	}
-}
 
 /**
  * Return the parent path from the given path.  For example:
@@ -39,9 +22,9 @@ export function getParentFromPath(path: string): string {
  * - If the path is an image like 2001/12-31/photo.jpg, it returns photo.jpg
  * - If the path is an album like 2001/12-31, it returns 12-31
  * - If the path is 2001, it returns 2001
- * - If the path is empty, it return empty
+ * - If the path is empty, it returns undefined
  */
-export function getLeafItemOnPath(path: string): string {
+export function getLeafItemOnPath(path: string): string | undefined {
 	return path.split('/').pop(); // we just want 'felix.jpg'
 }
 
@@ -106,6 +89,6 @@ export function editUrl(path: string | undefined): string | undefined {
  * @param path path in edit mode, like /edit/2001/12-31
  * @returns the non-edit version of the URL, like /2001/12-31
  */
-export function unEditUrl(path: string): string {
-	return path.replace(/^\/edit/, '');
+export function unEditUrl(path: string | undefined): string | undefined {
+	return path?.replace(/^\/edit/, '') ?? undefined;
 }

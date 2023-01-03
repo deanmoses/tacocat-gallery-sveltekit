@@ -1,7 +1,6 @@
 import type { Album, Image, AlbumNavInfo, AlbumThumb } from '$lib/models/album';
 import { ImageImpl } from '$lib/models/impl/image-impl';
 import { processCaption } from '$lib/utils/legacyUrlHandler';
-import { getYearFromPath } from '$lib/utils/path-utils';
 
 /**
  * Album implementation
@@ -29,22 +28,6 @@ export class AlbumImpl implements Album {
 
 	get description(): string {
 		return processCaption(this.desc);
-	}
-
-	/**
-	 * Get year the album was published, like 2001
-	 */
-	get year(): number {
-		// First look at the path: this lets us get the right color for the "Loading..." page
-		// before we have the publication date
-		const year = getYearFromPath(this.path);
-		if (year) {
-			return year;
-		} else {
-			// Else look at the publication date
-			// Default to 1900 if no publication date, I guess
-			return new Date((this.date ?? 1900) * 1000).getFullYear();
-		}
 	}
 
 	/**
