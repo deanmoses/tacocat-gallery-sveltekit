@@ -12,18 +12,18 @@
 	import FullPageMessage from '$lib/components/site/FullPageMessage.svelte';
 
 	export let searchTerms: string;
-	export let searchResults: SearchResults;
-	export let returnPath: string;
+	export let searchResults: SearchResults | undefined;
+	export let returnPath: string | undefined;
 
 	let noResults: boolean;
-	$: noResults = !searchResults.images && !searchResults.albums;
+	$: noResults = !searchResults?.images && !searchResults?.albums;
 </script>
 
 <SearchPage {searchTerms} {returnPath}>
 	<section class:noResults>
 		<h2 style="display:none">Search Results</h2>
 		<Thumbnails>
-			{#if searchResults.albums}
+			{#if searchResults?.albums}
 				{#each searchResults.albums as album (album.path)}
 					<Thumbnail
 						title={album.title}
@@ -34,7 +34,7 @@
 				{/each}
 			{/if}
 
-			{#if searchResults.images}
+			{#if searchResults?.images}
 				{#each searchResults.images as image (image.path)}
 					<Thumbnail
 						title={image.title}
@@ -45,7 +45,7 @@
 				{/each}
 			{/if}
 
-			{#if !searchResults.images && !searchResults.albums}
+			{#if !searchResults?.images && !searchResults?.albums}
 				<FullPageMessage>No results</FullPageMessage>
 			{/if}
 		</Thumbnails>

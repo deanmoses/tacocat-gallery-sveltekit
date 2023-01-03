@@ -2,11 +2,11 @@ import type { PageLoad } from './$types';
 import { searchStore } from '$lib/stores/SearchStore';
 
 export const load: PageLoad = ({ params, url }) => {
-	const searchTerms: string = params.terms;
-	const returnPath: string | null = url.searchParams.get('returnPath');
+	const searchTerms = params.terms;
+	const returnPath = url.searchParams.get('returnPath') ?? undefined;
 
 	return {
-		returnPath: returnPath,
+		returnPath,
 		searchTerms,
 		search: searchStore.get(searchTerms)
 	};
