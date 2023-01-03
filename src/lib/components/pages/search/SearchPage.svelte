@@ -13,6 +13,10 @@
 
 	$: pageTitle = searchTerms ? `Search for ${searchTerms}` : 'Search The Moses Family';
 
+	function autofocus(formInput: HTMLInputElement) {
+		formInput.focus();
+	}
+
 	function onSubmit(e: SubmitEvent) {
 		const formData = new FormData(e.target as HTMLFormElement);
 		const searchTerms = formData.get('searchTerms');
@@ -32,8 +36,13 @@
 			<ReturnIcon />
 		</a>
 		<form on:submit|preventDefault={onSubmit}>
-			<!-- svelte-ignore a11y-autofocus -->
-			<input name="searchTerms" type="text" placeholder="search" value={searchTerms} autofocus />
+			<input
+				name="searchTerms"
+				type="text"
+				placeholder="search"
+				value={searchTerms}
+				use:autofocus
+			/>
 			<button type="submit" class="btn"> Search </button>
 		</form>
 	</header>
