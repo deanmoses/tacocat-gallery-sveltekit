@@ -1,7 +1,7 @@
 import { AlbumType } from '$lib/models/album';
 
 const dateBasedPathRegex = /^\/?(\d\d\d\d)\/?(\d\d-\d\d)?(\/[^\/\.]+\.[^\/\.]{3,4})?\/?$/; // finds 2000 or 2000/12-31 or 2000/12-31/someImage.jpg
-const yearRegex = /^\/?(\d\d\d\d)\/?$/
+const yearRegex = /^\/?(\d\d\d\d)\/?$/;
 
 /**
  * Return the year (like 2001) from a path (like 2001/12-31/myImage.jpg)
@@ -71,10 +71,10 @@ export function isRootAlbumPath(path: string): boolean {
 
 /**
  * @param path of an album
- * @returns true if path is for a year album 
+ * @returns true if path is for a year album
  */
 export function isYearAlbumPath(path: string): boolean {
-	return yearRegex.test(path)
+	return yearRegex.test(path);
 }
 
 /**
@@ -84,14 +84,11 @@ export function isYearAlbumPath(path: string): boolean {
 export function getAlbumType(path: string): AlbumType {
 	if (isRootAlbumPath(path)) {
 		return AlbumType.ROOT;
-	}
-	else if (isYearAlbumPath(path)) {
+	} else if (isYearAlbumPath(path)) {
 		return AlbumType.YEAR;
-	}
-	else if (isImagePath(path)) {
+	} else if (isImagePath(path)) {
 		throw Error(`This is an image path, not an album: ${path}`);
-	}
-	else {
+	} else {
 		// else it's a day album (like /2005/12-31)
 		return AlbumType.DAY;
 	}
@@ -101,8 +98,8 @@ export function getAlbumType(path: string): AlbumType {
  * @param path path not in edit mode, like /2001/12-31
  * @returns the edit version of the URL, like /edit/2001/12-31
  */
-export function editUrl(path: string): string {
-	return path ? `/edit${path}` : null;
+export function editUrl(path: string | undefined): string | undefined {
+	return path ? `/edit${path}` : undefined;
 }
 
 /**

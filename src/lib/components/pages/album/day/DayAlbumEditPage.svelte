@@ -33,7 +33,12 @@
 
 <DayAlbumPageLayout {year} title={album.pageTitle}>
 	<svelte:fragment slot="editControls">
-		<AlbumEditControls showPublished unpublished={album.unpublished} />
+		<AlbumEditControls
+			showSummary
+			summary={album.customdata}
+			showPublished
+			unpublished={album.unpublished}
+		/>
 	</svelte:fragment>
 
 	<svelte:fragment slot="title">
@@ -42,15 +47,15 @@
 
 	<svelte:fragment slot="nav">
 		<PrevButton
-			href={$okToNavigate ? editUrl(album.nextAlbumHref) : null}
+			href={$okToNavigate ? editUrl(album.nextAlbumHref) : undefined}
 			title={album.nextAlbumTitle}
 		/>
 		<UpButton
-			href={$okToNavigate ? editUrl(album.parentAlbumHref) : null}
+			href={$okToNavigate ? editUrl(album.parentAlbumHref) : undefined}
 			title={album.parentAlbumTitle}
 		/>
 		<NextButton
-			href={$okToNavigate ? editUrl(album.prevAlbumHref) : null}
+			href={$okToNavigate ? editUrl(album.prevAlbumHref) : undefined}
 			title={album.prevAlbumTitle}
 		/>
 	</svelte:fragment>
@@ -71,7 +76,7 @@
 					>
 						<svelte:fragment slot="selectionControls">
 							<SelectableStar
-								selected={image.url_thumb.endsWith(album.url_thumb)}
+								selected={!!album.url_thumb && image.url_thumb.endsWith(album.url_thumb)}
 								path={image.path}
 								on:selected={albumThumbnailSelected}
 							/>

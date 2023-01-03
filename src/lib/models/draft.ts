@@ -13,16 +13,17 @@ export enum DraftStatus {
 	SAVING = 'SAVING',
 	SAVED = 'SAVED',
 	ERRORED = 'ERRORED'
-};
+}
 
 /**
  * Actual drafted content.
- * 
- * Could represent changes to 
+ *
+ * Could represent changes to
  * either an album or an image.
  */
 export type DraftContent = {
 	title?: string;
 	desc?: string;
 	unpublished?: boolean;
+	customdata?: string;
 };
