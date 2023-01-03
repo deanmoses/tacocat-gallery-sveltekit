@@ -32,7 +32,7 @@
 	 * @param path path to album
 	 */
 	function getAlbum(path: string): Album | undefined {
-		return albumStore.getFromInMemory(path).album;
+		return albumStore.getFromInMemory(path)?.album ?? undefined;
 	}
 </script>
 

@@ -27,7 +27,11 @@
 		const imagePath = e.detail.path;
 		console.log(`<DayAlbumEditPage>: thumbnail ${imagePath}`, e.detail);
 		const imageLeafPath = getLeafItemOnPath(imagePath);
-		setAlbumThumbnail(album.path, imageLeafPath);
+		if (imageLeafPath) {
+			setAlbumThumbnail(album.path, imageLeafPath);
+		} else {
+			console.error(`<DayAlbumEditPage>: can't find leaf item on thumbnail ${imagePath}`);
+		}
 	}
 </script>
 
