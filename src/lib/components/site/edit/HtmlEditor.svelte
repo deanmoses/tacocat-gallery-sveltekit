@@ -17,12 +17,11 @@
 	// Instance of the Quill rich text editor
 	let quill: Quill;
 
-	// The DOM node on which the Quill editor is mounted
-	let editorElement: HTMLDivElement;
-
 	// Load the Quill.js WYSIWYG editor when the component is mounted,
 	// so as to be able to pass the DOM node into Quill's constructor
-	onMount(async () => {
+	function createEditorOnMount(
+		editorElement: HTMLDivElement /* The DOM node on which to mount the Quill editor */
+	) {
 		// Prevent Quill from adding target="_blank" and rel="noopener noreferrer" to links
 		const Link = Quill.import('formats/link');
 		class MyLink extends Link {
@@ -58,14 +57,14 @@
 				html: quill.root.innerHTML
 			});
 		});
-	});
+	}
 
-	// When navigating from one photo to the next while in edit mode,
-	// Svelte doesn't create a new rich text editor component, but instead
-	// re-uses the existing one, which contains the caption from the previous
-	// photo.  So here we use Svelte's $: reactive syntax to ensure when
-	// a new value is passed in to the htmlContent property, it sets the
-	// contents of the editor.
+	// Use Svelte's $: reactive syntax to ensure when a new value is passed
+	// in to the htmlContent property, it sets the contents of the editor.
+	// We need to do it this way because when navigating from one photo to
+	// the next while in edit mode, Svelte doesn't create a new rich text
+	// editor component, but instead re-uses the existing one, which
+	// contains the caption from the previous photo.
 	$: {
 		if (quill) {
 			quill.setContents(
@@ -76,7 +75,7 @@
 	}
 </script>
 
-<div bind:this={editorElement} />
+<div use:createEditorOnMount />
 
 <style>
 	@import 'https://cdn.quilljs.com/1.3.7/quill.bubble.css';
