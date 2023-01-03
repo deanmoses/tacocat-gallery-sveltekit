@@ -43,6 +43,6 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="thumbnails">
-		<YearAlbumThumbnails {album} />
+		<YearAlbumThumbnails {album} albumUrlCreator={editUrl} />
 	</svelte:fragment>
 </YearAlbumPageLayout>
