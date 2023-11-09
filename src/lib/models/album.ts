@@ -50,7 +50,6 @@ export interface Album {
      * URL of album's thumbnail photo.
      */
     url_thumb?: string;
-    date?: number;
     year?: number;
     images?: Image[];
     albums?: AlbumThumb[];
@@ -66,7 +65,12 @@ export interface Album {
     parentAlbumTitle?: string;
 
     /**
-     * Return image at specified path, or undefined
+     * Date of the album
+     */
+    get date(): Date;
+
+    /**
+     * Return image at specified path
      */
     getImage: (imagePath: string) => Image | undefined;
 }

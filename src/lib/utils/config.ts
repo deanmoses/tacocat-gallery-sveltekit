@@ -1,6 +1,7 @@
 import { isImagePath, getAlbumType } from '$lib/utils/path-utils';
 import { AlbumType } from '$lib/models/album';
 import { getParentFromPath, getLeafItemOnPath } from '$lib/utils/path-utils';
+import { isValidAlbumPath } from './galleryPathUtils';
 
 /**
  * Configuration global to the application
@@ -32,18 +33,8 @@ export default abstract class Config {
      * URL of the JSON REST API from which to retrieve the album
      */
     public static albumUrl(path: string): string {
-        const root = 'https://v2kdsvx1hf.execute-api.us-east-1.amazonaws.com/Prod/album/';
-        switch (getAlbumType(path)) {
-            case AlbumType.ROOT: {
-                return root;
-            }
-            case AlbumType.YEAR: {
-                return `${root}${path}/`;
-            }
-            default: {
-                return `${root}${path}/`;
-            }
-        }
+        if (!isValidAlbumPath(path)) throw new Error(`Invalid album path [${path}]`);
+        return 'https://v2kdsvx1hf.execute-api.us-east-1.amazonaws.com/Prod/album' + path;
     }
 
     /**

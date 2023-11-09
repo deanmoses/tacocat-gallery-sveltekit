@@ -6,12 +6,13 @@ import { writable, type Writable, derived, type Readable, get } from 'svelte/sto
 import type { Draft, DraftContent } from '$lib/models/draft';
 import { DraftStatus } from '$lib/models/draft';
 import { produce } from 'immer';
-import { getAlbumType, getParentFromPath, isAlbumPath, isImagePath } from '$lib/utils/path-utils';
+import { getAlbumType, isAlbumPath, isImagePath } from '$lib/utils/path-utils';
 import Config from '$lib/utils/config';
 import { AlbumType, type Image } from '$lib/models/album';
 import { type AlbumEntry, albumStore } from './AlbumStore';
 import { dev } from '$app/environment';
 import { updateAlbumServerCache } from './AlbumServerCache';
+import { getParentFromPath, isValidPath } from '$lib/utils/galleryPathUtils';
 
 const initialState: Draft = {
     status: DraftStatus.NO_CHANGES,
@@ -39,6 +40,7 @@ class DraftStore {
      */
     init(path: string): void {
         console.log('Init draft: ', path);
+        if (!isValidPath(path)) throw new Error(`Invalid path [${path}]`);
         const state = produce(initialState, (newState) => {
             newState.path = path;
         });

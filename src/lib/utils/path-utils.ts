@@ -1,4 +1,5 @@
 import { AlbumType } from '$lib/models/album';
+import { isValidDayAlbumPath, isValidYearAlbumPath } from './galleryPathUtils';
 
 const yearRegex = /^\/?(\d\d\d\d)\/?$/;
 
@@ -65,16 +66,11 @@ export function isYearAlbumPath(path: string): boolean {
  * @param path path of an album
  */
 export function getAlbumType(path: string): AlbumType {
-    if (isRootAlbumPath(path)) {
-        return AlbumType.ROOT;
-    } else if (isYearAlbumPath(path)) {
-        return AlbumType.YEAR;
-    } else if (isImagePath(path)) {
-        throw Error(`This is an image path, not an album: ${path}`);
-    } else {
-        // else it's a day album (like /2005/12-31)
-        return AlbumType.DAY;
-    }
+    if (path === '/') return AlbumType.ROOT;
+    else if (isValidDayAlbumPath(path)) return AlbumType.DAY;
+    else if (isValidYearAlbumPath(path)) return AlbumType.YEAR;
+    else if (isImagePath(path)) throw Error(`Image not album path [${path}]`);
+    else throw Error(`Invalid album path [${path}]`);
 }
 
 /**

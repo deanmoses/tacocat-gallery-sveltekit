@@ -11,7 +11,7 @@ export function shortDate(seconds: number): string {
     return month_names[curr_month] + ' ' + curr_day;
 }
 
-export function longDate(seconds: number): string {
+export function longDate(d: Date): string {
     const month_names = [
         'January',
         'February',
@@ -26,8 +26,6 @@ export function longDate(seconds: number): string {
         'November',
         'December',
     ];
-
-    const d = new Date(seconds * 1000);
     const curr_day = d.getDate();
     const curr_month = d.getMonth();
     const curr_year = d.getFullYear();

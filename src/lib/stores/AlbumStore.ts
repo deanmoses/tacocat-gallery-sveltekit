@@ -10,6 +10,7 @@ import { type Album, AlbumType } from '$lib/models/album';
 import { AlbumLoadStatus, AlbumUpdateStatus } from '$lib/models/album';
 import createAlbumFromObject from '$lib/models/impl/album-creator';
 import { getAlbumType } from '$lib/utils/path-utils';
+import { isValidAlbumPath } from '$lib/utils/galleryPathUtils';
 
 export type AlbumEntry = {
     loadStatus: AlbumLoadStatus;
@@ -53,6 +54,8 @@ class AlbumStore {
      * @returns a Svelte store containing an AlbumEntry
      */
     get(path: string, refetch = true): Readable<AlbumEntry> {
+        if (!isValidAlbumPath(path)) throw new Error(`Invalid album path [${path}]`);
+
         // Get or create the writable version of the album
         const albumEntry = this.getOrCreateWritableStore(path);
 
@@ -155,28 +158,34 @@ class AlbumStore {
     private fetchFromServer(path: string): void {
         const url = Config.albumUrl(path);
         const requestConfig = this.buildFetchConfig(path);
+
         fetch(url, requestConfig)
-            .then((response) => response.json())
-            .then((json) => {
-                if (json.error) {
-                    if (json.status == 404) {
-                        this.setLoadStatus(path, AlbumLoadStatus.DOES_NOT_EXIST);
-                    } else {
-                        this.handleFetchError(path, json.error);
-                    }
-                } else {
-                    console.log(`Album [${path}] fetched from server`);
-                    const jsonAlbum = json.album;
-
-                    // Put album in Svelte store
-                    this.setAlbum(path, jsonAlbum);
-
-                    // Put album in browser's local disk cache
-                    this.writeToDisk(path, jsonAlbum);
+            .then((response: Response) => {
+                if (response.status == 404) {
+                    throw 404;
+                } else if (!response.ok) {
+                    throw new Error(response.statusText);
                 }
+                return response.json();
+            })
+            .then((json) => {
+                console.log(`Album [${path}] fetched from server`);
+                const jsonAlbum = json.album;
+                console.log(`Album [${path}] json: `, jsonAlbum);
+
+                // Put album in Svelte store
+                this.setAlbum(path, jsonAlbum);
+
+                // Put album in browser's local disk cache
+                this.writeToDisk(path, jsonAlbum);
             })
             .catch((error) => {
-                this.handleFetchError(path, error);
+                if (error === 404) {
+                    console.warn(`Album not found on server: [${path}]`);
+                    this.setLoadStatus(path, AlbumLoadStatus.DOES_NOT_EXIST);
+                } else {
+                    this.handleFetchError(path, error);
+                }
             });
     }
 

@@ -14,18 +14,18 @@ export default function createAlbumFromObject(json: any): Album {
 }
 
 function instantiateAlbum(json: any): Album {
-    const type = getAlbumType(json.path);
+    if (!json.parentPath) throw new Error(`JSON doesn't contain parentPath`);
+    if (!json.itemName) throw new Error(`JSON doesn't contain itemName`);
+    const path = json.parentPath + json.itemName + '/';
+    const type = getAlbumType(path);
     switch (type) {
-        case AlbumType.ROOT: {
-            return new RootAlbum(json.path);
-        }
-        case AlbumType.YEAR: {
-            return new YearAlbum(json.path);
-        }
-        case AlbumType.DAY: {
-            return new DayAlbum(json.path);
-        }
+        case AlbumType.ROOT:
+            return new RootAlbum(path);
+        case AlbumType.YEAR:
+            return new YearAlbum(path);
+        case AlbumType.DAY:
+            return new DayAlbum(path);
         default:
-            throw new Error('Unexpected album type');
+            throw new Error(`Unexpected album type [${type}]`);
     }
 }

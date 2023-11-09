@@ -1,5 +1,6 @@
 import type { Album, Image, AlbumNavInfo, AlbumThumb } from '$lib/models/album';
 import { ImageImpl } from '$lib/models/impl/image-impl';
+import { albumPathToDate, isValidAlbumPath } from '$lib/utils/galleryPathUtils';
 import { processCaption } from '$lib/utils/legacyUrlHandler';
 
 /**
@@ -7,14 +8,15 @@ import { processCaption } from '$lib/utils/legacyUrlHandler';
  */
 export class AlbumImpl implements Album {
     path: string;
+    updatedOn?: string;
     title?: string;
     customdata?: string;
     unpublished?: boolean;
     desc?: string;
     image_size?: number;
     thumb_size?: number;
-    url_thumb?: string;
-    date?: number;
+    //url_thumb?: string;
+    private thumbnail?: { path: string; fileUpdatedOn: string };
     albums?: AlbumThumb[];
     images?: Image[];
     parent_album?: AlbumNavInfo;
@@ -22,8 +24,16 @@ export class AlbumImpl implements Album {
     prev?: AlbumNavInfo;
 
     constructor(path: string) {
-        if (!(typeof path === 'string')) throw new Error('Album path must be a string');
+        if (!isValidAlbumPath(path)) throw new Error(`Invalid album path [${path}]`);
         this.path = path;
+    }
+
+    get date(): Date {
+        return albumPathToDate(this.path);
+    }
+
+    get url_thumb(): string | undefined {
+        return this.thumbnail?.path;
     }
 
     get description(): string {
@@ -43,6 +53,10 @@ export class AlbumImpl implements Album {
      */
     get href(): string {
         return '/' + this.path;
+    }
+
+    get thumbnailUrl(): string {
+        return 'TODO IMPLEMENT';
     }
 
     /**
