@@ -28,26 +28,26 @@
 		"deploy-prod": "rsync -r -a -v --delete --exclude '.DS_Store' --exclude '.well-known' build/ deanmoses@tacocat.com:~/prod-pix.tacocat.com"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.29.1",
+		"@playwright/test": "1.39.0",
 		"@sveltejs/adapter-static": "^1.0.0",
 		"@sveltejs/kit": "1.0.1",
 		"@types/quill": "^1.3.10",
 		"@typescript-eslint/eslint-plugin": "^5.47.1",
 		"@typescript-eslint/parser": "^5.47.1",
-		"eslint": "^8.31.0",
+		"eslint": "^8.53.0",
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-plugin-svelte3": "^4.0.0",
 		"prettier": "^2.8.1",
 		"prettier-plugin-svelte": "^2.9.0",
 		"svelte": "^3.55.0",
 		"svelte-check": "^3.0.1",
-		"svelte-preprocess": "^5.0.0",
+		"svelte-preprocess": "^5.0.4",
 		"tslib": "^2.4.1",
 		"typescript": "^4.9.4",
-		"vite": "^4.0.3"
+		"vite": "^4.5.0"
 	},
 	"dependencies": {
-		"idb-keyval": "^6.2.0",
+		"idb-keyval": "^6.2.1",
 		"immer": "^9.0.16",
 		"quill": "^1.3.7"
 	},
