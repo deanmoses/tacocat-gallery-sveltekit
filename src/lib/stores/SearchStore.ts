@@ -4,7 +4,7 @@
 
 import { writable, type Writable, derived, type Readable, get } from 'svelte/store';
 import { get as getFromIdb, set as setToIdb } from 'idb-keyval';
-import produce from "immer";
+import {produce} from "immer";
 import Config from '$lib/utils/config';
 import type { Search, SearchResults } from '$lib/models/search';
 import { SearchLoadStatus, SearchUpdateStatus } from '$lib/models/search';

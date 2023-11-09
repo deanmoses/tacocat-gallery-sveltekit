@@ -3,7 +3,7 @@ import { type AlbumEntry, albumStore } from '$lib/stores/AlbumStore';
 import Config from '$lib/utils/config';
 import { getParentFromPath } from '$lib/utils/path-utils';
 import { updateAlbumServerCache } from './AlbumServerCache';
-import produce from "immer";
+import {produce} from "immer";
 
 /**
  * Set specified thumbnail as specified album's thumbnail
