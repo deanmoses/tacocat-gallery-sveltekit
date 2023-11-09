@@ -40,6 +40,6 @@ export function updateAlbumServerCache(albumPath: string): void {
 			console.log(`Success refreshing cache for album ${albumPath}`);
 		})
 		.catch(error => {
-			console.log(error);
+			console.error(error);
 		});
 }
