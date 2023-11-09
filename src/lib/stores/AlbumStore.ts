@@ -140,7 +140,7 @@ class AlbumStore {
 				}
 			})
 			.catch((error) => {
-				console.log(`Album [${path}] error fetching from disk`, error);
+				console.error(`Album [${path}] error fetching from disk`, error);
 			})
 			// Fetch from server regardless of whether it was found on disk
 			.finally(() => {
@@ -216,7 +216,7 @@ class AlbumStore {
 	}
 
 	private handleFetchError(path: string, error: string): void {
-		console.log(`Album [${path}] error fetching from server: `, error);
+		console.error(`Album [${path}] error fetching from server: `, error);
 
 		const status = this.getLoadStatus(path);
 		switch (status) {
@@ -232,7 +232,7 @@ class AlbumStore {
 				// already in correct state
 				break;
 			default:
-				console.log('Unexepected load status:', status);
+				console.error('Unexepected load status:', status);
 		}
 	}
 
@@ -265,7 +265,7 @@ class AlbumStore {
 		// Or maybe refresh some sort of last_fetched timestamp?
 		setToIdb(idbKey, album)
 			.then(() => console.log(`Album [${path}] stored in idb`))
-			.catch((e) => console.log(`Album [${path}] error storing in idb`, e));
+			.catch((e) => console.error(`Album [${path}] error storing in idb`, e));
 	}
 
 	/**

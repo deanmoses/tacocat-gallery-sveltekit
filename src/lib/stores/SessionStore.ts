@@ -31,7 +31,7 @@ class SessionStore {
 	async fetchUserStatus(): Promise<void> {
 		const fakeAdmin: boolean = dev;
 		if (fakeAdmin) {
-			console.log('FAKE: setting user to be an admin');
+			console.warn('FAKE: setting user to be an admin');
 			this._isAdmin.set(true);
 		} else {
 			const uri = Config.checkAuthenticationUrl();

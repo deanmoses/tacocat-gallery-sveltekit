@@ -79,7 +79,7 @@ class LatestAlbumThumbnailStore {
 					}
 				})
 				.catch((error) => {
-					console.log(`Latest album thumbnail error fetching from disk`, error);
+					console.error(`Latest album thumbnail error fetching from disk`, error);
 				})
 				// Always fetch from server regardless of whether it was found on
 				// disk or not
@@ -122,7 +122,7 @@ class LatestAlbumThumbnailStore {
 	 * 
 	 */
 	private handleFetchError(error: string): void {
-		console.log(`Latest album thumbnail error fetching from server: `, error);
+		console.error(`Latest album thumbnail error fetching from server: `, error);
 
 		const status = this.getLoadStatus();
 		switch (status) {
@@ -137,7 +137,7 @@ class LatestAlbumThumbnailStore {
 				// already in correct state
 				break;
 			default:
-				console.log("Unexepected load status:", status);
+				console.error("Unexepected load status:", status);
 		}
 	}
 
@@ -180,7 +180,7 @@ class LatestAlbumThumbnailStore {
 			// Or maybe refresh some sort of last_fetched timestamp?
 			setToIdb(idbThumbnailKey, thumbnailJson)
 				.then(() => console.log(`Latest album thumbnail stored in idb`))
-				.catch((e) => console.log(`Latest album thumbnail error storing in idb`, e));
+				.catch((e) => console.error(`Latest album thumbnail error storing in idb`, e));
 	}
 
 }

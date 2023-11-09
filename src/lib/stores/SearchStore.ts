@@ -89,7 +89,7 @@ class SearchStore {
 					}
 				})
 				.catch((error) => {
-					console.log(`Search [${searchTerms}] error fetching from disk`, error);
+					console.error(`Search [${searchTerms}] error fetching from disk`, error);
 				})
 				// Always fetch from server regardless of whether it was found on
 				// disk or not
@@ -130,7 +130,7 @@ class SearchStore {
 		}
 	
 		private handleFetchError(searchTerms: string, error: string): void {
-			console.log(`Search [${searchTerms}] error fetching from server: `, error);
+			console.error(`Search [${searchTerms}] error fetching from server: `, error);
 	
 			const status = this.getLoadStatus(searchTerms);
 			switch (status) {
@@ -145,7 +145,7 @@ class SearchStore {
 					// already in correct state
 					break;
 				default:
-					console.log("Unexepected load status:", status);
+					console.error("Unexepected load status:", status);
 			}
 		}
 	
@@ -178,7 +178,7 @@ class SearchStore {
 			// Or maybe refresh some sort of last_fetched timestamp?
 			setToIdb(key, searchResults)
 				.then(() => console.log(`Search [${searchTerms}] stored in idb`))
-				.catch((e) => console.log(`Search [${searchTerms}] error storing in idb`, e));
+				.catch((e) => console.error(`Search [${searchTerms}] error storing in idb`, e));
 		}
 	
 	/**

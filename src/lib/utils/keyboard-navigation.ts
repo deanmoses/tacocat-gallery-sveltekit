@@ -105,7 +105,7 @@ function navigateToPeer(
 			console.log('No album found at path: ' + path);
 		}
 	} else {
-		console.log('Path is neither an image nor an album: ' + path);
+		console.warn('Path is neither an image nor an album: ' + path);
 	}
 
 	return null;
@@ -128,7 +128,7 @@ function navigateToParent(path: string): string | null {
 		const parentAlbumPath: string = getParentFromPath(path);
 		return parentAlbumPath;
 	} else {
-		console.log('Path is neither an image nor an album: ' + path);
+		console.warn('Path is neither an image nor an album: ' + path);
 	}
 
 	return null;

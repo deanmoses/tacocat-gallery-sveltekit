@@ -116,11 +116,11 @@ class DraftStore {
 
 		const draft: Draft = get(this._draft);
 
-		console.log('FAKE: saving the draft: ', draft);
+		console.warn('FAKE: saving the draft: ', draft);
 
 		// Simulate a save
 		setTimeout(() => {
-			console.log('FAKE: saved the draft');
+			console.warn('FAKE: saved the draft');
 
 			this.updateClientStateAfterSave(draft);
 
@@ -145,7 +145,7 @@ class DraftStore {
 		// Do I actually have anything to save?
 		// This should never happen
 		if (!draft || !draft.path || !draft.content) {
-			console.log('Error saving draft: nothing to save!');
+			console.error('Error saving draft: nothing to save!');
 			this.setStatus(DraftStatus.ERRORED);
 		}
 		// Else I have something to save
@@ -228,7 +228,7 @@ class DraftStore {
 	private checkJsonForErrors(json: any, draft: Draft): void {
 		if (!json || !json.success) {
 			const msg = `Server did not respond with success saving draft for ${draft.path}.  Instead, responded with:`;
-			console.log(msg, json, 'Draft:', draft);
+			console.error(msg, json, 'Draft:', draft);
 			throw new Error(msg + json);
 		} else {
 			console.log(`Draft [${draft.path}] save success.  JSON: `, json);
@@ -332,7 +332,7 @@ class DraftStore {
 	 * There was an error saving the draft
 	 */
 	private handleSaveError(e) {
-		console.log('Error saving draft: ', e);
+		console.error('Error saving draft: ', e);
 		this.setStatus(DraftStatus.ERRORED);
 	}
 

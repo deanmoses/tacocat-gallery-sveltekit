@@ -107,7 +107,7 @@ function checkJsonForErrors(json: any, albumPath: string): string {
   * @param thumbnailLeafPath leaf path of the thumbnail item, like 'felix.jpg'
   */
 function errorAction(error: Error, albumPath: string, thumbnailLeafPath: string): void {
-	console.log(`Album [${albumPath}]: error saving thumbnail [${thumbnailLeafPath}].  Error:`, error);
+	console.error(`Album [${albumPath}]: error saving thumbnail [${thumbnailLeafPath}].  Error:`, error);
 	window.alert(`Error saving thumbnail: ${error.message}`);
 }
 
