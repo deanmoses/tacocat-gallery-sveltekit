@@ -5,7 +5,7 @@
 import { writable, type Writable, derived, type Readable, get } from 'svelte/store';
 import type { Draft, DraftContent } from '$lib/models/draft';
 import { DraftStatus } from '$lib/models/draft';
-import produce from 'immer';
+import {produce} from "immer";
 import { getAlbumType, getParentFromPath, isAlbumPath, isImagePath } from '$lib/utils/path-utils';
 import Config from '$lib/utils/config';
 import { AlbumType, type Image } from '$lib/models/album';
