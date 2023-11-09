@@ -22,6 +22,8 @@
         "test": "playwright test",
         "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
         "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+        "lint": "prettier --plugin-search-dir . --check . && eslint .",
+        "format": "prettier --plugin-search-dir . --write .",
         "deploy-staging": "rsync -r -a -v --delete --exclude '.DS_Store' --exclude '.well-known' build/ deanmoses@tacocat.com:~/dev-pix.tacocat.com",
         "deploy-prod": "rsync -r -a -v --delete --exclude '.DS_Store' --exclude '.well-known' build/ deanmoses@tacocat.com:~/prod-pix.tacocat.com"
     },

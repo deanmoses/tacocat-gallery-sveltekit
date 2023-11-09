@@ -5,135 +5,135 @@
 /* default colors for years with no styling of their own */
 .site-container,
 .site-container[data-year='2023'] {
-	--body-color: #7a3f0b;
-	--header-color: #c5d5cb;
-	--sidebar-color: #f0ead7;
-	--button-color: #9da694;
+    --body-color: #7a3f0b;
+    --header-color: #c5d5cb;
+    --sidebar-color: #f0ead7;
+    --button-color: #9da694;
 }
 
 .site-container[data-year='2022'] {
-	--body-color: #686aab;
-	--header-color: #d2927f;
-	--sidebar-color: #a0838f;
-	--button-color: #e2c1bf;
+    --body-color: #686aab;
+    --header-color: #d2927f;
+    --sidebar-color: #a0838f;
+    --button-color: #e2c1bf;
 }
 
 .site-container[data-year='2021'] {
-	--body-color: #94949c;
-	--header-color: #f7de5a;
-	--sidebar-color: #838470;
-	--button-color: #cec68c;
+    --body-color: #94949c;
+    --header-color: #f7de5a;
+    --sidebar-color: #838470;
+    --button-color: #cec68c;
 }
 
 .site-container[data-year='2020'] {
-	--body-color: #144d7f;
-	--header-color: #678ec4;
-	--sidebar-color: #b6c7d3;
-	--button-color: #beb7b3;
+    --body-color: #144d7f;
+    --header-color: #678ec4;
+    --sidebar-color: #b6c7d3;
+    --button-color: #beb7b3;
 }
 
 .site-container[data-year='2019'] {
-	--body-color: #4a4843;
-	--header-color: #d86b61;
-	--sidebar-color: #a79b83;
-	--button-color: #a65e68;
+    --body-color: #4a4843;
+    --header-color: #d86b61;
+    --sidebar-color: #a79b83;
+    --button-color: #a65e68;
 }
 
 .site-container[data-year='2018'] {
-	--body-color: #676559;
-	--header-color: #87679f;
-	--sidebar-color: #879099;
-	--button-color: #a1b9bd;
+    --body-color: #676559;
+    --header-color: #87679f;
+    --sidebar-color: #879099;
+    --button-color: #a1b9bd;
 }
 
 .site-container[data-year='2017'] {
-	--body-color: #5c7148;
-	--header-color: #d1af94;
-	--sidebar-color: #be869f;
-	--button-color: #efcec5;
+    --body-color: #5c7148;
+    --header-color: #d1af94;
+    --sidebar-color: #be869f;
+    --button-color: #efcec5;
 }
 
 .site-container[data-year='2016'] {
-	--body-color: #034f84;
-	--header-color: #98ddde;
-	--sidebar-color: #91a8d0;
-	--button-color: #c6f7f7;
+    --body-color: #034f84;
+    --header-color: #98ddde;
+    --sidebar-color: #91a8d0;
+    --button-color: #c6f7f7;
 }
 
 .site-container[data-year='2015'] {
-	--body-color: #692f55;
-	--header-color: #c56d69;
-	--sidebar-color: #837d54;
-	--button-color: #e2b6b4;
+    --body-color: #692f55;
+    --header-color: #c56d69;
+    --sidebar-color: #837d54;
+    --button-color: #e2b6b4;
 }
 
 .site-container[data-year='2014'] {
-	--body-color: #8d5f5f;
-	--header-color: #e8ddc7;
-	--sidebar-color: #cebfa1;
-	--button-color: #f7f3eb;
+    --body-color: #8d5f5f;
+    --header-color: #e8ddc7;
+    --sidebar-color: #cebfa1;
+    --button-color: #f7f3eb;
 }
 
 .site-container[data-year='2013'] {
-	--body-color: #917d61;
-	--header-color: #b7c8a4;
-	--sidebar-color: #8a9e75;
-	--button-color: #e9eee4;
+    --body-color: #917d61;
+    --header-color: #b7c8a4;
+    --sidebar-color: #8a9e75;
+    --button-color: #e9eee4;
 }
 
 .site-container[data-year='2012'] {
-	--body-color: #973450;
-	--header-color: #edb79c;
-	--sidebar-color: #e77f4b;
-	--button-color: #fdf6f2;
+    --body-color: #973450;
+    --header-color: #edb79c;
+    --sidebar-color: #e77f4b;
+    --button-color: #fdf6f2;
 }
 
 .site-container[data-year='2011'] {
-	--body-color: #4d3087;
-	--header-color: #e0ee83;
-	--sidebar-color: #c2d543;
-	--button-color: #f6fadd;
+    --body-color: #4d3087;
+    --header-color: #e0ee83;
+    --sidebar-color: #c2d543;
+    --button-color: #f6fadd;
 }
 
 .site-container[data-year='2010'],
 .site-container[data-year='2009'] {
-	--body-color: #3f64ee;
-	--header-color: #ffe793;
-	--sidebar-color: #ffd02d;
-	--button-color: #fff2c6;
+    --body-color: #3f64ee;
+    --header-color: #ffe793;
+    --sidebar-color: #ffd02d;
+    --button-color: #fff2c6;
 }
 
 .site-container[data-year='2008'] {
-	--body-color: #869e59;
-	--header-color: #d3e0f1;
-	--sidebar-color: #bbcbe0;
-	--button-color: #fafbfd;
+    --body-color: #869e59;
+    --header-color: #d3e0f1;
+    --sidebar-color: #bbcbe0;
+    --button-color: #fafbfd;
 }
 
 .site-container[data-year='2007'],
 .site-container[data-year='2006'],
 .site-container[data-year='2005'] {
-	--body-color: #743a7d;
-	--header-color: #bde6d8;
-	--sidebar-color: #69c7af;
-	--button-color: #e2f4ee;
+    --body-color: #743a7d;
+    --header-color: #bde6d8;
+    --sidebar-color: #69c7af;
+    --button-color: #e2f4ee;
 }
 
 .site-container[data-year='2004'],
 .site-container[data-year='2003'] {
-	--body-color: #99cc33;
-	--header-color: #e2f8b6;
-	--sidebar-color: #9dc6ef;
-	--button-color: #f4fce5;
+    --body-color: #99cc33;
+    --header-color: #e2f8b6;
+    --sidebar-color: #9dc6ef;
+    --button-color: #f4fce5;
 }
 
 .site-container[data-year='2002'],
 .site-container[data-year='2001'] {
-	--body-color: #ff6600;
-	--header-color: #fbefce;
-	--sidebar-color: #ff99ff;
-	--button-color: #fdf7e6;
-	--month-color: #ffccff;
+    --body-color: #ff6600;
+    --header-color: #fbefce;
+    --sidebar-color: #ff99ff;
+    --button-color: #fdf7e6;
+    --month-color: #ffccff;
 }
 
 .site-container[data-year='1989'],
@@ -141,11 +141,11 @@
 .site-container[data-year='1985'],
 .site-container[data-year='1983'],
 .site-container[data-year='1981'] {
-	--body-color: #3a3a3c;
-	--header-color: #e82e79;
-	--sidebar-color: #bbbbbb;
-	--button-color: #f497bc;
-	--month-color: #6bd4db;
+    --body-color: #3a3a3c;
+    --header-color: #e82e79;
+    --sidebar-color: #bbbbbb;
+    --button-color: #f497bc;
+    --month-color: #6bd4db;
 }
 
 .site-container[data-year='1988'],
@@ -153,10 +153,10 @@
 .site-container[data-year='1984'],
 .site-container[data-year='1982'],
 .site-container[data-year='1980'] {
-	--body-color: #4e337a;
-	--header-color: #b1a6d0;
-	--sidebar-color: #ede7d5;
-	--button-color: #d8d3e8;
+    --body-color: #4e337a;
+    --header-color: #b1a6d0;
+    --sidebar-color: #ede7d5;
+    --button-color: #d8d3e8;
 }
 
 .site-container[data-year='1979'],
@@ -164,10 +164,10 @@
 .site-container[data-year='1975'],
 .site-container[data-year='1973'],
 .site-container[data-year='1971'] {
-	--body-color: #503200;
-	--header-color: #e7b62a;
-	--sidebar-color: #de8b31;
-	--button-color: #f3db95;
+    --body-color: #503200;
+    --header-color: #e7b62a;
+    --sidebar-color: #de8b31;
+    --button-color: #f3db95;
 }
 
 .site-container[data-year='1978'],
@@ -175,8 +175,8 @@
 .site-container[data-year='1974'],
 .site-container[data-year='1972'],
 .site-container[data-year='1970'] {
-	--body-color: #434210;
-	--header-color: #a2a22c;
-	--sidebar-color: #f6c54c;
-	--button-color: #d1d196;
+    --body-color: #434210;
+    --header-color: #a2a22c;
+    --sidebar-color: #f6c54c;
+    --button-color: #d1d196;
 }

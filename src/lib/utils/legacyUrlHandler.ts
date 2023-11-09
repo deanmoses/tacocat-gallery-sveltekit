@@ -8,13 +8,13 @@ import { redirect } from '@sveltejs/kit';
  * @param hashLocation a legacy hashtag-based URL, like: #2001/12-31/felix.jpg
  */
 export function redirectIfLegacyUrl(hashLocation: string) {
-	if (hashLocation) {
-		let newUrl = hashLocation.substring(1); // remove the '#'
-		if (!newUrl.startsWith('/')) {
-			newUrl = '/' + newUrl;
-		}
-		throw redirect(301, newUrl);
-	}
+    if (hashLocation) {
+        let newUrl = hashLocation.substring(1); // remove the '#'
+        if (!newUrl.startsWith('/')) {
+            newUrl = '/' + newUrl;
+        }
+        throw redirect(301, newUrl);
+    }
 }
 
 // href="#2001 or $/2001 or #2001/12-31 or #2001/12-31/felix.jpg -- it's just matching the #2001 and assuming the rest is a valid path
@@ -29,9 +29,9 @@ const oldUrlFormat = /(href\s*=\s*["']\s*)#\/?(\d{4})/gi;
  * @returns processed caption
  */
 export function processCaption(caption: string | undefined): string {
-	return caption ? caption.replaceAll(oldUrlFormat, '$1/$2') : '';
+    return caption ? caption.replaceAll(oldUrlFormat, '$1/$2') : '';
 
-	/**
-	 * TODO: handle <a href="http://tacocat.com/pix/2002/06/03/html/jasper1.htm"
-	 */
+    /**
+     * TODO: handle <a href="http://tacocat.com/pix/2002/06/03/html/jasper1.htm"
+     */
 }

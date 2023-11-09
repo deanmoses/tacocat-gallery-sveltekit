@@ -4,7 +4,7 @@ Front end of the Tacocat photo gallery website using the [Sveltekit](https://kit
 
 ## Installation
 
-Clone this project, `cd` into its directory, install dependencies with `npm install` or `pnpm install` or `yarn`. 
+Clone this project, `cd` into its directory, install dependencies with `npm install` or `pnpm install` or `yarn`.
 
 ## Run Development Version
 

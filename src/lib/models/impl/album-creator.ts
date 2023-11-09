@@ -9,23 +9,23 @@ import { getAlbumType } from '$lib/utils/path-utils';
  * @param json JSON or any Object
  */
 export default function createAlbumFromObject(json: any): Album {
-	const album: Album = instantiateAlbum(json);
-	return Object.assign(album, json);
+    const album: Album = instantiateAlbum(json);
+    return Object.assign(album, json);
 }
 
 function instantiateAlbum(json: any): Album {
-	const type = getAlbumType(json.path);
-	switch (type) {
-		case AlbumType.ROOT: {
-			return new RootAlbum(json.path);
-		}
-		case AlbumType.YEAR: {
-			return new YearAlbum(json.path);
-		}
-		case AlbumType.DAY: {
-			return new DayAlbum(json.path);
-		}
-		default:
-			throw new Error('Unexpected album type');
-	}
+    const type = getAlbumType(json.path);
+    switch (type) {
+        case AlbumType.ROOT: {
+            return new RootAlbum(json.path);
+        }
+        case AlbumType.YEAR: {
+            return new YearAlbum(json.path);
+        }
+        case AlbumType.DAY: {
+            return new DayAlbum(json.path);
+        }
+        default:
+            throw new Error('Unexpected album type');
+    }
 }
