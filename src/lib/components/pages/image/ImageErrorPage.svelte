@@ -5,12 +5,12 @@
 -->
 
 <script lang="ts">
-	import BlankImagePageLayout from "./layouts/BlankImagePageLayout.svelte";
+    import BlankImagePageLayout from './layouts/BlankImagePageLayout.svelte';
 
-	export let year: string;
-	export let title = "Error";
+    export let year: string;
+    export let title = 'Error';
 </script>
 
 <BlankImagePageLayout {year} {title}>
-	<slot />
+    <slot />
 </BlankImagePageLayout>
