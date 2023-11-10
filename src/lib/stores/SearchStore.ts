@@ -103,23 +103,25 @@ class SearchStore {
      */
     private fetchFromServer(searchTerms: string): void {
         fetch(Config.searchUrl(searchTerms))
-            .then((response) => response.json())
-            .then((json) => {
-                if (json.error) {
-                    this.handleFetchError(searchTerms, json.error);
-                } else {
-                    console.log(`Search [${searchTerms}] fetched from server`);
-
-                    // TODO: better error handling if we don't get back expected response,
-                    // rather than just accepting the JSON
-                    const searchResults: SearchResults = json.search;
-
-                    // Put search results in Svelte store
-                    this.setSearch(searchTerms, searchResults);
-
-                    // Put search results in browser's local disk cache
-                    this.writeToDisk(searchTerms, searchResults);
+            .then((response: Response) => {
+                if (!response.ok) {
+                    throw new Error(response.statusText);
                 }
+                return response.json();
+            })
+            .then((json) => {
+                console.log(`Search [${searchTerms}] fetched from server`, json);
+                const items: [] = json as [];
+                const searchResults: SearchResults = {
+                    albums: items.filter((i) => i['item']['itemType'] == 'album').map((i) => i['item']),
+                    images: items.filter((i) => i['item']['itemType'] == 'image').map((i) => i['item']),
+                };
+                console.log(`Transformed search results `, searchResults);
+                // Put search results in Svelte store
+                this.setSearch(searchTerms, searchResults);
+
+                // Put search results in browser's local disk cache
+                this.writeToDisk(searchTerms, searchResults);
             })
             .catch((error) => {
                 this.handleFetchError(searchTerms, error);

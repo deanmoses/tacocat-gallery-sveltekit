@@ -84,7 +84,8 @@ export default abstract class Config {
      * @argument searchTerms the terms to search for
      */
     public static searchUrl(searchTerms: string): string {
-        return 'https://tacocat.com/zenphoto/page/search/?search=' + encodeURIComponent(searchTerms) + '&json';
+        return 'https://v2kdsvx1hf.execute-api.us-east-1.amazonaws.com/Prod/search/' + encodeURIComponent(searchTerms);
+        //return 'https://tacocat.com/zenphoto/page/search/?search=' + encodeURIComponent(searchTerms) + '&json';
     }
 
     /**

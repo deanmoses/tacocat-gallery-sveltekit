@@ -3,7 +3,7 @@ import { longDate } from '$lib/utils/date-utils';
 import { albumPathToDate, getParentFromPath } from '$lib/utils/galleryPathUtils';
 
 /**
- * Overrides the default album class with  behavior specific to day albums.
+ * Overrides the default album class with behavior specific to day albums.
  */
 export default class DayAlbum extends DateBasedAlbum {
     get pageTitle(): string {
