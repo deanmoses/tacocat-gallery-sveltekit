@@ -12,7 +12,6 @@
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import Config from '$lib/utils/config';
     import type { Album } from '$lib/models/album';
-    import { processCaption } from '$lib/utils/legacyUrlHandler';
 
     export let year: string;
     export let album: Album;
@@ -43,7 +42,7 @@
                 <Thumbnail
                     title={image.title}
                     summary={image.customdata}
-                    href="/{image.path}"
+                    href={image.path}
                     src={Config.cdnUrl(image.url_thumb)}
                 />
             {/each}

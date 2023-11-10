@@ -61,10 +61,10 @@ export class AlbumImpl implements Album {
     }
 
     /**
-     * URL (including hashtag) to screen displaying album, like #2014/12-31
+     * URL to screen displaying album, like /2014/12-31
      */
     get href(): string {
-        return '/' + this.path;
+        return this.path;
     }
 
     get thumbnailUrl(): string {
