@@ -53,7 +53,6 @@ export interface Album {
     year?: number;
     images?: Image[];
     albums?: AlbumThumb[];
-    parent_album?: AlbumNavInfo;
     next?: AlbumNavInfo;
     pageTitle?: string;
     href?: string;
