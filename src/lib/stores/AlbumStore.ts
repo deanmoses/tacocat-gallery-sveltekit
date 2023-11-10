@@ -169,15 +169,13 @@ class AlbumStore {
                 return response.json();
             })
             .then((json) => {
-                console.log(`Album [${path}] fetched from server`);
-                const jsonAlbum = json.album;
-                console.log(`Album [${path}] json: `, jsonAlbum);
+                console.log(`Album [${path}] fetched from server`, json);
 
                 // Put album in Svelte store
-                this.setAlbum(path, jsonAlbum);
+                this.setAlbum(path, json);
 
                 // Put album in browser's local disk cache
-                this.writeToDisk(path, jsonAlbum);
+                this.writeToDisk(path, json);
             })
             .catch((error) => {
                 if (error === 404) {

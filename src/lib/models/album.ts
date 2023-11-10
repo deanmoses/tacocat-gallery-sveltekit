@@ -87,6 +87,9 @@ export interface Image extends Thumbable {
  * Something that can be displayed as a thumbnail image
  */
 export interface Thumbable {
+    itemName: string;
+    itemType: string;
+
     /**
      * Path of the album or image, like '2001/12-31'
      */

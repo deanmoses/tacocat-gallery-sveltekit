@@ -2,11 +2,13 @@ import type { Album, Image } from '$lib/models/album';
 import { processCaption } from '$lib/utils/legacyUrlHandler';
 
 /**
- * Image implementaiton
+ * Image implementation
  */
 export class ImageImpl implements Image {
-    path: string;
-    title: string;
+    private parentPath?: string;
+    itemName: string;
+    itemType: string;
+    title?: string;
     date: number;
     desc: string;
     unpublished: boolean;
@@ -19,6 +21,10 @@ export class ImageImpl implements Image {
 
     constructor(album: Album) {
         this.album = album;
+    }
+
+    get path(): string {
+        return this.parentPath + this.itemName;
     }
 
     get description(): string {

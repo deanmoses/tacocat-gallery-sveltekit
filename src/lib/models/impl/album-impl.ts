@@ -15,10 +15,10 @@ export class AlbumImpl implements Album {
     desc?: string;
     image_size?: number;
     thumb_size?: number;
-    //url_thumb?: string;
+    private itemType?: string;
     private thumbnail?: { path: string; fileUpdatedOn: string };
+    private children?: AlbumThumb[] | Image[];
     albums?: AlbumThumb[];
-    images?: Image[];
     parent_album?: AlbumNavInfo;
     next?: AlbumNavInfo;
     prev?: AlbumNavInfo;
@@ -121,6 +121,11 @@ export class AlbumImpl implements Album {
      */
     get parentAlbumTitle(): string {
         return this.parent_album?.title ?? '';
+    }
+
+    get images(): Image[] {
+        if (!this.children) return [];
+        return this.children.filter((child) => child?.itemType == 'image');
     }
 
     /**
