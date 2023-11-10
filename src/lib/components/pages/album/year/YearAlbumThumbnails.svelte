@@ -71,7 +71,7 @@
                 <Thumbnail
                     title={getTitle(childAlbum.parentPath, childAlbum.itemName)}
                     summary={childAlbum.customdata}
-                    href={albumUrlCreator(`/${childAlbum.path}`)}
+                    href={albumUrlCreator(`${childAlbum.parentPath}${childAlbum.itemName}`)}
                     src={Config.cdnUrl(childAlbum.url_thumb)}
                 />
             {/each}
