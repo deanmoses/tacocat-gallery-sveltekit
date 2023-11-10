@@ -17,7 +17,7 @@
     export let image: Image;
 </script>
 
-<ImagePageLayout {year} title={image.title}>
+<ImagePageLayout {year} title={image.pageTitle}>
     <svelte:fragment slot="editControls">
         <EditToggle />
     </svelte:fragment>

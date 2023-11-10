@@ -23,6 +23,10 @@ export class ImageImpl implements Image {
         this.album = album;
     }
 
+    get pageTitle(): string {
+        return this.title ?? '';
+    }
+
     get pageDescription(): string {
         return processCaption(this.description);
     }

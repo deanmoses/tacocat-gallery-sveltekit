@@ -86,6 +86,7 @@ export interface Thumbable {
      * Title of the album or image, like 'December 31, 2001'
      */
     title?: string;
+    get pageTitle(): string;
 
     /**
      * Date of the album or image

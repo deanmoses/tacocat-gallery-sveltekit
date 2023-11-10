@@ -117,6 +117,7 @@ class AlbumStore {
         if (!albumEntry) throw new Error(`Did not find album [${albumPath}] on which to set selected thumbnail`);
 
         albumEntry.update((draftAlbumEntry) => {
+            if (!draftAlbumEntry.album) throw new Error(`Draft [${albumPath}] does not have an album`);
             draftAlbumEntry.album.url_thumb = thumbnailUrl;
             return draftAlbumEntry;
         });
@@ -288,7 +289,9 @@ class AlbumStore {
     }
 
     private getLoadStatus(path: string): AlbumLoadStatus {
-        return get(this.albums.get(path)).loadStatus;
+        const album = this.albums.get(path);
+        if (!album) throw new Error(`Album not found [${path}]`);
+        return get(album).loadStatus;
     }
 
     setUpdateStatus(path: string, status: AlbumUpdateStatus): void {
