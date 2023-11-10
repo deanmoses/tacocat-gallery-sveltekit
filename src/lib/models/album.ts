@@ -15,6 +15,20 @@ export interface Album {
     title?: string;
 
     /**
+     * Unprocessed album description / caption.
+     * Use this to EDIT but not DISPLAY the description.
+     * To display, use {@link Album#pageDescription}.
+     * @see pageDescription
+     */
+    description?: string;
+
+    /**
+     * Album text suitable for display in the UI.
+     * This rewrites legacy URLs (#2001/12-31) to current format (/2001/12-31)
+     */
+    get pageDescription(): string;
+
+    /**
      * Short summary of the album, like 'Ski trip'
      */
     customdata?: string;
@@ -40,11 +54,6 @@ export interface Album {
     parentAlbumHref?: string;
     parentAlbumTitle?: string;
 
-    /**
-     * Album text suitable for display in the UI.
-     * This rewrites legacy URLs (#2001/12-31) to current format (/2001/12-31)
-     */
-    get pageDescription(): string;
     get pageTitle(): string;
     get date(): Date;
     get images(): Image[];
@@ -84,12 +93,19 @@ export interface Thumbable {
     date?: number;
 
     /**
-     * Unprocessed album text / photo caption.
-     * Don't display this in the UI; instead use the #description property.
-     * This exists because it's set directly from the JSON API.
+     * Unprocessed album/image description/caption.
+     * Use this to EDIT but not DISPLAY the description.
+     * To display, use {@link Thumbable#pageDescription}.
      * @see pageDescription
      */
     description?: string;
+
+    /**
+     * Album text suitable for display in the UI.
+     * This rewrites legacy URLs (#2001/12-31) to current format (/2001/12-31)
+     */
+    get pageDescription(): string;
+
     url_full: string;
     url_sized: string;
     url_thumb: string;
@@ -100,12 +116,6 @@ export interface Thumbable {
      * Short summary of the album, like 'Ski trip'
      */
     customdata?: string;
-
-    /**
-     * Album text suitable for display in the UI.
-     * This rewrites legacy URLs (#2001/12-31) to current format (/2001/12-31)
-     */
-    get pageDescription(): string;
 }
 
 /**
