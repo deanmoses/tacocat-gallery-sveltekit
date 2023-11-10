@@ -11,7 +11,6 @@
     import YearAlbumThumbnails from './YearAlbumThumbnails.svelte';
     import EditToggle from '$lib/components/site/edit/toggle/EditToggle.svelte';
     import type { Album } from '$lib/models/album';
-    import { processCaption } from '$lib/utils/legacyUrlHandler';
 
     export let album: Album;
     export let year: string;
@@ -29,9 +28,7 @@
     </svelte:fragment>
 
     <svelte:fragment slot="caption">
-        {#if album.description}
-            {@html processCaption(album.description)}
-        {/if}
+        {@html album.pageDescription}
     </svelte:fragment>
 
     <svelte:fragment slot="thumbnails">

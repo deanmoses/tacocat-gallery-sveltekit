@@ -34,9 +34,7 @@
     </svelte:fragment>
 
     <svelte:fragment slot="caption">
-        {#if album.description}
-            {@html processCaption(album.description)}
-        {/if}
+        {@html album.pageDescription}
     </svelte:fragment>
 
     <svelte:fragment slot="thumbnails">

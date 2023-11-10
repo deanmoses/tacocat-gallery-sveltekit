@@ -11,16 +11,12 @@ export interface Album {
      * Title of the album, like 'December 31, 2001'
      */
     title?: string;
+    description?: string;
 
     /**
      * Short summary of the album, like 'Ski trip'
      */
     customdata?: string;
-
-    /**
-     * Album text / photo caption.
-     */
-    description: string;
 
     /**
      * True: album is NOT available to the public
@@ -37,7 +33,6 @@ export interface Album {
     images?: Image[];
     albums?: AlbumThumb[];
     next?: AlbumNavInfo;
-    pageTitle?: string;
     href?: string;
     nextAlbumHref?: string;
     nextAlbumTitle?: string;
@@ -46,14 +41,10 @@ export interface Album {
     parentAlbumHref?: string;
     parentAlbumTitle?: string;
 
-    /**
-     * Date of the album
-     */
     get date(): Date;
+    get pageTitle(): string;
+    get pageDescription(): string;
 
-    /**
-     * Return image at specified path
-     */
     getImage: (imagePath: string) => Image | undefined;
 }
 

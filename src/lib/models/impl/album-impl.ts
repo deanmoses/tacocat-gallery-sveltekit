@@ -13,13 +13,19 @@ export class AlbumImpl implements Album {
     title?: string;
     customdata?: string;
     unpublished?: boolean;
-    desc?: string;
+
+    /**
+     * Unprocessed album text / photo caption.
+     * Don't display this in the UI; instead use the #description property.
+     * This exists because it's set directly from the JSON API.
+     * @see pageDescription
+     */
+    description?: string;
     image_size?: number;
     thumb_size?: number;
     private itemType?: string;
     private thumbnail?: { path: string; fileUpdatedOn: string };
     private children?: AlbumThumb[] | Image[];
-    albums?: AlbumThumb[];
     next?: AlbumNavInfo;
     prev?: AlbumNavInfo;
 
@@ -36,12 +42,12 @@ export class AlbumImpl implements Album {
         return this.thumbnail?.path;
     }
 
-    /**
-     * Friendly title of page
-     * Blank if no title
-     */
     get pageTitle(): string {
         return this.title ?? '';
+    }
+
+    get pageDescription(): string {
+        return processCaption(this.description);
     }
 
     /**
@@ -108,8 +114,13 @@ export class AlbumImpl implements Album {
         return this.children.filter((child) => child?.itemType == 'image');
     }
 
+    get albums(): AlbumThumb[] {
+        if (!this.children) return [];
+        return this.children.filter((child) => child?.itemType == 'album');
+    }
+
     /**
-     * Return image at specified path, or undefined
+     * Return image at specified path
      */
     getImage(imagePath: string): Image | undefined {
         if (this.images) {
