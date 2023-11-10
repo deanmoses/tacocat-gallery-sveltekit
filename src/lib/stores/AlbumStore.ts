@@ -158,24 +158,16 @@ class AlbumStore {
     private fetchFromServer(path: string): void {
         const url = Config.albumUrl(path);
         const requestConfig = this.buildFetchConfig(path);
-
         fetch(url, requestConfig)
             .then((response: Response) => {
-                if (response.status == 404) {
-                    throw 404;
-                } else if (!response.ok) {
-                    throw new Error(response.statusText);
-                }
+                if (response.status == 404) throw 404;
+                if (!response.ok) throw new Error(response.statusText);
                 return response.json();
             })
             .then((json) => {
                 console.log(`Album [${path}] fetched from server`, json);
-
-                // Put album in Svelte store
-                this.setAlbum(path, json);
-
-                // Put album in browser's local disk cache
-                this.writeToDisk(path, json);
+                this.setAlbum(path, json); // Put album in Svelte store
+                this.writeToDisk(path, json); // Put album in browser's local disk cache
             })
             .catch((error) => {
                 if (error === 404) {

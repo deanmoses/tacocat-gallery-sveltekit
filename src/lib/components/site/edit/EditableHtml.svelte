@@ -17,7 +17,7 @@
         if (event.detail.html == null) {
             console.log('<EditableHtml>: html is null');
         } else {
-            // TODO: this class should not know about DraftStore nor the specific field they represent ("desc", "title")
+            // TODO: this class should not know about DraftStore nor the specific field they represent ("description", "title")
             DraftStore.setDescription(event.detail.html);
         }
     }

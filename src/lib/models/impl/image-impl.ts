@@ -5,12 +5,12 @@ import { processCaption } from '$lib/utils/legacyUrlHandler';
  * Image implementation
  */
 export class ImageImpl implements Image {
-    private parentPath?: string;
+    path: string;
     itemName: string;
-    itemType: string;
+    itemType?: string;
     title?: string;
     date: number;
-    desc: string;
+    description?: string;
     unpublished: boolean;
     url_full: string;
     url_sized: string;
@@ -23,12 +23,8 @@ export class ImageImpl implements Image {
         this.album = album;
     }
 
-    get path(): string {
-        return this.parentPath + this.itemName;
-    }
-
-    get description(): string {
-        return processCaption(this.desc);
+    get pageDescription(): string {
+        return processCaption(this.description);
     }
 
     /**
@@ -36,17 +32,7 @@ export class ImageImpl implements Image {
      * Undefined if no next image
      */
     get nextImageHref(): string | undefined {
-        const next = this.next;
-        return next ? '/' + next.path : undefined;
-    }
-
-    /**
-     * Image.path of the next image in my album
-     * Undefined if no next image
-     */
-    get nextImagePath(): string | undefined {
-        const next = this.next;
-        return next ? next.path : undefined;
+        return this.next?.path;
     }
 
     /**

@@ -40,9 +40,13 @@ export interface Album {
     parentAlbumHref?: string;
     parentAlbumTitle?: string;
 
-    get date(): Date;
-    get pageTitle(): string;
+    /**
+     * Album text suitable for display in the UI.
+     * This rewrites legacy URLs (#2001/12-31) to current format (/2001/12-31)
+     */
     get pageDescription(): string;
+    get pageTitle(): string;
+    get date(): Date;
     get images(): Image[];
     get albums(): AlbumThumb[];
 
@@ -61,29 +65,31 @@ export interface Image extends Thumbable {
  * Something that can be displayed as a thumbnail image
  */
 export interface Thumbable {
+    /**
+     * Path of the album or image, like '2001/12-31'
+     */
+    path: string;
     parentPath: string;
     itemName: string;
     itemType: string;
 
     /**
-     * Path of the album or image, like '2001/12-31'
-     */
-    path: string;
-
-    /**
      * Title of the album or image, like 'December 31, 2001'
      */
-    title: string;
+    title?: string;
 
     /**
      * Date of the album or image
      */
-    date: number;
+    date?: number;
 
     /**
-     * Album text / photo caption
+     * Unprocessed album text / photo caption.
+     * Don't display this in the UI; instead use the #description property.
+     * This exists because it's set directly from the JSON API.
+     * @see pageDescription
      */
-    description: string;
+    description?: string;
     url_full: string;
     url_sized: string;
     url_thumb: string;
@@ -94,6 +100,12 @@ export interface Thumbable {
      * Short summary of the album, like 'Ski trip'
      */
     customdata?: string;
+
+    /**
+     * Album text suitable for display in the UI.
+     * This rewrites legacy URLs (#2001/12-31) to current format (/2001/12-31)
+     */
+    get pageDescription(): string;
 }
 
 /**

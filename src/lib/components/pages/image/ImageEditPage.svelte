@@ -34,7 +34,7 @@
     </svelte:fragment>
 
     <svelte:fragment slot="caption">
-        <EditableHtml htmlContent={image.desc} />
+        <EditableHtml htmlContent={image.description} />
     </svelte:fragment>
 
     <svelte:fragment slot="nav">
