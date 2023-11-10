@@ -32,16 +32,14 @@ export class ImageImpl implements Image {
     }
 
     /**
-     * URL of the next image in my album
-     * Undefined if no next image
+     * URL of next image in my album
      */
     get nextImageHref(): string | undefined {
         return this.next?.path;
     }
 
     /**
-     * URL of the previous image in my album
-     * Undefined if no previous image
+     * URL of previous image in my album
      */
     get prevImageHref(): string | undefined {
         return this.prev?.path;
