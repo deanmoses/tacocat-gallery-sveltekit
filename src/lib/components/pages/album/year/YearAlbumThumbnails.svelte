@@ -7,8 +7,9 @@
     import Thumbnails from '$lib/components/site/Thumbnails.svelte';
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import { shortDate } from '$lib/utils/date-utils';
-    import type { Album } from '$lib/models/album';
+    import type { Album, AlbumThumb } from '$lib/models/album';
     import Config from '$lib/utils/config';
+    import { albumPathToDate } from '$lib/utils/galleryPathUtils';
 
     export let album: Album;
 
@@ -23,20 +24,21 @@
 
     type AlbumsByMonth = Array<{
         monthName: string;
-        albums: Album[];
+        albums: AlbumThumb[];
     }>;
 
     /**
      * Group the albums by month
      */
-    function albumsByMonth(albums: Album[]): AlbumsByMonth {
+    function albumsByMonth(albums: AlbumThumb[]): AlbumsByMonth {
         // array to return
         let albumsByMonth: AlbumsByMonth = [];
 
         if (albums) {
             // iterate over the albums, putting them into the correct month
             albums.forEach((album) => {
-                const albumDate = new Date(album.date * 1000);
+                const albumPath = album.parentPath + album.itemName + '/';
+                const albumDate = albumPathToDate(albumPath);
                 const month: number = albumDate.getMonth();
                 if (!albumsByMonth[month]) {
                     albumsByMonth[month] = {
@@ -53,15 +55,21 @@
 
         return albumsByMonth.reverse();
     }
+
+    function getTitle(parentPath: string, itemName: string): string {
+        const albumPath = parentPath + itemName + '/';
+        const albumDate = albumPathToDate(albumPath);
+        return shortDate(albumDate);
+    }
 </script>
 
 {#each albumsByMonth(album.albums) as month (month.monthName)}
     <section class="month">
         <h3>{month.monthName}</h3>
         <Thumbnails>
-            {#each month.albums as childAlbum (childAlbum.path)}
+            {#each month.albums as childAlbum (childAlbum.itemName)}
                 <Thumbnail
-                    title={shortDate(childAlbum.date)}
+                    title={getTitle(childAlbum.parentPath, childAlbum.itemName)}
                     summary={childAlbum.customdata}
                     href={albumUrlCreator(`/${childAlbum.path}`)}
                     src={Config.cdnUrl(childAlbum.url_thumb)}

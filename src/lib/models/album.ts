@@ -2,6 +2,8 @@
  * A photo album
  */
 export interface Album {
+    parentPath: string;
+    itemName: string;
     /**
      * Path of the album, like '2001/12-31'
      */
@@ -11,7 +13,6 @@ export interface Album {
      * Title of the album, like 'December 31, 2001'
      */
     title?: string;
-    description?: string;
 
     /**
      * Short summary of the album, like 'Ski trip'
@@ -30,8 +31,6 @@ export interface Album {
      */
     url_thumb?: string;
     year?: number;
-    images?: Image[];
-    albums?: AlbumThumb[];
     next?: AlbumNavInfo;
     href?: string;
     nextAlbumHref?: string;
@@ -44,6 +43,8 @@ export interface Album {
     get date(): Date;
     get pageTitle(): string;
     get pageDescription(): string;
+    get images(): Image[];
+    get albums(): AlbumThumb[];
 
     getImage: (imagePath: string) => Image | undefined;
 }
@@ -60,6 +61,7 @@ export interface Image extends Thumbable {
  * Something that can be displayed as a thumbnail image
  */
 export interface Thumbable {
+    parentPath: string;
     itemName: string;
     itemType: string;
 
@@ -104,7 +106,8 @@ export interface AlbumThumb extends Thumbable {}
  * Just enough information to navigate to an Album
  */
 export interface AlbumNavInfo {
-    path?: string;
+    parentPath: string;
+    itemName: string;
     title?: string;
     date?: number;
 }

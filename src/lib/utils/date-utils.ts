@@ -2,10 +2,8 @@
 // date utilities
 //
 
-export function shortDate(seconds: number): string {
+export function shortDate(d: Date): string {
     const month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
-
-    const d = new Date(seconds * 1000);
     const curr_day = d.getDate();
     const curr_month = d.getMonth();
     return month_names[curr_month] + ' ' + curr_day;

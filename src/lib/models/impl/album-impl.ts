@@ -1,13 +1,20 @@
 import type { Album, Image, AlbumNavInfo, AlbumThumb } from '$lib/models/album';
 import { ImageImpl } from '$lib/models/impl/image-impl';
 import { shortDate } from '$lib/utils/date-utils';
-import { albumPathToDate, getParentFromPath, isValidAlbumPath } from '$lib/utils/galleryPathUtils';
+import {
+    albumPathToDate,
+    getParentAndNameFromPath,
+    getParentFromPath,
+    isValidAlbumPath,
+} from '$lib/utils/galleryPathUtils';
 import { processCaption } from '$lib/utils/legacyUrlHandler';
 
 /**
  * Album implementation
  */
 export class AlbumImpl implements Album {
+    parentPath: string;
+    itemName: string;
     path: string;
     updatedOn?: string;
     title?: string;
@@ -32,6 +39,9 @@ export class AlbumImpl implements Album {
     constructor(path: string) {
         if (!isValidAlbumPath(path)) throw new Error(`Invalid album path [${path}]`);
         this.path = path;
+        const pathParts = getParentAndNameFromPath(path);
+        this.parentPath = pathParts.parent;
+        this.itemName = pathParts.name ?? '';
     }
 
     get date(): Date {
