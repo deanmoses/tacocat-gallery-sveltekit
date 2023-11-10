@@ -84,7 +84,7 @@ export class AlbumImpl implements Album {
      * Blank if no next album
      */
     get nextAlbumHref(): string {
-        return this.next ? '/' + this.next.path : '';
+        return this.next?.path ? this.next.path.slice(0, -1) : '';
     }
 
     /**
@@ -100,7 +100,7 @@ export class AlbumImpl implements Album {
      * Blank if no previous album
      */
     get prevAlbumHref(): string {
-        return this.prev ? this.prev.path : '';
+        return this.prev ? this.prev.path.slice(0, -1) : '';
     }
 
     /**
