@@ -74,10 +74,10 @@ class DraftStore {
     }
 
     /**
-     * Set the desc of the current draft
+     * Set the description of the current draft
      */
-    setDesc(desc: string): void {
-        this.updateContent((content) => (content.desc = desc));
+    setDescription(description: string): void {
+        this.updateContent((content) => (content.description = description));
     }
 
     /**

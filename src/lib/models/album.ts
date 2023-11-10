@@ -19,25 +19,8 @@ export interface Album {
 
     /**
      * Album text / photo caption.
-     *
-     * Use this instead of the #desc property when
-     * displaying in the UI because this rewrites legacy
-     * URL formats.
-     *
-     * @see desc
      */
     description: string;
-
-    /**
-     * Unprocessed album text / photo caption.
-     *
-     * Don't display this in the UI; instead use the #description property.
-     *
-     * This exists because it's set directly from the JSON API.
-     *
-     * @see description
-     */
-    desc?: string;
 
     /**
      * True: album is NOT available to the public

@@ -36,10 +36,6 @@ export class AlbumImpl implements Album {
         return this.thumbnail?.path;
     }
 
-    get description(): string {
-        return processCaption(this.desc);
-    }
-
     /**
      * Friendly title of page
      * Blank if no title

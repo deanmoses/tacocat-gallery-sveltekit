@@ -12,6 +12,7 @@
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import Config from '$lib/utils/config';
     import type { Album } from '$lib/models/album';
+    import { processCaption } from '$lib/utils/legacyUrlHandler';
 
     export let year: string;
     export let album: Album;
@@ -34,7 +35,7 @@
 
     <svelte:fragment slot="caption">
         {#if album.description}
-            {@html album.description}
+            {@html processCaption(album.description)}
         {/if}
     </svelte:fragment>
 
