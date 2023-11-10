@@ -15,8 +15,13 @@
     import LatestAlbumThumbnail from '$lib/components/data-aware/LatestAlbumThumbnail.svelte';
     import type { Album } from '$lib/models/album';
     import Config from '$lib/utils/config';
+    import { albumPathToDate } from '$lib/utils/galleryPathUtils';
 
     export let album: Album;
+
+    function getTitle(albumPath: string): string {
+        return albumPathToDate(albumPath).getFullYear().toString();
+    }
 </script>
 
 <svelte:head>
@@ -36,9 +41,9 @@
                 {#if album.albums}
                     {#each album.albums as childAlbum (childAlbum.path)}
                         <Thumbnail
-                            title={childAlbum.title}
+                            title={getTitle(childAlbum.path)}
                             summary={childAlbum.customdata}
-                            href="/{childAlbum.path}"
+                            href={childAlbum.path}
                             src={Config.cdnUrl(childAlbum.url_thumb)}
                         />
                     {/each}
