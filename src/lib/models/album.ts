@@ -129,8 +129,7 @@ export interface AlbumThumb extends Thumbable {}
  * Just enough information to navigate to an Album
  */
 export interface AlbumNavInfo {
-    parentPath: string;
-    itemName: string;
+    path: string;
     title?: string;
     date?: number;
 }

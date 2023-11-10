@@ -56,8 +56,7 @@
         return albumsByMonth.reverse();
     }
 
-    function getTitle(parentPath: string, itemName: string): string {
-        const albumPath = parentPath + itemName + '/';
+    function getTitle(albumPath: string): string {
         const albumDate = albumPathToDate(albumPath);
         return shortDate(albumDate);
     }
@@ -69,7 +68,7 @@
         <Thumbnails>
             {#each month.albums as childAlbum (childAlbum.itemName)}
                 <Thumbnail
-                    title={getTitle(childAlbum.parentPath, childAlbum.itemName)}
+                    title={getTitle(childAlbum.path)}
                     summary={childAlbum.customdata}
                     href={albumUrlCreator(`${childAlbum.parentPath}${childAlbum.itemName}`)}
                     src={Config.cdnUrl(childAlbum.url_thumb)}

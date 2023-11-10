@@ -1,12 +1,6 @@
 import type { Album, Image, AlbumNavInfo, AlbumThumb } from '$lib/models/album';
 import { ImageImpl } from '$lib/models/impl/image-impl';
-import { shortDate } from '$lib/utils/date-utils';
-import {
-    albumPathToDate,
-    getParentAndNameFromPath,
-    getParentFromPath,
-    isValidAlbumPath,
-} from '$lib/utils/galleryPathUtils';
+import { getParentAndNameFromPath, isValidAlbumPath } from '$lib/utils/galleryPathUtils';
 import { processCaption } from '$lib/utils/legacyUrlHandler';
 
 /**
@@ -30,7 +24,7 @@ export class AlbumImpl implements Album {
     description?: string;
     image_size?: number;
     thumb_size?: number;
-    private itemType?: string;
+    itemType?: string;
     private thumbnail?: { path: string; fileUpdatedOn: string };
     private children?: AlbumThumb[] | Image[];
     next?: AlbumNavInfo;
@@ -42,10 +36,6 @@ export class AlbumImpl implements Album {
         const pathParts = getParentAndNameFromPath(path);
         this.parentPath = pathParts.parent;
         this.itemName = pathParts.name ?? '';
-    }
-
-    get date(): Date {
-        return albumPathToDate(this.path);
     }
 
     get url_thumb(): string | undefined {
@@ -67,16 +57,12 @@ export class AlbumImpl implements Album {
         return this.path;
     }
 
-    get thumbnailUrl(): string {
-        return 'TODO IMPLEMENT';
-    }
-
     /**
-     * Path of next album
-     * Blank if no next album
+     * URL to album thumbnail
+     * Blank if no thumbnail
      */
-    get nextAlbumPath(): string {
-        return this.next?.path ?? '';
+    get thumbnailUrl(): string {
+        return this.thumbnail?.path ?? '';
     }
 
     /**
@@ -85,14 +71,6 @@ export class AlbumImpl implements Album {
      */
     get nextAlbumHref(): string {
         return this.next?.path ? this.next.path.slice(0, -1) : '';
-    }
-
-    /**
-     * Path of previous album
-     * Blank if no previous album
-     */
-    get prevAlbumPath(): string {
-        return this.prev?.path ?? '';
     }
 
     /**

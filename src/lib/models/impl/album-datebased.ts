@@ -1,24 +1,35 @@
 import { AlbumImpl } from '$lib/models/impl/album-impl';
 import { shortDate } from '$lib/utils/date-utils';
+import { albumPathToDate } from '$lib/utils/galleryPathUtils';
 
 /**
  * Overrides the default album class with behavior specific to any album that shows titles based
  * on dates and not what the admin typed in.
  */
 export default class DateBasedAlbum extends AlbumImpl {
-    /**
-     * Title of next album
-     * Blank if no next album
-     */
-    get nextAlbumTitle(): string {
-        return this?.next?.date ? shortDate(this.next.date) : '';
+    get date(): Date {
+        return albumPathToDate(this.path);
     }
 
     /**
-     * Title of previous album
-     * Blank if no previous album
+     * Title of next album or blank if no next
+     */
+    get nextAlbumTitle(): string {
+        if (!!this?.next?.path) {
+            const d = albumPathToDate(this.next.path);
+            return shortDate(d);
+        }
+        return '';
+    }
+
+    /**
+     * Title of previous album or blank if no prev
      */
     get prevAlbumTitle(): string {
-        return this?.prev?.date ? shortDate(this.prev.date) : '';
+        if (!!this?.prev?.path) {
+            const d = albumPathToDate(this.prev.path);
+            return shortDate(d);
+        }
+        return '';
     }
 }
