@@ -22,7 +22,7 @@ export default abstract class Config {
     }
 
     /**
-     * Create URL to CDN-servable stuff.
+     * URL to CDN-servable stuff
      * @argument path Path to an image, such as /zenphoto/cache/2018/01-01/new_years_eve06_1024.jpg
      */
     public static cdnUrl(path: string): string {
@@ -30,7 +30,7 @@ export default abstract class Config {
     }
 
     /**
-     * URL of the JSON REST API from which to retrieve the album
+     * URL to retrieve albums
      */
     public static albumUrl(path: string): string {
         if (!isValidAlbumPath(path)) throw new Error(`Invalid album path [${path}]`);
@@ -38,14 +38,14 @@ export default abstract class Config {
     }
 
     /**
-     * URL of the JSON REST API to retrieve the latest album
+     * URL to retrieve latest album
      */
     public static latestAlbumUrl(): string {
-        return 'https://tacocat.com/zenphoto/?json&latest_albums&depth=0';
+        return 'https://v2kdsvx1hf.execute-api.us-east-1.amazonaws.com/Prod/latest-album/';
     }
 
     /**
-     * URL of the JSON REST API to check the user's authentication status
+     * URL to check user's authentication status
      */
     public static checkAuthenticationUrl(): string {
         return 'https://tacocat.com/zenphoto/?api&auth';
