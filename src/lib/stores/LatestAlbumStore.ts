@@ -93,18 +93,16 @@ class LatestAlbumThumbnailStore {
                 if (json.error) {
                     this.handleFetchError(json.error);
                 } else {
-                    console.log(`Latest album thumbnail fetched from server`);
+                    console.log(`Latest album thumbnail fetched from server`, json);
 
                     // TODO: better error handling if we don't get back expected response
-                    // This will happen for sure if the statistics plugin isn't enabled
-                    const jsonThumbnail = json.album.stats.album.latest[0];
-                    const thumbnail: AlbumThumb = jsonThumbnail as AlbumThumb;
+                    const thumbnail: AlbumThumb = json as AlbumThumb;
 
                     // Put thumbnail in Svelte store
                     this.setLatestAlbumThumbnail(thumbnail);
 
                     // Put thumbnail in browser's local disk cache
-                    this.writeToDisk(jsonThumbnail);
+                    this.writeToDisk(json);
                 }
             })
             .catch((error) => {
