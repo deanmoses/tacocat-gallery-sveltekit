@@ -1,33 +1,9 @@
-//
-// date utilities
-//
-
 export function shortDate(d: Date): string {
-    const month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
-    const curr_day = d.getDate();
-    const curr_month = d.getMonth();
-    return month_names[curr_month] + ' ' + curr_day;
+    return d.toLocaleString(undefined, { month: 'short', day: 'numeric' });
 }
 
 export function longDate(d: Date): string {
-    const month_names = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December',
-    ];
-    const curr_day = d.getDate();
-    const curr_month = d.getMonth();
-    const curr_year = d.getFullYear();
-    return month_names[curr_month] + ' ' + curr_day + ', ' + curr_year;
+    return d.toLocaleString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
 export function year(seconds: number): string {
