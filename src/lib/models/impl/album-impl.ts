@@ -99,7 +99,9 @@ export class AlbumImpl implements Album {
 
     get images(): Image[] {
         if (!this.children) return [];
-        return this.children.filter((child) => child?.itemType == 'image');
+        return this.children
+            .filter((child) => child?.itemType == 'image')
+            .map((i) => Object.assign(new ImageImpl(this), i));
     }
 
     get albums(): AlbumThumb[] {

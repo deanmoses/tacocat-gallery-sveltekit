@@ -107,6 +107,10 @@ export interface Thumbable {
      */
     get pageDescription(): string;
 
+    get href(): string;
+
+    get thumbnailUrl(): string;
+
     url_full: string;
     url_sized: string;
     url_thumb: string;

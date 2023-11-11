@@ -10,7 +10,6 @@
     import UpButton from '$lib/components/site/nav/UpButton.svelte';
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
-    import Config from '$lib/utils/config';
     import type { Album } from '$lib/models/album';
 
     export let year: string;
@@ -40,10 +39,10 @@
         {#if album.images}
             {#each album.images as image (image.itemName)}
                 <Thumbnail
-                    title={image.title}
+                    title={image.pageTitle}
                     summary={image.customdata}
-                    href={image.path}
-                    src={Config.cdnUrl(image.url_thumb)}
+                    href={image.href}
+                    src={image.thumbnailUrl}
                 />
             {/each}
         {/if}

@@ -23,7 +23,7 @@
     </svelte:fragment>
 
     <svelte:fragment slot="title">
-        {image.title}
+        {image.pageTitle}
     </svelte:fragment>
 
     <svelte:fragment slot="caption">

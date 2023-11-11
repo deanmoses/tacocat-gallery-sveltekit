@@ -62,7 +62,7 @@
                         title={image.title}
                         summary={image.customdata}
                         href={editUrl(`/${image.path}`)}
-                        src={Config.cdnUrl(image.url_thumb)}
+                        src={image.thumbnailUrl}
                     >
                         <svelte:fragment slot="selectionControls">
                             <SelectableStar
@@ -74,11 +74,7 @@
                     </Thumbnail>
                 {:else}
                     <div title="💾 Save changes before navigating">
-                        <Thumbnail
-                            title={image.title}
-                            summary={image.customdata}
-                            src={Config.cdnUrl(image.url_thumb)}
-                        />
+                        <Thumbnail title={image.title} summary={image.customdata} src={image.thumbnailUrl} />
                     </div>
                 {/if}
             {/each}

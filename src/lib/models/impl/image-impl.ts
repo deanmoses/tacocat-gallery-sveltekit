@@ -24,11 +24,20 @@ export class ImageImpl implements Image {
     }
 
     get pageTitle(): string {
-        return this.title ?? '';
+        return this.title ?? this.itemName;
     }
 
     get pageDescription(): string {
         return processCaption(this.description);
+    }
+
+    get thumbnailUrl(): string {
+        // TODO: implement
+        return 'https://cdn.tacocat.com/zenphoto/cache/2023/10-29/halloween_party32_200_w200_h200_cw200_ch200_thumb.jpg?cached=1698637062';
+    }
+
+    get href(): string {
+        return this.path;
     }
 
     /**
