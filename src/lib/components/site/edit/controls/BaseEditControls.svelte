@@ -14,20 +14,24 @@
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
     import { unEditUrl } from '$lib/utils/path-utils';
+    import { isValidImagePath } from '$lib/utils/galleryPathUtils';
 
     const status = draftStore.getStatus();
 
-    let path: string;
-    $: path = unEditUrl($page.url.pathname) + '/'; // TODO the trailing slash won't work for images
+    let path: string | undefined = unEditUrl($page.url.pathname);
+    $: path = unEditUrl($page.url.pathname);
 
     let hasUnsavedChanges: boolean;
     $: hasUnsavedChanges = $status == DraftStatus.UNSAVED_CHANGES;
 
     // Cancel the draft when any navigation happens
-    $: draftStore.init(path);
+    if (path === undefined) throw new Error(`path is undefined`);
+    const backEndPath = isValidImagePath(path) ? path : path + '/';
+    $: draftStore.init(backEndPath);
 
     function onCancelButtonClick() {
         draftStore.cancel();
+        if (path === undefined) throw new Error(`path is undefined`);
         goto(path);
     }
 
