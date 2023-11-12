@@ -60,7 +60,7 @@
                     <Thumbnail
                         title={image.title}
                         summary={image.summary}
-                        href={editUrl(`/${image.path}`)}
+                        href={editUrl(`${image.path}`)}
                         src={image.thumbnailUrl}
                     >
                         <svelte:fragment slot="selectionControls">
