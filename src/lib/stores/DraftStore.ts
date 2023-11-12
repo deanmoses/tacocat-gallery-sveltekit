@@ -50,7 +50,7 @@ class DraftStore {
     /**
      * @returns the status of the draft
      */
-    getStatus(): Readable<DraftStatus> {
+    getStatus(): Readable<DraftStatus | undefined> {
         return derived(this._draft, ($draft) => {
             return $draft.status;
         });
