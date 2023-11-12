@@ -1,4 +1,5 @@
-import { type AlbumThumb, AlbumUpdateStatus } from '$lib/models/album';
+import { AlbumUpdateStatus } from '$lib/models/album';
+import type { AlbumGalleryItem } from '$lib/models/server';
 import { type AlbumEntry, albumStore } from '$lib/stores/AlbumStore';
 import Config from '$lib/utils/config';
 import { getParentFromPath } from '$lib/utils/galleryPathUtils';
@@ -122,14 +123,15 @@ function errorAction(error: Error, albumPath: string, thumbnailLeafPath: string)
  */
 function updateThumbOnAlbum(thumbnailUrl: string, albumPath: string): string {
     // Get album from store
-    const albumEntry: AlbumEntry = albumStore.getFromInMemory(albumPath);
+    const albumEntry: AlbumEntry | null = albumStore.getFromInMemory(albumPath);
     if (!albumEntry) throw new Error(`Did not find album entry [${albumPath}] in memory`);
     if (!albumEntry.album)
         throw new Error(`Did not find album [${albumPath}] in memory: entry exists but it has no album`);
 
     // Make a copy of the album entry.  Apply changes to the copy
     const updatedAlbumEntry = produce(albumEntry, (albumEntryCopy) => {
-        albumEntryCopy.album.url_thumb = thumbnailUrl;
+        if (albumEntryCopy.album === undefined) throw new Error('albumEntryCopy.album undefined');
+        albumEntryCopy.album.thumbnailUrl = thumbnailUrl;
     });
 
     // Update album in store
@@ -146,7 +148,7 @@ function updateThumbOnAlbum(thumbnailUrl: string, albumPath: string): string {
 function updateThumbOnParentAlbum(thumbnailUrl: string, albumPath: string): void {
     // Get parent album from store
     const parentAlbumPath = getParentFromPath(albumPath);
-    const albumEntry: AlbumEntry = albumStore.getFromInMemory(albumPath);
+    const albumEntry: AlbumEntry | null = albumStore.getFromInMemory(albumPath);
 
     // Don't bother updating parent if it hasn't been downloaded
     // TODO: we do still need to update the version in IndexedDB, right?
@@ -158,9 +160,11 @@ function updateThumbOnParentAlbum(thumbnailUrl: string, albumPath: string): void
     // Make a copy of the album entry.  Apply changes to the copy
     const updatedAlbumEntry = produce(albumEntry, (albumEntryCopy) => {
         // find album on parent
-        const thumbOnParent: AlbumThumb = albumEntryCopy.album.albums.find((childThumb: AlbumThumb) => {
-            return childThumb.path === albumPath;
-        });
+        const thumbOnParent: AlbumGalleryItem | undefined = albumEntryCopy.album?.albums.find(
+            (childThumb: AlbumGalleryItem) => {
+                return childThumb.path === albumPath;
+            },
+        );
         // Did I find album within parent album?
         // Never expect this to happen, just defensive programming
         if (!thumbOnParent) {
@@ -168,7 +172,10 @@ function updateThumbOnParentAlbum(thumbnailUrl: string, albumPath: string): void
         }
 
         // Found it.  Set thumb
-        thumbOnParent.url_thumb = thumbnailUrl;
+        thumbOnParent.thumbnail = {
+            path: thumbnailUrl,
+            fileUpdatedOn: new Date().toISOString(), // TODO: I should not be setting a random date here to get the file to compile without warnings
+        };
     });
 
     // Update album in store
