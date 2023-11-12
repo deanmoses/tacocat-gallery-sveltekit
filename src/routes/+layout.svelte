@@ -6,8 +6,8 @@
     import { handleKeyboardNavigation } from '$lib/utils/keyboard-navigation';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
-    import type { Album } from '$lib/models/album';
     import { albumStore } from '$lib/stores/AlbumStore';
+    import type { Album } from '$lib/models/impl/GalleryItemInterfaces';
 
     /**
      * Handle keyboard navigation

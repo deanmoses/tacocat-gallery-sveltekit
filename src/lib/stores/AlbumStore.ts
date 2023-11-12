@@ -6,8 +6,7 @@ import { writable, type Writable, derived, type Readable, get } from 'svelte/sto
 import { get as getFromIdb, set as setToIdb } from 'idb-keyval';
 import { produce } from 'immer';
 import Config from '$lib/utils/config';
-import { AlbumType } from '$lib/models/album';
-import { AlbumLoadStatus, AlbumUpdateStatus } from '$lib/models/album';
+import { AlbumType, AlbumLoadStatus, AlbumUpdateStatus } from '$lib/models/album';
 import toAlbum from '$lib/models/impl/album-creator';
 import { getAlbumType } from '$lib/utils/path-utils';
 import { isValidAlbumPath } from '$lib/utils/galleryPathUtils';

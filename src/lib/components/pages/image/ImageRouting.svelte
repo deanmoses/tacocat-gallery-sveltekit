@@ -4,10 +4,11 @@
   Flip through different album loading statuses of a photo
 -->
 <script lang="ts">
-    import { AlbumLoadStatus, type Image } from '$lib/models/album';
+    import { AlbumLoadStatus } from '$lib/models/album';
     import ImageLoadingPage from '$lib/components/pages/image/ImageLoadingPage.svelte';
     import AlbumErrorPage from '../album/AlbumErrorPage.svelte';
     import HomeIcon from '$lib/components/site/icons/HomeIcon.svelte';
+    import type { Image } from '$lib/models/impl/GalleryItemInterfaces';
 
     export let year: string;
     export let image: Image | undefined;

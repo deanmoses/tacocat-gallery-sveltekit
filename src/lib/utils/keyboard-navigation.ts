@@ -1,4 +1,4 @@
-import type { Album } from '$lib/models/album';
+import type { Album } from '$lib/models/impl/GalleryItemInterfaces';
 import { isImagePath, isAlbumPath, getParentFromPath } from '$lib/utils/path-utils';
 
 /**
@@ -18,11 +18,8 @@ export function handleKeyboardNavigation(
     path: string,
     getAlbum: GetAlbumFunction,
 ): string | null {
-    // remove / at root
-    const currentPath = path.replace(/^\//, '');
-
     // get URL to navigate to
-    let newPath = getUrlToNavigateTo(key, currentPath, getAlbum);
+    let newPath = getUrlToNavigateTo(key, path, getAlbum);
 
     // make sure there's a / at root
     if (newPath != null && !newPath.startsWith('/')) {
