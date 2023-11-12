@@ -8,7 +8,7 @@
     import RootAlbumPage from '$lib/components/pages/album/root/RootAlbumPage.svelte';
     import AlbumErrorPage from '$lib/components/pages/album/AlbumErrorPage.svelte';
     import { AlbumLoadStatus } from '$lib/models/album';
-    import type { Album } from '$lib/models/album';
+    import type { Album } from '$lib/models/impl/GalleryItemInterfaces';
 
     export let status: AlbumLoadStatus;
     export let album: Album;

@@ -1,4 +1,4 @@
-import type { AlbumThumb, Thumbable } from './album';
+import type { GalleryItem } from './server';
 
 /**
  * An in-progress search
@@ -12,8 +12,8 @@ export type Search = {
  * Search results
  */
 export type SearchResults = {
-    albums?: AlbumThumb[];
-    images?: Thumbable[];
+    albums?: GalleryItem[];
+    images?: GalleryItem[];
     thumb_size?: number;
 };
 
