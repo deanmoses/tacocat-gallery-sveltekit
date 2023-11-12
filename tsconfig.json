@@ -10,7 +10,8 @@
         "sourceMap": true,
         "strict": true,
         "noUnusedLocals": true,
-        "noUnusedParameters": true
+        "noUnusedParameters": true,
+        "noImplicitOverride": true
     }
     // Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
     //
