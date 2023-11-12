@@ -5,13 +5,13 @@
 -->
 
 <script lang="ts">
-	import { DraftStatus } from "$lib/models/draft";
+    import { DraftStatus } from '$lib/models/draft';
 
-	export let status: DraftStatus;
+    export let status: DraftStatus | undefined;
 </script>
 
 {#if status === DraftStatus.SAVING}
-	🔄 saving...
+    🔄 saving...
 {:else if status === DraftStatus.SAVED}
-	✅ saved
+    ✅ saved
 {/if}
