@@ -82,6 +82,8 @@ export function editUrl(path: string | undefined): string | undefined {
 }
 
 /**
+ * Generate the non-Edit Mode URL from the Edit Mode URL
+ *
  * @param path path in edit mode, like /edit/2001/12-31
  * @returns the non-edit version of the URL, like /2001/12-31
  */

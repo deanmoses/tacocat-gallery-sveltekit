@@ -39,7 +39,7 @@ class DraftStore {
      * @param path the URL path, TODO make this an image / album path
      */
     init(path: string): void {
-        console.log('Init draft: ', path);
+        console.log(`Init draft [${path}]`);
         if (!isValidPath(path)) throw new Error(`Invalid path [${path}]`);
         const state = produce(initialState, (newState) => {
             newState.path = path;
