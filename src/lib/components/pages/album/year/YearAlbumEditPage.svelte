@@ -13,7 +13,7 @@
     import EditableHtml from '$lib/components/site/edit/EditableHtml.svelte';
     import { editUrl } from '$lib/utils/path-utils';
     import DraftStore from '$lib/stores/DraftStore';
-    import type { Album } from '$lib/models/album';
+    import type { Album } from '$lib/models/impl/GalleryItemInterfaces';
 
     export let album: Album;
     export let year: string;
@@ -23,13 +23,13 @@
 
 <YearAlbumPageLayout {year}>
     <svelte:fragment slot="editControls">
-        <AlbumEditControls unpublished={album.unpublished} />
+        <AlbumEditControls published={album.published} />
     </svelte:fragment>
 
     <svelte:fragment slot="nav">
-        <PrevButton href={$okToNavigate ? editUrl(album.nextAlbumHref) : undefined} title={album.nextAlbumTitle} />
+        <PrevButton href={$okToNavigate ? editUrl(album.nextHref) : undefined} title={album.nextTitle} />
         <UpButton href={$okToNavigate ? '../' : undefined} title="All Years" />
-        <NextButton href={$okToNavigate ? editUrl(album.prevAlbumHref) : undefined} title={album.prevAlbumTitle} />
+        <NextButton href={$okToNavigate ? editUrl(album.prevHref) : undefined} title={album.prevTitle} />
     </svelte:fragment>
 
     <svelte:fragment slot="caption">

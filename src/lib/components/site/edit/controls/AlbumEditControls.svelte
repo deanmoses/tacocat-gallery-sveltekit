@@ -11,12 +11,11 @@
     export let showPublished: boolean = false;
 
     /** Whether album is published or not */
-    export let unpublished: boolean = false;
+    export let published: boolean = false;
 
     /** Show the summary field.  Should only be shown on day albums, not year albums */
     export let showSummary: boolean = false;
 
-    /** Aka Album.customdata */
     export let summary: string = '';
 
     function onSummaryChange(event: Event & { currentTarget: EventTarget & HTMLInputElement }) {
@@ -37,7 +36,7 @@
         {/if}
         {#if showPublished}
             <div>
-                <input type="checkbox" checked={!unpublished} on:change={onPublishedChange} /> published
+                <input type="checkbox" checked={published} on:change={onPublishedChange} /> published
             </div>
         {/if}
     </svelte:fragment>
