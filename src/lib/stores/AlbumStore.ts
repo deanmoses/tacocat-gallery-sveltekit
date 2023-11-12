@@ -6,11 +6,12 @@ import { writable, type Writable, derived, type Readable, get } from 'svelte/sto
 import { get as getFromIdb, set as setToIdb } from 'idb-keyval';
 import { produce } from 'immer';
 import Config from '$lib/utils/config';
-import { type Album, AlbumType } from '$lib/models/album';
+import { AlbumType } from '$lib/models/album';
 import { AlbumLoadStatus, AlbumUpdateStatus } from '$lib/models/album';
-import createAlbumFromObject from '$lib/models/impl/album-creator';
+import toAlbum from '$lib/models/impl/album-creator';
 import { getAlbumType } from '$lib/utils/path-utils';
 import { isValidAlbumPath } from '$lib/utils/galleryPathUtils';
+import type { Album } from '$lib/models/impl/GalleryItemInterfaces';
 
 export type AlbumEntry = {
     loadStatus: AlbumLoadStatus;
@@ -118,7 +119,7 @@ class AlbumStore {
 
         albumEntry.update((draftAlbumEntry) => {
             if (!draftAlbumEntry.album) throw new Error(`Draft [${albumPath}] does not have an album`);
-            draftAlbumEntry.album.url_thumb = thumbnailUrl;
+            draftAlbumEntry.album.thumbnailUrl = thumbnailUrl;
             return draftAlbumEntry;
         });
     }
@@ -242,7 +243,7 @@ class AlbumStore {
      * @param jsonAlbum JSON of the album
      */
     private setAlbum(path: string, jsonAlbum: JSON): void {
-        const album = createAlbumFromObject(jsonAlbum);
+        const album = toAlbum(jsonAlbum);
         const albumEntry = this.getOrCreateWritableStore(path);
         const newState = produce(get(albumEntry), (draftState: AlbumEntry) => {
             draftState.loadStatus = AlbumLoadStatus.LOADED;

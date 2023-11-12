@@ -5,9 +5,8 @@
 -->
 
 <script lang="ts">
-    import type { Image } from '$lib/models/album';
+    import type { Image } from '$lib/models/impl/GalleryItemInterfaces';
     import Config from '$lib/utils/config';
-
     export let image: Image;
 </script>
 
@@ -16,7 +15,7 @@
 	image fast enough: you'd briefly see the old image with the new text.  
 	Wrapping the image in a #key block seems to make this problem go away.
 -->
-{#key image.url_sized}
+{#key image.path}
     <a href={Config.fullSizeImageUrl(image.path)} target="zen">
         <img
             src={Config.cdnUrl(image.url_sized)}

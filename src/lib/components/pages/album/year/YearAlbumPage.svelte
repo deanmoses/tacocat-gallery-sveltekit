@@ -10,7 +10,7 @@
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
     import YearAlbumThumbnails from './YearAlbumThumbnails.svelte';
     import EditToggle from '$lib/components/site/edit/toggle/EditToggle.svelte';
-    import type { Album } from '$lib/models/album';
+    import type { Album } from '$lib/models/impl/GalleryItemInterfaces';
 
     export let album: Album;
     export let year: string;
@@ -22,13 +22,13 @@
     </svelte:fragment>
 
     <svelte:fragment slot="nav">
-        <PrevButton href={album.nextAlbumHref} title={album.nextAlbumTitle} />
+        <PrevButton href={album.nextHref} title={album.nextTitle} />
         <UpButton href="../" title="All Years" />
-        <NextButton href={album.prevAlbumHref} title={album.prevAlbumTitle} />
+        <NextButton href={album.prevHref} title={album.prevTitle} />
     </svelte:fragment>
 
     <svelte:fragment slot="caption">
-        {@html album.pageDescription}
+        {@html album.description}
     </svelte:fragment>
 
     <svelte:fragment slot="thumbnails">

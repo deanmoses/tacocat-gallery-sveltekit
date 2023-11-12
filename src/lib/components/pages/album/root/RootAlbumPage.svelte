@@ -13,9 +13,9 @@
     import Thumbnails from '$lib/components/site/Thumbnails.svelte';
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import LatestAlbumThumbnail from '$lib/components/data-aware/LatestAlbumThumbnail.svelte';
-    import type { Album } from '$lib/models/album';
     import Config from '$lib/utils/config';
     import { albumPathToDate } from '$lib/utils/galleryPathUtils';
+    import type { Album } from '$lib/models/impl/GalleryItemInterfaces';
 
     export let album: Album;
 
@@ -42,9 +42,9 @@
                     {#each album.albums as childAlbum (childAlbum.path)}
                         <Thumbnail
                             title={getTitle(childAlbum.path)}
-                            summary={childAlbum.customdata}
+                            summary={childAlbum.summary}
                             href={childAlbum.path}
-                            src={Config.cdnUrl(childAlbum.url_thumb)}
+                            src="TODO"
                         />
                     {/each}
                 {/if}

@@ -10,40 +10,35 @@
     import UpButton from '$lib/components/site/nav/UpButton.svelte';
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
-    import type { Album } from '$lib/models/album';
+    import type { Album } from '$lib/models/impl/GalleryItemInterfaces';
 
     export let year: string;
     export let album: Album;
 </script>
 
-<DayAlbumPageLayout {year} title={album.pageTitle}>
+<DayAlbumPageLayout {year} title={album.title}>
     <svelte:fragment slot="editControls">
         <EditToggle />
     </svelte:fragment>
 
     <svelte:fragment slot="title">
-        {album.pageTitle}
+        {album.title}
     </svelte:fragment>
 
     <svelte:fragment slot="nav">
-        <PrevButton href={album.nextAlbumHref} title={album.nextAlbumTitle} />
-        <UpButton href={album.parentAlbumHref} title={album.parentAlbumTitle} />
-        <NextButton href={album.prevAlbumHref} title={album.prevAlbumTitle} />
+        <PrevButton href={album.nextHref} title={album.nextTitle} />
+        <UpButton href={album.parentHref} title={album.parentTitle} />
+        <NextButton href={album.prevHref} title={album.prevTitle} />
     </svelte:fragment>
 
     <svelte:fragment slot="caption">
-        {@html album.pageDescription}
+        {@html album.description}
     </svelte:fragment>
 
     <svelte:fragment slot="thumbnails">
         {#if album.images}
-            {#each album.images as image (image.itemName)}
-                <Thumbnail
-                    title={image.pageTitle}
-                    summary={image.customdata}
-                    href={image.href}
-                    src={image.thumbnailUrl}
-                />
+            {#each album.images as image (image.path)}
+                <Thumbnail title={image.title} summary={image.summary} href={image.href} src={image.thumbnailUrl} />
             {/each}
         {/if}
     </svelte:fragment>

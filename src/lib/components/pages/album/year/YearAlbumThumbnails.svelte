@@ -1,15 +1,13 @@
 <!--
-  @component
-
-  A year album's thumbnails by month
+  @component  A year album's thumbnails by month
 -->
 <script lang="ts">
     import Thumbnails from '$lib/components/site/Thumbnails.svelte';
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import { shortDate } from '$lib/utils/date-utils';
-    import type { Album, AlbumThumb } from '$lib/models/album';
-    import Config from '$lib/utils/config';
     import { albumPathToDate } from '$lib/utils/galleryPathUtils';
+    import type { Album } from '$lib/models/impl/GalleryItemInterfaces';
+    import type { AlbumGalleryItem } from '$lib/models/server';
 
     export let album: Album;
 
@@ -24,13 +22,13 @@
 
     type AlbumsByMonth = Array<{
         monthName: string;
-        albums: AlbumThumb[];
+        albums: AlbumGalleryItem[];
     }>;
 
     /**
      * Group the albums by month
      */
-    function albumsByMonth(albums: AlbumThumb[]): AlbumsByMonth {
+    function albumsByMonth(albums: AlbumGalleryItem[]): AlbumsByMonth {
         // array to return
         let albumsByMonth: AlbumsByMonth = [];
 
@@ -69,9 +67,9 @@
             {#each month.albums as childAlbum (childAlbum.itemName)}
                 <Thumbnail
                     title={getTitle(childAlbum.path)}
-                    summary={childAlbum.customdata}
+                    summary={childAlbum.summary}
                     href={albumUrlCreator(`${childAlbum.parentPath}${childAlbum.itemName}`)}
-                    src={Config.cdnUrl(childAlbum.url_thumb)}
+                    src="TODO"
                 />
             {/each}
         </Thumbnails>
