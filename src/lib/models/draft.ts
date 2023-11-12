@@ -23,7 +23,7 @@ export enum DraftStatus {
  */
 export type DraftContent = {
     title?: string;
-    desc?: string;
-    unpublished?: boolean;
-    customdata?: string;
+    description?: string;
+    published?: boolean;
+    summary?: string;
 };

@@ -8,11 +8,12 @@ import { DraftStatus } from '$lib/models/draft';
 import { produce } from 'immer';
 import { getAlbumType, isAlbumPath, isImagePath } from '$lib/utils/path-utils';
 import Config from '$lib/utils/config';
-import { AlbumType, type Image } from '$lib/models/album';
 import { type AlbumEntry, albumStore } from './AlbumStore';
 import { dev } from '$app/environment';
 import { updateAlbumServerCache } from './AlbumServerCache';
 import { getParentFromPath, isValidPath } from '$lib/utils/galleryPathUtils';
+import { AlbumType } from '$lib/models/album';
+import type { Image } from '$lib/models/impl/GalleryItemInterfaces';
 
 const initialState: Draft = {
     status: DraftStatus.NO_CHANGES,
@@ -83,15 +84,15 @@ class DraftStore {
     /**
      * Set the album summary of the current draft
      */
-    setCustomData(customdata: string): void {
-        this.updateContent((content) => (content.customdata = customdata));
+    setCustomData(summary: string): void {
+        this.updateContent((content) => (content.summary = summary));
     }
 
     /**
      * Set the published status of the current draft
      */
     setPublished(published: boolean): void {
-        this.updateContent((content) => (content.unpublished = !published));
+        this.updateContent((content) => (content.published = published));
     }
 
     /**
@@ -211,7 +212,9 @@ class DraftStore {
         }
         if (response.status !== 200) {
             throw Error(`Expected response to be 200.  Instead got ${response.status}: ${response.statusText}`);
-        } else if (!response.headers.get('content-type').startsWith('application/json')) {
+        }
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.startsWith('application/json')) {
             throw Error(
                 `Expected response to be in JSON.  Instead got ${response.headers.get('content-type')}. ${
                     response.statusText
@@ -248,21 +251,19 @@ class DraftStore {
             // Get the album in which the image resides
             const albumPath = getParentFromPath(path);
             console.log(`Image save: parent album: [${albumPath}]`);
-            const albumEntry: AlbumEntry = albumStore.getFromInMemory(albumPath);
-
+            const albumEntry: AlbumEntry | null = albumStore.getFromInMemory(albumPath);
             if (!albumEntry) throw new Error(`Did not find album entry [${albumPath}] in memory`);
             if (!albumEntry.album)
                 throw new Error(`Did not find album [${albumPath}] in memory: entry exists but it has no album`);
 
             // Make a copy of the album entry.  Apply changes to the copy
             const updatedAlbumEntry = produce(albumEntry, (albumEntryCopy) => {
-                // Get the image
-                const image: Image = albumEntryCopy.album.images.find((image: Image) => image.path === path);
-
+                if (albumEntryCopy === undefined) throw new Error('albumEntryCopy is undefined');
+                const image: Image | undefined = albumEntryCopy.album?.images.find(
+                    (image: Image) => image.path === path,
+                );
                 if (!image) throw new Error(`Did not find image [${path}] in album [${albumPath}]`);
-
-                // Apply contents of draft to image
-                Object.assign(image, draft.content);
+                Object.assign(image, draft.content); // Apply contents of draft to image
             });
 
             // Update album in store
@@ -272,16 +273,14 @@ class DraftStore {
         }
         // Else it was an album that was saved...
         else {
-            const albumEntry: AlbumEntry = albumStore.getFromInMemory(path);
-
+            const albumEntry: AlbumEntry | null = albumStore.getFromInMemory(path);
             if (!albumEntry) throw new Error(`Did not find album entry [${path}] in memory`);
             if (!albumEntry.album)
                 throw new Error(`Did not find album [${path}] in memory: entry exists but it has no album`);
 
             // Make a copy of the album entry.  Apply changes to the copy
             const updatedAlbumEntry = produce(albumEntry, (albumEntryCopy) => {
-                // Apply contents of draft to the album
-                Object.assign(albumEntryCopy.album, draft.content);
+                Object.assign(albumEntryCopy.album, draft.content); // Apply contents of draft to the album
             });
 
             // Update album in store
@@ -327,7 +326,7 @@ class DraftStore {
     /**
      * There was an error saving the draft
      */
-    private handleSaveError(e) {
+    private handleSaveError(e: unknown) {
         console.error('Error saving draft: ', e);
         this.setStatus(DraftStatus.ERRORED);
     }
@@ -348,6 +347,7 @@ class DraftStore {
     private updateContent(applyChangesToDraftContent: (draftContent: DraftContent) => void): void {
         const newState: Draft = produce(get(this._draft), (originalState) => {
             originalState.status = DraftStatus.UNSAVED_CHANGES;
+            if (originalState.content === undefined) throw 'originalState.content is undefined';
             applyChangesToDraftContent(originalState.content);
         });
         console.log('Update draft: ', newState.content);
