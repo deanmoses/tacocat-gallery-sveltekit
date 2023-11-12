@@ -32,10 +32,6 @@ export abstract class BaseGalleryItemImpl {
         return !!this.json.summary ? this.json.summary : '';
     }
 
-    get href(): string {
-        return this.path;
-    }
-
     get parentAlbumHref(): string {
         return this.json.parentPath;
     }

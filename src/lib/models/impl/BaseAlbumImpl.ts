@@ -25,24 +25,28 @@ export abstract class BaseAlbumImpl extends BaseGalleryItemImpl implements Album
         return albumPathToDate(this.path);
     }
 
+    get href(): string {
+        return this.path.slice(0, -1); // slice off trailing slash
+    }
+
+    get parentHref(): string {
+        return this.json.parentPath.slice(0, -1); // slice off trailing slash
+    }
+
+    get nextHref(): string | undefined {
+        return this?.next?.slice(0, -1); // slice off trailing slash
+    }
+
+    get prevHref(): string | undefined {
+        return this?.prev?.slice(0, -1); // slice off trailing slash
+    }
+
     protected get next(): string | undefined {
         return this.json?.next?.path;
     }
 
     protected get prev(): string | undefined {
         return this.json?.prev?.path;
-    }
-
-    get parentHref(): string {
-        return this.json.parentPath;
-    }
-
-    get nextHref(): string | undefined {
-        return this?.next?.slice(0, -1);
-    }
-
-    get prevHref(): string | undefined {
-        return this?.prev?.slice(0, -1);
     }
 
     get thumbnailUrl(): string | undefined {
