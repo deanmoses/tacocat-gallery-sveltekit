@@ -67,7 +67,7 @@
                     title={getTitle(childAlbum.path)}
                     summary={childAlbum.summary}
                     href={albumUrlCreator(childAlbum.path)}
-                    src="TODO"
+                    src={childAlbum.thumbnailUrl}
                 />
             {/each}
         </Thumbnails>

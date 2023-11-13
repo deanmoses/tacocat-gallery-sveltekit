@@ -3,16 +3,16 @@ import type { GalleryItemType, GalleryRecord } from '../server';
 import type { BaseGalleryItem } from './GalleryItemInterfaces';
 
 export abstract class BaseGalleryItemImpl implements BaseGalleryItem {
-    protected json: GalleryRecord;
+    protected readonly json: GalleryRecord;
 
     constructor(json: GalleryRecord) {
         this.json = json;
     }
 
     abstract get title(): string;
-    abstract get parentTitle(): string;
     abstract get href(): string;
     abstract get thumbnailUrl(): string | undefined;
+    abstract get parentTitle(): string;
     abstract get prevTitle(): string | undefined;
     abstract get nextTitle(): string | undefined;
     abstract get prevHref(): string | undefined;
@@ -46,7 +46,7 @@ export abstract class BaseGalleryItemImpl implements BaseGalleryItem {
         return !!this.json.summary ? this.json.summary : '';
     }
 
-    get parentAlbumHref(): string {
+    get parentHref(): string {
         return this.json.parentPath;
     }
 }

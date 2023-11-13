@@ -44,7 +44,7 @@
                             title={getTitle(childAlbum.path)}
                             summary={childAlbum.summary}
                             href={childAlbum.path}
-                            src="TODO"
+                            src={childAlbum.thumbnailUrl}
                         />
                     {/each}
                 {/if}

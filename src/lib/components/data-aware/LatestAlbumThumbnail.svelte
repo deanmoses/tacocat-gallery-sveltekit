@@ -9,7 +9,6 @@
     import type { AlbumThumb } from '$lib/models/album';
     import { AlbumLoadStatus } from '$lib/models/album';
     import { latestAlbumThumbnailEntry } from '$lib/stores/LatestAlbumStore';
-    import Config from '$lib/utils/config';
     import { shortDate } from '$lib/utils/date-utils';
     import { albumPathToDate } from '$lib/utils/galleryPathUtils';
 
@@ -32,8 +31,8 @@
         <Thumbnail
             title={shortDate(albumPathToDate(thumb.path))}
             summary={thumb.customdata}
-            href="/{thumb.path}"
-            src={Config.cdnUrl(thumb.url_thumb)}
+            href={thumb.path}
+            src={thumb.thumbnailUrl}
         />
     </aside>
 {:else}

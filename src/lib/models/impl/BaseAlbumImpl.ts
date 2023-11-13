@@ -6,7 +6,7 @@ import { ImageImpl } from './ImageImpl';
 import toAlbum from './album-creator';
 
 export abstract class BaseAlbumImpl extends BaseGalleryItemImpl implements Album {
-    protected override json: AlbumGalleryItem;
+    protected override readonly json: AlbumGalleryItem;
 
     constructor(json: AlbumGalleryItem) {
         super(json);
@@ -17,6 +17,14 @@ export abstract class BaseAlbumImpl extends BaseGalleryItemImpl implements Album
         return this.json.published ?? false;
     }
 
+    set published(published: boolean) {
+        this.json.published = published;
+    }
+
+    override set summary(summary: string) {
+        this.json.summary = summary;
+    }
+
     protected get date(): Date {
         return albumPathToDate(this.path);
     }
@@ -25,7 +33,7 @@ export abstract class BaseAlbumImpl extends BaseGalleryItemImpl implements Album
         return this.path.slice(0, -1); // slice off trailing slash
     }
 
-    get parentHref(): string {
+    override get parentHref(): string {
         return this.json.parentPath.slice(0, -1); // slice off trailing slash
     }
 
@@ -47,12 +55,15 @@ export abstract class BaseAlbumImpl extends BaseGalleryItemImpl implements Album
 
     get thumbnailUrl(): string | undefined {
         console.log('TODO IMPLEMENT FOR REAL');
-        return this.json?.thumbnail?.path;
-        //return 'https://cdn.tacocat.com/zenphoto/cache/2023/10-29/halloween_party32_200_w200_h200_cw200_ch200_thumb.jpg?cached=1698637062';
+        return 'https://cdn.tacocat.com/zenphoto/cache/2023/10-29/halloween_party32_200_w200_h200_cw200_ch200_thumb.jpg?cached=1698637062';
     }
 
     set thumbnailUrl(thumbnailUrl: string) {
-        console.log(`TODO IMPLEMENT ${thumbnailUrl}`);
+        console.log(`TODO IMPLEMENT FOR REAL ${thumbnailUrl}`);
+        this.json.thumbnail = {
+            path: thumbnailUrl,
+            fileUpdatedOn: new Date().toISOString(),
+        };
     }
 
     get images(): Thumbable[] {
