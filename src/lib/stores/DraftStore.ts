@@ -13,7 +13,7 @@ import { dev } from '$app/environment';
 import { updateAlbumServerCache } from './AlbumServerCache';
 import { getParentFromPath, isValidPath } from '$lib/utils/galleryPathUtils';
 import { AlbumType } from '$lib/models/album';
-import type { Image } from '$lib/models/impl/GalleryItemInterfaces';
+import type { Thumbable } from '$lib/models/impl/GalleryItemInterfaces';
 
 const initialState: Draft = {
     status: DraftStatus.NO_CHANGES,
@@ -244,7 +244,6 @@ class DraftStore {
      */
     private updateClientStateAfterSave(draft: Draft): void {
         let path = draft.path;
-        path = path.replace(/^\//, ''); // strip initial /
 
         // If it was an image that was saved...
         if (isImagePath(path)) {
@@ -259,8 +258,8 @@ class DraftStore {
             // Make a copy of the album entry.  Apply changes to the copy
             const updatedAlbumEntry = produce(albumEntry, (albumEntryCopy) => {
                 if (albumEntryCopy === undefined) throw new Error('albumEntryCopy is undefined');
-                const image: Image | undefined = albumEntryCopy.album?.images.find(
-                    (image: Image) => image.path === path,
+                const image: Thumbable | undefined = albumEntryCopy.album?.images.find(
+                    (image: Thumbable) => image.path === path,
                 );
                 if (!image) throw new Error(`Did not find image [${path}] in album [${albumPath}]`);
                 Object.assign(image, draft.content); // Apply contents of draft to image
