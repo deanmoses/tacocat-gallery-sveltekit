@@ -9,7 +9,6 @@ import { produce } from 'immer';
 import { isImagePath } from '$lib/utils/path-utils';
 import Config from '$lib/utils/config';
 import { type AlbumEntry, albumStore } from './AlbumStore';
-import { dev } from '$app/environment';
 import { getParentFromPath, isValidPath } from '$lib/utils/galleryPathUtils';
 import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
 
@@ -105,59 +104,18 @@ class DraftStore {
      * Save the current draft to the server
      */
     save(): void {
-        if (dev) this.saveFake();
-        else this.saveReal();
-    }
-
-    /**
-     * Simulates a successful save, for localhost testing
-     */
-    private saveFake(): void {
-        this.setStatus(DraftStatus.SAVING);
-
         const draft: Draft = get(this._draft);
-
-        console.warn('FAKE: saving the draft: ', draft);
-
-        // Simulate a save
-        setTimeout(() => {
-            console.warn('FAKE: saved the draft');
-
-            this.updateClientStateAfterSave(draft);
-
-            this.setStatus(DraftStatus.SAVED);
-
-            // Clear the saved status after a while
-            setTimeout(() => {
-                // Only clear saved status if the status is actually still saved
-                if (get(this._draft).status == DraftStatus.SAVED) {
-                    this.setStatus(DraftStatus.NO_CHANGES);
-                }
-            }, 4000);
-        }, 1000);
-    }
-
-    /**
-     * Save the current draft to the server
-     */
-    private saveReal(): void {
-        const draft: Draft = get(this._draft);
-
-        // Do I actually have anything to save?
-        // This should never happen
+        // Do I actually have anything to save?  This should never happen
         if (!draft || !draft.path || !draft.content) {
-            console.error('Error saving draft: nothing to save!');
+            console.error(`Error saving draft at path [${draft.path}]: nothing to save!`);
             this.setStatus(DraftStatus.ERRORED);
         }
         // Else I have something to save
         else {
-            console.log('Saving the draft: ', draft);
+            console.log(`Saving draft [${draft.path}]: `, draft);
             this.setStatus(DraftStatus.SAVING);
-
             // Send the save request
-            const saveUrl = Config.updateUrl(draft.path);
-            const requestConfig = this.getSaveRequestConfig(draft);
-            fetch(saveUrl, requestConfig)
+            fetch(Config.updateUrl(draft.path), this.getSaveRequestConfig(draft.content))
                 .then((response) => this.checkForErrors(response))
                 .then((response) => response.json())
                 .then((json) => this.checkJsonForErrors(json, draft))
@@ -169,16 +127,14 @@ class DraftStore {
     /**
      * @returns the configuration for the save request
      */
-    private getSaveRequestConfig(draft: Draft): RequestInit {
+    private getSaveRequestConfig(content: DraftContent): RequestInit {
         // The body of the form I will be sending to the server
         const formData = new FormData();
-        formData.append('eip_context', isImagePath(draft.path) ? 'image' : 'album');
 
         // Add the content of the draft (the actual album or image fields) to the form body
-        const content = draft.content;
-        for (const fieldName in content) {
-            formData.append(fieldName, content[fieldName]);
-        }
+        Object.entries(content).forEach(([fieldName, fieldValue]) => {
+            formData.append(fieldName, fieldValue.toString());
+        });
 
         // The save request configuration
         const requestConfig: RequestInit = {
@@ -277,6 +233,7 @@ class DraftStore {
 
             // Make a copy of the album entry.  Apply changes to the copy
             const updatedAlbumEntry = produce(albumEntry, (albumEntryCopy) => {
+                if (!albumEntryCopy.album) throw new Error(`No album on albumEntry`);
                 Object.assign(albumEntryCopy.album, draft.content); // Apply contents of draft to the album
             });
 
