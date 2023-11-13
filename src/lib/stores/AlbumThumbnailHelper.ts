@@ -3,7 +3,6 @@ import type { AlbumGalleryItem } from '$lib/models/server';
 import { type AlbumEntry, albumStore } from '$lib/stores/AlbumStore';
 import Config from '$lib/utils/config';
 import { getParentFromPath } from '$lib/utils/galleryPathUtils';
-import { updateAlbumServerCache } from './AlbumServerCache';
 import { produce } from 'immer';
 
 /**
@@ -27,7 +26,6 @@ export function setAlbumThumbnail(albumPath: string, thumbnailLeafPath: string):
         .then((json) => checkJsonForErrors(json, albumPath))
         .then((thumbnailUrl) => updateThumbOnAlbum(thumbnailUrl, albumPath))
         .then((thumbnailUrl) => updateThumbOnParentAlbum(thumbnailUrl, albumPath))
-        .then(() => updateAlbumServerCache(getParentFromPath(albumPath)))
         .catch((error) => errorAction(error, albumPath, thumbnailLeafPath))
         .finally(() => albumStore.setUpdateStatus(albumPath, AlbumUpdateStatus.NOT_UPDATING));
 }

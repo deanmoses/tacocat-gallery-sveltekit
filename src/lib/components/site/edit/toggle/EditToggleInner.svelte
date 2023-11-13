@@ -7,10 +7,8 @@
 <script lang="ts">
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
-    import { editUrl, isImagePath, isYearAlbumPath } from '$lib/utils/path-utils';
-    import Config from '$lib/utils/config';
+    import { editUrl } from '$lib/utils/path-utils';
     import EditIcon from '../../icons/EditIcon.svelte';
-    import EditExternalIcon from '../../icons/EditExternalIcon.svelte';
 
     let path: string;
     $: path = $page.url.pathname;
@@ -22,34 +20,11 @@
     function onEditButtonClick() {
         goto(editUrl(path));
     }
-
-    /**
-     * The "Edit in Zenphoto" button was clicked.
-     * Open Zenphoto's edit page in new browser tab.
-     */
-    function onZenButtonClick() {
-        const uri = isImagePath(path) ? Config.zenphotoImageEditUrl(path) : Config.zenphotoAlbumEditUrl(path);
-
-        window.open(uri, 'zenedit');
-    }
-
-    /**
-     * The "Refresh Album" button was clicked.
-     * Open the album refresh URL in a new browser tab.
-     */
-    function onRefreshClick() {
-        const uri = Config.refreshAlbumCacheUrl(path);
-        window.open(uri, 'refresh');
-    }
 </script>
 
 <div>
     <nav class="editing-controls">
         <button on:click|once={onEditButtonClick}><EditIcon />Edit</button>
-        <button on:click|once={onZenButtonClick} title="Edit in Zenphoto"><EditExternalIcon />Zenphoto</button>
-        {#if isYearAlbumPath(path)}
-            <button on:click|once={onRefreshClick} title="Refresh album's server cache">Refresh</button>
-        {/if}
     </nav>
 </div>
 

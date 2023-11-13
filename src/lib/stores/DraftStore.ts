@@ -6,13 +6,11 @@ import { writable, type Writable, derived, type Readable, get } from 'svelte/sto
 import type { Draft, DraftContent } from '$lib/models/draft';
 import { DraftStatus } from '$lib/models/draft';
 import { produce } from 'immer';
-import { getAlbumType, isAlbumPath, isImagePath } from '$lib/utils/path-utils';
+import { isImagePath } from '$lib/utils/path-utils';
 import Config from '$lib/utils/config';
 import { type AlbumEntry, albumStore } from './AlbumStore';
 import { dev } from '$app/environment';
-import { updateAlbumServerCache } from './AlbumServerCache';
 import { getParentFromPath, isValidPath } from '$lib/utils/galleryPathUtils';
-import { AlbumType } from '$lib/models/album';
 import type { Thumbable } from '$lib/models/impl/GalleryItemInterfaces';
 
 const initialState: Draft = {
@@ -289,23 +287,6 @@ class DraftStore {
         }
 
         this.setStatus(DraftStatus.SAVED);
-
-        // For some types of albums, update the server's cache of the album
-        if (isAlbumPath(path)) {
-            console.log(`isAlbumPath(${path}): ${isAlbumPath(path)}`);
-            const albumType = getAlbumType(path);
-            console.log(`albumType: [${albumType}]`);
-            // If it's a year album, update its cache
-            if (albumType === AlbumType.YEAR) {
-                updateAlbumServerCache(path);
-            }
-            // If it's a day album, update parent year album
-            else if (albumType === AlbumType.DAY) {
-                updateAlbumServerCache(getParentFromPath(path));
-            }
-        } else {
-            console.log(`just updated a photo not an album, so not updating server cache`);
-        }
 
         console.log('DraftStore: before save clear timeout');
 

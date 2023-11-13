@@ -1,6 +1,3 @@
-import { isImagePath, getAlbumType } from '$lib/utils/path-utils';
-import { AlbumType } from '$lib/models/album';
-import { getParentFromPath, getLeafItemOnPath } from '$lib/utils/path-utils';
 import { isValidAlbumPath } from './galleryPathUtils';
 
 /**
@@ -26,7 +23,7 @@ export default abstract class Config {
      * @argument path Path to an image, such as /zenphoto/cache/2018/01-01/new_years_eve06_1024.jpg
      */
     public static cdnUrl(path: string): string {
-        return 'https://cdn.tacocat.com' + path;
+        return path; // TODO MIGRATE
     }
 
     /**
@@ -48,7 +45,7 @@ export default abstract class Config {
      * URL to check user's authentication status
      */
     public static checkAuthenticationUrl(): string {
-        return 'https://tacocat.com/zenphoto/?api&auth';
+        return 'xxx'; // TODO MIGRATE
     }
 
     /**
@@ -56,27 +53,7 @@ export default abstract class Config {
      * @param path path of an album or an image
      */
     public static saveUrl(path: string): string {
-        const firstSlash = path.startsWith('/') ? '' : '/';
-        if (isImagePath(path)) {
-            return 'https://tacocat.com/zenphoto' + firstSlash + path;
-        } else {
-            // Not having the final slash messes up POSTing to the edit URL,
-            // because as of late 2016 zenphoto started redirecting
-            // to the version with the slash.
-            const finalSlash = path.endsWith('/') ? '' : '/';
-            return 'https://tacocat.com/zenphoto' + firstSlash + path + finalSlash;
-        }
-    }
-
-    /**
-     * URL to update the server's JSON file cache of a specific album
-     *
-     * This should only be called for year albums (/2001) or the root album (/)
-     */
-    public static refreshAlbumCacheUrl(albumPath: string): string {
-        // strip the '/' off if it exists, so that "/2001" becomes "2001"
-        const slashlessAlbumPath = albumPath.replace('/', '');
-        return 'https://tacocat.com/p_json/refresh.php?album=' + slashlessAlbumPath;
+        return path; // TODO MIGRATE
     }
 
     /**
@@ -85,38 +62,13 @@ export default abstract class Config {
      */
     public static searchUrl(searchTerms: string): string {
         return 'https://v2kdsvx1hf.execute-api.us-east-1.amazonaws.com/Prod/search/' + encodeURIComponent(searchTerms);
-        //return 'https://tacocat.com/zenphoto/page/search/?search=' + encodeURIComponent(searchTerms) + '&json';
     }
 
     /**
-     * URL to view the full sized raw image on Zenphoto
+     * URL to view the full sized raw image
      * @param imagePath path to an image
      */
     public static fullSizeImageUrl(imagePath: string): string {
-        return 'https://tacocat.com/zenphoto/albums/' + imagePath;
-    }
-
-    /**
-     * URL to view an album or image in the default Zenphoto experience
-     * @param path path to an album or image
-     */
-    public static zenphotoViewUrl(path: string): string {
-        return 'https://tacocat.com/zenphoto/' + path;
-    }
-
-    /**
-     * URL to the full Zenphoto image edit page
-     */
-    public static zenphotoImageEditUrl(imagePath: string): string {
-        return 'https://tacocat.com/zenphoto/zp-core/admin-edit.php?page=edit&album=ALBUM_PATH&singleimage=IMAGE_FILENAME&tab=imageinfo&nopagination'
-            .replace('ALBUM_PATH', encodeURIComponent(getParentFromPath(imagePath)))
-            .replace('IMAGE_FILENAME', encodeURIComponent(getLeafItemOnPath(imagePath)));
-    }
-
-    /**
-     * URL to edit the ablum in the default Zenphoto experience
-     */
-    public static zenphotoAlbumEditUrl(albumPath: string): string {
-        return 'https://tacocat.com/zenphoto/zp-core/admin-edit.php?page=edit&album=' + encodeURIComponent(albumPath);
+        return imagePath; // TODO MIGRATE
     }
 }
