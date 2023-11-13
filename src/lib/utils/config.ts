@@ -22,7 +22,7 @@ export default abstract class Config {
 
     /**
      * URL to CDN'ed derived images
-     * @argument pathAndFormat Path to an image + a format like /2018/01-01/image.jpg/jpeg/70x70'
+     * @argument pathAndFormat Path to an image like /2018/01-01/image.jpg
      */
     public static thumbnailUrl(pathAndFormat: string): string {
         return `https://dacwtfk6o75l6.cloudfront.net/i${pathAndFormat}/jpeg/200x200`;
