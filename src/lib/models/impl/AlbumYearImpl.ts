@@ -8,7 +8,7 @@ export class AlbumYearImpl extends AlbumBaseImpl implements Album {
     }
 
     get parentTitle(): string {
-        return 'XXX';
+        return 'XXX'; // never used
     }
 
     get nextTitle(): string {
