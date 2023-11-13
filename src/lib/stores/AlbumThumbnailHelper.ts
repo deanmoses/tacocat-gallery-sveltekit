@@ -1,3 +1,4 @@
+import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
 import { AlbumUpdateStatus } from '$lib/models/album';
 import type { AlbumGalleryItem } from '$lib/models/impl/server';
 import { type AlbumEntry, albumStore } from '$lib/stores/AlbumStore';
@@ -34,17 +35,15 @@ export function setAlbumThumbnail(albumPath: string, thumbnailLeafPath: string):
  * Create the configuration for the save request
  */
 function buildRequestConfig(thumbnailLeafPath: string): RequestInit {
-    // The body of the form I will be sending to the server
-    const formData = new FormData();
-    formData.append('thumb', thumbnailLeafPath);
-
-    // Save draft to server
-    const requestConfig: RequestInit = {
-        method: 'POST',
+    return {
+        method: 'PATCH',
         headers: {
             Accept: 'application/json',
+            'Content-Type': 'application/json',
         },
-        body: formData,
+        body: JSON.stringify({
+            thumb: thumbnailLeafPath,
+        }),
         // no-store: bypass the HTTP cache completely.
         // This will make the browser not look into the HTTP cache
         // on the way to the network, and never store the resulting
@@ -53,8 +52,6 @@ function buildRequestConfig(thumbnailLeafPath: string): RequestInit {
         cache: 'no-store',
         credentials: 'include',
     };
-
-    return requestConfig;
 }
 
 /**
@@ -157,11 +154,9 @@ function updateThumbOnParentAlbum(thumbnailUrl: string, albumPath: string): void
     // Make a copy of the album entry.  Apply changes to the copy
     const updatedAlbumEntry = produce(albumEntry, (albumEntryCopy) => {
         // find album on parent
-        const thumbOnParent: AlbumGalleryItem | undefined = albumEntryCopy.album?.albums.find(
-            (childThumb: AlbumGalleryItem) => {
-                return childThumb.path === albumPath;
-            },
-        );
+        const thumbOnParent: Thumbable | undefined = albumEntryCopy.album?.albums.find((childThumb: Thumbable) => {
+            return childThumb.path === albumPath;
+        });
         // Did I find album within parent album?
         // Never expect this to happen, just defensive programming
         if (!thumbOnParent) {
