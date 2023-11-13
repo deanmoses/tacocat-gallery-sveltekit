@@ -38,6 +38,10 @@ export abstract class BaseGalleryItemImpl implements BaseGalleryItem {
         return !!this.json.description ? processCaption(this.json.description) : '';
     }
 
+    set description(description: string) {
+        this.json.description = description;
+    }
+
     get summary(): string {
         return !!this.json.summary ? this.json.summary : '';
     }

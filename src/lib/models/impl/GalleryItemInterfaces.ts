@@ -25,6 +25,7 @@ export interface Thumbable {
     get path(): string; // TODO: replace with get id(), stop using path in the UI
     get title(): string;
     get description(): string;
+    set description(description: string);
     get summary(): string;
     get thumbnailUrl(): string | undefined;
     get href(): string;
