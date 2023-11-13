@@ -3,30 +3,31 @@
 //
 
 export interface Album extends BaseGalleryItem {
-    get published(): boolean;
-    get parentHref(): string;
-    get parentTitle(): string;
-    get images(): Thumbable[];
-    get albums(): Thumbable[];
-    set thumbnailUrl(thumbnailUrl: string | undefined);
-    getImage(imagePath: string): Image | undefined;
+    published: boolean;
+    summary: string;
+    thumbnailUrl: string | undefined;
+    readonly parentHref: string;
+    readonly parentTitle: string;
+    readonly images: Thumbable[];
+    readonly albums: Thumbable[];
 }
 
-export interface Image extends BaseGalleryItem {}
+export interface Image extends BaseGalleryItem {
+    title: string;
+}
 
 export interface BaseGalleryItem extends Thumbable {
-    get prevHref(): string | undefined;
-    get nextHref(): string | undefined;
-    get prevTitle(): string | undefined;
-    get nextTitle(): string | undefined;
+    readonly prevHref: string | undefined;
+    readonly nextHref: string | undefined;
+    readonly prevTitle: string | undefined;
+    readonly nextTitle: string | undefined;
 }
 
 export interface Thumbable {
-    get path(): string; // TODO: replace with get id(), stop using path in the UI
-    get title(): string;
-    get description(): string;
-    set description(description: string);
-    get summary(): string;
-    get thumbnailUrl(): string | undefined;
-    get href(): string;
+    readonly path: string; // TODO: replace with get id() and stop using path in the UI
+    readonly title: string;
+    description: string;
+    readonly summary: string;
+    readonly thumbnailUrl: string | undefined;
+    readonly href: string;
 }
