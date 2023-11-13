@@ -36,7 +36,6 @@ export function setAlbumThumbnail(albumPath: string, thumbnailLeafPath: string):
 function buildRequestConfig(thumbnailLeafPath: string): RequestInit {
     // The body of the form I will be sending to the server
     const formData = new FormData();
-    formData.append('eip_context', 'album');
     formData.append('thumb', thumbnailLeafPath);
 
     // Save draft to server
