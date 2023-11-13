@@ -16,10 +16,10 @@ const config: UserConfig = {
                     proxy.on('proxyRes', (proxyRes, req, _res) => {
                         if (200 !== proxyRes.statusCode) {
                             console.log(
-                                'Received Response from the Target:',
+                                'Response from AWS:',
                                 proxyRes.statusCode,
                                 req.url,
-                                JSON.stringify(proxyRes.headers),
+                                JSON.stringify(proxyRes.headers, null, 2),
                             );
                         }
                     });
