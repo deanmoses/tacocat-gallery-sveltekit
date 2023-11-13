@@ -6,8 +6,7 @@
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import { shortDate } from '$lib/utils/date-utils';
     import { albumPathToDate } from '$lib/utils/galleryPathUtils';
-    import type { Album } from '$lib/models/impl/GalleryItemInterfaces';
-    import type { AlbumGalleryItem } from '$lib/models/server';
+    import type { Album, Thumbable } from '$lib/models/impl/GalleryItemInterfaces';
 
     export let album: Album;
 
@@ -22,21 +21,20 @@
 
     type AlbumsByMonth = Array<{
         monthName: string;
-        albums: AlbumGalleryItem[];
+        albums: Thumbable[];
     }>;
 
     /**
      * Group the albums by month
      */
-    function albumsByMonth(albums: AlbumGalleryItem[]): AlbumsByMonth {
+    function albumsByMonth(albums: Thumbable[]): AlbumsByMonth {
         // array to return
         let albumsByMonth: AlbumsByMonth = [];
 
         if (albums) {
             // iterate over the albums, putting them into the correct month
             albums.forEach((album) => {
-                const albumPath = album.parentPath + album.itemName + '/';
-                const albumDate = albumPathToDate(albumPath);
+                const albumDate = albumPathToDate(album.path);
                 const month: number = albumDate.getMonth();
                 if (!albumsByMonth[month]) {
                     albumsByMonth[month] = {
@@ -64,11 +62,11 @@
     <section class="month">
         <h3>{month.monthName}</h3>
         <Thumbnails>
-            {#each month.albums as childAlbum (childAlbum.itemName)}
+            {#each month.albums as childAlbum (childAlbum.path)}
                 <Thumbnail
                     title={getTitle(childAlbum.path)}
                     summary={childAlbum.summary}
-                    href={albumUrlCreator(`${childAlbum.parentPath}${childAlbum.itemName}`)}
+                    href={albumUrlCreator(childAlbum.path)}
                     src="TODO"
                 />
             {/each}

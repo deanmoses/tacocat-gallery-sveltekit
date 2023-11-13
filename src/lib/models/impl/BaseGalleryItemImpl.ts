@@ -1,12 +1,22 @@
 import { processCaption } from '$lib/utils/legacyUrlHandler';
 import type { GalleryItemType, GalleryRecord } from '../server';
+import type { BaseGalleryItem } from './GalleryItemInterfaces';
 
-export abstract class BaseGalleryItemImpl {
+export abstract class BaseGalleryItemImpl implements BaseGalleryItem {
     protected json: GalleryRecord;
 
     constructor(json: GalleryRecord) {
         this.json = json;
     }
+
+    abstract get title(): string;
+    abstract get parentTitle(): string;
+    abstract get href(): string;
+    abstract get thumbnailUrl(): string | undefined;
+    abstract get prevTitle(): string | undefined;
+    abstract get nextTitle(): string | undefined;
+    abstract get prevHref(): string | undefined;
+    abstract get nextHref(): string | undefined;
 
     get path(): string {
         return this.json.path;

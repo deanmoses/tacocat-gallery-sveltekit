@@ -1,8 +1,9 @@
 import { albumPathToDate } from '$lib/utils/galleryPathUtils';
 import type { AlbumGalleryItem, GalleryRecord } from '../server';
-import type { Album, Image } from './GalleryItemInterfaces';
+import type { Album, Image, Thumbable } from './GalleryItemInterfaces';
 import { BaseGalleryItemImpl } from './BaseGalleryItemImpl';
 import { ImageImpl } from './ImageImpl';
+import toAlbum from './album-creator';
 
 export abstract class BaseAlbumImpl extends BaseGalleryItemImpl implements Album {
     protected override json: AlbumGalleryItem;
@@ -11,11 +12,6 @@ export abstract class BaseAlbumImpl extends BaseGalleryItemImpl implements Album
         super(json);
         this.json = json;
     }
-
-    abstract get title(): string;
-    abstract get parentTitle(): string;
-    abstract get prevTitle(): string | undefined;
-    abstract get nextTitle(): string | undefined;
 
     get published(): boolean {
         return this.json.published ?? false;
@@ -59,23 +55,18 @@ export abstract class BaseAlbumImpl extends BaseGalleryItemImpl implements Album
         console.log(`TODO IMPLEMENT ${thumbnailUrl}`);
     }
 
-    get images(): Image[] {
+    get images(): Thumbable[] {
         if (!this.json?.children) return [];
         return this.json?.children.filter((child) => child?.itemType == 'image').map((i) => new ImageImpl(i, this));
     }
 
-    get albums(): GalleryRecord[] {
+    get albums(): Thumbable[] {
         if (!this.json?.children) return [];
-        return this.json?.children.filter((child) => child?.itemType == 'album');
+        return this.json?.children.filter((child) => child?.itemType == 'album').map((i) => toAlbum(i));
     }
 
-    /**
-     * Return image at specified path
-     */
     getImage(imagePath: string): Image | undefined {
         const image = this.json?.children?.find((child: GalleryRecord) => child.path === imagePath);
-        if (image) {
-            return new ImageImpl(image, this);
-        }
+        return !!image ? new ImageImpl(image, this) : undefined;
     }
 }
