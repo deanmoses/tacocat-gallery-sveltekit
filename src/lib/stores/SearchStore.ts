@@ -205,7 +205,8 @@ class SearchStore {
     }
 
     private getLoadStatus(searchTerms: string): SearchLoadStatus {
-        return get(this.searches.get(searchTerms)).status;
+        const search = this.searches.get(searchTerms);
+        return !!search ? get(search).status : SearchLoadStatus.NOT_LOADED;
     }
 
     private setUpdateStatus(searchTerms: string, status: SearchUpdateStatus): void {
@@ -225,7 +226,7 @@ class SearchStore {
      * @param searchTerms the search terms
      */
     private getOrCreateUpdateStatusStore(searchTerms: string): Writable<SearchUpdateStatus> {
-        let entryStore: Writable<SearchUpdateStatus>;
+        let entryStore: Writable<SearchUpdateStatus> | undefined;
         entryStore = this.SearchUpdateStatuses.get(searchTerms);
         if (!entryStore) {
             const newEntry: SearchUpdateStatus = SearchUpdateStatus.NOT_UPDATING;
