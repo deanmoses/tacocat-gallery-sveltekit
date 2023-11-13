@@ -1,17 +1,21 @@
 import { albumPathToDate } from '$lib/utils/galleryPathUtils';
 import type { AlbumGalleryItem, GalleryRecord } from './server';
 import type { Album, Image, Thumbable } from '../GalleryItemInterfaces';
-import { GalleryItemBaseImpl } from './GalleryItemBaseImpl';
+import { ThumbableBaseImpl } from './ThumbableBaseImpl';
 import { ImageImpl } from './ImageImpl';
 import toAlbum from './AlbumCreator';
 
-export abstract class AlbumBaseImpl extends GalleryItemBaseImpl implements Album {
+export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
     protected override readonly json: AlbumGalleryItem;
 
     constructor(json: AlbumGalleryItem) {
         super(json);
         this.json = json;
     }
+
+    abstract get parentTitle(): string;
+    abstract get prevTitle(): string | undefined;
+    abstract get nextTitle(): string | undefined;
 
     get published(): boolean {
         return this.json.published ?? false;

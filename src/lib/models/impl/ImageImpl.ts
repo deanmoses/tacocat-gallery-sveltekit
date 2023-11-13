@@ -1,8 +1,8 @@
 import type { ImageRecord } from './server';
 import type { Album, Image, Thumbable } from '../GalleryItemInterfaces';
-import { GalleryItemBaseImpl } from './GalleryItemBaseImpl';
+import { ImageThumbableImpl } from './ImageThumbableImpl';
 
-export class ImageImpl extends GalleryItemBaseImpl implements Image {
+export class ImageImpl extends ImageThumbableImpl implements Image {
     protected override readonly json: ImageRecord;
     private readonly album: Album;
 
@@ -10,23 +10,6 @@ export class ImageImpl extends GalleryItemBaseImpl implements Image {
         super(json);
         this.json = json;
         this.album = album;
-    }
-
-    get title(): string {
-        return this.json?.title ?? this.json.itemName;
-    }
-
-    set title(title: string) {
-        this.json.title = title;
-    }
-
-    get href(): string {
-        return this.path;
-    }
-
-    get thumbnailUrl(): string {
-        // TODO: implement for real
-        return 'https://cdn.tacocat.com/zenphoto/cache/2023/10-29/halloween_party32_200_w200_h200_cw200_ch200_thumb.jpg?cached=1698637062';
     }
 
     get parentTitle(): string {

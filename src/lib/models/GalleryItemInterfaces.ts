@@ -2,7 +2,7 @@
 // The interfaces used by the Sveltekit UI
 //
 
-export interface Album extends BaseGalleryItem {
+export interface Album extends Nextable {
     published: boolean;
     summary: string;
     thumbnailUrl: string | undefined;
@@ -13,11 +13,11 @@ export interface Album extends BaseGalleryItem {
     getImage(imagePath: string): Image | undefined;
 }
 
-export interface Image extends BaseGalleryItem {
+export interface Image extends Nextable {
     title: string;
 }
 
-export interface BaseGalleryItem extends Thumbable {
+export interface Nextable extends Thumbable {
     readonly prevHref: string | undefined;
     readonly nextHref: string | undefined;
     readonly prevTitle: string | undefined;

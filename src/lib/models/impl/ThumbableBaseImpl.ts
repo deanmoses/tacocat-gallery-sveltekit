@@ -1,8 +1,8 @@
 import { processCaption } from '$lib/utils/legacyUrlHandler';
 import type { GalleryItemType, GalleryRecord } from './server';
-import type { BaseGalleryItem } from '../GalleryItemInterfaces';
+import type { Thumbable } from '../GalleryItemInterfaces';
 
-export abstract class GalleryItemBaseImpl implements BaseGalleryItem {
+export abstract class ThumbableBaseImpl implements Thumbable {
     protected readonly json: GalleryRecord;
 
     constructor(json: GalleryRecord) {
@@ -12,11 +12,6 @@ export abstract class GalleryItemBaseImpl implements BaseGalleryItem {
     abstract get title(): string;
     abstract get href(): string;
     abstract get thumbnailUrl(): string | undefined;
-    abstract get parentTitle(): string;
-    abstract get prevTitle(): string | undefined;
-    abstract get nextTitle(): string | undefined;
-    abstract get prevHref(): string | undefined;
-    abstract get nextHref(): string | undefined;
 
     get path(): string {
         return this.json.path;

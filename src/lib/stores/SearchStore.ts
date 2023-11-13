@@ -8,6 +8,8 @@ import { produce } from 'immer';
 import Config from '$lib/utils/config';
 import type { Search, SearchResults } from '$lib/models/search';
 import { SearchLoadStatus, SearchUpdateStatus } from '$lib/models/search';
+import toAlbum from '$lib/models/impl/AlbumCreator';
+import { ImageThumbableImpl } from '$lib/models/impl/ImageThumbableImpl';
 
 /**
  * Manages the Svelte stores of search results
@@ -79,9 +81,8 @@ class SearchStore {
             .then((jsonSearch) => {
                 if (jsonSearch) {
                     console.log(`Search [${searchTerms}] found in idb`);
-
-                    // Put search in Svelte store
-                    this.setSearch(searchTerms, jsonSearch);
+                    const searchResults = this.toSearchResults(jsonSearch);
+                    this.setSearch(searchTerms, searchResults); // Put search in Svelte store
                 } else {
                     console.log(`Search [${searchTerms}] not found in idb`);
                 }
@@ -89,8 +90,7 @@ class SearchStore {
             .catch((error) => {
                 console.error(`Search [${searchTerms}] error fetching from disk`, error);
             })
-            // Always fetch from server regardless of whether it was found on
-            // disk or not
+            // Always fetch from server regardless of whether it was found on disk
             .finally(() => {
                 this.fetchFromServer(searchTerms);
             });
@@ -111,17 +111,10 @@ class SearchStore {
             })
             .then((json) => {
                 console.log(`Search [${searchTerms}] fetched from server`, json);
-                const items: [] = json as [];
-                const searchResults: SearchResults = {
-                    albums: items.filter((i) => i['item']['itemType'] == 'album').map((i) => i['item']),
-                    images: items.filter((i) => i['item']['itemType'] == 'image').map((i) => i['item']),
-                };
+                const searchResults = this.toSearchResults(json);
                 console.log(`Transformed search results `, searchResults);
-                // Put search results in Svelte store
-                this.setSearch(searchTerms, searchResults);
-
-                // Put search results in browser's local disk cache
-                this.writeToDisk(searchTerms, searchResults);
+                this.setSearch(searchTerms, searchResults); // Put search results in Svelte store
+                this.writeToDisk(searchTerms, searchResults); // Put search results in browser's local disk cache
             })
             .catch((error) => {
                 this.handleFetchError(searchTerms, error);
@@ -130,7 +123,6 @@ class SearchStore {
 
     private handleFetchError(searchTerms: string, error: string): void {
         console.error(`Search [${searchTerms}] error fetching from server: `, error);
-
         const status = this.getLoadStatus(searchTerms);
         switch (status) {
             case SearchLoadStatus.LOADING:
@@ -257,6 +249,19 @@ class SearchStore {
         }
 
         return searchEntry;
+    }
+
+    /**
+     * Transform from server JSON to a search results object
+     *
+     * @param json JSON object coming from server or IDB
+     */
+    private toSearchResults(json: unknown): SearchResults {
+        const items: [] = json as [];
+        return {
+            albums: items.filter((i) => i['item']['itemType'] == 'album').map((i) => toAlbum(i['item'])),
+            images: items.filter((i) => i['item']['itemType'] == 'image').map((i) => new ImageThumbableImpl(i['item'])),
+        };
     }
 }
 

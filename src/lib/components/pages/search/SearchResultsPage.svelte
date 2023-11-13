@@ -1,13 +1,10 @@
 <!--
-  @component
-
-  Page that displays search results
+  @component Page that displays search results
 -->
 <script lang="ts">
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import Thumbnails from '$lib/components/site/Thumbnails.svelte';
     import SearchPage from '$lib/components/pages/search/SearchPage.svelte';
-    import Config from '$lib/utils/config';
     import type { SearchResults } from '$lib/models/search';
     import FullPageMessage from '$lib/components/site/FullPageMessage.svelte';
 
@@ -24,24 +21,14 @@
         <h2 style="display:none">Search Results</h2>
         <Thumbnails>
             {#if searchResults?.albums}
-                {#each searchResults.albums as album (album.itemName)}
-                    <Thumbnail
-                        title={album.title}
-                        summary={album.customdata}
-                        href="{album.parentPath}{album.itemName}"
-                        src={Config.cdnUrl(album.url_thumb)}
-                    />
+                {#each searchResults.albums as album (album.path)}
+                    <Thumbnail title={album.title} summary={album.summary} href={album.href} src={album.thumbnailUrl} />
                 {/each}
             {/if}
 
             {#if searchResults?.images}
-                {#each searchResults.images as image (image.itemName)}
-                    <Thumbnail
-                        title={image.title}
-                        summary={image.customdata}
-                        href="{image.parentPath}{image.itemName}"
-                        src={Config.cdnUrl(image.url_thumb)}
-                    />
+                {#each searchResults.images as image (image.path)}
+                    <Thumbnail title={image.title} href={image.href} src={image.thumbnailUrl} />
                 {/each}
             {/if}
 
