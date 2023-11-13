@@ -6,7 +6,7 @@ import { ImageImpl } from './ImageImpl';
 import toAlbum from './AlbumCreator';
 
 export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
-    protected override readonly json: AlbumGalleryItem;
+    override readonly json: AlbumGalleryItem;
 
     constructor(json: AlbumGalleryItem) {
         super(json);

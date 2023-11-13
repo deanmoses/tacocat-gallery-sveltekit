@@ -4,12 +4,13 @@ import { AlbumDayImpl } from './AlbumDayImpl';
 import type { Album } from '../GalleryItemInterfaces';
 import { AlbumRootImpl } from './AlbumRootImpl';
 import { AlbumYearImpl } from './AlbumYearImpl';
+import type { AlbumRecord } from './server';
 
 /**
  * Instantiate an Album or a subclass of Album from the specified object
  * @param json JSON object coming from server or stored in idb
  */
-export default function toAlbum(json: any): Album {
+export default function toAlbum(json: AlbumRecord): Album {
     if (!json) throw new Error('No JSON object received');
     if (typeof json !== 'object') throw new Error(`JSON is not an object: [${json}]`);
     const path = json?.path;

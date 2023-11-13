@@ -2,10 +2,13 @@
 // The interfaces used by the Sveltekit UI
 //
 
+import type { AlbumGalleryItem } from './impl/server';
+
 export interface Album extends Nextable {
     published: boolean;
     summary: string;
     thumbnailUrl: string | undefined;
+    readonly json: AlbumGalleryItem; // so that I can save it to disk
     readonly parentHref: string;
     readonly parentTitle: string;
     readonly images: Thumbable[];

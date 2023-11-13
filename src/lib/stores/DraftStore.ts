@@ -128,21 +128,14 @@ class DraftStore {
      * @returns the configuration for the save request
      */
     private getSaveRequestConfig(content: DraftContent): RequestInit {
-        // The body of the form I will be sending to the server
-        const formData = new FormData();
-
-        // Add the content of the draft (the actual album or image fields) to the form body
-        Object.entries(content).forEach(([fieldName, fieldValue]) => {
-            formData.append(fieldName, fieldValue.toString());
-        });
-
         // The save request configuration
         const requestConfig: RequestInit = {
             method: 'PATCH',
             headers: {
                 Accept: 'application/json',
+                'Content-Type': 'application/json',
             },
-            body: formData,
+            body: JSON.stringify(content),
             // no-store: bypass the HTTP cache completely.
             // This will make the browser not look into the HTTP cache
             // on the way to the network, and never store the resulting

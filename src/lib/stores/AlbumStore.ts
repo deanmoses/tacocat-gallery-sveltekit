@@ -11,6 +11,7 @@ import toAlbum from '$lib/models/impl/AlbumCreator';
 import { getAlbumType } from '$lib/utils/path-utils';
 import { isValidAlbumPath } from '$lib/utils/galleryPathUtils';
 import type { Album } from '$lib/models/GalleryItemInterfaces';
+import type { AlbumRecord } from '$lib/models/impl/server';
 
 export type AlbumEntry = {
     loadStatus: AlbumLoadStatus;
@@ -95,8 +96,8 @@ class AlbumStore {
         if (!albumEntry.album) throw 'Album is null';
         const albumEntryStore = this.albums.get(albumEntry.album.path);
         if (!albumEntryStore) throw 'albumEntryStore is null';
-        albumEntryStore.set(albumEntry);
-        this.writeToDisk(albumEntry.album.path, albumEntry.album);
+        albumEntryStore.set(albumEntry); // Put album in Svelte store
+        this.writeToDisk(albumEntry.album.path, albumEntry.album.json); // Put album in browser's local disk cache
     }
 
     /**
@@ -165,7 +166,7 @@ class AlbumStore {
                 if (!response.ok) throw new Error(response.statusText);
                 return response.json();
             })
-            .then((json) => {
+            .then((json: AlbumRecord) => {
                 console.log(`Album [${path}] fetched from server`, json);
                 this.setAlbum(path, json); // Put album in Svelte store
                 this.writeToDisk(path, json); // Put album in browser's local disk cache
@@ -241,7 +242,7 @@ class AlbumStore {
      * @param path path of the album
      * @param jsonAlbum JSON of the album
      */
-    private setAlbum(path: string, jsonAlbum: JSON): void {
+    private setAlbum(path: string, jsonAlbum: AlbumRecord): void {
         const album = toAlbum(jsonAlbum);
         const albumEntry = this.getOrCreateWritableStore(path);
         const newState = produce(get(albumEntry), (draftState: AlbumEntry) => {
@@ -258,7 +259,7 @@ class AlbumStore {
      *
      * @param path path of the album
      */
-    private writeToDisk(path: string, album: JSON | Album): void {
+    private writeToDisk(path: string, album: AlbumRecord): void {
         const idbKey = this.idbKey(path);
         // TODO: maybe don't write it if the value is unchanged?
         // Or maybe refresh some sort of last_fetched timestamp?
