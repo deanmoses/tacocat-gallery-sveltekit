@@ -1,21 +1,16 @@
 <!--
-  @component
-
-  Fetches and displays a thumbnail of the latest album
+  @component Fetches and displays a thumbnail of the latest album
 -->
-
 <script lang="ts">
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
-    import type { AlbumThumb } from '$lib/models/album';
     import { AlbumLoadStatus } from '$lib/models/album';
+    import type { Thumbable } from '$lib/models/impl/GalleryItemInterfaces';
     import { latestAlbumThumbnailEntry } from '$lib/stores/LatestAlbumStore';
-    import { shortDate } from '$lib/utils/date-utils';
-    import { albumPathToDate } from '$lib/utils/galleryPathUtils';
 
     let status: AlbumLoadStatus;
     $: status = $latestAlbumThumbnailEntry.status;
 
-    let thumb: AlbumThumb | undefined;
+    let thumb: Thumbable | undefined;
     $: thumb = $latestAlbumThumbnailEntry.thumbnail;
 </script>
 
@@ -28,15 +23,10 @@
 {:else if AlbumLoadStatus.LOADED == status && !!thumb}
     <aside>
         <h2>Latest Album</h2>
-        <Thumbnail
-            title={shortDate(albumPathToDate(thumb.path))}
-            summary={thumb.customdata}
-            href={thumb.path}
-            src={thumb.thumbnailUrl}
-        />
+        <Thumbnail title={thumb.title} summary={thumb.summary} href={thumb.path} src={thumb.thumbnailUrl} />
     </aside>
 {:else}
-    Unhandled status: {status}
+    <!-- display nothing if I don't understand what's going on -->
 {/if}
 
 <style>

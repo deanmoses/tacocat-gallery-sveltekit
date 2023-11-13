@@ -6,11 +6,12 @@ import { writable, type Writable, derived, type Readable, get } from 'svelte/sto
 import { get as getFromIdb, set as setToIdb } from 'idb-keyval';
 import { produce } from 'immer';
 import Config from '$lib/utils/config';
-import type { AlbumThumb } from '$lib/models/album';
 import { AlbumLoadStatus } from '$lib/models/album';
+import type { Thumbable } from '$lib/models/impl/GalleryItemInterfaces';
+import toAlbum from '$lib/models/impl/album-creator';
 
 export type LatestAlbumThumbnailEntry = {
-    thumbnail?: AlbumThumb;
+    thumbnail?: Thumbable;
     status: AlbumLoadStatus;
 };
 
@@ -66,9 +67,7 @@ class LatestAlbumThumbnailStore {
             .then((jsonThumbnail) => {
                 if (jsonThumbnail) {
                     console.log(`Latest album thumbnail found in idb`);
-
-                    // Put album in Svelte store
-                    this.setLatestAlbumThumbnail(jsonThumbnail);
+                    this.setLatestAlbumThumbnail(jsonThumbnail); // Put album in Svelte store
                 } else {
                     console.log(`Latest album thumbnail not found in idb`);
                 }
@@ -88,21 +87,17 @@ class LatestAlbumThumbnailStore {
      */
     private fetchFromServer(): void {
         fetch(Config.latestAlbumUrl())
-            .then((response) => response.json())
+            .then((response: Response) => {
+                if (!response.ok) throw new Error(response.statusText);
+                return response.json();
+            })
             .then((json) => {
                 if (json.error) {
                     this.handleFetchError(json.error);
                 } else {
                     console.log(`Latest album thumbnail fetched from server`, json);
-
-                    // TODO: better error handling if we don't get back expected response
-                    const thumbnail: AlbumThumb = json as AlbumThumb;
-
-                    // Put thumbnail in Svelte store
-                    this.setLatestAlbumThumbnail(thumbnail);
-
-                    // Put thumbnail in browser's local disk cache
-                    this.writeToDisk(json);
+                    this.setLatestAlbumThumbnail(json); // Put thumbnail in Svelte store
+                    this.writeToDisk(json); // Put thumbnail in browser's local disk cache
                 }
             })
             .catch((error) => {
@@ -153,10 +148,12 @@ class LatestAlbumThumbnailStore {
     /**
      * Store the latest album thumbnail in my Svelte store
      */
-    private setLatestAlbumThumbnail(thumbnail: AlbumThumb): void {
+    private setLatestAlbumThumbnail(json: unknown): void {
+        const albumThumb: Thumbable = toAlbum(json);
+
         const newState = produce(get(this.latestAlbumThumbnailStore), (draftState: LatestAlbumThumbnailEntry) => {
             draftState.status = AlbumLoadStatus.LOADED;
-            draftState.thumbnail = thumbnail;
+            draftState.thumbnail = albumThumb;
         });
         this.latestAlbumThumbnailStore.set(newState);
     }
