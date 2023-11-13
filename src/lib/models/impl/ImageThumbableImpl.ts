@@ -1,6 +1,7 @@
 import type { ImageRecord } from './server';
 import type { Thumbable } from '../GalleryItemInterfaces';
 import { ThumbableBaseImpl } from './ThumbableBaseImpl';
+import Config from '$lib/utils/config';
 
 export class ImageThumbableImpl extends ThumbableBaseImpl implements Thumbable {
     protected override readonly json: ImageRecord;
@@ -27,7 +28,7 @@ export class ImageThumbableImpl extends ThumbableBaseImpl implements Thumbable {
     }
 
     get thumbnailUrl(): string {
-        // TODO: implement for real
-        return 'https://cdn.tacocat.com/zenphoto/cache/2023/10-29/halloween_party32_200_w200_h200_cw200_ch200_thumb.jpg?cached=1698637062';
+        return Config.thumbnailUrl(this.path);
+        // TODO: implement cachebuster like this: 'https://cdn.tacocat.com/zenphoto/cache/2023/10-29/halloween_party32_200_w200_h200_cw200_ch200_thumb.jpg?cached=1698637062';
     }
 }

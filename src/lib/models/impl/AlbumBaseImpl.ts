@@ -4,6 +4,7 @@ import type { Album, Image, Thumbable } from '../GalleryItemInterfaces';
 import { ThumbableBaseImpl } from './ThumbableBaseImpl';
 import { ImageImpl } from './ImageImpl';
 import toAlbum from './AlbumCreator';
+import Config from '$lib/utils/config';
 
 export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
     override readonly json: AlbumGalleryItem;
@@ -61,8 +62,8 @@ export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
     }
 
     get thumbnailUrl(): string | undefined {
-        console.log('TODO IMPLEMENT FOR REAL');
-        return 'https://cdn.tacocat.com/zenphoto/cache/2023/10-29/halloween_party32_200_w200_h200_cw200_ch200_thumb.jpg?cached=1698637062';
+        return this.json?.thumbnail?.path ? Config.thumbnailUrl(this.json.thumbnail.path) : undefined;
+        // TODO: implement cachebuster like this: 'https://cdn.tacocat.com/zenphoto/cache/2023/10-29/halloween_party32_200_w200_h200_cw200_ch200_thumb.jpg?cached=1698637062';
     }
 
     set thumbnailUrl(thumbnailUrl: string) {

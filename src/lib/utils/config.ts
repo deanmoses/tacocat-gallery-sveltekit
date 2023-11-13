@@ -21,11 +21,11 @@ export default abstract class Config {
     }
 
     /**
-     * URL to CDN-servable stuff
-     * @argument path Path to an image, such as /zenphoto/cache/2018/01-01/new_years_eve06_1024.jpg
+     * URL to CDN'ed derived images
+     * @argument pathAndFormat Path to an image + a format like /2018/01-01/image.jpg/jpeg/70x70'
      */
-    public static cdnUrl(path: string): string {
-        return path; // TODO MIGRATE
+    public static thumbnailUrl(pathAndFormat: string): string {
+        return `https://dacwtfk6o75l6.cloudfront.net/i${pathAndFormat}/jpeg/200x200`;
     }
 
     /**

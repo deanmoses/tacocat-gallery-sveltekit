@@ -18,7 +18,7 @@
 {#key image.path}
     <a href={Config.fullSizeImageUrl(image.path)} target="zen">
         <img
-            src={Config.cdnUrl(image.url_sized)}
+            src={Config.thumbnailUrl(image.url_sized)}
             style="max-width: {image.width}px; max-height: {image.height}px;"
             alt={image.title}
         />
