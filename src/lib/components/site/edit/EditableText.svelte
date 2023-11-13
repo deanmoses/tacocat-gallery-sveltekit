@@ -10,9 +10,9 @@
     /** The text content to be made editable */
     export let textContent = '';
 
-    let div;
+    let div: HTMLElement;
 
-    function onInput(e) {
+    function onInput() {
         let editedText = div.innerText;
         // I'm having a problem with a /n being added at some point where I'm
         // then not able to remove it.  This is a blunt intstrument, but maybe
