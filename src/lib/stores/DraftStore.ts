@@ -128,8 +128,7 @@ class DraftStore {
      * @returns the configuration for the save request
      */
     private getSaveRequestConfig(content: DraftContent): RequestInit {
-        // The save request configuration
-        const requestConfig: RequestInit = {
+        return {
             method: 'PATCH',
             headers: {
                 Accept: 'application/json',
@@ -144,8 +143,6 @@ class DraftStore {
             cache: 'no-store',
             credentials: 'include',
         };
-
-        return requestConfig;
     }
 
     /**
