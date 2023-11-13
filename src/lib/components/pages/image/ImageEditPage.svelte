@@ -30,7 +30,10 @@
     </svelte:fragment>
 
     <svelte:fragment slot="title">
-        <EditableText textContent={image.title} />
+        <!-- The #key block is an attempt to prevent the lagging title problem. Have not yet tested it out.  -->
+        {#key image.path}
+            <EditableText textContent={image.title} />
+        {/key}
     </svelte:fragment>
 
     <svelte:fragment slot="caption">
