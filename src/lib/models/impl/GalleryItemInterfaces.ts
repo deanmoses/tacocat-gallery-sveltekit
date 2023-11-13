@@ -10,6 +10,7 @@ export interface Album extends BaseGalleryItem {
     readonly parentTitle: string;
     readonly images: Thumbable[];
     readonly albums: Thumbable[];
+    getImage(imagePath: string): Image | undefined;
 }
 
 export interface Image extends BaseGalleryItem {
