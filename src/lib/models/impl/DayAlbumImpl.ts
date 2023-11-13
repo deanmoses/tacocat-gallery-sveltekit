@@ -1,8 +1,9 @@
 import { longDate, shortDate } from '$lib/utils/date-utils';
 import { albumPathToDate } from '$lib/utils/galleryPathUtils';
 import { BaseAlbumImpl } from './BaseAlbumImpl';
+import type { Album } from './GalleryItemInterfaces';
 
-export class DayAlbumImpl extends BaseAlbumImpl {
+export class DayAlbumImpl extends BaseAlbumImpl implements Album {
     get title(): string {
         return longDate(this.date);
     }
