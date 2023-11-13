@@ -1,11 +1,11 @@
 import { albumPathToDate } from '$lib/utils/galleryPathUtils';
-import type { AlbumGalleryItem, GalleryRecord } from '../server';
-import type { Album, Image, Thumbable } from './GalleryItemInterfaces';
-import { BaseGalleryItemImpl } from './BaseGalleryItemImpl';
+import type { AlbumGalleryItem, GalleryRecord } from './server';
+import type { Album, Image, Thumbable } from '../GalleryItemInterfaces';
+import { GalleryItemBaseImpl } from './GalleryItemBaseImpl';
 import { ImageImpl } from './ImageImpl';
-import toAlbum from './album-creator';
+import toAlbum from './AlbumCreator';
 
-export abstract class BaseAlbumImpl extends BaseGalleryItemImpl implements Album {
+export abstract class AlbumBaseImpl extends GalleryItemBaseImpl implements Album {
     protected override readonly json: AlbumGalleryItem;
 
     constructor(json: AlbumGalleryItem) {

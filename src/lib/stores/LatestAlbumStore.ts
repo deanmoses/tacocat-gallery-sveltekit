@@ -7,8 +7,8 @@ import { get as getFromIdb, set as setToIdb } from 'idb-keyval';
 import { produce } from 'immer';
 import Config from '$lib/utils/config';
 import { AlbumLoadStatus } from '$lib/models/album';
-import type { Thumbable } from '$lib/models/impl/GalleryItemInterfaces';
-import toAlbum from '$lib/models/impl/album-creator';
+import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
+import toAlbum from '$lib/models/impl/AlbumCreator';
 
 export type LatestAlbumThumbnailEntry = {
     thumbnail?: Thumbable;

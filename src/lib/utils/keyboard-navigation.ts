@@ -1,4 +1,4 @@
-import type { Album } from '$lib/models/impl/GalleryItemInterfaces';
+import type { Album } from '$lib/models/GalleryItemInterfaces';
 import { isImagePath, isAlbumPath, getParentFromPath } from '$lib/utils/path-utils';
 
 /**

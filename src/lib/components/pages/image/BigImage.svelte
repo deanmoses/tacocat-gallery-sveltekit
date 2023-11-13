@@ -5,7 +5,7 @@
 -->
 
 <script lang="ts">
-    import type { Image } from '$lib/models/impl/GalleryItemInterfaces';
+    import type { Image } from '$lib/models/GalleryItemInterfaces';
     import Config from '$lib/utils/config';
     export let image: Image;
 </script>

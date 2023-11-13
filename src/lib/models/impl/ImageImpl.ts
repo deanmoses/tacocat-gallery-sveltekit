@@ -1,8 +1,8 @@
-import type { ImageRecord } from '../server';
-import type { Album, Image, Thumbable } from './GalleryItemInterfaces';
-import { BaseGalleryItemImpl } from './BaseGalleryItemImpl';
+import type { ImageRecord } from './server';
+import type { Album, Image, Thumbable } from '../GalleryItemInterfaces';
+import { GalleryItemBaseImpl } from './GalleryItemBaseImpl';
 
-export class ImageImpl extends BaseGalleryItemImpl implements Image {
+export class ImageImpl extends GalleryItemBaseImpl implements Image {
     protected override readonly json: ImageRecord;
     private readonly album: Album;
 

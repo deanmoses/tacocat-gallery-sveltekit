@@ -13,7 +13,7 @@
     import EditableHtml from '$lib/components/site/edit/EditableHtml.svelte';
     import { editUrl } from '$lib/utils/path-utils';
     import DraftStore from '$lib/stores/DraftStore';
-    import type { Album } from '$lib/models/impl/GalleryItemInterfaces';
+    import type { Album } from '$lib/models/GalleryItemInterfaces';
 
     export let album: Album;
     export let year: string;

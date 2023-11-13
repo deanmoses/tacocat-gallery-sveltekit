@@ -1,8 +1,8 @@
 import { processCaption } from '$lib/utils/legacyUrlHandler';
-import type { GalleryItemType, GalleryRecord } from '../server';
-import type { BaseGalleryItem } from './GalleryItemInterfaces';
+import type { GalleryItemType, GalleryRecord } from './server';
+import type { BaseGalleryItem } from '../GalleryItemInterfaces';
 
-export abstract class BaseGalleryItemImpl implements BaseGalleryItem {
+export abstract class GalleryItemBaseImpl implements BaseGalleryItem {
     protected readonly json: GalleryRecord;
 
     constructor(json: GalleryRecord) {

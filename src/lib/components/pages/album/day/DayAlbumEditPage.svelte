@@ -15,7 +15,7 @@
     import { editUrl, getLeafItemOnPath } from '$lib/utils/path-utils';
     import DraftStore from '$lib/stores/DraftStore';
     import { setAlbumThumbnail } from '$lib/stores/AlbumThumbnailHelper';
-    import type { Album } from '$lib/models/impl/GalleryItemInterfaces';
+    import type { Album } from '$lib/models/GalleryItemInterfaces';
 
     export let year: string;
     export let album: Album;

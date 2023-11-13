@@ -14,7 +14,7 @@
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import LatestAlbumThumbnail from '$lib/components/data-aware/LatestAlbumThumbnail.svelte';
     import Config from '$lib/utils/config';
-    import type { Album } from '$lib/models/impl/GalleryItemInterfaces';
+    import type { Album } from '$lib/models/GalleryItemInterfaces';
 
     export let album: Album;
 </script>

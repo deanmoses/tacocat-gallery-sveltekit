@@ -7,10 +7,10 @@ import { get as getFromIdb, set as setToIdb } from 'idb-keyval';
 import { produce } from 'immer';
 import Config from '$lib/utils/config';
 import { AlbumType, AlbumLoadStatus, AlbumUpdateStatus } from '$lib/models/album';
-import toAlbum from '$lib/models/impl/album-creator';
+import toAlbum from '$lib/models/impl/AlbumCreator';
 import { getAlbumType } from '$lib/utils/path-utils';
 import { isValidAlbumPath } from '$lib/utils/galleryPathUtils';
-import type { Album } from '$lib/models/impl/GalleryItemInterfaces';
+import type { Album } from '$lib/models/GalleryItemInterfaces';
 
 export type AlbumEntry = {
     loadStatus: AlbumLoadStatus;

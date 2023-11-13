@@ -1,4 +1,4 @@
-import type { GalleryItem } from './server';
+import type { GalleryItem } from './impl/server';
 
 /**
  * An in-progress search

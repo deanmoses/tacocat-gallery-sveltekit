@@ -11,7 +11,7 @@ import Config from '$lib/utils/config';
 import { type AlbumEntry, albumStore } from './AlbumStore';
 import { dev } from '$app/environment';
 import { getParentFromPath, isValidPath } from '$lib/utils/galleryPathUtils';
-import type { Thumbable } from '$lib/models/impl/GalleryItemInterfaces';
+import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
 
 const initialState: Draft = {
     status: DraftStatus.NO_CHANGES,

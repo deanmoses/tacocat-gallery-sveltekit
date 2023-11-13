@@ -1,8 +1,8 @@
 import { albumPathToDate } from '$lib/utils/galleryPathUtils';
-import { BaseAlbumImpl } from './BaseAlbumImpl';
-import type { Album } from './GalleryItemInterfaces';
+import { AlbumBaseImpl } from './AlbumBaseImpl';
+import type { Album } from '../GalleryItemInterfaces';
 
-export class YearAlbumImpl extends BaseAlbumImpl implements Album {
+export class AlbumYearImpl extends AlbumBaseImpl implements Album {
     override get title(): string {
         return this.date ? this.date.getFullYear().toString() : '';
     }

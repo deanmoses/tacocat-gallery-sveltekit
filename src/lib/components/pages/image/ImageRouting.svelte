@@ -8,7 +8,7 @@
     import ImageLoadingPage from '$lib/components/pages/image/ImageLoadingPage.svelte';
     import AlbumErrorPage from '../album/AlbumErrorPage.svelte';
     import HomeIcon from '$lib/components/site/icons/HomeIcon.svelte';
-    import type { Image } from '$lib/models/impl/GalleryItemInterfaces';
+    import type { Image } from '$lib/models/GalleryItemInterfaces';
 
     export let year: string;
     export let image: Image | undefined;

@@ -1,13 +1,13 @@
 import { AlbumType } from '$lib/models/album';
 import { getAlbumType } from '$lib/utils/path-utils';
-import { DayAlbumImpl } from './DayAlbumImpl';
-import type { Album } from './GalleryItemInterfaces';
-import { RootAlbumImpl } from './RootAlbumImpl';
-import { YearAlbumImpl } from './YearAlbumImpl';
+import { AlbumDayImpl } from './AlbumDayImpl';
+import type { Album } from '../GalleryItemInterfaces';
+import { AlbumRootImpl } from './AlbumRootImpl';
+import { AlbumYearImpl } from './AlbumYearImpl';
 
 /**
- * Create an Album or a subclass of Album from the specified object
- * @param json object created from JSON coming from server or stored in idb
+ * Instantiate an Album or a subclass of Album from the specified object
+ * @param json JSON object coming from server or stored in idb
  */
 export default function toAlbum(json: any): Album {
     if (!json) throw new Error('No JSON object received');
@@ -17,11 +17,11 @@ export default function toAlbum(json: any): Album {
     const type = getAlbumType(path);
     switch (type) {
         case AlbumType.ROOT:
-            return new RootAlbumImpl(json);
+            return new AlbumRootImpl(json);
         case AlbumType.YEAR:
-            return new YearAlbumImpl(json);
+            return new AlbumYearImpl(json);
         case AlbumType.DAY:
-            return new DayAlbumImpl(json);
+            return new AlbumDayImpl(json);
         default:
             throw new Error(`Unexpected album type [${type}]`);
     }

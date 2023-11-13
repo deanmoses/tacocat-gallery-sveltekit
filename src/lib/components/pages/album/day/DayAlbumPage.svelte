@@ -10,7 +10,7 @@
     import UpButton from '$lib/components/site/nav/UpButton.svelte';
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
-    import type { Album } from '$lib/models/impl/GalleryItemInterfaces';
+    import type { Album } from '$lib/models/GalleryItemInterfaces';
 
     export let year: string;
     export let album: Album;

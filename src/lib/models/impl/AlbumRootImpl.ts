@@ -1,7 +1,7 @@
-import { BaseAlbumImpl } from './BaseAlbumImpl';
-import type { Album } from './GalleryItemInterfaces';
+import { AlbumBaseImpl } from './AlbumBaseImpl';
+import type { Album } from '../GalleryItemInterfaces';
 
-export class RootAlbumImpl extends BaseAlbumImpl implements Album {
+export class AlbumRootImpl extends AlbumBaseImpl implements Album {
     get title(): string {
         return '';
     }

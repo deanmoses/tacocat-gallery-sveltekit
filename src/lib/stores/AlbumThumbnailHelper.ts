@@ -1,5 +1,5 @@
 import { AlbumUpdateStatus } from '$lib/models/album';
-import type { AlbumGalleryItem } from '$lib/models/server';
+import type { AlbumGalleryItem } from '$lib/models/impl/server';
 import { type AlbumEntry, albumStore } from '$lib/stores/AlbumStore';
 import Config from '$lib/utils/config';
 import { getParentFromPath } from '$lib/utils/galleryPathUtils';

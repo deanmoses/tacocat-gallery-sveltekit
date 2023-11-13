@@ -7,7 +7,7 @@
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
     import { albumStore } from '$lib/stores/AlbumStore';
-    import type { Album } from '$lib/models/impl/GalleryItemInterfaces';
+    import type { Album } from '$lib/models/GalleryItemInterfaces';
 
     /**
      * Handle keyboard navigation

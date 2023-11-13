@@ -4,7 +4,7 @@
 <script lang="ts">
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import { AlbumLoadStatus } from '$lib/models/album';
-    import type { Thumbable } from '$lib/models/impl/GalleryItemInterfaces';
+    import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
     import { latestAlbumThumbnailEntry } from '$lib/stores/LatestAlbumStore';
 
     let status: AlbumLoadStatus;

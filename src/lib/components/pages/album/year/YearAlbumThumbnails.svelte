@@ -6,7 +6,7 @@
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import { shortDate } from '$lib/utils/date-utils';
     import { albumPathToDate } from '$lib/utils/galleryPathUtils';
-    import type { Album, Thumbable } from '$lib/models/impl/GalleryItemInterfaces';
+    import type { Album, Thumbable } from '$lib/models/GalleryItemInterfaces';
 
     export let album: Album;
 
