@@ -155,7 +155,7 @@ class DraftStore {
             this.setStatus(DraftStatus.SAVING);
 
             // Send the save request
-            const saveUrl = Config.saveUrl(draft.path);
+            const saveUrl = Config.updateUrl(draft.path);
             const requestConfig = this.getSaveRequestConfig(draft);
             fetch(saveUrl, requestConfig)
                 .then((response) => this.checkForErrors(response))
@@ -182,7 +182,7 @@ class DraftStore {
 
         // The save request configuration
         const requestConfig: RequestInit = {
-            method: 'POST',
+            method: 'PATCH',
             headers: {
                 Accept: 'application/json',
             },

@@ -1,4 +1,5 @@
 import { isValidAlbumPath } from './galleryPathUtils';
+import { isImagePath } from './path-utils';
 
 /**
  * Configuration global to the application
@@ -49,11 +50,13 @@ export default abstract class Config {
     }
 
     /**
-     * URL to send a HTTP POST to save an album or an image
-     * @param path path of an album or an image
+     * URL to send a HTTP PATCH to update an album or an image
+     * @param path path of album or image
      */
-    public static saveUrl(path: string): string {
-        return path; // TODO MIGRATE
+    public static updateUrl(path: string): string {
+        return isImagePath(path)
+            ? 'https://v2kdsvx1hf.execute-api.us-east-1.amazonaws.com/Prod/image' + path
+            : 'https://v2kdsvx1hf.execute-api.us-east-1.amazonaws.com/Prod/album' + path;
     }
 
     /**

@@ -18,7 +18,7 @@ export function setAlbumThumbnail(albumPath: string, thumbnailLeafPath: string):
     albumStore.setUpdateStatus(albumPath, AlbumUpdateStatus.UPDATING);
 
     // Make the save request
-    const saveUrl = Config.saveUrl(albumPath);
+    const saveUrl = Config.updateUrl(albumPath);
     const requestConfig = buildRequestConfig(thumbnailLeafPath);
     fetch(saveUrl, requestConfig)
         .then(checkForErrors)
