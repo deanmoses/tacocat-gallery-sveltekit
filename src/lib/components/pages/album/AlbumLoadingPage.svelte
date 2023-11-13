@@ -5,12 +5,12 @@
 -->
 
 <script lang="ts">
-	import BlankAlbumPageLayout from "./BlankAlbumPageLayout.svelte";
-	import WaitingSpinner from "$lib/components/site/WaitingSpinner.svelte";
+    import BlankAlbumPageLayout from './BlankAlbumPageLayout.svelte';
+    import WaitingSpinner from '$lib/components/site/WaitingSpinner.svelte';
 
-	export let year:string = null;
+    export let year: string;
 </script>
 
 <BlankAlbumPageLayout {year} title="Loading...">
-	<WaitingSpinner />
+    <WaitingSpinner />
 </BlankAlbumPageLayout>
