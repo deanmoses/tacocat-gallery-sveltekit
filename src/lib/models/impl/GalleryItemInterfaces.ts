@@ -24,7 +24,7 @@ interface BaseGalleryItem extends Thumbable {
 }
 
 export interface Thumbable {
-    get path(): string;
+    get path(): string; // TODO: replace with get id(), stop using path in the UI
     get title(): string;
     get description(): string;
     get summary(): string;
