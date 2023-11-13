@@ -10,6 +10,7 @@ export abstract class ThumbableBaseImpl implements Thumbable {
     }
 
     abstract get title(): string;
+    abstract get summary(): string;
     abstract get href(): string;
     abstract get thumbnailUrl(): string | undefined;
 
@@ -35,10 +36,6 @@ export abstract class ThumbableBaseImpl implements Thumbable {
 
     set description(description: string) {
         this.json.description = description;
-    }
-
-    get summary(): string {
-        return !!this.json.summary ? this.json.summary : '';
     }
 
     get parentHref(): string {

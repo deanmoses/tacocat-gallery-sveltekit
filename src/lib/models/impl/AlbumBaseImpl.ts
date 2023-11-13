@@ -25,6 +25,9 @@ export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
         this.json.published = published;
     }
 
+    override get summary(): string {
+        return this.json.summary ?? '';
+    }
     override set summary(summary: string) {
         this.json.summary = summary;
     }

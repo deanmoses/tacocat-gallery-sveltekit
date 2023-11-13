@@ -45,6 +45,7 @@ export type ImageRecord = BaseGalleryRecord & {
 export type AlbumRecord = BaseGalleryRecord & {
     published?: boolean;
     thumbnail?: AlbumThumbnailRecord;
+    summary?: string;
 };
 
 export type AlbumThumbnailRecord = {
@@ -59,7 +60,6 @@ type BaseGalleryRecord = {
     itemType: GalleryItemType;
     updatedOn: string;
     description?: string;
-    summary?: string;
 };
 
 export type GalleryItemType = 'album' | 'image';

@@ -18,6 +18,10 @@ export class ImageThumbableImpl extends ThumbableBaseImpl implements Thumbable {
         this.json.title = title;
     }
 
+    get summary() {
+        return '';
+    }
+
     get href(): string {
         return this.path;
     }
