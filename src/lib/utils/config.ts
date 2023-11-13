@@ -1,3 +1,4 @@
+import { dev } from '$app/environment';
 import { isValidAlbumPath } from './galleryPathUtils';
 import { isImagePath } from './path-utils';
 
@@ -32,6 +33,9 @@ export default abstract class Config {
      */
     public static albumUrl(path: string): string {
         if (!isValidAlbumPath(path)) throw new Error(`Invalid album path [${path}]`);
+        if (dev) {
+            return '/api/Prod/album' + path;
+        }
         return 'https://v2kdsvx1hf.execute-api.us-east-1.amazonaws.com/Prod/album' + path;
     }
 
@@ -39,6 +43,9 @@ export default abstract class Config {
      * URL to retrieve latest album
      */
     public static latestAlbumUrl(): string {
+        if (dev) {
+            return '/api/Prod/latest-album/';
+        }
         return 'https://v2kdsvx1hf.execute-api.us-east-1.amazonaws.com/Prod/latest-album/';
     }
 
@@ -46,7 +53,7 @@ export default abstract class Config {
      * URL to check user's authentication status
      */
     public static checkAuthenticationUrl(): string {
-        return 'xxx'; // TODO MIGRATE
+        return 'https://tacocat.com/zenphoto/?api&auth'; // TODO MIGRATE
     }
 
     /**
@@ -54,6 +61,9 @@ export default abstract class Config {
      * @param path path of album or image
      */
     public static updateUrl(path: string): string {
+        if (dev) {
+            return isImagePath(path) ? '/api/Prod/image' + path : '/api/Prod/album' + path;
+        }
         return isImagePath(path)
             ? 'https://v2kdsvx1hf.execute-api.us-east-1.amazonaws.com/Prod/image' + path
             : 'https://v2kdsvx1hf.execute-api.us-east-1.amazonaws.com/Prod/album' + path;
@@ -64,6 +74,9 @@ export default abstract class Config {
      * @argument searchTerms the terms to search for
      */
     public static searchUrl(searchTerms: string): string {
+        if (dev) {
+            return '/api/Prod/search/' + encodeURIComponent(searchTerms);
+        }
         return 'https://v2kdsvx1hf.execute-api.us-east-1.amazonaws.com/Prod/search/' + encodeURIComponent(searchTerms);
     }
 
