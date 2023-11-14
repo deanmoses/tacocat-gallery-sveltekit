@@ -1,7 +1,5 @@
 <!--
-  @component
-
-  The main content of a page.  In an image page, that'd be the caption and image.  In an album, the thumbnails.
+  @component The main content of a page.  In an image page, that'd be the caption and image.  In an album, the thumbnails.
 -->
 
 <div class="main-content">

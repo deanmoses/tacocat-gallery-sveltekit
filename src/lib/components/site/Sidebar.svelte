@@ -1,7 +1,5 @@
 <!--
-  @component
-
-  Sidebar of the site
+  @component Sidebar of the site
 -->
 
 <div class="sidebar hidden-sm">

@@ -1,7 +1,5 @@
 <!--
-  @component
-
-	An icon meant to represent a transition between an unselected star to a selected star
+  @component An icon meant to represent a transition between an unselected star to a selected star
 -->
 <script lang="ts">
     const d =

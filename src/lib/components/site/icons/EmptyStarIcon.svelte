@@ -1,7 +1,5 @@
 <!--
-  @component
-
-  A hollow outline (not filled-in) of a star
+  @component A hollow outline (not filled-in) of a star
 -->
 <script lang="ts">
     export let width = '1em';

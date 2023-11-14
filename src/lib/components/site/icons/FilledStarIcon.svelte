@@ -1,7 +1,5 @@
 <!--
-  @component
-
-  A filled-in star icon
+  @component A filled-in star icon
 -->
 <script lang="ts">
     export let width = '1em';

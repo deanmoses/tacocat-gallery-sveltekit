@@ -1,7 +1,5 @@
 <!--
-  @component
-
-  For displaying some big message or waiting spinner in the main content area of a page
+  @component For displaying some big message or waiting spinner in the main content area of a page
 -->
 
 <div>

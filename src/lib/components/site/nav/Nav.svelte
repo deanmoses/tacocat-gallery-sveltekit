@@ -1,7 +1,5 @@
 <!--
-  @component
-
-  For grouping a set of navigation buttons together
+  @component For grouping a set of navigation buttons together
 -->
 
 <nav>

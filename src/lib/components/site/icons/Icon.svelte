@@ -1,7 +1,5 @@
 <!--
-  @component
-
-  Base component for all SVG icons
+  @component Base component for all SVG icons
 -->
 <script lang="ts">
     export let width = '1em';
