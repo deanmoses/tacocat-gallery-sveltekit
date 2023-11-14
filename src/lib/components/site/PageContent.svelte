@@ -5,12 +5,12 @@
 -->
 
 <main>
-  <slot />
+    <slot />
 </main>
 
 <style>
-  main {
-    flex: 1;
-    display: flex;
-  }
+    main {
+        flex: 1;
+        display: flex;
+    }
 </style>

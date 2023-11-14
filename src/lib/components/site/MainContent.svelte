@@ -5,18 +5,18 @@
 -->
 
 <div class="main-content">
-  <slot />
+    <slot />
 </div>
 
 <style>
-  .main-content {
-    flex: 3;
+    .main-content {
+        flex: 3;
 
-    display: flex;
-    flex-direction: column;
-    gap: calc(var(--default-padding) * 2);
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--default-padding) * 2);
 
-    padding: calc(var(--default-padding) * 2);
-    background-color: white;
-  }
+        padding: calc(var(--default-padding) * 2);
+        background-color: white;
+    }
 </style>
