@@ -4,10 +4,10 @@
 <script lang="ts">
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
-    import { editUrl, isAlbumPath, isImagePath } from '$lib/utils/path-utils';
+    import { editUrl } from '$lib/utils/path-utils';
     import EditIcon from '../../icons/EditIcon.svelte';
     import CancelIcon from '../../icons/CancelIcon.svelte';
-    import { getParentFromPath } from '$lib/utils/galleryPathUtils';
+    import { getParentFromPath, isValidAlbumPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
     import { albumStore } from '$lib/stores/AlbumStore';
 
     let path: string;
@@ -23,9 +23,9 @@
 
     async function onDeleteButtonClick() {
         let thePath = path;
-        if (!isImagePath(thePath)) {
+        if (!isValidImagePath(thePath)) {
             thePath = thePath + '/';
-            if (!isAlbumPath(thePath)) throw new Error(`Invalid path [${thePath}]`);
+            if (!isValidAlbumPath(thePath)) throw new Error(`Invalid path [${thePath}]`);
         }
         await albumStore.delete(thePath);
         goto(getParentFromPath(thePath));
