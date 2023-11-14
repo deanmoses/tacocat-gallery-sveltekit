@@ -1,80 +1,19 @@
 <!--
-  @component On hover, display a button to get into edit mode.  
+  @component On hover, display buttons to get into edit mode, delete, etc 
 -->
 <script lang="ts">
-    import { page } from '$app/stores';
-    import { goto } from '$app/navigation';
-    import { editUrl } from '$lib/utils/path-utils';
-    import EditIcon from '../../icons/EditIcon.svelte';
-    import { getParentFromPath, isValidAlbumPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
-    import { albumStore } from '$lib/stores/AlbumStore';
-    import SaveIcon from '../../icons/SaveIcon.svelte';
-    import DeleteIcon from '../../icons/DeleteIcon.svelte';
-    import UploadIcon from '../../icons/UploadIcon.svelte';
-
-    let path: string;
-    $: path = $page.url.pathname;
-
-    /**
-     * The Edit button was clicked.
-     * Go to edit version of this page.
-     */
-    function onEditButtonClick() {
-        const url = editUrl(path);
-        if (url) goto(url);
-    }
-
-    async function onNewButtonClick() {
-        let thePath = path;
-        if (!isValidImagePath(thePath)) {
-            thePath = thePath + '/';
-            if (!isValidAlbumPath(thePath)) throw new Error(`Invalid path [${thePath}]`);
-        }
-        const d = new Date();
-        const month = ('0' + (d.getMonth() + 1)).slice(-2);
-        const day = ('0' + d.getDate()).slice(-2);
-        const month_day = `${month}-${day}`;
-        const newAlbumName = prompt('Date of new album ', month_day);
-        const newAlbumPath = thePath + newAlbumName + '/';
-        await albumStore.createAlbum(newAlbumPath);
-        goto(newAlbumPath);
-    }
-
-    async function onUploadButtonClick() {
-        document.getElementById('fileInput')?.click();
-    }
-
-    async function onFilesSelected() {
-        const files = (<HTMLInputElement>document.getElementById('fileInput'))?.files;
-        const fileCount: number = files?.length ?? 0;
-        alert(`I should upload these ${fileCount} files`);
-    }
-
-    async function onDeleteButtonClick() {
-        let thePath = path;
-        if (!isValidImagePath(thePath)) {
-            thePath = thePath + '/';
-            if (!isValidAlbumPath(thePath)) throw new Error(`Invalid path [${thePath}]`);
-        }
-        await albumStore.delete(thePath);
-        goto(getParentFromPath(thePath));
-    }
+    import UploadButton from './toggle_buttons/UploadButton.svelte';
+    import DeleteButton from './toggle_buttons/DeleteButton.svelte';
+    import NewAlbumButton from './toggle_buttons/NewAlbumButton.svelte';
+    import EditButton from './toggle_buttons/EditButton.svelte';
 </script>
 
 <div>
     <nav class="editing-controls">
-        <button on:click|once={onEditButtonClick}><EditIcon />Edit</button>
-        <button on:click|once={onNewButtonClick}><SaveIcon />New Album</button>
-        <button on:click|once={onUploadButtonClick}><UploadIcon />Upload</button>
-        <input
-            on:change|once={onFilesSelected}
-            type="file"
-            id="fileInput"
-            multiple
-            accept=".jpg, .jpeg"
-            style="display:none"
-        />
-        <button on:click|once={onDeleteButtonClick}><DeleteIcon />Delete</button>
+        <EditButton />
+        <NewAlbumButton />
+        <UploadButton />
+        <DeleteButton />
     </nav>
 </div>
 
@@ -111,11 +50,5 @@
         100% {
             opacity: 1;
         }
-    }
-
-    button {
-        display: flex;
-        align-items: center;
-        gap: 0.3em;
     }
 </style>
