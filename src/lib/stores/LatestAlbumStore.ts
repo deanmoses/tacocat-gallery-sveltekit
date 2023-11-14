@@ -5,10 +5,10 @@
 import { writable, type Writable, derived, type Readable, get } from 'svelte/store';
 import { get as getFromIdb, set as setToIdb } from 'idb-keyval';
 import { produce } from 'immer';
-import Config from '$lib/utils/config';
 import { AlbumLoadStatus } from '$lib/models/album';
 import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
 import toAlbum from '$lib/models/impl/AlbumCreator';
+import { latestAlbumUrl } from '$lib/utils/config';
 
 export type LatestAlbumThumbnailEntry = {
     thumbnail?: Thumbable;
@@ -86,7 +86,7 @@ class LatestAlbumThumbnailStore {
      * Fetch latest album thumbnail from server
      */
     private fetchFromServer(): void {
-        fetch(Config.latestAlbumUrl())
+        fetch(latestAlbumUrl())
             .then((response: Response) => {
                 if (!response.ok) throw new Error(response.statusText);
                 return response.json();

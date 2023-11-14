@@ -2,9 +2,9 @@
  * A Svelte store representing the current user / session
  */
 
-import Config from '$lib/utils/config';
 import { writable, type Writable, derived, type Readable } from 'svelte/store';
 import { dev } from '$app/environment';
+import { checkAuthenticationUrl } from '$lib/utils/config';
 
 /**
  * Manages the Svelte stores about a user session
@@ -34,7 +34,7 @@ class SessionStore {
             console.warn('FAKE: setting user to be an admin');
             this._isAdmin.set(true);
         } else {
-            const uri = Config.checkAuthenticationUrl();
+            const uri = checkAuthenticationUrl();
             const response = await fetch(uri, {
                 // no-store: the browser fetches from the remote server without first looking in the cache,
                 // and will not update the cache with the downloaded resource

@@ -1,7 +1,7 @@
 import type { ImageRecord } from './server';
 import type { Album, Image, Thumbable } from '../GalleryItemInterfaces';
 import { ImageThumbableImpl } from './ImageThumbableImpl';
-import Config from '$lib/utils/config';
+import { detailImagelUrl, originalImageUrl } from '$lib/utils/config';
 
 export class ImageImpl extends ImageThumbableImpl implements Image {
     protected override readonly json: ImageRecord;
@@ -22,12 +22,12 @@ export class ImageImpl extends ImageThumbableImpl implements Image {
         } else {
             imageProcessingInstructions = '/jpeg/x1024';
         }
-        return Config.detailImagelUrl(this.json.path + imageProcessingInstructions);
+        return detailImagelUrl(this.json.path + imageProcessingInstructions);
         // TODO: implement cachebuster like this: 'https://cdn.tacocat.com/zenphoto/cache/2023/10-29/halloween_party32_200_w200_h200_cw200_ch200_thumb.jpg?cached=1698637062';
     }
 
     get originalUrl(): string {
-        return Config.originalImageUrl(this.json.path);
+        return originalImageUrl(this.json.path);
         // TODO: implement cachebuster like this: 'https://cdn.tacocat.com/zenphoto/cache/2023/10-29/halloween_party32_200_w200_h200_cw200_ch200_thumb.jpg?cached=1698637062';
     }
 

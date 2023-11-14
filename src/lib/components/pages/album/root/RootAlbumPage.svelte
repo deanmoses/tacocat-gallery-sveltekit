@@ -13,8 +13,8 @@
     import Thumbnails from '$lib/components/site/Thumbnails.svelte';
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import LatestAlbumThumbnail from '$lib/components/data-aware/LatestAlbumThumbnail.svelte';
-    import Config from '$lib/utils/config';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
+    import { siteShortTitle, siteTitle } from '$lib/utils/config';
 
     export let album: Album;
 </script>
@@ -25,7 +25,7 @@
 
 <SiteLayout>
     <Header hideSiteTitle>
-        <ResponsiveTitle title={Config.siteTitle()} shortTitle={Config.siteShortTitle()} />
+        <ResponsiveTitle title={siteTitle()} shortTitle={siteShortTitle()} />
     </Header>
     <PageContent>
         <Sidebar>

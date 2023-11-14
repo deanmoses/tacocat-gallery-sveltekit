@@ -1,7 +1,7 @@
 import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
 import { AlbumUpdateStatus } from '$lib/models/album';
 import { type AlbumEntry, albumStore } from '$lib/stores/AlbumStore';
-import Config from '$lib/utils/config';
+import { updateUrl } from '$lib/utils/config';
 import { getParentFromPath } from '$lib/utils/galleryPathUtils';
 import { produce } from 'immer';
 
@@ -18,7 +18,7 @@ export function setAlbumThumbnail(albumPath: string, thumbnailLeafPath: string):
     albumStore.setUpdateStatus(albumPath, AlbumUpdateStatus.UPDATING);
 
     // Make the save request
-    const saveUrl = Config.updateUrl(albumPath);
+    const saveUrl = updateUrl(albumPath);
     const requestConfig = buildRequestConfig(thumbnailLeafPath);
     fetch(saveUrl, requestConfig)
         .then(checkForErrors)

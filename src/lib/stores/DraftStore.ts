@@ -6,10 +6,10 @@ import { writable, type Writable, derived, type Readable, get } from 'svelte/sto
 import type { Draft, DraftContent } from '$lib/models/draft';
 import { DraftStatus } from '$lib/models/draft';
 import { produce } from 'immer';
-import Config from '$lib/utils/config';
 import { type AlbumEntry, albumStore } from './AlbumStore';
 import { getParentFromPath, isValidImagePath, isValidPath } from '$lib/utils/galleryPathUtils';
 import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
+import { updateUrl } from '$lib/utils/config';
 
 const initialState: Draft = {
     status: DraftStatus.NO_CHANGES,
@@ -114,7 +114,7 @@ class DraftStore {
             console.log(`Saving draft [${draft.path}]: `, draft);
             this.setStatus(DraftStatus.SAVING);
             // Send the save request
-            fetch(Config.updateUrl(draft.path), this.getSaveRequestConfig(draft.content))
+            fetch(updateUrl(draft.path), this.getSaveRequestConfig(draft.content))
                 .then((response) => this.checkForErrors(response))
                 .then((response) => response.json())
                 .then((json) => this.checkJsonForErrors(json, draft))

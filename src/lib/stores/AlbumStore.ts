@@ -5,13 +5,13 @@
 import { writable, type Writable, derived, type Readable, get } from 'svelte/store';
 import { get as getFromIdb, set as setToIdb } from 'idb-keyval';
 import { produce } from 'immer';
-import Config from '$lib/utils/config';
 import { AlbumType, AlbumLoadStatus, AlbumUpdateStatus } from '$lib/models/album';
 import toAlbum from '$lib/models/impl/AlbumCreator';
 import { getAlbumType } from '$lib/utils/path-utils';
 import { isValidAlbumPath, isValidPath } from '$lib/utils/galleryPathUtils';
 import type { Album } from '$lib/models/GalleryItemInterfaces';
 import type { AlbumRecord } from '$lib/models/impl/server';
+import { albumUrl, deleteUrl } from '$lib/utils/config';
 
 export type AlbumEntry = {
     loadStatus: AlbumLoadStatus;
@@ -158,7 +158,7 @@ class AlbumStore {
      * @param path path of the album
      */
     private fetchFromServer(path: string): void {
-        const url = Config.albumUrl(path);
+        const url = albumUrl(path);
         const requestConfig = this.buildFetchConfig(path);
         fetch(url, requestConfig)
             .then((response: Response) => {
@@ -341,7 +341,7 @@ class AlbumStore {
 
     async delete(path: string) {
         if (!isValidPath(path)) throw new Error(`Invalid path [${path}]`);
-        await fetch(Config.deleteUrl(path), {
+        await fetch(deleteUrl(path), {
             method: 'DELETE',
             headers: {
                 Accept: 'application/json',
