@@ -300,10 +300,6 @@ class AlbumStore {
         updateStatusStore.set(status);
     }
 
-    private getUpdateStatus(path: string): AlbumUpdateStatus {
-        return get(this.getOrCreateUpdateStatusStore(path));
-    }
-
     /**
      * Get the private read-write Svelte store containing the album's update status,
      * creating it if it doesn't exist
@@ -345,7 +341,7 @@ class AlbumStore {
 
     async delete(path: string) {
         if (!isValidPath(path)) throw new Error(`Invalid path [${path}]`);
-        const response = await fetch(Config.deleteUrl(path), {
+        await fetch(Config.deleteUrl(path), {
             method: 'DELETE',
             headers: {
                 Accept: 'application/json',

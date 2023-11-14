@@ -207,10 +207,6 @@ class SearchStore {
         updateStatusStore.set(status);
     }
 
-    private getUpdateStatus(searchTerms: string): SearchUpdateStatus {
-        return get(this.getOrCreateUpdateStatusStore(searchTerms));
-    }
-
     /**
      * Get the private read-write Svelte store containing the search's update status,
      * creating it if it doesn't exist
