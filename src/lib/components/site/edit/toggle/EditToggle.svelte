@@ -1,10 +1,6 @@
 <!--
-  @component
-
-  On hover, display a button to get into edit mode.  
-	Only if current user is an admin.
+  @component On hover, display a button to get into edit mode.  Only if user is an admin.
 -->
-
 <script lang="ts">
     import { isAdmin } from '$lib/stores/SessionStore';
 </script>
