@@ -6,10 +6,9 @@ import { writable, type Writable, derived, type Readable, get } from 'svelte/sto
 import type { Draft, DraftContent } from '$lib/models/draft';
 import { DraftStatus } from '$lib/models/draft';
 import { produce } from 'immer';
-import { isImagePath } from '$lib/utils/path-utils';
 import Config from '$lib/utils/config';
 import { type AlbumEntry, albumStore } from './AlbumStore';
-import { getParentFromPath, isValidPath } from '$lib/utils/galleryPathUtils';
+import { getParentFromPath, isValidImagePath, isValidPath } from '$lib/utils/galleryPathUtils';
 import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
 
 const initialState: Draft = {
@@ -190,7 +189,7 @@ class DraftStore {
         let path = draft.path;
 
         // If it was an image that was saved...
-        if (isImagePath(path)) {
+        if (isValidImagePath(path)) {
             // Get the album in which the image resides
             const albumPath = getParentFromPath(path);
             console.log(`Image save: parent album: [${albumPath}]`);

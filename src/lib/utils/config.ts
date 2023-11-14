@@ -1,6 +1,5 @@
 import { dev } from '$app/environment';
-import { isValidAlbumPath } from './galleryPathUtils';
-import { isImagePath } from './path-utils';
+import { isValidAlbumPath, isValidImagePath } from './galleryPathUtils';
 
 /**
  * Configuration global to the application
@@ -71,7 +70,7 @@ export default abstract class Config {
      * @param path path of album or image
      */
     public static updateUrl(path: string): string {
-        return Config.baseApiUrl() + (isImagePath(path) ? 'image' : 'album') + path;
+        return Config.baseApiUrl() + (isValidImagePath(path) ? 'image' : 'album') + path;
     }
 
     /**
@@ -87,7 +86,7 @@ export default abstract class Config {
      * @param path path of album or image
      */
     public static deleteUrl(path: string): string {
-        return Config.baseApiUrl() + (isImagePath(path) ? 'image' : 'album') + path;
+        return Config.baseApiUrl() + (isValidImagePath(path) ? 'image' : 'album') + path;
     }
 
     private static baseApiUrl(): string {

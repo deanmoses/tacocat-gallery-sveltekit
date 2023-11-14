@@ -1,5 +1,5 @@
 import type { Album } from '$lib/models/GalleryItemInterfaces';
-import { isImagePath, isAlbumPath, getParentFromPath } from '$lib/utils/path-utils';
+import { getParentFromPath, isValidAlbumPath, isValidImagePath } from './galleryPathUtils';
 
 /**
  * Shape of function to retrieve an Album from its path.
@@ -69,10 +69,10 @@ enum Direction {
  */
 function navigateToPeer(path: string, getAlbum: GetAlbumFunction, direction: Direction): string | null {
     // If on an album, go to prev/next album
-    if (isAlbumPath(path)) {
+    if (isValidAlbumPath(path)) {
         const album = getAlbum(path);
         if (album) {
-            const newPath = direction === Direction.Next ? album.prevAlbumHref : album.nextAlbumHref; // album.prevAlbumHref and nextAlbumHref are backwards!
+            const newPath = direction === Direction.Next ? album.prevHref : album.nextHref; // album.prevAlbumHref and nextAlbumHref are backwards!
             if (newPath) {
                 return newPath;
             }
@@ -81,13 +81,13 @@ function navigateToPeer(path: string, getAlbum: GetAlbumFunction, direction: Dir
         }
     }
     // If on an image, go to prev/next image
-    else if (isImagePath(path)) {
+    else if (isValidImagePath(path)) {
         const albumPath: string = getParentFromPath(path);
         const album = getAlbum(albumPath);
         if (album) {
             const image = album.getImage(path);
             if (image) {
-                const newPath = direction === Direction.Next ? image.nextImageHref : image.prevImageHref;
+                const newPath = direction === Direction.Next ? image.nextHref : image.prevHref;
                 if (newPath) {
                     return newPath;
                 }
@@ -112,12 +112,12 @@ function navigateToPeer(path: string, getAlbum: GetAlbumFunction, direction: Dir
  */
 function navigateToParent(path: string): string | null {
     // If on an image, navigate to the album containing the image
-    if (isImagePath(path)) {
+    if (isValidImagePath(path)) {
         const albumPath: string = getParentFromPath(path);
         return albumPath;
     }
     // If on an album, navigate to parent album
-    else if (isAlbumPath(path)) {
+    else if (isValidAlbumPath(path)) {
         const parentAlbumPath: string = getParentFromPath(path);
         return parentAlbumPath;
     } else {
@@ -134,7 +134,7 @@ function navigateToParent(path: string): string | null {
  * @returns path of album or image to navigate to, or null if do not navigate
  */
 function navigateToFirstChild(path: string, getAlbum: GetAlbumFunction): string | null {
-    if (isAlbumPath(path)) {
+    if (isValidAlbumPath(path)) {
         const album = getAlbum(path);
         if (album) {
             // If we're on an album with images, go to first image

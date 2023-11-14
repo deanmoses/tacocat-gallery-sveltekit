@@ -12,10 +12,11 @@
     import SelectableStar from '$lib/components/site/edit/SelectableStar.svelte';
     import AlbumEditControls from '$lib/components/site/edit/controls/AlbumEditControls.svelte';
     import EditableHtml from '$lib/components/site/edit/EditableHtml.svelte';
-    import { editUrl, getLeafItemOnPath } from '$lib/utils/path-utils';
+    import { editUrl } from '$lib/utils/path-utils';
     import DraftStore from '$lib/stores/DraftStore';
     import { setAlbumThumbnail } from '$lib/stores/AlbumThumbnailHelper';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
+    import { getNameFromPath } from '$lib/utils/galleryPathUtils';
 
     export let year: string;
     export let album: Album;
@@ -25,7 +26,7 @@
     function albumThumbnailSelected(e: CustomEvent<{ path: string }>) {
         const imagePath = e.detail.path;
         console.log(`<DayAlbumEditPage>: thumbnail ${imagePath}`, e.detail);
-        const imageLeafPath = getLeafItemOnPath(imagePath);
+        const imageLeafPath = getNameFromPath(imagePath);
         if (imageLeafPath) {
             setAlbumThumbnail(album.path, imageLeafPath);
         } else {

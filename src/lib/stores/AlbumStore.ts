@@ -8,9 +8,9 @@ import { produce } from 'immer';
 import Config from '$lib/utils/config';
 import { AlbumType, AlbumLoadStatus, AlbumUpdateStatus } from '$lib/models/album';
 import toAlbum from '$lib/models/impl/AlbumCreator';
-import { getAlbumType, isAlbumPath, isImagePath, isImagePath as isPath } from '$lib/utils/path-utils';
-import { getParentFromPath, isValidAlbumPath, isValidPath } from '$lib/utils/galleryPathUtils';
-import type { Album, Image } from '$lib/models/GalleryItemInterfaces';
+import { getAlbumType } from '$lib/utils/path-utils';
+import { isValidAlbumPath, isValidPath } from '$lib/utils/galleryPathUtils';
+import type { Album } from '$lib/models/GalleryItemInterfaces';
 import type { AlbumRecord } from '$lib/models/impl/server';
 
 export type AlbumEntry = {
