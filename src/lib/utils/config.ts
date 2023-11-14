@@ -95,4 +95,10 @@ export default abstract class Config {
         }
         return 'https://v2kdsvx1hf.execute-api.us-east-1.amazonaws.com/Prod/search/' + encodeURIComponent(searchTerms);
     }
+
+    public static deleteUrl(path: string): string {
+        const baseUrl = dev ? '/api/Prod/' : 'https://v2kdsvx1hf.execute-api.us-east-1.amazonaws.com/Prod/';
+
+        return baseUrl + (isImagePath(path) ? 'image' : 'album') + path;
+    }
 }

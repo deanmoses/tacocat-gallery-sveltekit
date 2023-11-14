@@ -8,9 +8,9 @@ import { produce } from 'immer';
 import Config from '$lib/utils/config';
 import { AlbumType, AlbumLoadStatus, AlbumUpdateStatus } from '$lib/models/album';
 import toAlbum from '$lib/models/impl/AlbumCreator';
-import { getAlbumType } from '$lib/utils/path-utils';
-import { isValidAlbumPath } from '$lib/utils/galleryPathUtils';
-import type { Album } from '$lib/models/GalleryItemInterfaces';
+import { getAlbumType, isAlbumPath, isImagePath, isImagePath as isPath } from '$lib/utils/path-utils';
+import { getParentFromPath, isValidAlbumPath, isValidPath } from '$lib/utils/galleryPathUtils';
+import type { Album, Image } from '$lib/models/GalleryItemInterfaces';
 import type { AlbumRecord } from '$lib/models/impl/server';
 
 export type AlbumEntry = {
@@ -341,6 +341,25 @@ class AlbumStore {
         }
 
         return albumEntry;
+    }
+
+    async delete(path: string) {
+        if (!isValidPath(path)) throw new Error(`Invalid path [${path}]`);
+        const response = await fetch(Config.deleteUrl(path), {
+            method: 'DELETE',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            // no-store: bypass the HTTP cache completely.
+            // This will make the browser not look into the HTTP cache
+            // on the way to the network, and never store the resulting
+            // response in the HTTP cache.
+            // Fetch() will behave as if no HTTP cache exists.
+            cache: 'no-store',
+        });
+
+        console.log(`DONE DELETE NO NOT RILLY`);
     }
 }
 
