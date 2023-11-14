@@ -18,7 +18,8 @@
      * Go to edit version of this page.
      */
     function onEditButtonClick() {
-        goto(editUrl(path));
+        const url = editUrl(path);
+        if (url) goto(url);
     }
 
     async function onDeleteButtonClick() {
