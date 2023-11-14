@@ -1,6 +1,6 @@
 {
     "name": "tacocat-gallery-sveltekit",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "private": true,
     "description": "Javascript front end for the tacocat.com photo gallery, built with Sveltekit",
     "keywords": [
@@ -30,24 +30,25 @@
     "devDependencies": {
         "@playwright/test": "1.39.0",
         "@sveltejs/adapter-static": "^2.0.3",
-        "@sveltejs/kit": "1.27.3",
+        "@sveltejs/kit": "1.27.6",
         "@types/quill": "^2.0.14",
-        "@typescript-eslint/eslint-plugin": "^6.10.0",
-        "@typescript-eslint/parser": "^6.10.0",
+        "@typescript-eslint/eslint-plugin": "^6.11.0",
+        "@typescript-eslint/parser": "^6.11.0",
         "eslint": "^8.53.0",
         "eslint-config-prettier": "^9.0.0",
         "eslint-plugin-prettier": "^5.0.1",
         "eslint-plugin-svelte": "^2.35.0",
-        "prettier": "^3.0.3",
-        "prettier-plugin-svelte": "^3.0.3",
-        "svelte": "^4.2.2",
-        "svelte-check": "^3.5.2",
-        "svelte-preprocess": "^5.0.4",
+        "prettier": "^3.1.0",
+        "prettier-plugin-svelte": "^3.1.0",
+        "svelte": "^4.2.3",
+        "svelte-check": "^3.6.0",
+        "svelte-preprocess": "^5.1.0",
         "tslib": "^2.6.2",
         "typescript": "^5.2.2",
         "vite": "^4.5.0"
     },
     "dependencies": {
+        "@aws-sdk/client-s3": "^3.450.0",
         "idb-keyval": "^6.2.1",
         "immer": "^10.0.3",
         "quill": "^1.3.7"
