@@ -8,7 +8,7 @@ export interface Album extends Nextable {
     published: boolean;
     summary: string;
     thumbnailUrl: string | undefined;
-    readonly json: AlbumGalleryItem; // so that I can save it to disk
+    readonly json: AlbumGalleryItem; // so that I can save the JSON to disk
     readonly parentHref: string;
     readonly parentTitle: string;
     readonly images: Thumbable[];
@@ -18,6 +18,10 @@ export interface Album extends Nextable {
 
 export interface Image extends Nextable {
     title: string;
+    readonly detailUrl: string;
+    readonly originalUrl: string;
+    readonly width: number;
+    readonly height: number;
 }
 
 export interface Nextable extends Thumbable {

@@ -1,6 +1,7 @@
 import type { ImageRecord } from './server';
 import type { Album, Image, Thumbable } from '../GalleryItemInterfaces';
 import { ImageThumbableImpl } from './ImageThumbableImpl';
+import Config from '$lib/utils/config';
 
 export class ImageImpl extends ImageThumbableImpl implements Image {
     protected override readonly json: ImageRecord;
@@ -10,6 +11,34 @@ export class ImageImpl extends ImageThumbableImpl implements Image {
         super(json);
         this.json = json;
         this.album = album;
+    }
+
+    get detailUrl(): string {
+        let imageProcessingInstructions: string = '';
+        if (!this.json.width || !this.json.height) {
+            imageProcessingInstructions = '/jpeg/1024';
+        } else if (this.json.width > this.json.height) {
+            imageProcessingInstructions = '/jpeg/1024';
+        } else {
+            imageProcessingInstructions = '/jpeg/x1024';
+        }
+        return Config.detailImagelUrl(this.json.path + imageProcessingInstructions);
+        // TODO: implement cachebuster like this: 'https://cdn.tacocat.com/zenphoto/cache/2023/10-29/halloween_party32_200_w200_h200_cw200_ch200_thumb.jpg?cached=1698637062';
+    }
+
+    get originalUrl(): string {
+        return Config.originalImageUrl(this.json.path);
+        // TODO: implement cachebuster like this: 'https://cdn.tacocat.com/zenphoto/cache/2023/10-29/halloween_party32_200_w200_h200_cw200_ch200_thumb.jpg?cached=1698637062';
+    }
+
+    get width(): number {
+        if (!this.json.width) return 4000; // TODO FIX
+        return this.json.width > this.json.height ? 1024 : Math.round(1024 * (this.json.width / this.json.height));
+    }
+
+    get height(): number {
+        if (!this.json.height) return 4000; // TODO FIX
+        return this.json.height > this.json.width ? 1024 : Math.round(1024 * (this.json.height / this.json.width));
     }
 
     get parentTitle(): string {

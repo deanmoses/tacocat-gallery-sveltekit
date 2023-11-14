@@ -1,12 +1,8 @@
 <!--
-  @component
-
-  The full page image on the image page
+  @component The image detail page
 -->
-
 <script lang="ts">
     import type { Image } from '$lib/models/GalleryItemInterfaces';
-    import Config from '$lib/utils/config';
     export let image: Image;
 </script>
 
@@ -16,9 +12,9 @@
 	Wrapping the image in a #key block seems to make this problem go away.
 -->
 {#key image.path}
-    <a href={Config.fullSizeImageUrl(image.path)} target="zen">
+    <a href={image.originalUrl}>
         <img
-            src={Config.thumbnailUrl(image.url_sized)}
+            src={image.detailUrl}
             style="max-width: {image.width}px; max-height: {image.height}px;"
             alt={image.title}
         />

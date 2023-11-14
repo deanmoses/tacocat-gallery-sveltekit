@@ -40,6 +40,8 @@ export type GalleryRecord = AlbumRecord | ImageRecord;
 
 export type ImageRecord = BaseGalleryRecord & {
     title?: string;
+    height: number;
+    width: number;
     tags?: string[];
 };
 

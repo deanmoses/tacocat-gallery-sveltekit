@@ -1,5 +1,5 @@
 import { albumPathToDate } from '$lib/utils/galleryPathUtils';
-import type { AlbumGalleryItem, GalleryRecord } from './server';
+import type { AlbumGalleryItem, GalleryRecord, ImageRecord } from './server';
 import type { Album, Image, Thumbable } from '../GalleryItemInterfaces';
 import { ThumbableBaseImpl } from './ThumbableBaseImpl';
 import { ImageImpl } from './ImageImpl';
@@ -86,6 +86,6 @@ export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
 
     getImage(imagePath: string): Image | undefined {
         const image = this.json?.children?.find((child: GalleryRecord) => child.path === imagePath);
-        return !!image ? new ImageImpl(image, this) : undefined;
+        return !!image ? new ImageImpl(image as ImageRecord, this) : undefined;
     }
 }

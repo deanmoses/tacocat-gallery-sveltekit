@@ -22,10 +22,26 @@ export default abstract class Config {
 
     /**
      * URL to CDN'ed derived images
-     * @argument pathAndFormat Path to an image like /2018/01-01/image.jpg
+     * @param imagePath Path to an image like /2018/01-01/image.jpg
      */
-    public static thumbnailUrl(pathAndFormat: string): string {
-        return `https://dacwtfk6o75l6.cloudfront.net/i${pathAndFormat}/jpeg/200x200`;
+    public static thumbnailUrl(imagePath: string): string {
+        return `https://dacwtfk6o75l6.cloudfront.net/i${imagePath}/jpeg/200x200`;
+    }
+
+    /**
+     * URL to optimized image for display on the image detail page
+     * @param imagePath Path to an image like /2018/01-01/image.jpg
+     */
+    public static detailImagelUrl(imagePath: string): string {
+        return `https://dacwtfk6o75l6.cloudfront.net/i${imagePath}`;
+    }
+
+    /**
+     * URL to view the full sized original raw image
+     * @param imagePath path to an image like /2018/01-01/image.jpg
+     */
+    public static originalImageUrl(imagePath: string): string {
+        return `https://dacwtfk6o75l6.cloudfront.net${imagePath}`;
     }
 
     /**
@@ -78,13 +94,5 @@ export default abstract class Config {
             return '/api/Prod/search/' + encodeURIComponent(searchTerms);
         }
         return 'https://v2kdsvx1hf.execute-api.us-east-1.amazonaws.com/Prod/search/' + encodeURIComponent(searchTerms);
-    }
-
-    /**
-     * URL to view the full sized raw image
-     * @param imagePath path to an image
-     */
-    public static fullSizeImageUrl(imagePath: string): string {
-        return imagePath; // TODO MIGRATE
     }
 }
