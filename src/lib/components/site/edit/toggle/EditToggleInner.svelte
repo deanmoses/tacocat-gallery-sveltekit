@@ -6,10 +6,11 @@
     import { goto } from '$app/navigation';
     import { editUrl } from '$lib/utils/path-utils';
     import EditIcon from '../../icons/EditIcon.svelte';
-    import CancelIcon from '../../icons/CancelIcon.svelte';
     import { getParentFromPath, isValidAlbumPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
     import { albumStore } from '$lib/stores/AlbumStore';
     import SaveIcon from '../../icons/SaveIcon.svelte';
+    import DeleteIcon from '../../icons/DeleteIcon.svelte';
+    import UploadIcon from '../../icons/UploadIcon.svelte';
 
     let path: string;
     $: path = $page.url.pathname;
@@ -39,6 +40,16 @@
         goto(newAlbumPath);
     }
 
+    async function onUploadButtonClick() {
+        document.getElementById('fileInput')?.click();
+    }
+
+    async function onFilesSelected() {
+        const files = (<HTMLInputElement>document.getElementById('fileInput'))?.files;
+        const fileCount: number = files?.length ?? 0;
+        alert(`I should upload these ${fileCount} files`);
+    }
+
     async function onDeleteButtonClick() {
         let thePath = path;
         if (!isValidImagePath(thePath)) {
@@ -54,7 +65,16 @@
     <nav class="editing-controls">
         <button on:click|once={onEditButtonClick}><EditIcon />Edit</button>
         <button on:click|once={onNewButtonClick}><SaveIcon />New Album</button>
-        <button on:click|once={onDeleteButtonClick}><CancelIcon />Delete</button>
+        <button on:click|once={onUploadButtonClick}><UploadIcon />Upload</button>
+        <input
+            on:change|once={onFilesSelected}
+            type="file"
+            id="fileInput"
+            multiple
+            accept=".jpg, .jpeg"
+            style="display:none"
+        />
+        <button on:click|once={onDeleteButtonClick}><DeleteIcon />Delete</button>
     </nav>
 </div>
 
