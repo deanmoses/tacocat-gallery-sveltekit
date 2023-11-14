@@ -11,7 +11,7 @@ import { getAlbumType } from '$lib/utils/path-utils';
 import { isValidAlbumPath, isValidPath } from '$lib/utils/galleryPathUtils';
 import type { Album } from '$lib/models/GalleryItemInterfaces';
 import type { AlbumRecord } from '$lib/models/impl/server';
-import { albumUrl, deleteUrl } from '$lib/utils/config';
+import { albumUrl, createUrl, deleteUrl } from '$lib/utils/config';
 
 export type AlbumEntry = {
     loadStatus: AlbumLoadStatus;
@@ -339,6 +339,10 @@ class AlbumStore {
         return albumEntry;
     }
 
+    /**
+     * Delete image or album
+     * @param path path to album or image
+     */
     async delete(path: string) {
         if (!isValidPath(path)) throw new Error(`Invalid path [${path}]`);
         await fetch(deleteUrl(path), {
@@ -354,8 +358,26 @@ class AlbumStore {
             // Fetch() will behave as if no HTTP cache exists.
             cache: 'no-store',
         });
+        console.log(`[${path}] deleted`);
+    }
 
-        console.log(`DONE DELETE NO NOT RILLY`);
+    async createAlbum(albumPath: string) {
+        if (!isValidAlbumPath(albumPath)) throw new Error(`Invalid album path [${albumPath}]`);
+        await fetch(createUrl(albumPath), {
+            method: 'PUT',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({}),
+            // no-store: bypass the HTTP cache completely.
+            // This will make the browser not look into the HTTP cache
+            // on the way to the network, and never store the resulting
+            // response in the HTTP cache.
+            // Fetch() will behave as if no HTTP cache exists.
+            cache: 'no-store',
+        });
+        console.log(`Album [${albumPath}] created`);
     }
 }
 

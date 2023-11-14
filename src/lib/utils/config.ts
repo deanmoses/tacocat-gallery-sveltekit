@@ -40,7 +40,7 @@ export function originalImageUrl(imagePath: string): string {
 }
 
 /**
- * URL to retrieve albums
+ * URL to retrieve an album
  */
 export function albumUrl(path: string): string {
     if (!isValidAlbumPath(path)) throw new Error(`Invalid album path [${path}]`);
@@ -48,25 +48,34 @@ export function albumUrl(path: string): string {
 }
 
 /**
- * URL to retrieve latest album
+ * URL to send HTTP PUT to create an album or image
+ * @param path path of album or image
  */
-export function latestAlbumUrl(): string {
-    return baseApiUrl() + 'latest-album/';
+export function createUrl(path: string): string {
+    return baseApiUrl() + (isValidImagePath(path) ? 'image' : 'album') + path;
 }
 
 /**
- * URL to check user's authentication status
- */
-export function checkAuthenticationUrl(): string {
-    return 'https://tacocat.com/zenphoto/?api&auth'; // TODO MIGRATE
-}
-
-/**
- * URL to send a HTTP PATCH to update an album or an image
+ * URL to send HTTP PATCH to update an album or an image
  * @param path path of album or image
  */
 export function updateUrl(path: string): string {
     return baseApiUrl() + (isValidImagePath(path) ? 'image' : 'album') + path;
+}
+
+/**
+ * URL to send HTTP DELETE to delete an album or image
+ * @param path path of album or image
+ */
+export function deleteUrl(path: string): string {
+    return baseApiUrl() + (isValidImagePath(path) ? 'image' : 'album') + path;
+}
+
+/**
+ * URL to retrieve latest album
+ */
+export function latestAlbumUrl(): string {
+    return baseApiUrl() + 'latest-album/';
 }
 
 /**
@@ -78,11 +87,10 @@ export function searchUrl(searchTerms: string): string {
 }
 
 /**
- * URL to send a HTTP DELETE to delete an album or image
- * @param path path of album or image
+ * URL to check user's authentication status
  */
-export function deleteUrl(path: string): string {
-    return baseApiUrl() + (isValidImagePath(path) ? 'image' : 'album') + path;
+export function checkAuthenticationUrl(): string {
+    return 'https://tacocat.com/zenphoto/?api&auth'; // TODO MIGRATE
 }
 
 function baseApiUrl(): string {

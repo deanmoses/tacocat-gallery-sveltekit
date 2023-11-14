@@ -9,6 +9,7 @@
     import CancelIcon from '../../icons/CancelIcon.svelte';
     import { getParentFromPath, isValidAlbumPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
     import { albumStore } from '$lib/stores/AlbumStore';
+    import SaveIcon from '../../icons/SaveIcon.svelte';
 
     let path: string;
     $: path = $page.url.pathname;
@@ -20,6 +21,22 @@
     function onEditButtonClick() {
         const url = editUrl(path);
         if (url) goto(url);
+    }
+
+    async function onNewButtonClick() {
+        let thePath = path;
+        if (!isValidImagePath(thePath)) {
+            thePath = thePath + '/';
+            if (!isValidAlbumPath(thePath)) throw new Error(`Invalid path [${thePath}]`);
+        }
+        const d = new Date();
+        const month = ('0' + (d.getMonth() + 1)).slice(-2);
+        const day = ('0' + d.getDate()).slice(-2);
+        const month_day = `${month}-${day}`;
+        const newAlbumName = prompt('Date of new album ', month_day);
+        const newAlbumPath = thePath + newAlbumName + '/';
+        await albumStore.createAlbum(newAlbumPath);
+        goto(newAlbumPath);
     }
 
     async function onDeleteButtonClick() {
@@ -36,6 +53,7 @@
 <div>
     <nav class="editing-controls">
         <button on:click|once={onEditButtonClick}><EditIcon />Edit</button>
+        <button on:click|once={onNewButtonClick}><SaveIcon />New Album</button>
         <button on:click|once={onDeleteButtonClick}><CancelIcon />Delete</button>
     </nav>
 </div>
