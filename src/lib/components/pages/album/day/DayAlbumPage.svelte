@@ -36,10 +36,12 @@
     </svelte:fragment>
 
     <svelte:fragment slot="thumbnails">
-        {#if album.images}
+        {#if album.images?.length}
             {#each album.images as image (image.path)}
                 <Thumbnail title={image.title} summary={image.summary} href={image.href} src={image.thumbnailUrl} />
             {/each}
+        {:else if !album.published}
+            <p style="padding:2em">Drag images or a 📁</p>
         {/if}
     </svelte:fragment>
 </DayAlbumPageLayout>
