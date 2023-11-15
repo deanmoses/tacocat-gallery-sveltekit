@@ -5,6 +5,10 @@
     import { page } from '$app/stores';
     import UploadIcon from '$lib/components/site/icons/UploadIcon.svelte';
     import { isValidDayAlbumPath } from '$lib/utils/galleryPathUtils';
+    import { upload } from '$lib/utils/upload';
+
+    let path: string;
+    $: path = $page.url.pathname;
 
     // Show this button only on day ablums
     let show: boolean = false;
@@ -16,8 +20,10 @@
 
     async function onFilesSelected() {
         const files = (<HTMLInputElement>document.getElementById('fileInput'))?.files;
-        const fileCount: number = files?.length ?? 0;
-        alert(`I should upload these ${fileCount} files`);
+        if (!!files && !!files.length) {
+            const albumPath = path + '/';
+            await upload(files, albumPath);
+        }
     }
 </script>
 
