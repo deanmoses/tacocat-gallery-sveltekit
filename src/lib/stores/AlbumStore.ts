@@ -182,6 +182,22 @@ class AlbumStore {
     }
 
     /**
+     * TODO: only have the async version, get rid of the other one
+     */
+    public async fetchFromServerAsync(path: string): Promise<Album> {
+        const url = albumUrl(path);
+        const requestConfig = this.buildFetchConfig(path);
+        const response = await fetch(url, requestConfig);
+        if (response.status === 404) throw 404;
+        if (!response.ok) throw new Error(response.statusText);
+        const json = await response.json();
+        console.log(`Album [${path}] fetched from server`, json);
+        const album = this.setAlbum(path, json); // Put album in Svelte store
+        this.writeToDisk(path, json); // Put album in browser's local disk cache
+        return album;
+    }
+
+    /**
      * Build the configuration for the HTTP fetch
      */
     private buildFetchConfig(albumPath: string): RequestInit {
@@ -242,7 +258,7 @@ class AlbumStore {
      * @param path path of the album
      * @param jsonAlbum JSON of the album
      */
-    private setAlbum(path: string, jsonAlbum: AlbumRecord): void {
+    private setAlbum(path: string, jsonAlbum: AlbumRecord): Album {
         const album = toAlbum(jsonAlbum);
         const albumEntry = this.getOrCreateWritableStore(path);
         const newState = produce(get(albumEntry), (draftState: AlbumEntry) => {
@@ -252,6 +268,7 @@ class AlbumStore {
         albumEntry.set(newState);
 
         this.setUpdateStatus(path, AlbumUpdateStatus.NOT_UPDATING);
+        return album;
     }
 
     /**
