@@ -1,7 +1,5 @@
 <!--
-  @component
-
-  Lays out the shell of the app
+  @component Lays out the shell of the app
 -->
 <script lang="ts">
     import Footer from './Footer.svelte';

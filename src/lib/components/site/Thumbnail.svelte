@@ -1,9 +1,6 @@
 <!--
-  @component
-
-  A thumbnail of an album or image
+  @component A thumbnail of an album or image
 -->
-
 <script lang="ts">
     export let src: string = '';
     export let href: string = '';

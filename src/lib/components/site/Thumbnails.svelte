@@ -1,7 +1,5 @@
 <!--
-  @component
-
-  A grid of thumbnails
+  @component A grid of thumbnails
 -->
 
 <div>

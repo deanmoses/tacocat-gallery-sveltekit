@@ -1,7 +1,5 @@
 <!--
-  @component
-
-  A waiting spinner
+  @component A waiting spinner
 -->
 
 <svg
