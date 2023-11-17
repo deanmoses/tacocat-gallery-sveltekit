@@ -8,7 +8,12 @@ import { Upload } from '@aws-sdk/lib-storage';
 import { S3Client } from '@aws-sdk/client-s3';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-providers';
 import { albumStore } from '$lib/stores/AlbumStore';
-import { isValidDayAlbumPath, isValidImageName, sanitizeImageName } from '$lib/utils/galleryPathUtils';
+import {
+    isValidDayAlbumPath,
+    isValidImageName,
+    isValidImageNameStrict,
+    sanitizeImageName,
+} from '$lib/utils/galleryPathUtils';
 import { fromPathToS3OriginalBucketKey } from '$lib/utils/s3path';
 
 const mock = true;
@@ -82,36 +87,57 @@ function removeUpload(imagePath: string): void {
     );
 }
 
+//
+// Svelte data store is above this
+// Image uploading functionality is below this, it relies on the above data store
+// They're in the same file to encapsulate the system, it means I don't have
+// to expose the mutator methods on the data store to the rest of the system
+//
+
+/**
+ * Upload the specified images to the specified album
+ *
+ * @param files File objects from browser's file picker or drag/drop
+ * @param albumPath album path
+ */
 export async function upload(files: FileList | File[], albumPath: string): Promise<void> {
-    await uploadImages(files, albumPath);
-    await pollForProcessedImages(albumPath);
-}
-
-async function uploadImages(files: FileList | File[], albumPath: string): Promise<void> {
-    if (!!files) {
-        if (!isValidDayAlbumPath(albumPath)) throw new Error(`Invalid day album path: [${albumPath}]`);
-
-        let imagesToUpload: { file: File; imagePath: string }[] = [];
-        for (let file of files) {
-            if (!isValidImageName(file.name)) {
-                console.error(`Skipping invalid image name [${file.name}]`);
+    if (!files) return;
+    if (!isValidDayAlbumPath(albumPath)) throw new Error(`Invalid day album path: [${albumPath}]`);
+    let imagesToUpload: ImagesToUpload[] = [];
+    for (let file of files) {
+        if (!isValidImageName(file.name)) {
+            console.error(`Skipping invalid image name [${file.name}]`);
+        } else {
+            const isValidImageType = file.name.endsWith('jpg') || file.name.endsWith('jpeg');
+            if (!isValidImageType) {
+                console.error(`Skipping invalid type of image [${file.name}]`);
             } else {
                 const imagePath = albumPath + sanitizeImageName(file.name);
                 imagesToUpload.push({ file, imagePath });
                 addUpload(file, imagePath);
             }
         }
+    }
+    if (imagesToUpload.length === 0) return;
+    await uploadImages(imagesToUpload);
+    await pollForProcessedImages(albumPath);
+}
 
-        for (let imageToUpload of imagesToUpload) {
-            updateUploadState(imageToUpload.imagePath, UploadState.UPLOADING);
-            try {
-                if (mock) await sleep(2000);
-                else await uploadImage(imageToUpload.file, imageToUpload.imagePath);
-            } catch (e) {
-                console.error(`Error uploading [${imageToUpload.imagePath}]`, e);
-            }
-            updateUploadState(imageToUpload.imagePath, UploadState.PROCESSING);
+type ImagesToUpload = {
+    file: File;
+    imagePath: string;
+};
+
+async function uploadImages(imagesToUpload: ImagesToUpload[]): Promise<void> {
+    for (let imageToUpload of imagesToUpload) {
+        updateUploadState(imageToUpload.imagePath, UploadState.UPLOADING);
+        try {
+            if (mock) await sleep(2000);
+            else await uploadImage(imageToUpload.file, imageToUpload.imagePath);
+        } catch (e) {
+            console.error(`Error uploading [${imageToUpload.imagePath}]`, e);
         }
+        updateUploadState(imageToUpload.imagePath, UploadState.PROCESSING);
     }
 }
 
@@ -148,7 +174,10 @@ async function uploadImage(file: File, imagePath: string): Promise<string | unde
     }
 }
 
-async function pollForProcessedImages(albumPath: string) {
+/**
+ * Poll the server, checking to see if the images have made it into the album
+ */
+async function pollForProcessedImages(albumPath: string): Promise<void> {
     let processingComplete = false;
     let count = 0;
     do {

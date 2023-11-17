@@ -39,26 +39,84 @@
         let files: File[] = [];
         if (e.dataTransfer.items) {
             // Use DataTransferItemList interface to access the file(s)
-            [...e.dataTransfer.items].forEach((item) => {
-                // If dropped items aren't files, reject them
-                if (item.kind === 'file') {
+            for (const item of e.dataTransfer.items) {
+                const itemEntry = item.webkitGetAsEntry();
+                if (itemEntry?.isDirectory) {
+                    const x = await getFilesInDirectory(itemEntry as FileSystemDirectoryEntry);
+                    files = files.concat(x);
+                } else if (itemEntry?.isFile) {
+                    console.log('Got a file not a folder', item);
                     const file = item.getAsFile();
                     if (file) {
+                        //console.log(`Adding file [${file.name}] of type [${file.type}]`);
                         files.push(file);
                     } else {
                         console.log(`There warn't no file name in ${file}`);
                     }
+                } else {
+                    console.log(`unrecognized type of file`, item, itemEntry);
                 }
-            });
+            }
         } else {
             // Use DataTransfer interface to access the file(s)
             [...e.dataTransfer.files].forEach((file) => {
                 files.push(file);
             });
         }
+        console.log(`I'll upload [${files.length}] images`);
         const albumPath = $page.url.pathname + '/';
         await upload(files, albumPath);
     }
+
+    async function getFilesInDirectory(directory: FileSystemDirectoryEntry): Promise<File[]> {
+        let dirReader = directory.createReader();
+        let files: File[] = [];
+        const entries = await readAllDirectoryEntries(dirReader);
+        for (const entry of entries) {
+            if (entry.isFile) {
+                //console.log(`Directory item`, entry);
+                const fileEntry = entry as FileSystemFileEntry;
+                const file = await readEntryContentAsync(fileEntry);
+                //console.log(`Adding file [${file.name}] of type [${file.type}]`);
+                files.push(file);
+            } else {
+                console.log(`Directory item is not a file`, entry);
+            }
+        }
+        return files;
+    }
+
+    /**
+     * Get all the entries (files or sub-directories) in a directory.
+     * Does this by calling readEntries until it returns empty array.
+     */
+    const readAllDirectoryEntries = async (directoryReader: FileSystemDirectoryReader): Promise<FileSystemEntry[]> => {
+        let entries = [];
+        let readEntries = await readEntriesPromise(directoryReader);
+        while (readEntries.length > 0) {
+            entries.push(...readEntries);
+            readEntries = await readEntriesPromise(directoryReader);
+        }
+        return entries;
+    };
+
+    /**
+     * Wrap FileSystemDirectoryReader.readEntries() in a promise to enable using await
+     */
+    const readEntriesPromise = async (directoryReader: FileSystemDirectoryReader): Promise<FileSystemEntry[]> => {
+        return await new Promise((resolve, reject) => {
+            directoryReader.readEntries(resolve, reject);
+        });
+    };
+
+    /**
+     * Wrap FileSystemFileEntry.file() in a promise to enable using await
+     */
+    const readEntryContentAsync = async (entry: FileSystemFileEntry): Promise<File> => {
+        return new Promise((resolve, reject) => {
+            entry.file(resolve, reject);
+        });
+    };
 </script>
 
 <svelte:head>
