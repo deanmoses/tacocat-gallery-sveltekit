@@ -8,7 +8,7 @@
     export let summary: string = '';
 </script>
 
-<div class="thumbnail">
+<div class="thumbnail" role="listitem">
     <a {href}><img {src} alt={title} /></a><a {href}>{title}</a>
     <slot name="selectionControls" />
     {#if summary}

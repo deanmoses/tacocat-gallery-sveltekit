@@ -5,7 +5,7 @@ import { isValidDayAlbumPath, isValidImageName, sanitizeImageName } from './gall
 import { fromPathToS3OriginalBucketKey } from './s3path';
 import { albumStore } from '$lib/stores/AlbumStore';
 
-export async function upload(files: FileList, albumPath: string): Promise<void> {
+export async function upload(files: FileList | File[], albumPath: string): Promise<void> {
     if (!!files) {
         if (!isValidDayAlbumPath(albumPath)) throw new Error(`Invalid day album path: [${albumPath}]`);
         for (let file of files) {
@@ -54,7 +54,7 @@ async function uploadImage(file: File, imagePath: string): Promise<string | unde
     }
 }
 
-export async function pollForProcessedImages(files: FileList, albumPath: string) {
+export async function pollForProcessedImages(files: FileList | File[], albumPath: string) {
     let processingComplete = false;
     let count = 0;
     do {
@@ -66,7 +66,7 @@ export async function pollForProcessedImages(files: FileList, albumPath: string)
     albumStore.get(albumPath);
 }
 
-async function areImagesProcessed(files: FileList, albumPath: string): Promise<boolean> {
+async function areImagesProcessed(files: FileList | File[], albumPath: string): Promise<boolean> {
     if (!files || files.length === 0) return false;
     const album = await albumStore.fetchFromServerAsync(albumPath);
     for (let file of files) {
