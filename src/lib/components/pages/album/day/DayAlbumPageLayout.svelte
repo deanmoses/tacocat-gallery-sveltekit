@@ -68,10 +68,12 @@
         await upload(files, albumPath);
     }
 
+    /**
+     * Get all the File objects in a directory
+     */
     async function getFilesInDirectory(directory: FileSystemDirectoryEntry): Promise<File[]> {
-        let dirReader = directory.createReader();
         let files: File[] = [];
-        const entries = await readAllDirectoryEntries(dirReader);
+        const entries = await readAllDirectoryEntries(directory);
         for (const entry of entries) {
             if (entry.isFile) {
                 //console.log(`Directory item`, entry);
@@ -87,10 +89,14 @@
     }
 
     /**
-     * Get all the entries (files or sub-directories) in a directory.
-     * Does this by calling readEntries until it returns empty array.
+     * Read all the entries in a directory
      */
-    const readAllDirectoryEntries = async (directoryReader: FileSystemDirectoryReader): Promise<FileSystemEntry[]> => {
+    const readAllDirectoryEntries = async (directory: FileSystemDirectoryEntry): Promise<FileSystemEntry[]> => {
+        const directoryReader = directory.createReader();
+
+        // To read all files in a directory, readEntries needs to be called
+        // repeatedly until it returns an empty array.  Chromium-based
+        // browsers will only return a max of 100 entries per call
         let entries = [];
         let readEntries = await readEntriesPromise(directoryReader);
         while (readEntries.length > 0) {

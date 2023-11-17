@@ -8,12 +8,7 @@ import { Upload } from '@aws-sdk/lib-storage';
 import { S3Client } from '@aws-sdk/client-s3';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-providers';
 import { albumStore } from '$lib/stores/AlbumStore';
-import {
-    isValidDayAlbumPath,
-    isValidImageName,
-    isValidImageNameStrict,
-    sanitizeImageName,
-} from '$lib/utils/galleryPathUtils';
+import { isValidDayAlbumPath, isValidImageName, sanitizeImageName } from '$lib/utils/galleryPathUtils';
 import { fromPathToS3OriginalBucketKey } from '$lib/utils/s3path';
 
 const mock = true;
@@ -113,6 +108,7 @@ export async function upload(files: FileList | File[], albumPath: string): Promi
                 console.error(`Skipping invalid type of image [${file.name}]`);
             } else {
                 const imagePath = albumPath + sanitizeImageName(file.name);
+                console.log(`Adding [${imagePath}]`);
                 imagesToUpload.push({ file, imagePath });
                 addUpload(file, imagePath);
             }
