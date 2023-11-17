@@ -28,15 +28,8 @@
 </script>
 
 {#if show}
-    <button on:click|once={onUploadButtonClick}><UploadIcon />Upload</button>
-    <input
-        on:change|once={onFilesSelected}
-        type="file"
-        id="fileInput"
-        multiple
-        accept=".jpg, .jpeg"
-        style="display:none"
-    />
+    <button on:click={onUploadButtonClick}><UploadIcon />Upload</button>
+    <input on:change={onFilesSelected} type="file" id="fileInput" multiple accept=".jpg, .jpeg" style="display:none" />
 {/if}
 
 <style>
