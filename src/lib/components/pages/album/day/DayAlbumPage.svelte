@@ -11,11 +11,12 @@
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
-    import type { Upload } from '$lib/stores/UploadStore';
+    import UploadThumbnail from '$lib/components/site/edit/UploadThumbnail.svelte';
+    import type { ImageUpload } from '$lib/stores/UploadStore';
 
     export let year: string;
     export let album: Album;
-    export let uploads: Upload[];
+    export let uploads: ImageUpload[];
 </script>
 
 <DayAlbumPageLayout {year} title={album.title}>
@@ -40,24 +41,15 @@
     <svelte:fragment slot="thumbnails">
         {#if album.images?.length}
             {#each album.images as image (image.path)}
-                <Thumbnail title={image.title} summary={image.summary} href={image.href} src={image.thumbnailUrl} />
+                <Thumbnail title={image.title} src={image.thumbnailUrl} summary={image.summary} href={image.href} />
             {/each}
         {:else if !album.published}
             <p style="padding:2em">Drag images or a 📁</p>
         {/if}
         {#if uploads?.length}
             {#each uploads as upload (upload.imagePath)}
-                <span class="upload"
-                    >{upload.imagePath}: {upload.status}
-                    <img src={URL.createObjectURL(upload.file)} height="50" alt={upload.file.name} />
-                </span>
+                <UploadThumbnail {upload} />
             {/each}
         {/if}
     </svelte:fragment>
 </DayAlbumPageLayout>
-
-<style>
-    .upload {
-        border: solid blue 2px;
-    }
-</style>

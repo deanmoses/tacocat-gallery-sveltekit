@@ -8,8 +8,8 @@
     import PageContent from '$lib/components/site/PageContent.svelte';
     import MainContent from '$lib/components/site/MainContent.svelte';
     import Thumbnails from '$lib/components/site/Thumbnails.svelte';
-    import { pollForProcessedImages, upload } from '$lib/utils/upload';
     import { page } from '$app/stores';
+    import { upload } from '$lib/stores/UploadStore';
 
     export let year: string;
     export let title: string = '';
@@ -39,12 +39,11 @@
         let files: File[] = [];
         if (e.dataTransfer.items) {
             // Use DataTransferItemList interface to access the file(s)
-            [...e.dataTransfer.items].forEach((item, i) => {
+            [...e.dataTransfer.items].forEach((item) => {
                 // If dropped items aren't files, reject them
                 if (item.kind === 'file') {
                     const file = item.getAsFile();
                     if (file) {
-                        //console.log(`… file[${i}].name = ${file.name}`);
                         files.push(file);
                     } else {
                         console.log(`There warn't no file name in ${file}`);
@@ -53,14 +52,12 @@
             });
         } else {
             // Use DataTransfer interface to access the file(s)
-            [...e.dataTransfer.files].forEach((file, i) => {
-                //console.log(`… file[${i}].name = ${file.name}`);
+            [...e.dataTransfer.files].forEach((file) => {
                 files.push(file);
             });
         }
         const albumPath = $page.url.pathname + '/';
         await upload(files, albumPath);
-        await pollForProcessedImages(albumPath);
     }
 </script>
 

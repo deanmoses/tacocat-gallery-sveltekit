@@ -4,8 +4,8 @@
 <script lang="ts">
     import { page } from '$app/stores';
     import UploadIcon from '$lib/components/site/icons/UploadIcon.svelte';
+    import { upload } from '$lib/stores/UploadStore';
     import { isValidDayAlbumPath } from '$lib/utils/galleryPathUtils';
-    import { pollForProcessedImages, upload } from '$lib/utils/upload';
 
     let path: string;
     $: path = $page.url.pathname;
@@ -23,7 +23,6 @@
         if (!!files && !!files.length) {
             const albumPath = path + '/';
             await upload(files, albumPath);
-            await pollForProcessedImages(files, albumPath);
         }
     }
 </script>
