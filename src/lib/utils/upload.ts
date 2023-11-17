@@ -4,21 +4,37 @@ import { fromCognitoIdentityPool } from '@aws-sdk/credential-providers';
 import { isValidDayAlbumPath, isValidImageName, sanitizeImageName } from './galleryPathUtils';
 import { fromPathToS3OriginalBucketKey } from './s3path';
 import { albumStore } from '$lib/stores/AlbumStore';
+import { addUpload, getUploads, removeUpload, updateUploadState } from '$lib/stores/UploadStore';
+import { get } from 'svelte/store';
 
 export async function upload(files: FileList | File[], albumPath: string): Promise<void> {
+    await uploadImages(files, albumPath);
+    await pollForProcessedImages(albumPath);
+}
+
+async function uploadImages(files: FileList | File[], albumPath: string): Promise<void> {
     if (!!files) {
         if (!isValidDayAlbumPath(albumPath)) throw new Error(`Invalid day album path: [${albumPath}]`);
+
+        let imagesToUpload: { file: File; imagePath: string }[] = [];
         for (let file of files) {
             if (!isValidImageName(file.name)) {
                 console.error(`Skipping invalid image name [${file.name}]`);
             } else {
                 const imagePath = albumPath + sanitizeImageName(file.name);
-                try {
-                    await uploadImage(file, imagePath);
-                } catch (e) {
-                    console.error(`Error uploading [${file.name}]`, e);
-                }
+                imagesToUpload.push({ file, imagePath });
+                addUpload(file, imagePath);
             }
+        }
+
+        for (let imageToUpload of imagesToUpload) {
+            updateUploadState(imageToUpload.imagePath, 'uploading');
+            try {
+                await uploadImage(imageToUpload.file, imageToUpload.imagePath);
+            } catch (e) {
+                console.error(`Error uploading [${imageToUpload.imagePath}]`, e);
+            }
+            updateUploadState(imageToUpload.imagePath, 'processing');
         }
     }
 }
@@ -40,39 +56,43 @@ async function uploadImage(file: File, imagePath: string): Promise<string | unde
         }),
     });
 
-    upload.on('httpUploadProgress', (progress: unknown) => {
-        console.info('HTTP Upload Progress', progress);
+    upload.on('httpUploadProgress', ({ loaded, total }) => {
+        if (!loaded || !total) return;
+        const percentComplete = Math.round((loaded / total) * 100);
+        console.info(`Upload progress for [${imagePath}]: ${percentComplete}%`);
     });
 
     const results = await upload.done();
     if (results.$metadata.httpStatusCode != 200) {
-        const msg = `Got non-200 status code [${results.$metadata.httpStatusCode}] uploading image`;
+        const msg = `Got non-200 status code [${results.$metadata.httpStatusCode}] uploading image [${imagePath}]`;
         console.error(msg, results);
         return msg;
     } else {
-        console.info(`Uploaded image `, results);
+        console.info(`Uploaded image [${imagePath}]`, results);
     }
 }
 
-export async function pollForProcessedImages(files: FileList | File[], albumPath: string) {
+export async function pollForProcessedImages(albumPath: string) {
     let processingComplete = false;
     let count = 0;
     do {
         await sleep(1500);
-        processingComplete = await areImagesProcessed(files, albumPath);
+        processingComplete = await areImagesProcessed(albumPath);
         count++;
     } while (!processingComplete && count <= 5);
     console.log(`Images have been processed.  Count: [${count}]`);
-    albumStore.get(albumPath);
 }
 
-async function areImagesProcessed(files: FileList | File[], albumPath: string): Promise<boolean> {
-    if (!files || files.length === 0) return false;
+async function areImagesProcessed(albumPath: string): Promise<boolean> {
+    const uploads = get(getUploads());
+    if (!uploads || uploads.length === 0) return true;
     const album = await albumStore.fetchFromServerAsync(albumPath);
-    for (let file of files) {
-        const imagePath = albumPath + file.name;
-        if (!album.getImage(imagePath)) {
-            console.log(`Did not find file [${file.name}] in the album, it must still be processing`);
+    for (let upload of uploads) {
+        if (album.getImage(upload.imagePath)) {
+            // Found image. Remove it from list of images being processed
+            removeUpload(upload.imagePath);
+        } else {
+            console.log(`Did not find file [${upload.imagePath}] in the album, it must still be processing`);
             return false;
         }
     }

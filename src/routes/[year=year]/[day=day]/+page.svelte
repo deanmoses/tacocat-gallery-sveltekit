@@ -9,10 +9,12 @@
     $: albumEntry = data.albumEntry;
     $: album = $albumEntry.album;
     $: status = $albumEntry.loadStatus;
+    $: uppies = data.uploads;
+    $: uploads = $uppies;
 </script>
 
 <DayAlbumRouting {status} {year}>
     <svelte:fragment slot="loaded">
-        <DayAlbumPage {album} {year} />
+        <DayAlbumPage {album} {year} {uploads} />
     </svelte:fragment>
 </DayAlbumRouting>

@@ -11,9 +11,11 @@
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
+    import type { Upload } from '$lib/stores/UploadStore';
 
     export let year: string;
     export let album: Album;
+    export let uploads: Upload[];
 </script>
 
 <DayAlbumPageLayout {year} title={album.title}>
@@ -43,5 +45,19 @@
         {:else if !album.published}
             <p style="padding:2em">Drag images or a 📁</p>
         {/if}
+        {#if uploads?.length}
+            {#each uploads as upload (upload.imagePath)}
+                <span class="upload"
+                    >{upload.imagePath}: {upload.status}
+                    <img src={URL.createObjectURL(upload.file)} height="50" alt={upload.file.name} />
+                </span>
+            {/each}
+        {/if}
     </svelte:fragment>
 </DayAlbumPageLayout>
+
+<style>
+    .upload {
+        border: solid blue 2px;
+    }
+</style>
