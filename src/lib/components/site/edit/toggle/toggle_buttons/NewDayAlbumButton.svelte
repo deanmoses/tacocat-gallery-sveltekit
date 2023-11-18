@@ -6,12 +6,7 @@
     import { page } from '$app/stores';
     import SaveIcon from '$lib/components/site/icons/SaveIcon.svelte';
     import { albumStore } from '$lib/stores/AlbumStore';
-    import {
-        isValidDayAlbumName,
-        isValidDayAlbumPath,
-        isValidYearAlbumPath,
-        sanitizeDayAlbumName,
-    } from '$lib/utils/galleryPathUtils';
+    import { isValidDayAlbumPath, isValidYearAlbumPath, sanitizeDayAlbumName } from '$lib/utils/galleryPathUtils';
     import TextDialog from './TextDialog.svelte';
 
     let albumPath: string;

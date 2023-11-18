@@ -5,13 +5,7 @@
     import { page } from '$app/stores';
     import RenameIcon from '$lib/components/site/icons/RenameIcon.svelte';
     import { albumStore } from '$lib/stores/AlbumStore';
-    import {
-        getNameFromPath,
-        getParentFromPath,
-        isValidDayAlbumName,
-        isValidDayAlbumPath,
-        sanitizeDayAlbumName,
-    } from '$lib/utils/galleryPathUtils';
+    import { getNameFromPath, isValidDayAlbumPath, sanitizeDayAlbumName } from '$lib/utils/galleryPathUtils';
     import TextDialog from './TextDialog.svelte';
 
     let albumPath: string;
