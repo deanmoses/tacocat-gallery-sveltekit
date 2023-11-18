@@ -1,11 +1,12 @@
 <!--
-  @component Dialog to get new album name from user
+  @component Dialog to get a text input from user, such as a new album name 
 -->
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
 
-    export let initialName: string;
+    export let label: string;
+    export let initialValue: string;
     let dialog: HTMLDialogElement;
     let textfield: HTMLInputElement;
 
@@ -13,24 +14,29 @@
         dialog.showModal();
     }
 
-    export function onClose() {
-        dispatch('close', {
-            newName: textfield.value,
+    export function onConfirmButtonClick() {
+        dialog.close();
+        dispatch('newValue', {
+            value: textfield.value,
         });
+    }
+
+    function onCancelButtonClick() {
+        dialog.close();
     }
 </script>
 
-<dialog bind:this={dialog} on:close={onClose}>
+<dialog bind:this={dialog}>
     <form method="dialog">
         <p>
             <label>
-                New Album Name
-                <input bind:this={textfield} type="text" value={initialName} required />
+                {label}
+                <input bind:this={textfield} type="text" value={initialValue} required />
             </label>
         </p>
         <menu>
-            <button id="closeDialog" value="cancel">Cancel</button>
-            <button id="confirmBtn" value="default">Confirm</button>
+            <button on:click={onCancelButtonClick}>Cancel</button>
+            <button on:click={onConfirmButtonClick}>Confirm</button>
         </menu>
     </form>
 </dialog>
