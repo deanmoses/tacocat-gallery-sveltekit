@@ -7,6 +7,7 @@
     import SaveIcon from '$lib/components/site/icons/SaveIcon.svelte';
     import { albumStore } from '$lib/stores/AlbumStore';
     import { isValidAlbumPath, isValidImagePath, isValidYearAlbumPath } from '$lib/utils/galleryPathUtils';
+    import MyDialog from './MyDialog.svelte';
 
     let path: string;
     $: path = $page.url.pathname;
@@ -15,25 +16,36 @@
     let show: boolean = false;
     $: show = isValidYearAlbumPath($page.url.pathname + '/');
 
-    async function onNewButtonClick() {
+    let dialog: MyDialog;
+
+    function todayAlbumName(): string {
+        const d = new Date();
+        const month = ('0' + (d.getMonth() + 1)).slice(-2);
+        const day = ('0' + d.getDate()).slice(-2);
+        const month_day = `${month}-${day}`;
+        return month_day;
+    }
+
+    function onButtonClick() {
+        dialog.show();
+    }
+
+    async function onDialogClose(newName: CustomEvent<string>) {
+        console.log('Outer close dialog results', newName);
         let thePath = path;
         if (!isValidImagePath(thePath)) {
             thePath = thePath + '/';
             if (!isValidAlbumPath(thePath)) throw new Error(`Invalid path [${thePath}]`);
         }
-        const d = new Date();
-        const month = ('0' + (d.getMonth() + 1)).slice(-2);
-        const day = ('0' + d.getDate()).slice(-2);
-        const month_day = `${month}-${day}`;
-        const newAlbumName = prompt('Date of new album ', month_day);
-        const newAlbumPath = thePath + newAlbumName + '/';
+        const newAlbumPath = thePath + newName + '/';
         await albumStore.createAlbum(newAlbumPath);
         goto(newAlbumPath);
     }
 </script>
 
 {#if show}
-    <button on:click|once={onNewButtonClick}><SaveIcon />New Album</button>
+    <button on:click|once={onButtonClick}><SaveIcon />New Album</button>
+    <MyDialog bind:this={dialog} on:close={onDialogClose} initialName={todayAlbumName()} />
 {/if}
 
 <style>
