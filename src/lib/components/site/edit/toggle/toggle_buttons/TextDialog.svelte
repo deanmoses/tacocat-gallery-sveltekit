@@ -19,11 +19,11 @@
         dialog.showModal();
     }
 
-    function onTextChange() {
+    function onTextChange(): void {
         textfield.value = sanitizor(textfield.value);
     }
 
-    async function onConfirmButtonClick() {
+    async function onSubmit(): Promise<void> {
         if (!validator) {
             console.log(`No validator function`);
             return;
@@ -39,13 +39,22 @@
         }
     }
 
-    function onCancelButtonClick() {
+    function onCancelButtonClick(): void {
         dialog.close();
+    }
+
+    async function onKeyPress(event: KeyboardEvent): Promise<void> {
+        switch (event.key) {
+            case 'Enter':
+                event.preventDefault();
+                await onSubmit();
+        }
     }
 </script>
 
 <dialog bind:this={dialog}>
-    <form method="dialog">
+    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+    <form method="dialog" on:keydown={onKeyPress}>
         <p>
             <label>
                 <div class="label">{label}</div>
@@ -57,7 +66,7 @@
         </p>
         <menu>
             <button on:click={onCancelButtonClick}><CancelIcon /> Cancel</button>
-            <button on:click|preventDefault={onConfirmButtonClick}><SaveIcon /> Confirm</button>
+            <button on:click|preventDefault={onSubmit}><SaveIcon /> Confirm</button>
         </menu>
     </form>
 </dialog>
