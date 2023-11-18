@@ -2,7 +2,10 @@
   @component Dialog to get a text input from user, such as a new album name 
 -->
 <script lang="ts">
+    import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
     import { createEventDispatcher } from 'svelte';
+    import SaveButton from '../../controls/buttons/SaveButton.svelte';
+    import SaveIcon from '$lib/components/site/icons/SaveIcon.svelte';
     const dispatch = createEventDispatcher();
 
     export let label: string;
@@ -47,7 +50,7 @@
     <form method="dialog">
         <p>
             <label>
-                <div>{label}</div>
+                <div class="label">{label}</div>
                 <input type="text" bind:this={textfield} value={initialValue} on:input={onTextChange} required />
                 {#if errorMsg}
                     <div class="errorMsg">{errorMsg}</div>
@@ -55,8 +58,8 @@
             </label>
         </p>
         <menu>
-            <button on:click={onCancelButtonClick}>Cancel</button>
-            <button on:click|preventDefault={onConfirmButtonClick}>Confirm</button>
+            <button on:click={onCancelButtonClick}><CancelIcon /> Cancel</button>
+            <button on:click|preventDefault={onConfirmButtonClick}><SaveIcon /> Confirm</button>
         </menu>
     </form>
 </dialog>
@@ -77,6 +80,10 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
+    }
+
+    .label {
+        margin-bottom: 0.3em;
     }
 
     .errorMsg {
