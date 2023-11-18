@@ -1,22 +1,21 @@
 <!--
-  @component Button to create a new album
+  @component Button to create new album
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     import SaveIcon from '$lib/components/site/icons/SaveIcon.svelte';
     import { albumStore } from '$lib/stores/AlbumStore';
-    import { isValidAlbumPath, isValidImagePath, isValidYearAlbumPath } from '$lib/utils/galleryPathUtils';
-    import MyDialog from './TextDialog.svelte';
+    import { isValidDayAlbumName, isValidYearAlbumPath, sanitizeDayAlbumName } from '$lib/utils/galleryPathUtils';
+    import TextDialog from './TextDialog.svelte';
 
-    let path: string;
-    $: path = $page.url.pathname;
+    let albumPath: string;
+    $: albumPath = $page.url.pathname + '/';
 
-    // Show this button only on year ablums
     let show: boolean = false;
-    $: show = isValidYearAlbumPath($page.url.pathname + '/');
+    $: show = isValidYearAlbumPath(albumPath); // Show this button only on year ablums
 
-    let dialog: MyDialog;
+    let dialog: TextDialog;
 
     function todayAlbumName(): string {
         const d = new Date();
@@ -31,22 +30,27 @@
     }
 
     async function onNewAlbumName(e: CustomEvent<{ value: string }>) {
-        const newName = e.detail.value;
-        console.log('Outer close dialog results', newName);
-        let thePath = path;
-        if (!isValidImagePath(thePath)) {
-            thePath = thePath + '/';
-            if (!isValidAlbumPath(thePath)) throw new Error(`Invalid path [${thePath}]`);
-        }
-        const newAlbumPath = thePath + newName + '/';
+        const newAlbumName = e.detail.value;
+        const newAlbumPath = albumPath + newAlbumName + '/';
         await albumStore.createAlbum(newAlbumPath);
         goto(newAlbumPath);
+    }
+
+    function validateAlbumName(albumName: string): string | undefined {
+        if (!isValidDayAlbumName(albumName)) return 'invalid album name';
     }
 </script>
 
 {#if show}
     <button on:click={onButtonClick}><SaveIcon />New Album</button>
-    <MyDialog bind:this={dialog} on:newValue={onNewAlbumName} label="New Album Name" initialValue={todayAlbumName()} />
+    <TextDialog
+        label="New Album Name"
+        bind:this={dialog}
+        on:newValue={onNewAlbumName}
+        sanitizor={sanitizeDayAlbumName}
+        validator={validateAlbumName}
+        initialValue={todayAlbumName()}
+    />
 {/if}
 
 <style>

@@ -7,18 +7,35 @@
 
     export let label: string;
     export let initialValue: string;
+    export let sanitizor: Function; // TODO: more specific type with function signature
+    export let validator: Function; // TODO: more specific type with function signature
     let dialog: HTMLDialogElement;
     let textfield: HTMLInputElement;
+    let errorMsg: string;
 
     export function show(): void {
         dialog.showModal();
     }
 
-    export function onConfirmButtonClick() {
-        dialog.close();
-        dispatch('newValue', {
-            value: textfield.value,
-        });
+    function onTextChange() {
+        textfield.value = sanitizor(textfield.value);
+    }
+
+    function onConfirmButtonClick() {
+        if (!validator) {
+            console.log(`No validator function`);
+            return;
+        }
+        const validationErrorMsg = validator(textfield.value);
+        if (validationErrorMsg) {
+            console.log(`Got a validation error message: [${validationErrorMsg}]`);
+            errorMsg = validationErrorMsg;
+        } else {
+            dialog.close();
+            dispatch('newValue', {
+                value: textfield.value,
+            });
+        }
     }
 
     function onCancelButtonClick() {
@@ -30,13 +47,16 @@
     <form method="dialog">
         <p>
             <label>
-                {label}
-                <input bind:this={textfield} type="text" value={initialValue} required />
+                <div>{label}</div>
+                <input type="text" bind:this={textfield} value={initialValue} on:input={onTextChange} required />
+                {#if errorMsg}
+                    <div class="errorMsg">{errorMsg}</div>
+                {/if}
             </label>
         </p>
         <menu>
             <button on:click={onCancelButtonClick}>Cancel</button>
-            <button on:click={onConfirmButtonClick}>Confirm</button>
+            <button on:click|preventDefault={onConfirmButtonClick}>Confirm</button>
         </menu>
     </form>
 </dialog>
@@ -50,16 +70,17 @@
     dialog {
         border: none;
         box-shadow: #00000029 2px 2px 5px 2px;
-        border-radius: 10px;
-        padding: 30px;
-        background-color: pink;
-        font-family: sans-serif;
-        font-size: 20px;
-        font-weight: bold;
-
+        border-radius: 8px;
+        padding: 0.5em;
+        background-color: rgb(143, 143, 143);
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
+    }
+
+    .errorMsg {
+        font-style: italic;
+        color: rgb(58, 59, 59);
     }
 </style>

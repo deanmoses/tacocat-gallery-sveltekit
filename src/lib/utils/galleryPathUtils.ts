@@ -68,6 +68,10 @@ export function isValidImageNameStrict(imageName: string): boolean {
     return /^[a-z0-9]+([a-z0-9_]*[a-z0-9]+)*\.(jpg|gif|png)$/.test(imageName);
 }
 
+export function isValidImageNameWithoutExtenstionStrict(imageName: string): boolean {
+    return /^[a-z0-9]+([a-z0-9_]*[a-z0-9]+)*$/.test(imageName);
+}
+
 /**
  * Return a sanitized version of the specified image name.
  *  - IMAGE.JPG -> image.jpg
@@ -81,10 +85,26 @@ export function sanitizeImageName(imageName: string): string {
     return (imageName || '')
         .toLowerCase()
         .replace(/\.jpeg$/, '.jpg') // jpeg -> jpg
-        .replace(/[^a-z0-9_\.]+/g, '_') // special chars to _
+        .replace(/[^a-z0-9_\.]+/g, '_') // any invalid chars to _
         .replace(/_+/g, '_') // multple underscores to _
         .replace(/^_/g, '') // remove leading underscore
         .replace(/(_)\./g, '.'); // remove trailing underscore
+}
+
+export function sanitizeImageNameWithoutExtension(imageName: string): string {
+    return (imageName || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9_]+/g, '_') // any invalid chars to _
+        .replace(/_+/g, '_') // multple _ to _
+        .replace(/^_/g, ''); // remove leading underscore
+}
+
+export function sanitizeDayAlbumName(albumName: string): string {
+    return (albumName || '')
+        .replace(/[a-zA-Z]+/g, '') // letters to nothing
+        .replace(/[^0-9-]+/g, '-') // any other invalid chars to -
+        .replace(/-+/g, '-') // multple - to single -
+        .replace(/^-/g, ''); // remove leading -
 }
 
 /**

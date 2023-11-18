@@ -6,13 +6,15 @@
     import DeleteButton from './toggle_buttons/DeleteButton.svelte';
     import NewAlbumButton from './toggle_buttons/NewAlbumButton.svelte';
     import EditButton from './toggle_buttons/EditButton.svelte';
-    import RenameButton from './toggle_buttons/RenameButton.svelte';
+    import RenameAlbumButton from './toggle_buttons/RenameAlbumButton.svelte';
+    import RenameImageButton from './toggle_buttons/RenameImageButton.svelte';
 </script>
 
 <div>
     <nav class="editing-controls">
         <EditButton />
-        <RenameButton />
+        <RenameImageButton />
+        <RenameAlbumButton />
         <NewAlbumButton />
         <UploadButton />
         <DeleteButton />
