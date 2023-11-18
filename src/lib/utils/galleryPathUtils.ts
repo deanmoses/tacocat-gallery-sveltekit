@@ -14,6 +14,10 @@ export function isValidAlbumPath(path: string): boolean {
     return /^(\/\d\d\d\d(\/(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))?)?\/$/.test(path);
 }
 
+export function isValidYearAlbumName(yearAlbumName: string): boolean {
+    return /^\d\d\d\d$/.test(yearAlbumName);
+}
+
 /**
  * Return true if specified string is a valid year album path like /2001/
  */

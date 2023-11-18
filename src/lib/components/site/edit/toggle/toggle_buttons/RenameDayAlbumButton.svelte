@@ -4,6 +4,7 @@
 <script lang="ts">
     import { page } from '$app/stores';
     import RenameIcon from '$lib/components/site/icons/RenameIcon.svelte';
+    import { albumStore } from '$lib/stores/AlbumStore';
     import {
         getNameFromPath,
         getParentFromPath,
@@ -33,8 +34,7 @@
     }
 
     async function onNewAlbumName(e: CustomEvent<{ value: string }>) {
-        const newAlbumName = e.detail.value;
-        const newAlbumPath = getParentFromPath(albumPath) + newAlbumName + '/';
+        const newAlbumPath = albumNameToPath(e.detail.value);
         console.log(`I should rename this album to [${newAlbumPath}]`);
         // TODO
         // - call server rename
@@ -42,8 +42,14 @@
         // - THEN somehow delete old album from AlbumStore - retrieve parent album?
     }
 
-    function validateAlbumName(albumName: string): string | undefined {
-        if (!isValidDayAlbumName(albumName)) return 'invalid album name';
+    async function validateDayAlbumName(albumName: string): Promise<string | undefined> {
+        const newAlbumPath = albumNameToPath(albumName);
+        if (!isValidDayAlbumPath(newAlbumPath)) return 'invalid album name';
+        if (await albumStore.albumExists(newAlbumPath)) return 'already exists';
+    }
+
+    function albumNameToPath(albumName: string): string {
+        return albumPath + albumName + '/';
     }
 </script>
 
@@ -54,7 +60,7 @@
         bind:this={dialog}
         on:newValue={onNewAlbumName}
         sanitizor={sanitizeDayAlbumName}
-        validator={validateAlbumName}
+        validator={validateDayAlbumName}
         initialValue={originalName()}
     />
 {/if}

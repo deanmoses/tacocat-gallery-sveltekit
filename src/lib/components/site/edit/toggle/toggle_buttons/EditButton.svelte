@@ -10,6 +10,9 @@
     let path: string;
     $: path = $page.url.pathname;
 
+    let show: boolean = false;
+    $: show = path !== '/'; // Show this button everywhere but root
+
     /**
      * The Edit button was clicked.
      * Go to edit version of this page.
@@ -20,7 +23,7 @@
     }
 </script>
 
-<button on:click|once={onEditButtonClick}><EditIcon />Edit</button>
+{#if show}<button on:click|once={onEditButtonClick}><EditIcon />Edit</button>{/if}
 
 <style>
     button {

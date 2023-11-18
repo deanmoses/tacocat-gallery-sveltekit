@@ -4,7 +4,6 @@
 <script lang="ts">
     import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
     import { createEventDispatcher } from 'svelte';
-    import SaveButton from '../../controls/buttons/SaveButton.svelte';
     import SaveIcon from '$lib/components/site/icons/SaveIcon.svelte';
     const dispatch = createEventDispatcher();
 
@@ -24,14 +23,13 @@
         textfield.value = sanitizor(textfield.value);
     }
 
-    function onConfirmButtonClick() {
+    async function onConfirmButtonClick() {
         if (!validator) {
             console.log(`No validator function`);
             return;
         }
-        const validationErrorMsg = validator(textfield.value);
+        const validationErrorMsg = await validator(textfield.value);
         if (validationErrorMsg) {
-            console.log(`Got a validation error message: [${validationErrorMsg}]`);
             errorMsg = validationErrorMsg;
         } else {
             dialog.close();

@@ -4,6 +4,7 @@
 <script lang="ts">
     import { page } from '$app/stores';
     import RenameIcon from '$lib/components/site/icons/RenameIcon.svelte';
+    import { albumStore } from '$lib/stores/AlbumStore';
     import {
         getNameFromPath,
         getParentFromPath,
@@ -34,18 +35,27 @@
     }
 
     async function onNewImageName(e: CustomEvent<{ value: string }>) {
-        const newNameWithoutExtension = e.detail.value;
-        const newName = newNameWithoutExtension + '.jpg';
-        const newPath = getParentFromPath(imagePath) + newName;
-        console.log(`I should rename this album to [${newPath}]`);
+        const newImagePath = imageNameWithoutExtensionToPath(e.detail.value);
+        console.log(`I should rename this image to [${newImagePath}]`);
         // TODO
         // - call server rename
-        // - goto(newPath);
+        // - goto(newImagePath);
         // - THEN somehow delete old album from AlbumStore - retrieve parent album?
     }
 
-    function validateImageName(imageName: string): string | undefined {
-        if (!isValidImageNameWithoutExtenstionStrict(imageName)) return 'invalid image name';
+    async function validateImageName(newImageName: string): Promise<string | undefined> {
+        if (!isValidImageNameWithoutExtenstionStrict(newImageName)) return 'invalid image name';
+        const newImagePath = imageNameWithoutExtensionToPath(newImageName);
+        const albumPath = getParentFromPath(newImagePath);
+        const album = albumStore.getFromInMemory(albumPath);
+        if (!album || !album.album) return;
+        const image = album.album.getImage(newImagePath);
+        if (image) return 'image already exists';
+    }
+
+    function imageNameWithoutExtensionToPath(imageNameWithoutExtension: string): string {
+        const newName = imageNameWithoutExtension + '.jpg';
+        return getParentFromPath(imagePath) + newName;
     }
 </script>
 

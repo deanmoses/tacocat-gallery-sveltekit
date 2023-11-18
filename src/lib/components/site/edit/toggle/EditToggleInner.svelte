@@ -4,18 +4,20 @@
 <script lang="ts">
     import UploadButton from './toggle_buttons/UploadButton.svelte';
     import DeleteButton from './toggle_buttons/DeleteButton.svelte';
-    import NewAlbumButton from './toggle_buttons/NewAlbumButton.svelte';
     import EditButton from './toggle_buttons/EditButton.svelte';
-    import RenameAlbumButton from './toggle_buttons/RenameAlbumButton.svelte';
+    import RenameDayAlbumButton from './toggle_buttons/RenameDayAlbumButton.svelte';
     import RenameImageButton from './toggle_buttons/RenameImageButton.svelte';
+    import NewYearAlbumButton from './toggle_buttons/NewYearAlbumButton.svelte';
+    import NewDayAlbumButton from './toggle_buttons/NewDayAlbumButton.svelte';
 </script>
 
 <div>
     <nav class="editing-controls">
         <EditButton />
         <RenameImageButton />
-        <RenameAlbumButton />
-        <NewAlbumButton />
+        <RenameDayAlbumButton />
+        <NewYearAlbumButton />
+        <NewDayAlbumButton />
         <UploadButton />
         <DeleteButton />
     </nav>

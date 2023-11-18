@@ -6,14 +6,19 @@
     import { page } from '$app/stores';
     import SaveIcon from '$lib/components/site/icons/SaveIcon.svelte';
     import { albumStore } from '$lib/stores/AlbumStore';
-    import { isValidDayAlbumName, isValidYearAlbumPath, sanitizeDayAlbumName } from '$lib/utils/galleryPathUtils';
+    import {
+        isValidDayAlbumName,
+        isValidDayAlbumPath,
+        isValidYearAlbumPath,
+        sanitizeDayAlbumName,
+    } from '$lib/utils/galleryPathUtils';
     import TextDialog from './TextDialog.svelte';
 
     let albumPath: string;
     $: albumPath = $page.url.pathname + '/';
 
     let show: boolean = false;
-    $: show = isValidYearAlbumPath(albumPath); // Show this button only on year ablums
+    $: show = isValidYearAlbumPath(albumPath); // Show this button only on year albums
 
     let dialog: TextDialog;
 
@@ -30,14 +35,19 @@
     }
 
     async function onNewAlbumName(e: CustomEvent<{ value: string }>) {
-        const newAlbumName = e.detail.value;
-        const newAlbumPath = albumPath + newAlbumName + '/';
+        const newAlbumPath = albumNameToPath(e.detail.value);
         await albumStore.createAlbum(newAlbumPath);
         goto(newAlbumPath);
     }
 
-    function validateAlbumName(albumName: string): string | undefined {
-        if (!isValidDayAlbumName(albumName)) return 'invalid album name';
+    async function validateDayAlbumName(albumName: string): Promise<string | undefined> {
+        const newAlbumPath = albumNameToPath(albumName);
+        if (!isValidDayAlbumPath(newAlbumPath)) return 'invalid album name';
+        if (await albumStore.albumExists(newAlbumPath)) return 'already exists';
+    }
+
+    function albumNameToPath(albumName: string): string {
+        return albumPath + albumName + '/';
     }
 </script>
 
@@ -48,7 +58,7 @@
         bind:this={dialog}
         on:newValue={onNewAlbumName}
         sanitizor={sanitizeDayAlbumName}
-        validator={validateAlbumName}
+        validator={validateDayAlbumName}
         initialValue={todayAlbumName()}
     />
 {/if}

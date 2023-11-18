@@ -38,6 +38,31 @@ class AlbumStore {
     >();
 
     /**
+     * Return true if album exists
+     */
+    async albumExists(path: string): Promise<boolean> {
+        if (!isValidAlbumPath(path)) throw new Error(`Invalid album path [${path}]`);
+
+        // First check in memory
+        const albumEntry = this.getFromInMemory(path);
+        if (albumEntry?.loadStatus === AlbumLoadStatus.LOADED || albumEntry?.loadStatus === AlbumLoadStatus.LOADING) {
+            return true;
+        } else if (albumEntry?.loadStatus === AlbumLoadStatus.DOES_NOT_EXIST) {
+            return false;
+        }
+
+        // Then check disk cache
+        const albumRecord = await this.fetchFromDisk(path);
+        if (albumRecord) {
+            return true;
+        }
+
+        // Then check server
+        // TODO
+        return false;
+    }
+
+    /**
      * Get an album.
      *
      * This will:
@@ -150,6 +175,11 @@ class AlbumStore {
             .finally(() => {
                 this.fetchFromServer(path);
             });
+    }
+
+    private async fetchFromDisk(path: string): Promise<AlbumRecord | undefined> {
+        const idbKey = this.idbKey(path);
+        return await getFromIdb(idbKey);
     }
 
     /**

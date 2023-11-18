@@ -11,6 +11,9 @@
     let path: string;
     $: path = $page.url.pathname;
 
+    let show: boolean = false;
+    $: show = path !== '/'; // Show this button everywhere but root
+
     async function onDeleteButtonClick() {
         let thePath = path;
         if (!isValidImagePath(thePath)) {
@@ -22,7 +25,7 @@
     }
 </script>
 
-<button on:click|once={onDeleteButtonClick}><DeleteIcon />Delete</button>
+{#if show}<button on:click|once={onDeleteButtonClick}><DeleteIcon />Delete</button>{/if}
 
 <style>
     button {
