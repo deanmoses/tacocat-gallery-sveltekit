@@ -1,9 +1,6 @@
 <!--
-  @component
-
-  Page that displays an error instead of an image
+  @component Page that displays an error instead of an image
 -->
-
 <script lang="ts">
     import BlankImagePageLayout from './layouts/BlankImagePageLayout.svelte';
 

@@ -1,5 +1,5 @@
 <!--
-  @component The image detail page
+  @component Show big version of an image
 -->
 <script lang="ts">
     import type { Image } from '$lib/models/GalleryItemInterfaces';

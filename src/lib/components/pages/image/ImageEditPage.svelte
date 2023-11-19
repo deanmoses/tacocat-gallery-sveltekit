@@ -1,9 +1,6 @@
 <!--
-  @component
-
-  Page to edit an image
+  @component Page to edit an image
 -->
-
 <script lang="ts">
     import ImagePageLayout from './layouts/ImagePageLayout.svelte';
     import PrevButton from '$lib/components/site/nav/PrevButton.svelte';

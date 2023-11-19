@@ -1,7 +1,5 @@
 <!--
-  @component
-
-  Flip through different album loading statuses of a photo
+  @component Flip through different album loading statuses of a photo
 -->
 <script lang="ts">
     import { AlbumLoadStatus } from '$lib/models/album';

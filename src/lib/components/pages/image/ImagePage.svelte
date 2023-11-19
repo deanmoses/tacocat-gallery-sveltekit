@@ -1,7 +1,5 @@
 <!--
-  @component
-
-  Page to display an image
+  @component Page to display an image
 -->
 <script lang="ts">
     import ImagePageLayout from './layouts/ImagePageLayout.svelte';
