@@ -47,4 +47,9 @@
     .summary {
         color: var(--default-text-color);
     }
+
+    :global(.dragging .thumbnail) {
+        transform: scale(0.7);
+        opacity: 50%;
+    }
 </style>

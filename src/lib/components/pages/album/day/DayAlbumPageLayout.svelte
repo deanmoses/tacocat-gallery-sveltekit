@@ -144,7 +144,6 @@
                 <slot name="caption" />
             </section>
             <section
-                draggable="true"
                 on:dragenter={dragEnter}
                 on:dragleave={dragLeave}
                 on:drop={drop}
@@ -159,9 +158,3 @@
         </MainContent>
     </PageContent>
 </SiteLayout>
-
-<style>
-    :global(.dragging) {
-        background-color: pink;
-    }
-</style>
