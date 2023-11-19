@@ -9,6 +9,7 @@
     import RenameImageButton from './toggle_buttons/RenameImageButton.svelte';
     import NewYearAlbumButton from './toggle_buttons/NewYearAlbumButton.svelte';
     import NewDayAlbumButton from './toggle_buttons/NewDayAlbumButton.svelte';
+    import SetYearThumbnailButton from './toggle_buttons/SetYearThumbnailButton.svelte';
 </script>
 
 <div>
@@ -19,6 +20,7 @@
         <NewYearAlbumButton />
         <NewDayAlbumButton />
         <UploadButton />
+        <SetYearThumbnailButton />
         <DeleteButton />
     </nav>
 </div>
