@@ -10,11 +10,13 @@
     import NewYearAlbumButton from './toggle_buttons/NewYearAlbumButton.svelte';
     import NewDayAlbumButton from './toggle_buttons/NewDayAlbumButton.svelte';
     import SetYearThumbnailButton from './toggle_buttons/SetYearThumbnailButton.svelte';
+    import CropButton from './toggle_buttons/CropButton.svelte';
 </script>
 
 <div>
     <nav class="editing-controls">
         <EditButton />
+        <CropButton />
         <RenameImageButton />
         <RenameDayAlbumButton />
         <NewYearAlbumButton />
