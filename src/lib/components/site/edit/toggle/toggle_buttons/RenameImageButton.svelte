@@ -12,6 +12,7 @@
         isValidImagePath,
         sanitizeImageNameWithoutExtension,
     } from '$lib/utils/galleryPathUtils';
+    import ControlStripButton from '../../controls/buttons/ControlStripButton.svelte';
     import TextDialog from './TextDialog.svelte';
 
     let imagePath: string;
@@ -60,7 +61,7 @@
 </script>
 
 {#if show}
-    <button on:click={onButtonClick}><RenameIcon />Rename</button>
+    <ControlStripButton on:click={onButtonClick}><RenameIcon />Rename</ControlStripButton>
     <TextDialog
         label="New Image Name"
         bind:this={dialog}
@@ -70,11 +71,3 @@
         initialValue={originalImageName()}
     />
 {/if}
-
-<style>
-    button {
-        display: flex;
-        align-items: center;
-        gap: 0.3em;
-    }
-</style>

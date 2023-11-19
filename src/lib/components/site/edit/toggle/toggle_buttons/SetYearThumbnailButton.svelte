@@ -5,6 +5,7 @@
     import { page } from '$app/stores';
     import FilledStarIcon from '$lib/components/site/icons/FilledStarIcon.svelte';
     import { getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
+    import ControlStripButton from '../../controls/buttons/ControlStripButton.svelte';
 
     let path: string;
     $: path = $page.url.pathname;
@@ -20,12 +21,6 @@
     }
 </script>
 
-{#if show}<button on:click|once={onSetThumbnailButtonClick}><FilledStarIcon />Year</button>{/if}
-
-<style>
-    button {
-        display: flex;
-        align-items: center;
-        gap: 0.3em;
-    }
-</style>
+{#if show}
+    <ControlStripButton on:click|once={onSetThumbnailButtonClick}><FilledStarIcon />Year</ControlStripButton>
+{/if}

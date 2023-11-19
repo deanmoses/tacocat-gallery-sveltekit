@@ -7,6 +7,7 @@
     import CreateIcon from '$lib/components/site/icons/CreateIcon.svelte';
     import { albumStore } from '$lib/stores/AlbumStore';
     import { isValidYearAlbumPath, sanitizeDayAlbumName } from '$lib/utils/galleryPathUtils';
+    import ControlStripButton from '../../controls/buttons/ControlStripButton.svelte';
     import TextDialog from './TextDialog.svelte';
 
     let show: boolean = false;
@@ -37,7 +38,7 @@
 </script>
 
 {#if show}
-    <button on:click={onButtonClick}><CreateIcon />New Year Album</button>
+    <ControlStripButton on:click={onButtonClick}><CreateIcon />New Year Album</ControlStripButton>
     <TextDialog
         label="New Year!"
         bind:this={dialog}
@@ -47,11 +48,3 @@
         initialValue={yearAlbumName()}
     />
 {/if}
-
-<style>
-    button {
-        display: flex;
-        align-items: center;
-        gap: 0.3em;
-    }
-</style>

@@ -6,6 +6,7 @@
     import UploadIcon from '$lib/components/site/icons/UploadIcon.svelte';
     import { upload } from '$lib/stores/UploadStore';
     import { isValidDayAlbumPath } from '$lib/utils/galleryPathUtils';
+    import ControlStripButton from '../../controls/buttons/ControlStripButton.svelte';
 
     let path: string;
     $: path = $page.url.pathname;
@@ -28,14 +29,6 @@
 </script>
 
 {#if show}
-    <button on:click={onUploadButtonClick}><UploadIcon />Upload</button>
+    <ControlStripButton on:click={onUploadButtonClick}><UploadIcon />Upload</ControlStripButton>
     <input on:change={onFilesSelected} type="file" id="fileInput" multiple accept=".jpg, .jpeg" style="display:none" />
 {/if}
-
-<style>
-    button {
-        display: flex;
-        align-items: center;
-        gap: 0.3em;
-    }
-</style>

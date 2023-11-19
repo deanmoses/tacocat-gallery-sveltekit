@@ -1,9 +1,6 @@
 <!--
-  @component
-
-  A status message
+  @component A status message
 -->
-
 <script lang="ts">
     import { DraftStatus } from '$lib/models/draft';
 

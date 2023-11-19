@@ -7,6 +7,7 @@
     import DeleteIcon from '$lib/components/site/icons/DeleteIcon.svelte';
     import { albumStore } from '$lib/stores/AlbumStore';
     import { getParentFromPath, isValidAlbumPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
+    import ControlStripButton from '../../controls/buttons/ControlStripButton.svelte';
 
     let path: string;
     $: path = $page.url.pathname;
@@ -25,12 +26,6 @@
     }
 </script>
 
-{#if show}<button on:click|once={onDeleteButtonClick}><DeleteIcon />Delete</button>{/if}
-
-<style>
-    button {
-        display: flex;
-        align-items: center;
-        gap: 0.3em;
-    }
-</style>
+{#if show}
+    <ControlStripButton on:click|once={onDeleteButtonClick}><DeleteIcon />Delete</ControlStripButton>
+{/if}

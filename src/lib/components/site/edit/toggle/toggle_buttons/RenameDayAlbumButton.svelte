@@ -11,6 +11,7 @@
         isValidDayAlbumPath,
         sanitizeDayAlbumName,
     } from '$lib/utils/galleryPathUtils';
+    import ControlStripButton from '../../controls/buttons/ControlStripButton.svelte';
     import TextDialog from './TextDialog.svelte';
 
     let albumPath: string;
@@ -53,7 +54,7 @@
 </script>
 
 {#if show}
-    <button on:click={onButtonClick}><RenameIcon />Rename</button>
+    <ControlStripButton on:click={onButtonClick}><RenameIcon />Rename</ControlStripButton>
     <TextDialog
         label="New Album Name"
         bind:this={dialog}
@@ -63,11 +64,3 @@
         initialValue={originalName()}
     />
 {/if}
-
-<style>
-    button {
-        display: flex;
-        align-items: center;
-        gap: 0.3em;
-    }
-</style>

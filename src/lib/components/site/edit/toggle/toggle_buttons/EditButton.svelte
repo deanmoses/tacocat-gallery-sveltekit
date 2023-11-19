@@ -6,6 +6,7 @@
     import { page } from '$app/stores';
     import EditIcon from '$lib/components/site/icons/EditIcon.svelte';
     import { editUrl } from '$lib/utils/path-utils';
+    import ControlStripButton from '../../controls/buttons/ControlStripButton.svelte';
 
     let path: string;
     $: path = $page.url.pathname;
@@ -23,12 +24,6 @@
     }
 </script>
 
-{#if show}<button on:click|once={onEditButtonClick}><EditIcon />Edit</button>{/if}
-
-<style>
-    button {
-        display: flex;
-        align-items: center;
-        gap: 0.3em;
-    }
-</style>
+{#if show}
+    <ControlStripButton on:click|once={onEditButtonClick}><EditIcon />Edit</ControlStripButton>
+{/if}
