@@ -5,7 +5,12 @@
     import { page } from '$app/stores';
     import RenameIcon from '$lib/components/site/icons/RenameIcon.svelte';
     import { albumStore } from '$lib/stores/AlbumStore';
-    import { getNameFromPath, isValidDayAlbumPath, sanitizeDayAlbumName } from '$lib/utils/galleryPathUtils';
+    import {
+        getNameFromPath,
+        getParentFromPath,
+        isValidDayAlbumPath,
+        sanitizeDayAlbumName,
+    } from '$lib/utils/galleryPathUtils';
     import TextDialog from './TextDialog.svelte';
 
     let albumPath: string;
@@ -38,12 +43,13 @@
 
     async function validateDayAlbumName(albumName: string): Promise<string | undefined> {
         const newAlbumPath = albumNameToPath(albumName);
+        console.log(`New Day album path: `, newAlbumPath);
         if (!isValidDayAlbumPath(newAlbumPath)) return 'invalid album name';
         if (await albumStore.albumExists(newAlbumPath)) return 'already exists';
     }
 
     function albumNameToPath(albumName: string): string {
-        return albumPath + albumName + '/';
+        return getParentFromPath(albumPath) + albumName + '/';
     }
 </script>
 
