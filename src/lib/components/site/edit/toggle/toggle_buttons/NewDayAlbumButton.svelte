@@ -4,7 +4,7 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
-    import SaveIcon from '$lib/components/site/icons/SaveIcon.svelte';
+    import CreateIcon from '$lib/components/site/icons/CreateIcon.svelte';
     import { albumStore } from '$lib/stores/AlbumStore';
     import { isValidDayAlbumPath, isValidYearAlbumPath, sanitizeDayAlbumName } from '$lib/utils/galleryPathUtils';
     import TextDialog from './TextDialog.svelte';
@@ -47,7 +47,7 @@
 </script>
 
 {#if show}
-    <button on:click={onButtonClick}><SaveIcon />New Album</button>
+    <button on:click={onButtonClick}><CreateIcon />New Album</button>
     <TextDialog
         label="New Album Name"
         bind:this={dialog}
