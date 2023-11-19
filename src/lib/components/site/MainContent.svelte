@@ -17,8 +17,4 @@
         padding: calc(var(--default-padding) * 2);
         background-color: white;
     }
-
-    :global(.dragging .main-content) {
-        background-color: rgb(17, 231, 88);
-    }
 </style>

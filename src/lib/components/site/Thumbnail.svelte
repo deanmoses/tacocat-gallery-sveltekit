@@ -49,7 +49,8 @@
     }
 
     :global(.dragging .thumbnail) {
-        transform: scale(0.7);
-        opacity: 50%;
+        opacity: 40%;
+        transform: rotate(-1.7deg) scale(0.82);
+        filter: blur(1px);
     }
 </style>
