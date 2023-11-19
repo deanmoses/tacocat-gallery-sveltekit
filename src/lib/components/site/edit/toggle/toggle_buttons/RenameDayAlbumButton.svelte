@@ -43,7 +43,6 @@
 
     async function validateDayAlbumName(albumName: string): Promise<string | undefined> {
         const newAlbumPath = albumNameToPath(albumName);
-        console.log(`New Day album path: `, newAlbumPath);
         if (!isValidDayAlbumPath(newAlbumPath)) return 'invalid album name';
         if (await albumStore.albumExists(newAlbumPath)) return 'already exists';
     }
