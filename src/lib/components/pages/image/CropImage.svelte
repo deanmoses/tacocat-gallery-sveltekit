@@ -2,27 +2,40 @@
   @component An image cropper
 -->
 <script lang="ts">
-    import { onMount } from 'svelte';
+    import Cropper from 'svelte-easy-crop';
     import type { Image } from '$lib/models/GalleryItemInterfaces';
+
+    type Crop = { x: number; y: number; height: number; width: number };
     export let image: Image;
+    export function getCrop(): Crop {
+        return newCrop;
+    }
 
-    let canvas: HTMLCanvasElement;
-    let img: HTMLImageElement;
+    let initialCrop = { x: 0, y: 0 };
+    let newCrop: Crop;
 
-    onMount(() => {
-        img = new Image();
-        img.src = image.detailUrl;
-        img.onload = () => {
-            console.log(`Image loaded`);
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-        };
-    });
+    function onCropChange(e) {
+        console.log('onCropChange', e.detail.percent);
+        newCrop = e.detail.percent;
+    }
 </script>
 
-<canvas
-    bind:this={canvas}
-    width={image.width}
-    height={image.height}
-    style="max-width: {image.width}px; max-height: {image.height}px;"
-/>
+<div class="cropContainer">
+    <Cropper
+        image={image.detailUrl}
+        aspect="1"
+        showGrid={false}
+        crop={initialCrop}
+        zoom="1"
+        on:cropcomplete={onCropChange}
+    />
+</div>
+
+<style>
+    .cropContainer {
+        position: relative;
+        width: 100%;
+        min-height: 400px;
+        background-color: white;
+    }
+</style>

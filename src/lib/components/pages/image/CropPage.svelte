@@ -11,18 +11,23 @@
 
     export let year: string;
     export let image: Image;
+    let cropper: CropImage;
 
     function onCancel() {
         goto(image.path);
     }
+
+    function onSave() {
+        console.log(`I should save crop`, cropper.getCrop());
+    }
 </script>
 
 <ImagePageLayout {year} title={image.title}>
-    <svelte:fragment slot="nav">
+    <svelte:fragment slot="title">
         <button on:click={onCancel}><CancelIcon /> Cancel</button>
-        <button><SaveIcon /> Save</button>
+        <button on:click={onSave}><SaveIcon /> Save</button>
     </svelte:fragment>
     <svelte:fragment slot="image">
-        <CropImage {image} />
+        <CropImage bind:this={cropper} {image} />
     </svelte:fragment>
 </ImagePageLayout>
