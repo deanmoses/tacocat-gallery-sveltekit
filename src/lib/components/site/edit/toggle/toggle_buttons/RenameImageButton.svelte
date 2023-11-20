@@ -31,6 +31,13 @@
         return imageNameWithoutExtension;
     }
 
+    function fileExtension(): string {
+        const imageName = getNameFromPath(imagePath);
+        if (!imageName) throw 'no imageName';
+        const extension = '.' + imageName.split('.')[1];
+        return extension;
+    }
+
     function onButtonClick() {
         dialog.show();
     }
@@ -69,5 +76,6 @@
         sanitizor={sanitizeImageNameWithoutExtension}
         validator={validateImageName}
         initialValue={originalImageName()}
+        extension={fileExtension()}
     />
 {/if}

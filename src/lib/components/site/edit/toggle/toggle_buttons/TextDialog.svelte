@@ -9,6 +9,7 @@
 
     export let label: string;
     export let initialValue: string;
+    export let extension: string = '';
     export let sanitizor: Function; // TODO: more specific type with function signature
     export let validator: Function; // TODO: more specific type with function signature
     let dialog: HTMLDialogElement;
@@ -58,7 +59,13 @@
         <p>
             <label>
                 <div class="label">{label}</div>
-                <input type="text" bind:this={textfield} value={initialValue} on:input={onTextChange} required />
+                <input
+                    type="text"
+                    bind:this={textfield}
+                    value={initialValue}
+                    on:input={onTextChange}
+                    required
+                />{extension}
                 {#if errorMsg}
                     <div class="errorMsg">{errorMsg}</div>
                 {/if}
