@@ -31,6 +31,10 @@ const titles: { in: string; out: string }[] = [
         out: 'Image',
     },
     {
+        in: 'image-1.jpg',
+        out: 'Image',
+    },
+    {
         in: 'Image.jpg',
         out: 'Image',
     },
@@ -40,6 +44,10 @@ const titles: { in: string; out: string }[] = [
     },
     {
         in: 'two_words.jpg',
+        out: 'Two Words',
+    },
+    {
+        in: 'two-words.jpg',
         out: 'Two Words',
     },
     {
