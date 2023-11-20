@@ -44,6 +44,7 @@ class AlbumStore {
         if (!isValidAlbumPath(path)) throw new Error(`Invalid album path [${path}]`);
 
         // First check in memory
+        console.log(`Checking if album [${path}] exists in memory`);
         const albumEntry = this.getFromInMemory(path);
         if (albumEntry?.loadStatus === AlbumLoadStatus.LOADED || albumEntry?.loadStatus === AlbumLoadStatus.LOADING) {
             return true;
@@ -52,14 +53,21 @@ class AlbumStore {
         }
 
         // Then check disk cache
+        console.log(`Checking if album [${path}] exists on disk`);
         const albumRecord = await this.fetchFromDisk(path);
         if (albumRecord) {
             return true;
         }
 
         // Then check server
-        // TODO
-        return false;
+        console.log(`Checking if album [${path}] exists on server`);
+        const url = albumUrl(path);
+        const requestConfig = this.buildFetchConfig(path);
+        requestConfig.method = 'HEAD';
+        const response = await fetch(url, requestConfig);
+        if (response.status === 404) return false;
+        if (response.ok) return true;
+        throw new Error(`Unexpected response [${response.status}] fetching album [${path}]`);
     }
 
     /**
@@ -212,7 +220,7 @@ class AlbumStore {
     }
 
     /**
-     * TODO: only have the async version, get rid of the other one
+     * Async version of fetchFromServer()
      */
     public async fetchFromServerAsync(path: string): Promise<Album> {
         const url = albumUrl(path);
