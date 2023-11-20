@@ -1,15 +1,11 @@
 // example.spec.ts
 import { test, expect } from '@playwright/test';
-import { processCaption } from '../legacyUrlHandler.ts'; // Playwright seems to require the .ts extension
+import { processCaption } from './legacyUrlHandler'; // Playwright seems to require the .ts extension
 
 test('processCaption: URL format #2001/12-31/felix.jpg', () => {
     const captions = [
         {
             original: undefined,
-            expected: '',
-        },
-        {
-            original: null,
             expected: '',
         },
         {

@@ -2,6 +2,7 @@ import type { ImageRecord } from './server';
 import type { Thumbable } from '../GalleryItemInterfaces';
 import { ThumbableBaseImpl } from './ThumbableBaseImpl';
 import { thumbnailUrl } from '$lib/utils/config';
+import { toTitleFromFilename } from '$lib/utils/titleUtils';
 
 export class ImageThumbableImpl extends ThumbableBaseImpl implements Thumbable {
     protected override readonly json: ImageRecord;
@@ -12,7 +13,7 @@ export class ImageThumbableImpl extends ThumbableBaseImpl implements Thumbable {
     }
 
     get title(): string {
-        return this.json?.title ?? this.json.itemName;
+        return this.json?.title ?? toTitleFromFilename(this.json.itemName);
     }
 
     set title(title: string) {
