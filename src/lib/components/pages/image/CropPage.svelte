@@ -3,8 +3,7 @@
 -->
 <script lang="ts">
     import ImagePageLayout from './layouts/ImagePageLayout.svelte';
-
-    import BigImage from './BigImage.svelte';
+    import CropImage from './CropImage.svelte';
     import type { Image } from '$lib/models/GalleryItemInterfaces';
     import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
     import SaveIcon from '$lib/components/site/icons/SaveIcon.svelte';
@@ -24,6 +23,6 @@
         <button><SaveIcon /> Save</button>
     </svelte:fragment>
     <svelte:fragment slot="image">
-        <BigImage {image} />
+        <CropImage {image} />
     </svelte:fragment>
 </ImagePageLayout>
