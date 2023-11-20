@@ -4,7 +4,7 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
-    import FilledStarIcon from '$lib/components/site/icons/FilledStarIcon.svelte';
+    import CropIcon from '$lib/components/site/icons/CropIcon.svelte';
     import { isValidImagePath } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../controls/buttons/ControlStripButton.svelte';
 
@@ -20,5 +20,5 @@
 </script>
 
 {#if show}
-    <ControlStripButton on:click|once={onCropButtonClick}><FilledStarIcon />Crop</ControlStripButton>
+    <ControlStripButton on:click|once={onCropButtonClick}><CropIcon />Crop</ControlStripButton>
 {/if}
