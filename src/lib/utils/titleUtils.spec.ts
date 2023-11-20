@@ -60,7 +60,7 @@ const titles: { in: string; out: string }[] = [
     },
 ];
 titles.forEach((title) => {
-    test(`Title: [${title.in}]`, () => {
+    test(`Title [${title.in}]`, () => {
         expect(toTitleFromFilename(title.in)).toBe(title.out);
     });
 });
