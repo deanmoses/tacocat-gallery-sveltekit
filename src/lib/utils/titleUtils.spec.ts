@@ -35,6 +35,15 @@ const titles: { in: string; out: string }[] = [
         out: 'Image',
     },
     {
+        in: 'image1b.jpg',
+        out: 'Image',
+    },
+    {
+        in: 'image_1B.jpg',
+        out: 'Image',
+    },
+
+    {
         in: 'Image.jpg',
         out: 'Image',
     },
@@ -53,6 +62,10 @@ const titles: { in: string; out: string }[] = [
     {
         in: 'three_whole_words.jpg',
         out: 'Three Whole Words',
+    },
+    {
+        in: '1love.jpg',
+        out: 'Love',
     },
     {
         in: 'IMAGE.jpg',
