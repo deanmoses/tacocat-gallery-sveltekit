@@ -8,10 +8,16 @@ import { produce } from 'immer';
 import { AlbumType, AlbumLoadStatus, AlbumUpdateStatus } from '$lib/models/album';
 import toAlbum from '$lib/models/impl/AlbumCreator';
 import { getAlbumType } from '$lib/utils/path-utils';
-import { isValidAlbumPath, isValidPath } from '$lib/utils/galleryPathUtils';
+import {
+    getNameFromPath,
+    getParentFromPath,
+    isValidAlbumPath,
+    isValidImagePath,
+    isValidPath,
+} from '$lib/utils/galleryPathUtils';
 import type { Album } from '$lib/models/GalleryItemInterfaces';
 import type { AlbumRecord } from '$lib/models/impl/server';
-import { albumUrl, createUrl, deleteUrl } from '$lib/utils/config';
+import { albumUrl, createUrl, deleteUrl, renameImageUrl } from '$lib/utils/config';
 
 export type AlbumEntry = {
     loadStatus: AlbumLoadStatus;
@@ -416,6 +422,9 @@ class AlbumStore {
         console.log(`[${path}] deleted`);
     }
 
+    /**
+     * Delete specified album
+     */
     async createAlbum(albumPath: string) {
         if (!isValidAlbumPath(albumPath)) throw new Error(`Invalid album path [${albumPath}]`);
         await fetch(createUrl(albumPath), {
@@ -433,6 +442,32 @@ class AlbumStore {
             cache: 'no-store',
         });
         console.log(`Album [${albumPath}] created`);
+    }
+
+    /**
+     * Rename specified image
+     */
+    async renameImage(oldImagePath: string, newImagePath: string) {
+        if (!isValidImagePath(oldImagePath)) throw new Error(`Invalid image path [${oldImagePath}]`);
+        if (!isValidImagePath(newImagePath)) throw new Error(`Invalid image path [${newImagePath}]`);
+        const newName = getNameFromPath(newImagePath);
+        console.log(`Attempting to rename image [${oldImagePath}] to [${newImagePath}]`);
+        const url = renameImageUrl(oldImagePath);
+        const requestConfig: RequestInit = {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ newName }),
+        };
+        const response = await fetch(url, requestConfig);
+        if (!response.ok) {
+            console.log(`Error`, response);
+            throw new Error(`Unexpected response [${response.status}] changing name of [${oldImagePath}]`);
+        }
+        const albumPath = getParentFromPath(newImagePath);
+        this.fetchFromServerAsync(albumPath);
     }
 }
 

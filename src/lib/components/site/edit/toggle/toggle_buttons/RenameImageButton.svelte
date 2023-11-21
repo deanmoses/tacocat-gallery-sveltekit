@@ -2,6 +2,7 @@
   @component Button to rename image
 -->
 <script lang="ts">
+    import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     import RenameIcon from '$lib/components/site/icons/RenameIcon.svelte';
     import { albumStore } from '$lib/stores/AlbumStore';
@@ -44,11 +45,8 @@
 
     async function onNewImageName(e: CustomEvent<{ value: string }>) {
         const newImagePath = imageNameWithoutExtensionToPath(e.detail.value);
-        console.log(`I should rename this image to [${newImagePath}]`);
-        // TODO
-        // - call server rename
-        // - goto(newImagePath);
-        // - THEN somehow delete old album from AlbumStore - retrieve parent album?
+        await albumStore.renameImage(imagePath, newImagePath);
+        goto(newImagePath);
     }
 
     async function validateImageName(newImageName: string): Promise<string | undefined> {

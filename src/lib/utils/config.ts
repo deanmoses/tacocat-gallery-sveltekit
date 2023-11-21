@@ -72,6 +72,22 @@ export function deleteUrl(path: string): string {
 }
 
 /**
+ * URL to send HTTP POST to rename an album
+ * @param albumPath path to an album like /2018/01-01/
+ */
+export function renameAlbumUrl(albumPath: string): string {
+    return baseApiUrl() + 'album-rename' + albumPath;
+}
+
+/**
+ * URL to send HTTP POST to rename an image
+ * @param imagePath path to an image like /2018/01-01/image.jpg
+ */
+export function renameImageUrl(imagePath: string): string {
+    return baseApiUrl() + 'image-rename' + imagePath;
+}
+
+/**
  * URL to retrieve latest album
  */
 export function latestAlbumUrl(): string {
