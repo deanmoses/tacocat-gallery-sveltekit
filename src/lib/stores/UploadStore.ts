@@ -1,5 +1,6 @@
 /**
- * Svelte store of photos being uploaded
+ * Svelte store of photos being uploaded.
+ * This store will be empty unless there's an image upload in progress.
  */
 
 import { produce } from 'immer';
@@ -14,6 +15,8 @@ import { page } from '$app/stores';
 
 const mock = true;
 
+type UploadStore = ImageUpload[];
+
 export type ImageUpload = {
     file: File;
     imagePath: string;
@@ -26,7 +29,7 @@ export enum UploadState {
     PROCESSING = 'Processing',
 }
 
-const initialState: ImageUpload[] = !mock
+const initialState: UploadStore = !mock
     ? []
     : [
           {
@@ -46,9 +49,9 @@ const initialState: ImageUpload[] = !mock
           },
       ];
 
-const uploadStore = writable<ImageUpload[]>(initialState);
+const uploadStore = writable<UploadStore>(initialState);
 
-export function getUploads(): Readable<ImageUpload[]> {
+export function getUploads(): Readable<UploadStore> {
     // Derive a read-only Svelte store over the uploads
     return derived(uploadStore, ($store) => $store);
 }
@@ -59,8 +62,8 @@ function addUpload(file: File, imagePath: string): void {
         imagePath,
         status: UploadState.UPLOAD_NOT_STARTED,
     };
-    uploadStore.update((oldValue: ImageUpload[]) =>
-        produce(oldValue, (draftState: ImageUpload[]) => {
+    uploadStore.update((oldValue: UploadStore) =>
+        produce(oldValue, (draftState: UploadStore) => {
             draftState.push(upload);
             return draftState;
         }),
@@ -68,8 +71,8 @@ function addUpload(file: File, imagePath: string): void {
 }
 
 function updateUploadState(imagePath: string, status: UploadState): void {
-    uploadStore.update((oldValue: ImageUpload[]) =>
-        produce(oldValue, (draftState: ImageUpload[]) => {
+    uploadStore.update((oldValue: UploadStore) =>
+        produce(oldValue, (draftState: UploadStore) => {
             const upload = draftState.find((upload) => upload.imagePath === imagePath);
             if (upload) upload.status = status;
             return draftState;
@@ -78,8 +81,8 @@ function updateUploadState(imagePath: string, status: UploadState): void {
 }
 
 function removeUpload(imagePath: string): void {
-    uploadStore.update((oldValue: ImageUpload[]) =>
-        produce(oldValue, (draftState: ImageUpload[]) => draftState.filter((upload) => upload.imagePath !== imagePath)),
+    uploadStore.update((oldValue: UploadStore) =>
+        produce(oldValue, (draftState: UploadStore) => draftState.filter((upload) => upload.imagePath !== imagePath)),
     );
 }
 
@@ -212,7 +215,6 @@ async function areImagesProcessed(albumPath: string): Promise<boolean> {
 }
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 
 //
 // Below this is code to handle drag and drop, could be separate file
