@@ -6,6 +6,7 @@
     import { page } from '$app/stores';
     import RenameIcon from '$lib/components/site/icons/RenameIcon.svelte';
     import { albumStore } from '$lib/stores/AlbumStore';
+    import { renameImage } from '$lib/stores/ImageRenameStore';
     import {
         getNameFromPath,
         getParentFromPath,
@@ -45,7 +46,7 @@
 
     async function onNewImageName(e: CustomEvent<{ value: string }>) {
         const newImagePath = imageNameWithoutExtensionToPath(e.detail.value);
-        await albumStore.renameImage(imagePath, newImagePath);
+        await renameImage(imagePath, newImagePath);
         goto(newImagePath);
     }
 

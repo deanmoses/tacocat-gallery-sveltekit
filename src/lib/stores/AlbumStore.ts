@@ -443,32 +443,6 @@ class AlbumStore {
         });
         console.log(`Album [${albumPath}] created`);
     }
-
-    /**
-     * Rename specified image
-     */
-    async renameImage(oldImagePath: string, newImagePath: string) {
-        if (!isValidImagePath(oldImagePath)) throw new Error(`Invalid image path [${oldImagePath}]`);
-        if (!isValidImagePath(newImagePath)) throw new Error(`Invalid image path [${newImagePath}]`);
-        const newName = getNameFromPath(newImagePath);
-        console.log(`Attempting to rename image [${oldImagePath}] to [${newImagePath}]`);
-        const url = renameImageUrl(oldImagePath);
-        const requestConfig: RequestInit = {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ newName }),
-        };
-        const response = await fetch(url, requestConfig);
-        if (!response.ok) {
-            console.log(`Error`, response);
-            throw new Error(`Unexpected response [${response.status}] changing name of [${oldImagePath}]`);
-        }
-        const albumPath = getParentFromPath(newImagePath);
-        this.fetchFromServerAsync(albumPath);
-    }
 }
 
 export const albumStore: AlbumStore = new AlbumStore();
