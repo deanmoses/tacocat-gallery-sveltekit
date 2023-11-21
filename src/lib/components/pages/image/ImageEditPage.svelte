@@ -14,14 +14,13 @@
     import DraftStore from '$lib/stores/DraftStore';
     import type { Album, Image } from '$lib/models/GalleryItemInterfaces';
 
-    export let year: string;
     export let album: Album;
     export let image: Image;
 
     let okToNavigate = DraftStore.getOkToNavigate();
 </script>
 
-<ImagePageLayout {year} title={image.title}>
+<ImagePageLayout title={image.title}>
     <svelte:fragment slot="editControls">
         <BaseEditControls />
     </svelte:fragment>

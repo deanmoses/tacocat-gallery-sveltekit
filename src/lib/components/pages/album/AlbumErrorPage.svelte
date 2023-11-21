@@ -1,15 +1,12 @@
 <!--
-  @component
-
-  Page that displays an error instead of an album
+  @component Page that displays an error instead of an album
 -->
 <script lang="ts">
-	import BlankAlbumPageLayout from './BlankAlbumPageLayout.svelte';
+    import BlankAlbumPageLayout from './BlankAlbumPageLayout.svelte';
 
-	export let year: string = '';
-	export let title = 'Error';
+    export let title = 'Error';
 </script>
 
-<BlankAlbumPageLayout {year} {title} hideFooter>
-	<slot />
+<BlankAlbumPageLayout {title} hideFooter>
+    <slot />
 </BlankAlbumPageLayout>

@@ -5,7 +5,6 @@
 
     export let data: PageData;
 
-    $: year = data.year;
     $: albumEntry = data.albumEntry;
     $: album = $albumEntry.album;
     $: status = $albumEntry.loadStatus;
@@ -13,10 +12,10 @@
     $: image = album?.getImage(imagePath);
 </script>
 
-<ImageRouting {status} {image} {year}>
+<ImageRouting albumLoadStatus={status} {image}>
     <svelte:fragment slot="loaded">
         {#if image}
-            <CropPage {year} {image} />
+            <CropPage {image} />
         {/if}
     </svelte:fragment>
 </ImageRouting>

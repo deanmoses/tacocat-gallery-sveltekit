@@ -14,7 +14,9 @@
     $: thumb = $latestAlbumThumbnailEntry.thumbnail;
 </script>
 
-{#if AlbumLoadStatus.NOT_LOADED == status || AlbumLoadStatus.LOADING == status}
+{#if AlbumLoadStatus.NOT_LOADED == status}
+    <!-- display nothing until it's loaded -->
+{:else if AlbumLoadStatus.LOADING == status}
     <!-- display nothing until it's loaded -->
 {:else if AlbumLoadStatus.ERROR_LOADING == status}
     <!-- display nothing if there's an error -->

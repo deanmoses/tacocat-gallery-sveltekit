@@ -1,20 +1,20 @@
 <script lang="ts">
+    import type { PageData } from './$types';
     import ImageRouting from '$lib/components/pages/image/ImageRouting.svelte';
     import ImagePage from '$lib/components/pages/image/ImagePage.svelte';
-    import type { PageData } from './$types';
 
     export let data: PageData;
 
-    $: year = data.year;
-    $: albumEntry = data.albumEntry;
-    $: album = $albumEntry.album;
-    $: status = $albumEntry.loadStatus;
-    $: imagePath = data.imagePath;
-    $: image = album?.getImage(imagePath);
+    $: imageEntry = data.imageEntry;
+    $: image = $imageEntry?.image;
+    $: album = $imageEntry?.albumEntry?.album;
+    $: albumLoadStatus = $imageEntry?.albumEntry?.loadStatus;
 </script>
 
-<ImageRouting {status} {image} {year}>
+<ImageRouting {albumLoadStatus} {image}>
     <svelte:fragment slot="loaded">
-        <ImagePage {year} {album} {image} />
+        {#if image && album}
+            <ImagePage {image} {album} />
+        {/if}
     </svelte:fragment>
 </ImageRouting>

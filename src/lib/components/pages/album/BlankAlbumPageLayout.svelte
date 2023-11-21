@@ -11,7 +11,6 @@
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
     import FullPageMessage from '$lib/components/site/FullPageMessage.svelte';
 
-    export let year: string;
     export let title: string;
     export let hideFooter = false;
 </script>
@@ -20,7 +19,7 @@
     <title>{title}</title>
 </svelte:head>
 
-<SiteLayout {year} {hideFooter}>
+<SiteLayout {hideFooter}>
     <Header hideBottomBorder />
     <Nav>
         <PrevButton />

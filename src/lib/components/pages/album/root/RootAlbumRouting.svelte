@@ -11,16 +11,18 @@
     import type { Album } from '$lib/models/GalleryItemInterfaces';
 
     export let status: AlbumLoadStatus;
-    export let album: Album;
+    export let album: Album | undefined;
 </script>
 
-{#if status === AlbumLoadStatus.NOT_LOADED || status === AlbumLoadStatus.LOADING}
+{#if AlbumLoadStatus.NOT_LOADED === status}
     <AlbumLoadingPage />
-{:else if status === AlbumLoadStatus.ERROR_LOADING}
+{:else if AlbumLoadStatus.LOADING === status}
+    <AlbumLoadingPage />
+{:else if AlbumLoadStatus.ERROR_LOADING === status}
     <AlbumErrorPage>Error retrieving album</AlbumErrorPage>
-{:else if status === AlbumLoadStatus.LOADED}
+{:else if AlbumLoadStatus.LOADED === status && album}
     <RootAlbumPage {album} />
-{:else if status === AlbumLoadStatus.DOES_NOT_EXIST}
+{:else if AlbumLoadStatus.DOES_NOT_EXIST === status}
     <AlbumErrorPage>Album does not exist</AlbumErrorPage>
 {:else}
     Unknown album status: {status}

@@ -5,7 +5,6 @@
 
     export let data: PageData;
 
-    $: year = data.year;
     $: albumEntry = data.albumEntry;
     $: album = $albumEntry.album;
     $: status = $albumEntry.loadStatus;
@@ -13,8 +12,10 @@
     $: uploads = $uppies;
 </script>
 
-<DayAlbumRouting {status} {year}>
+<DayAlbumRouting {status}>
     <svelte:fragment slot="loaded">
-        <DayAlbumPage {album} {year} {uploads} />
+        {#if album}
+            <DayAlbumPage {album} {uploads} />
+        {/if}
     </svelte:fragment>
 </DayAlbumRouting>

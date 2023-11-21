@@ -5,16 +5,17 @@
 
     export let data: PageData;
 
-    $: year = data.year;
     $: albumEntry = data.albumEntry;
     $: album = $albumEntry.album;
-    $: status = $albumEntry.loadStatus;
+    $: albumLoadStatus = $albumEntry.loadStatus;
     $: imagePath = data.imagePath;
     $: image = album?.getImage(imagePath);
 </script>
 
-<ImageRouting {status} {image} {year}>
+<ImageRouting {albumLoadStatus} {image}>
     <svelte:fragment slot="loaded">
-        <ImageEditPage {year} {album} {image} />
+        {#if image && album}
+            <ImageEditPage {album} {image} />
+        {/if}
     </svelte:fragment>
 </ImageRouting>

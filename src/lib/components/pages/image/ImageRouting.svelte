@@ -8,30 +8,31 @@
     import HomeIcon from '$lib/components/site/icons/HomeIcon.svelte';
     import type { Image } from '$lib/models/GalleryItemInterfaces';
 
-    export let year: string;
     export let image: Image | undefined;
-    export let status: AlbumLoadStatus;
+    export let albumLoadStatus: AlbumLoadStatus | undefined;
 </script>
 
-{#if status === AlbumLoadStatus.NOT_LOADED || status === AlbumLoadStatus.LOADING}
-    <ImageLoadingPage {year} />
-{:else if status === AlbumLoadStatus.LOADED && image}
+{#if AlbumLoadStatus.NOT_LOADED === albumLoadStatus}
+    <ImageLoadingPage />
+{:else if AlbumLoadStatus.LOADING === albumLoadStatus}
+    <ImageLoadingPage />
+{:else if AlbumLoadStatus.LOADED === albumLoadStatus && image}
     <slot name="loaded" />
-{:else if status === AlbumLoadStatus.LOADED && !image}
-    <AlbumErrorPage {year} title="Image Not Found">
+{:else if AlbumLoadStatus.LOADED === albumLoadStatus && !image}
+    <AlbumErrorPage title="Image Not Found">
         <p>Image not found</p>
         <p><a href="/">Go back <HomeIcon title="Home" />?</a></p>
     </AlbumErrorPage>
-{:else if status === AlbumLoadStatus.ERROR_LOADING}
-    <AlbumErrorPage {year}>
+{:else if AlbumLoadStatus.ERROR_LOADING === albumLoadStatus}
+    <AlbumErrorPage>
         <p>Error retrieving album</p>
         <p><a href="/">Go back <HomeIcon title="Home" />?</a></p>
     </AlbumErrorPage>
-{:else if status === AlbumLoadStatus.DOES_NOT_EXIST}
-    <AlbumErrorPage {year} title="Album Not Found">
+{:else if AlbumLoadStatus.DOES_NOT_EXIST === albumLoadStatus}
+    <AlbumErrorPage title="Album Not Found">
         <p>Album not found</p>
         <p><a href="/">Go back <HomeIcon title="Home" />?</a></p>
     </AlbumErrorPage>
 {:else}
-    Unknown album status: {status}
+    Unknown status: {albumLoadStatus}
 {/if}

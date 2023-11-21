@@ -1,16 +1,12 @@
 <!--
-  @component
-
-  Layout of an image page.
+  @component Layout of an image page
 -->
-
 <script lang="ts">
     import SiteLayout from '$lib/components/site/SiteLayout.svelte';
     import Header from '$lib/components/site/Header.svelte';
     import PageContent from '$lib/components/site/PageContent.svelte';
     import Nav from '$lib/components/site/nav/Nav.svelte';
 
-    export let year: string;
     export let title: string;
 </script>
 
@@ -18,21 +14,27 @@
     <title>{title}</title>
 </svelte:head>
 
-<SiteLayout {year}>
+<SiteLayout>
     <svelte:fragment slot="editControls"><slot name="editControls" /></svelte:fragment>
-    <Header hideSiteTitle hideSearch hideWhenSmall>
-        <slot name="title" />
-    </Header>
+    {#if $$slots.title}
+        <Header hideSiteTitle hideSearch hideWhenSmall>
+            <slot name="title" />
+        </Header>
+    {/if}
     <PageContent>
         <div class="captionAndPhoto">
-            <section class="caption">
-                <h2 style="display:none">Caption</h2>
-                <slot name="caption" />
-            </section>
+            {#if $$slots.caption}
+                <section class="caption">
+                    <h2 style="display:none">Caption</h2>
+                    <slot name="caption" />
+                </section>
+            {/if}
             <div class="navAndPhoto">
-                <Nav>
-                    <slot name="nav" />
-                </Nav>
+                {#if $$slots.nav}
+                    <Nav>
+                        <slot name="nav" />
+                    </Nav>
+                {/if}
                 <section>
                     <h2 style="display:none">Photo</h2>
                     <slot name="image" />

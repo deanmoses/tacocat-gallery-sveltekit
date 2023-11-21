@@ -16,12 +16,11 @@
     import type { Album } from '$lib/models/GalleryItemInterfaces';
 
     export let album: Album;
-    export let year: string;
 
     let okToNavigate = DraftStore.getOkToNavigate();
 </script>
 
-<YearAlbumPageLayout {year}>
+<YearAlbumPageLayout>
     <svelte:fragment slot="editControls">
         <AlbumEditControls published={album.published} />
     </svelte:fragment>

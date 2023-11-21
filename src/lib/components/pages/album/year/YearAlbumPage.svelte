@@ -13,10 +13,9 @@
     import type { Album } from '$lib/models/GalleryItemInterfaces';
 
     export let album: Album;
-    export let year: string;
 </script>
 
-<YearAlbumPageLayout {year}>
+<YearAlbumPageLayout>
     <svelte:fragment slot="editControls">
         <EditToggle />
     </svelte:fragment>

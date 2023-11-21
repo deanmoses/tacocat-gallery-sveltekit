@@ -1,7 +1,5 @@
 <!--
-  @component
-
-  Page showing a day album
+  @component Page showing a day album
 -->
 <script lang="ts">
     import DayAlbumPageLayout from './DayAlbumPageLayout.svelte';
@@ -12,14 +10,13 @@
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import UploadThumbnail from '$lib/components/site/edit/UploadThumbnail.svelte';
-    import type { ImageUpload } from '$lib/stores/UploadStore';
+    import type { UploadEntry } from '$lib/stores/UploadStore';
 
-    export let year: string;
     export let album: Album;
-    export let uploads: ImageUpload[];
+    export let uploads: UploadEntry[];
 </script>
 
-<DayAlbumPageLayout {year} title={album.title}>
+<DayAlbumPageLayout title={album.title}>
     <svelte:fragment slot="editControls">
         <EditToggle />
     </svelte:fragment>

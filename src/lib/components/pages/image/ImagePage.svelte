@@ -10,12 +10,11 @@
     import EditToggle from '$lib/components/site/edit/toggle/EditToggle.svelte';
     import type { Album, Image } from '$lib/models/GalleryItemInterfaces';
 
-    export let year: string;
     export let album: Album;
     export let image: Image;
 </script>
 
-<ImagePageLayout {year} title={image.title}>
+<ImagePageLayout title={image.title}>
     <svelte:fragment slot="editControls">
         <EditToggle />
     </svelte:fragment>

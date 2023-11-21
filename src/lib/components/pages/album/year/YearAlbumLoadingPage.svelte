@@ -5,28 +5,24 @@
 -->
 
 <script lang="ts">
-	import YearAlbumPageLayout from "./YearAlbumPageLayout.svelte";
-	import PrevButton from "$lib/components/site/nav/PrevButton.svelte";
-	import UpButton from "$lib/components/site/nav/UpButton.svelte";
-	import NextButton from "$lib/components/site/nav/NextButton.svelte";
-	import FullPageMessage from "$lib/components/site/FullPageMessage.svelte";
-	import WaitingSpinner from "$lib/components/site/WaitingSpinner.svelte";
-
-	export let year: string;
+    import YearAlbumPageLayout from './YearAlbumPageLayout.svelte';
+    import PrevButton from '$lib/components/site/nav/PrevButton.svelte';
+    import UpButton from '$lib/components/site/nav/UpButton.svelte';
+    import NextButton from '$lib/components/site/nav/NextButton.svelte';
+    import FullPageMessage from '$lib/components/site/FullPageMessage.svelte';
+    import WaitingSpinner from '$lib/components/site/WaitingSpinner.svelte';
 </script>
 
-<YearAlbumPageLayout {year}>
+<YearAlbumPageLayout>
+    <svelte:fragment slot="nav">
+        <PrevButton />
+        <UpButton />
+        <NextButton />
+    </svelte:fragment>
 
-	<svelte:fragment slot="nav">
-		<PrevButton />
-		<UpButton />
-		<NextButton />
-	</svelte:fragment>
-
-	<svelte:fragment slot="thumbnails">
-		<FullPageMessage>
-			<WaitingSpinner />
-		</FullPageMessage>
-	</svelte:fragment>
-
+    <svelte:fragment slot="thumbnails">
+        <FullPageMessage>
+            <WaitingSpinner />
+        </FullPageMessage>
+    </svelte:fragment>
 </YearAlbumPageLayout>

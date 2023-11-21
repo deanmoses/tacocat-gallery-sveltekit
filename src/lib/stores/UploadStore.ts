@@ -15,9 +15,13 @@ import { page } from '$app/stores';
 
 const mock = true;
 
-type UploadStore = ImageUpload[];
+type UploadStore = UploadEntry[];
 
-export type ImageUpload = {
+/**
+ * An entry in the upload store
+ * Represents a single image being uploaded
+ */
+export type UploadEntry = {
     file: File;
     imagePath: string;
     status: UploadState;
@@ -56,8 +60,13 @@ export function getUploads(): Readable<UploadStore> {
     return derived(uploadStore, ($store) => $store);
 }
 
+export function getUpload(imagePath: string): Readable<UploadEntry | undefined> {
+    // Derive a read-only Svelte store over the uploads
+    return derived(uploadStore, ($store) => $store.find((upload) => upload.imagePath === imagePath));
+}
+
 function addUpload(file: File, imagePath: string): void {
-    const upload: ImageUpload = {
+    const upload: UploadEntry = {
         file,
         imagePath,
         status: UploadState.UPLOAD_NOT_STARTED,
@@ -89,7 +98,7 @@ function removeUpload(imagePath: string): void {
 //
 // Svelte data store is above this
 // Image uploading functionality is below this, it relies on the above data store
-// They're in the same file to encapsulate the system, it means I don't have
+// They're in the same file to encapsulate the system, so that I don't have
 // to expose the mutator methods on the data store to the rest of the system
 //
 

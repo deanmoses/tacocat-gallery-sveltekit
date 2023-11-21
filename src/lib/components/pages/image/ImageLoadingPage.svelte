@@ -4,10 +4,8 @@
 <script lang="ts">
     import BlankImagePageLayout from './layouts/BlankImagePageLayout.svelte';
     import WaitingSpinner from '$lib/components/site/WaitingSpinner.svelte';
-
-    export let year: string;
 </script>
 
-<BlankImagePageLayout {year} title="">
+<BlankImagePageLayout title="">
     <WaitingSpinner />
 </BlankImagePageLayout>

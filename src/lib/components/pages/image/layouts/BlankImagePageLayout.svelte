@@ -1,10 +1,7 @@
 <!--
-  @component
-
-  Layout of an image page for displaying waiting or error.
-	For use when you don't actually have an image to display.
+  @component Layout of an image page for displaying waiting or error.
+	         For use when you don't actually have an image to display.
 -->
-
 <script lang="ts">
     import ImagePageLayout from './ImagePageLayout.svelte';
     import PrevButton from '$lib/components/site/nav/PrevButton.svelte';
@@ -12,11 +9,10 @@
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
     import FullPageMessage from '$lib/components/site/FullPageMessage.svelte';
 
-    export let year: string;
     export let title: string;
 </script>
 
-<ImagePageLayout {year} {title}>
+<ImagePageLayout {title}>
     <svelte:fragment slot="title">
         {title}
     </svelte:fragment>

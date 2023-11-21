@@ -2,10 +2,10 @@
   @component A thumbnail of an uploading image
 -->
 <script lang="ts">
-    import type { ImageUpload } from '$lib/stores/UploadStore';
+    import type { UploadEntry } from '$lib/stores/UploadStore';
     import Thumbnail from '../Thumbnail.svelte';
 
-    export let upload: ImageUpload;
+    export let upload: UploadEntry;
     let url = URL.createObjectURL(upload.file);
 
     function onLoad() {

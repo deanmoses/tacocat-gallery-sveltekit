@@ -1,7 +1,5 @@
 <!--
-  @component
-
-  Page to edit a day album
+  @component Page to edit a day album
 -->
 <script lang="ts">
     import DayAlbumPageLayout from './DayAlbumPageLayout.svelte';
@@ -18,7 +16,6 @@
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import { getNameFromPath } from '$lib/utils/galleryPathUtils';
 
-    export let year: string;
     export let album: Album;
 
     let okToNavigate = DraftStore.getOkToNavigate();
@@ -35,7 +32,7 @@
     }
 </script>
 
-<DayAlbumPageLayout {year} title={album.title}>
+<DayAlbumPageLayout title={album.title}>
     <svelte:fragment slot="editControls">
         <AlbumEditControls showSummary summary={album.summary} showPublished published={album.published} />
     </svelte:fragment>

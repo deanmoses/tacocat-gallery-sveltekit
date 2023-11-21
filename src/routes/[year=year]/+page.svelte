@@ -5,14 +5,15 @@
 
     export let data: PageData;
 
-    $: year = data.year;
     $: albumEntry = data.albumEntry;
     $: album = $albumEntry.album;
     $: status = $albumEntry.loadStatus;
 </script>
 
-<YearAlbumRouting {status} {year}>
+<YearAlbumRouting {status}>
     <svelte:fragment slot="loaded">
-        <YearAlbumPage {album} {year} />
+        {#if album}
+            <YearAlbumPage {album} />
+        {/if}
     </svelte:fragment>
 </YearAlbumRouting>

@@ -8,18 +8,19 @@
     import PageContent from '$lib/components/site/PageContent.svelte';
     import Sidebar from '$lib/components/site/Sidebar.svelte';
     import MainContent from '$lib/components/site/MainContent.svelte';
+    import { getYear } from '$lib/stores/YearStore';
 
-    export let year: string;
+    $: year = getYear();
 </script>
 
 <svelte:head>
-    <title>{year}</title>
+    <title>{$year}</title>
 </svelte:head>
 
-<SiteLayout {year}>
+<SiteLayout>
     <svelte:fragment slot="editControls"><slot name="editControls" /></svelte:fragment>
     <Header hideBottomBorder>
-        {year}
+        {$year}
     </Header>
     <Nav>
         <slot name="nav" />

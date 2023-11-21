@@ -9,7 +9,6 @@
     import SaveIcon from '$lib/components/site/icons/SaveIcon.svelte';
     import { goto } from '$app/navigation';
 
-    export let year: string;
     export let image: Image;
     let cropper: CropImage;
 
@@ -22,7 +21,7 @@
     }
 </script>
 
-<ImagePageLayout {year} title={image.title}>
+<ImagePageLayout title={image.title}>
     <svelte:fragment slot="title">
         <button on:click={onCancel}><CancelIcon /> Cancel</button>
         <button on:click={onSave}><SaveIcon /> Save</button>

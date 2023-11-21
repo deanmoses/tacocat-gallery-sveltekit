@@ -10,7 +10,6 @@
     import Thumbnails from '$lib/components/site/Thumbnails.svelte';
     import { dropImages } from '$lib/stores/UploadStore';
 
-    export let year: string;
     export let title: string = '';
 
     let dragging = false;
@@ -49,7 +48,7 @@
 </svelte:head>
 
 <slot name="editControls" />
-<SiteLayout {year}>
+<SiteLayout>
     <Header hideBottomBorder>
         <slot name="title" />
     </Header>
