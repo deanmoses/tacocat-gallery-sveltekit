@@ -9,5 +9,6 @@
 </script>
 
 <BlankAlbumPageLayout {title}>
+    <p>{title}</p>
     <WaitingSpinner />
 </BlankAlbumPageLayout>
