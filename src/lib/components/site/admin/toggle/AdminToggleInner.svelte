@@ -2,15 +2,16 @@
   @component On hover, display buttons to get into edit mode, delete, etc 
 -->
 <script lang="ts">
-    import UploadButton from './toggle_buttons/UploadButton.svelte';
-    import DeleteButton from './toggle_buttons/DeleteButton.svelte';
     import EditButton from './toggle_buttons/EditButton.svelte';
+    import CropButton from './toggle_buttons/CropButton.svelte';
     import RenameDayAlbumButton from './toggle_buttons/RenameDayAlbumButton.svelte';
     import RenameImageButton from './toggle_buttons/RenameImageButton.svelte';
     import NewYearAlbumButton from './toggle_buttons/NewYearAlbumButton.svelte';
     import NewDayAlbumButton from './toggle_buttons/NewDayAlbumButton.svelte';
+    import UploadButton from './toggle_buttons/UploadButton.svelte';
     import SetYearThumbnailButton from './toggle_buttons/SetYearThumbnailButton.svelte';
-    import CropButton from './toggle_buttons/CropButton.svelte';
+    import DeleteAlbumButton from './toggle_buttons/DeleteAlbumButton.svelte';
+    import DeleteImageButton from './toggle_buttons/DeleteImageButton.svelte';
 </script>
 
 <div>
@@ -23,7 +24,8 @@
         <NewDayAlbumButton />
         <UploadButton />
         <SetYearThumbnailButton />
-        <DeleteButton />
+        <DeleteAlbumButton />
+        <DeleteImageButton />
     </nav>
 </div>
 
