@@ -8,30 +8,38 @@
     import HomeIcon from '$lib/components/site/icons/HomeIcon.svelte';
     import { RenameState, type AlbumRenameEntry } from '$lib/stores/AlbumRenameStore';
     import AlbumProcessingPage from '../AlbumProcessingPage.svelte';
+    import { DeleteState, type AlbumDeleteEntry } from '$lib/stores/AlbumDeleteStore';
 
-    export let status: AlbumLoadStatus;
+    export let loadStatus: AlbumLoadStatus;
+    export let deleteEntry: AlbumDeleteEntry | undefined = undefined;
     export let renameEntry: AlbumRenameEntry | undefined = undefined;
 </script>
 
-{#if renameEntry}
+{#if deleteEntry}
+    {#if DeleteState.IN_PROGRESS === deleteEntry.status}
+        <AlbumProcessingPage title="Delete in progress" />
+    {:else if DeleteState.ERROR === deleteEntry.status}
+        <AlbumErrorPage title="Error Deleting">Error: {deleteEntry.errorMessage}</AlbumErrorPage>
+    {/if}
+{:else if renameEntry}
     {#if RenameState.IN_PROGRESS === renameEntry.status}
         <AlbumProcessingPage title="Rename in progress" />
     {:else if RenameState.ERROR === renameEntry.status}
         <AlbumErrorPage title="Error Renaming">Error: {renameEntry.errorMessage}</AlbumErrorPage>
     {/if}
-{:else if AlbumLoadStatus.NOT_LOADED === status}
+{:else if AlbumLoadStatus.NOT_LOADED === loadStatus}
     <AlbumLoadingPage />
-{:else if AlbumLoadStatus.LOADING === status}
+{:else if AlbumLoadStatus.LOADING === loadStatus}
     <AlbumLoadingPage />
-{:else if AlbumLoadStatus.LOADED === status}
+{:else if AlbumLoadStatus.LOADED === loadStatus}
     <slot name="loaded" />
-{:else if AlbumLoadStatus.ERROR_LOADING === status}
+{:else if AlbumLoadStatus.ERROR_LOADING === loadStatus}
     <AlbumErrorPage>Error retrieving album</AlbumErrorPage>
-{:else if AlbumLoadStatus.DOES_NOT_EXIST === status}
+{:else if AlbumLoadStatus.DOES_NOT_EXIST === loadStatus}
     <AlbumErrorPage title="Album Not Found">
         <p>Album does not exist.</p>
         <p><a href="/">Go back <HomeIcon />?</a></p>
     </AlbumErrorPage>
 {:else}
-    Unknown album status: {status}
+    Unknown album status: {loadStatus}
 {/if}

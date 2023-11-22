@@ -7,10 +7,12 @@
 
     $: albumEntry = data.albumEntry;
     $: album = $albumEntry.album;
-    $: status = $albumEntry.loadStatus;
+    $: loadStatus = $albumEntry.loadStatus;
+    $: deleteEntryStore = data.deleteEntry;
+    $: deleteEntry = $deleteEntryStore;
 </script>
 
-<YearAlbumRouting {status}>
+<YearAlbumRouting {loadStatus} {deleteEntry}>
     <svelte:fragment slot="loaded">
         {#if album}
             <YearAlbumPage {album} />

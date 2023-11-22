@@ -10,7 +10,7 @@
     $: status = $albumEntry.loadStatus;
 </script>
 
-<YearAlbumRouting {status}>
+<YearAlbumRouting loadStatus={status}>
     <svelte:fragment slot="loaded">
         {#if album}
             <YearAlbumEditPage {album} />

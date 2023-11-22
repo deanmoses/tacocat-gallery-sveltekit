@@ -418,32 +418,6 @@ class AlbumStore {
     }
 
     /**
-     * Delete album
-     * @param albumPath path to album
-     */
-    async deleteAlbum(albumPath: string) {
-        if (!isValidAlbumPath(albumPath)) throw new Error(`Invalid album path [${albumPath}]`);
-        await fetch(deleteUrl(albumPath), {
-            method: 'DELETE',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            // no-store: bypass the HTTP cache completely.
-            // This will make the browser not look into the HTTP cache
-            // on the way to the network, and never store the resulting
-            // response in the HTTP cache.
-            // Fetch() will behave as if no HTTP cache exists.
-            cache: 'no-store',
-        });
-        console.log(`Album [${albumPath}] deleted`);
-        // Don't await on this async call; return immediately
-        // so that the UI can move off this album's page before
-        // the delete happens
-        this.removeFromMemoryAndDisk(albumPath);
-    }
-
-    /**
      * Remove album from client.
      * This assumes that the album has already been deleted from the server.
      */
