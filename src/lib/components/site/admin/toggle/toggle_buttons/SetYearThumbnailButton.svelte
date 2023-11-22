@@ -5,7 +5,7 @@
     import { page } from '$app/stores';
     import FilledStarIcon from '$lib/components/site/icons/FilledStarIcon.svelte';
     import { getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
-    import ControlStripButton from '../../controls/buttons/ControlStripButton.svelte';
+    import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
     let path: string;
     $: path = $page.url.pathname;

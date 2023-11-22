@@ -6,7 +6,7 @@
     import { page } from '$app/stores';
     import EditIcon from '$lib/components/site/icons/EditIcon.svelte';
     import { editUrl } from '$lib/utils/path-utils';
-    import ControlStripButton from '../../controls/buttons/ControlStripButton.svelte';
+    import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
     let path: string;
     $: path = $page.url.pathname;

@@ -1,5 +1,5 @@
 <!--
-  @component On hover, display a button to get into edit mode.  Only if user is an admin.
+  @component On hover, display edit buttons if user is an admin
 -->
 <script lang="ts">
     import { isAdmin } from '$lib/stores/SessionStore';
@@ -12,7 +12,7 @@
 		this code can be put into a separate bundle, so that non-admins
 		aren't forced to load it.
 	-->
-    {#await import('./EditToggleInner.svelte') then c}
-        <svelte:component this={c.default} />
+    {#await import('./AdminToggleInner.svelte') then { default: AdminToggleInner }}
+        <AdminToggleInner />
     {/await}
 {/if}

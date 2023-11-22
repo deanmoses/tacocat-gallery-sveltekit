@@ -9,8 +9,8 @@
     import UpButton from '$lib/components/site/nav/UpButton.svelte';
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
     import YearAlbumThumbnails from './YearAlbumThumbnails.svelte';
-    import AlbumEditControls from '$lib/components/site/edit/controls/AlbumEditControls.svelte';
-    import EditableHtml from '$lib/components/site/edit/EditableHtml.svelte';
+    import AlbumEditControls from '$lib/components/site/admin/edit_controls/AlbumEditControls.svelte';
+    import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
     import { editUrl } from '$lib/utils/path-utils';
     import DraftStore from '$lib/stores/DraftStore';
     import type { Album } from '$lib/models/GalleryItemInterfaces';

@@ -7,7 +7,7 @@
     import CreateIcon from '$lib/components/site/icons/CreateIcon.svelte';
     import { albumStore } from '$lib/stores/AlbumStore';
     import { isValidYearAlbumPath, sanitizeDayAlbumName } from '$lib/utils/galleryPathUtils';
-    import ControlStripButton from '../../controls/buttons/ControlStripButton.svelte';
+    import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import TextDialog from './TextDialog.svelte';
 
     let show: boolean = false;

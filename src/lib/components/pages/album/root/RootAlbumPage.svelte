@@ -15,7 +15,7 @@
     import LatestAlbumThumbnail from '$lib/components/data-aware/LatestAlbumThumbnail.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import { siteShortTitle, siteTitle } from '$lib/utils/config';
-    import EditToggle from '$lib/components/site/edit/toggle/EditToggle.svelte';
+    import AdminToggle from '$lib/components/site/admin/toggle/AdminToggle.svelte';
 
     export let album: Album;
 </script>
@@ -24,7 +24,7 @@
     <title>The Moses Family</title>
 </svelte:head>
 
-<EditToggle />
+<AdminToggle />
 <SiteLayout>
     <Header hideSiteTitle>
         <ResponsiveTitle title={siteTitle()} shortTitle={siteShortTitle()} />

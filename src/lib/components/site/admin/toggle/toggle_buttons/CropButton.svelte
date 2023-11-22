@@ -6,7 +6,7 @@
     import { page } from '$app/stores';
     import CropIcon from '$lib/components/site/icons/CropIcon.svelte';
     import { isValidImagePath } from '$lib/utils/galleryPathUtils';
-    import ControlStripButton from '../../controls/buttons/ControlStripButton.svelte';
+    import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
     let path: string;
     $: path = $page.url.pathname;

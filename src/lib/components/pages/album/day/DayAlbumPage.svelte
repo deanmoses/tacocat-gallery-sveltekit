@@ -3,13 +3,13 @@
 -->
 <script lang="ts">
     import DayAlbumPageLayout from './DayAlbumPageLayout.svelte';
-    import EditToggle from '$lib/components/site/edit/toggle/EditToggle.svelte';
+    import AdminToggle from '$lib/components/site/admin/toggle/AdminToggle.svelte';
     import PrevButton from '$lib/components/site/nav/PrevButton.svelte';
     import UpButton from '$lib/components/site/nav/UpButton.svelte';
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
-    import UploadThumbnail from '$lib/components/site/edit/UploadThumbnail.svelte';
+    import UploadThumbnail from '$lib/components/site/admin/UploadThumbnail.svelte';
     import type { UploadEntry } from '$lib/stores/UploadStore';
 
     export let album: Album;
@@ -18,7 +18,7 @@
 
 <DayAlbumPageLayout title={album.title}>
     <svelte:fragment slot="editControls">
-        <EditToggle />
+        <AdminToggle />
     </svelte:fragment>
 
     <svelte:fragment slot="title">

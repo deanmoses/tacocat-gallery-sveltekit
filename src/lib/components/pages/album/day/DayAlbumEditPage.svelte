@@ -7,9 +7,9 @@
     import UpButton from '$lib/components/site/nav/UpButton.svelte';
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
-    import SelectableStar from '$lib/components/site/edit/SelectableStar.svelte';
-    import AlbumEditControls from '$lib/components/site/edit/controls/AlbumEditControls.svelte';
-    import EditableHtml from '$lib/components/site/edit/EditableHtml.svelte';
+    import SelectableStar from '$lib/components/site/admin/SelectableStar.svelte';
+    import AlbumEditControls from '$lib/components/site/admin/edit_controls/AlbumEditControls.svelte';
+    import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
     import { editUrl } from '$lib/utils/path-utils';
     import DraftStore from '$lib/stores/DraftStore';
     import { setAlbumThumbnail } from '$lib/stores/AlbumThumbnailHelper';

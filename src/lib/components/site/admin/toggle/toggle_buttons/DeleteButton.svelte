@@ -7,7 +7,7 @@
     import DeleteIcon from '$lib/components/site/icons/DeleteIcon.svelte';
     import { albumStore } from '$lib/stores/AlbumStore';
     import { getParentFromPath, isValidAlbumPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
-    import ControlStripButton from '../../controls/buttons/ControlStripButton.svelte';
+    import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
     let path: string;
     $: path = $page.url.pathname;

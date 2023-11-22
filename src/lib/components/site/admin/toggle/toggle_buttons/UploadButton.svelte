@@ -6,7 +6,7 @@
     import UploadIcon from '$lib/components/site/icons/UploadIcon.svelte';
     import { upload } from '$lib/stores/UploadStore';
     import { isValidDayAlbumPath } from '$lib/utils/galleryPathUtils';
-    import ControlStripButton from '../../controls/buttons/ControlStripButton.svelte';
+    import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
     let path: string;
     $: path = $page.url.pathname;

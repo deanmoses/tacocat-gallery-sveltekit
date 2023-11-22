@@ -7,9 +7,9 @@
     import UpButton from '$lib/components/site/nav/UpButton.svelte';
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
     import BigImage from './BigImage.svelte';
-    import BaseEditControls from '$lib/components/site/edit/controls/BaseEditControls.svelte';
-    import EditableText from '$lib/components/site/edit/EditableText.svelte';
-    import EditableHtml from '$lib/components/site/edit/EditableHtml.svelte';
+    import BaseEditControls from '$lib/components/site/admin/edit_controls/BaseEditControls.svelte';
+    import EditableText from '$lib/components/site/admin/EditableText.svelte';
+    import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
     import { editUrl } from '$lib/utils/path-utils';
     import DraftStore from '$lib/stores/DraftStore';
     import type { Album, Image } from '$lib/models/GalleryItemInterfaces';

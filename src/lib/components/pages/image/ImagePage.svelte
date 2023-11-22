@@ -7,7 +7,7 @@
     import UpButton from '$lib/components/site/nav/UpButton.svelte';
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
     import BigImage from './BigImage.svelte';
-    import EditToggle from '$lib/components/site/edit/toggle/EditToggle.svelte';
+    import AdminToggle from '$lib/components/site/admin/toggle/AdminToggle.svelte';
     import type { Album, Image } from '$lib/models/GalleryItemInterfaces';
 
     export let album: Album;
@@ -16,7 +16,7 @@
 
 <ImagePageLayout title={image.title}>
     <svelte:fragment slot="editControls">
-        <EditToggle />
+        <AdminToggle />
     </svelte:fragment>
 
     <svelte:fragment slot="title">
