@@ -63,6 +63,7 @@ function setError(oldAlbumPath: string, errorMessage: string): void {
         produce(oldValue, (draftState: AlbumRenameStore) => {
             const rename = draftState.get(oldAlbumPath);
             if (rename) {
+                rename.status = RenameState.ERROR;
                 rename.errorMessage = errorMessage;
                 draftState.set(oldAlbumPath, rename);
             }

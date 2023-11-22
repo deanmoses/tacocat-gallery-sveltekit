@@ -63,6 +63,7 @@ function setError(oldImagePath: string, errorMessage: string): void {
         produce(oldValue, (draftState: ImageRenameStore) => {
             const rename = draftState.get(oldImagePath);
             if (rename) {
+                rename.status = RenameState.ERROR;
                 rename.errorMessage = errorMessage;
                 draftState.set(oldImagePath, rename);
             }
