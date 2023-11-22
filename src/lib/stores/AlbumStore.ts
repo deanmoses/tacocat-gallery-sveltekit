@@ -5,22 +5,17 @@
 import { writable, type Writable, derived, type Readable, get } from 'svelte/store';
 import { get as getFromIdb, set as setToIdb } from 'idb-keyval';
 import { produce } from 'immer';
-import { AlbumType, AlbumLoadStatus, AlbumUpdateStatus } from '$lib/models/album';
+import { AlbumType, AlbumLoadStatus, AlbumUpdateStatus, type RenameEntry } from '$lib/models/album';
 import toAlbum from '$lib/models/impl/AlbumCreator';
 import { getAlbumType } from '$lib/utils/path-utils';
-import {
-    getNameFromPath,
-    getParentFromPath,
-    isValidAlbumPath,
-    isValidImagePath,
-    isValidPath,
-} from '$lib/utils/galleryPathUtils';
+import { isValidAlbumPath, isValidPath } from '$lib/utils/galleryPathUtils';
 import type { Album } from '$lib/models/GalleryItemInterfaces';
 import type { AlbumRecord } from '$lib/models/impl/server';
-import { albumUrl, createUrl, deleteUrl, renameImageUrl } from '$lib/utils/config';
+import { albumUrl, createUrl, deleteUrl } from '$lib/utils/config';
 
 export type AlbumEntry = {
     loadStatus: AlbumLoadStatus;
+    renameEntry?: RenameEntry;
     album?: Album;
 };
 
@@ -34,7 +29,7 @@ class AlbumStore {
     private albums: Map<string, Writable<AlbumEntry>> = new Map<string, Writable<AlbumEntry>>();
 
     /**
-     * A set of Svelte stores holding the album update state
+     * A set of Svelte stores holding the album update state.
      *
      * Update status is different than load status: updates are AFTER the album has loaded initially.
      */
@@ -376,6 +371,19 @@ class AlbumStore {
         this.albumUpdateStatuses.set(path, entryStore);
         return entryStore;
     }
+
+    // getRenameEntry(oldAlbumPath: string): Readable<RenameEntry | undefined> {}
+
+    // addRenameEntry(oldAlbumPath: string, newAlbumPath: string): void {
+    //     const renameStatusStore = this.getOrCreateRenameStatusStore(path);
+    //     renameStatusStore.set(status);
+    // }
+
+    // setRenameError(oldAlbumPath: string, errorMessage: string): void {}
+
+    // removeRenameEntry(oldAlbumPath: string): void {}
+
+    // private getOrCreateRenameStatusStore(oldAlbumPath: string): Writable<RenameEntry> {}
 
     /**
      * Get the private read-write version of the album,

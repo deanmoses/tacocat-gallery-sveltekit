@@ -8,11 +8,13 @@
     $: albumEntry = data.albumEntry;
     $: album = $albumEntry.album;
     $: status = $albumEntry.loadStatus;
+    $: renameEntryStore = data.renameEntry;
+    $: renameEntry = $renameEntryStore;
     $: uppies = data.uploads;
     $: uploads = $uppies;
 </script>
 
-<DayAlbumRouting {status}>
+<DayAlbumRouting {status} {renameEntry}>
     <svelte:fragment slot="loaded">
         {#if album}
             <DayAlbumPage {album} {uploads} />

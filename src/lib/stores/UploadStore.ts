@@ -13,7 +13,7 @@ import { isValidDayAlbumPath, isValidImageName, sanitizeImageName } from '$lib/u
 import { fromPathToS3OriginalBucketKey } from '$lib/utils/s3path';
 import { page } from '$app/stores';
 
-const mock = true;
+const mock = false;
 
 type UploadStore = UploadEntry[];
 

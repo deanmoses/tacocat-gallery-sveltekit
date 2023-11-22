@@ -1,5 +1,5 @@
 <!--
-  @component Button to rename image
+  @component Button to rename an image
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';

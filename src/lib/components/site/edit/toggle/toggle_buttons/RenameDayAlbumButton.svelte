@@ -1,9 +1,11 @@
 <!--
-  @component Button to rename image or album
+  @component Button to rename a day album
 -->
 <script lang="ts">
+    import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     import RenameIcon from '$lib/components/site/icons/RenameIcon.svelte';
+    import { renameDayAlbum } from '$lib/stores/AlbumRenameStore';
     import { albumStore } from '$lib/stores/AlbumStore';
     import {
         getNameFromPath,
@@ -35,11 +37,11 @@
 
     async function onNewAlbumName(e: CustomEvent<{ value: string }>) {
         const newAlbumPath = albumNameToPath(e.detail.value);
-        console.log(`I should rename this album to [${newAlbumPath}]`);
-        // TODO
-        // - call server rename
-        // - goto(newPath);
-        // - THEN somehow delete old album from AlbumStore - retrieve parent album?
+        console.log(`Renaming [${albumPath}] to [${newAlbumPath}]`);
+        await renameDayAlbum(albumPath, newAlbumPath);
+        console.log(`Finished await of rename [${albumPath}] to [${newAlbumPath}]`);
+        const parentPath = getParentFromPath(newAlbumPath);
+        goto(parentPath);
     }
 
     async function validateDayAlbumName(albumName: string): Promise<string | undefined> {

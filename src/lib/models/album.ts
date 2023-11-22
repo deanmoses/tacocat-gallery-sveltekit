@@ -34,3 +34,19 @@ export enum AlbumUpdateStatus {
     UPDATING = 'UPDATING',
     ERROR_UPDATING = 'ERROR_UPDATING',
 }
+
+/**
+ * An entry in a rename store
+ * Represents a single item being renamed
+ */
+export type RenameEntry = {
+    oldPath: string;
+    newPath: string;
+    status: RenameState;
+    errorMessage?: string;
+};
+
+export enum RenameState {
+    IN_PROGRESS = 'In Progress',
+    ERROR = 'Error',
+}
