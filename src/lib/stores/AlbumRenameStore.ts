@@ -114,10 +114,22 @@ export async function renameDayAlbum(oldAlbumPath: string, newAlbumPath: string)
         console.log(`Error renaming album [${oldAlbumPath}]`, response);
         setError(oldAlbumPath, response.statusText);
     } else {
+        // Rename was successful
+
+        // Fetch parent album to get renamed album added to it
         console.log(`Fetching parent album`);
         const parentAlbumPath = getParentFromPath(oldAlbumPath);
-        await albumStore.fetchFromServerAsync(parentAlbumPath); // this will update the album store
+        // Do NOT async await because we want the UI to move to
+        // the new album now
+        albumStore.fetchFromServerAsync(parentAlbumPath);
         console.log(`Fetched parent album`);
         removeRename(oldAlbumPath);
+
+        // Remove old album from album store, but do NOT async await
+        // because we want the UI to move away from the old album
+        // page before this happens
+        console.log(`Removing old album from client`);
+        albumStore.removeFromMemoryAndDisk(oldAlbumPath);
+        console.log(`Removed old album from client`);
     }
 }

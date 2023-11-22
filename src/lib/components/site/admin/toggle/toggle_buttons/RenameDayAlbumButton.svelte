@@ -40,8 +40,7 @@
         console.log(`Renaming [${albumPath}] to [${newAlbumPath}]`);
         await renameDayAlbum(albumPath, newAlbumPath);
         console.log(`Finished await of rename [${albumPath}] to [${newAlbumPath}]`);
-        const parentPath = getParentFromPath(newAlbumPath);
-        goto(parentPath);
+        goto(newAlbumPath);
     }
 
     async function validateDayAlbumName(albumName: string): Promise<string | undefined> {

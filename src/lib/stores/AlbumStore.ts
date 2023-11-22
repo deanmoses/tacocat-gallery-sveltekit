@@ -3,7 +3,7 @@
  */
 
 import { writable, type Writable, derived, type Readable, get } from 'svelte/store';
-import { get as getFromIdb, set as setToIdb } from 'idb-keyval';
+import { get as getFromIdb, set as setToIdb, del as delFromIdb } from 'idb-keyval';
 import { produce } from 'immer';
 import { AlbumType, AlbumLoadStatus, AlbumUpdateStatus, type RenameEntry } from '$lib/models/album';
 import toAlbum from '$lib/models/impl/AlbumCreator';
@@ -431,7 +431,20 @@ class AlbumStore {
     }
 
     /**
-     * Delete specified album
+     * Remove album from client.
+     * This assumes that the album has already been deleted from the server.
+     */
+    async removeFromMemoryAndDisk(albumPath: string) {
+        // Delete from disk
+        const idbKey = this.idbKey(albumPath);
+        await delFromIdb(idbKey);
+
+        // Delete from memory
+        this.albums.delete(albumPath);
+    }
+
+    /**
+     * Create specified album
      */
     async createAlbum(albumPath: string) {
         if (!isValidAlbumPath(albumPath)) throw new Error(`Invalid album path [${albumPath}]`);
