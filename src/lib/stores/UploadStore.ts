@@ -245,7 +245,7 @@ export async function dropImages(e: DragEvent) {
                 const x = await getFilesInDirectory(itemEntry as FileSystemDirectoryEntry);
                 files = files.concat(x);
             } else if (itemEntry?.isFile) {
-                console.log('Got a file not a folder', item);
+                //console.log('Got a file not a folder', item);
                 const file = item.getAsFile();
                 if (file) {
                     //console.log(`Adding file [${file.name}] of type [${file.type}]`);
