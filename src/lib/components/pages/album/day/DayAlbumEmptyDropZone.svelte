@@ -2,8 +2,6 @@
   @component Zone for dropping files into an empty day album
 -->
 <script lang="ts">
-    import { dropImages } from '$lib/stores/UploadStore';
-
     let dragging = false;
     $: dragging = dragging;
 
