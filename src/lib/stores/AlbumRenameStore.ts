@@ -8,6 +8,7 @@ import { writable, type Readable, derived, get } from 'svelte/store';
 import { albumStore } from './AlbumStore';
 import { produce, enableMapSet } from 'immer';
 import { renameAlbumUrl } from '$lib/utils/config';
+import { toast } from '@zerodevx/svelte-toast';
 
 enableMapSet();
 
@@ -24,12 +25,10 @@ export type AlbumRenameEntry = {
     oldAlbumPath: string;
     newAlbumPath: string;
     status: RenameState;
-    errorMessage?: string;
 };
 
 export enum RenameState {
     IN_PROGRESS = 'In Progress',
-    ERROR = 'Error',
 }
 
 const initialState: AlbumRenameStore = new Map();
@@ -44,7 +43,7 @@ export function getAlbumRenameEntry(oldAlbumPath: string): Readable<AlbumRenameE
     return derived(renameStore, ($store) => $store.get(oldAlbumPath));
 }
 
-function addRename(oldAlbumPath: string, newAlbumPath: string): void {
+function addRenameEntry(oldAlbumPath: string, newAlbumPath: string): void {
     const rename: AlbumRenameEntry = {
         oldAlbumPath: oldAlbumPath,
         newAlbumPath: newAlbumPath,
@@ -58,21 +57,7 @@ function addRename(oldAlbumPath: string, newAlbumPath: string): void {
     );
 }
 
-function setError(oldAlbumPath: string, errorMessage: string): void {
-    renameStore.update((oldValue: AlbumRenameStore) =>
-        produce(oldValue, (draftState: AlbumRenameStore) => {
-            const rename = draftState.get(oldAlbumPath);
-            if (rename) {
-                rename.status = RenameState.ERROR;
-                rename.errorMessage = errorMessage;
-                draftState.set(oldAlbumPath, rename);
-            }
-            return draftState;
-        }),
-    );
-}
-
-function removeRename(oldAlbumPath: string): void {
+function removeRenameEntry(oldAlbumPath: string): void {
     renameStore.update((oldValue: AlbumRenameStore) =>
         produce(oldValue, (draftState: AlbumRenameStore) => {
             draftState.delete(oldAlbumPath);
@@ -98,7 +83,7 @@ export async function renameDayAlbum(oldAlbumPath: string, newAlbumPath: string)
     const album = get(albumStore.get(oldAlbumPath))?.album;
     if (!album) throw new Error(`Album [${oldAlbumPath}] not loaded`);
 
-    addRename(oldAlbumPath, newAlbumPath);
+    addRenameEntry(oldAlbumPath, newAlbumPath);
     console.log(`Attempting to rename album [${oldAlbumPath}] to [${newAlbumPath}]`);
     const newName = getNameFromPath(newAlbumPath);
     const url = renameAlbumUrl(oldAlbumPath);
@@ -111,9 +96,11 @@ export async function renameDayAlbum(oldAlbumPath: string, newAlbumPath: string)
         body: JSON.stringify({ newName }),
     };
     const response = await fetch(url, requestConfig);
+
     if (!response.ok) {
-        console.log(`Error renaming album [${oldAlbumPath}]`, response);
-        setError(oldAlbumPath, response.statusText);
+        removeRenameEntry(oldAlbumPath);
+        const msg = (await response.json()).errorMessage || response.statusText;
+        toast.push(`Error renaming album [${oldAlbumPath}]: ${msg}`);
     } else {
         // Rename was successful
 
@@ -124,11 +111,10 @@ export async function renameDayAlbum(oldAlbumPath: string, newAlbumPath: string)
         // the new album now
         albumStore.fetchFromServerAsync(parentAlbumPath);
         console.log(`Fetched parent album`);
-        removeRename(oldAlbumPath);
+        removeRenameEntry(oldAlbumPath);
 
         // Remove old album from album store, but do NOT async await
-        // because we want the UI to move away from the old album
-        // page before this happens
+        // because we want the UI to move away from the old album first
         console.log(`Removing old album from client`);
         albumStore.removeFromMemoryAndDisk(oldAlbumPath);
         console.log(`Removed old album from client`);

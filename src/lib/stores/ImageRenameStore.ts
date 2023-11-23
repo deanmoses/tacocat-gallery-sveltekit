@@ -8,6 +8,7 @@ import { getNameFromPath, getParentFromPath, isValidImagePath } from '$lib/utils
 import { writable, type Readable, derived, get } from 'svelte/store';
 import { albumStore } from './AlbumStore';
 import { produce, enableMapSet } from 'immer';
+import { toast } from '@zerodevx/svelte-toast';
 
 enableMapSet();
 
@@ -24,12 +25,10 @@ export type RenameEntry = {
     oldImagePath: string;
     newImagePath: string;
     status: RenameState;
-    errorMessage?: string;
 };
 
 export enum RenameState {
     IN_PROGRESS = 'In Progress',
-    ERROR = 'Error',
 }
 
 const initialState: ImageRenameStore = new Map();
@@ -39,12 +38,12 @@ const renameStore = writable<ImageRenameStore>(initialState);
  * Get the rename state of the specified image.
  * Will be undefined if the image isn't being renamed.
  */
-export function getImageRenameStatus(imagePath: string): Readable<RenameEntry | undefined> {
+export function getImageRenameEntry(imagePath: string): Readable<RenameEntry | undefined> {
     // Derive a read-only Svelte store over the rename
     return derived(renameStore, ($store) => $store.get(imagePath));
 }
 
-function addRename(oldImagePath: string, newImagePath: string): void {
+function addRenameEntry(oldImagePath: string, newImagePath: string): void {
     const rename: RenameEntry = {
         oldImagePath,
         newImagePath,
@@ -58,21 +57,7 @@ function addRename(oldImagePath: string, newImagePath: string): void {
     );
 }
 
-function setError(oldImagePath: string, errorMessage: string): void {
-    renameStore.update((oldValue: ImageRenameStore) =>
-        produce(oldValue, (draftState: ImageRenameStore) => {
-            const rename = draftState.get(oldImagePath);
-            if (rename) {
-                rename.status = RenameState.ERROR;
-                rename.errorMessage = errorMessage;
-                draftState.set(oldImagePath, rename);
-            }
-            return draftState;
-        }),
-    );
-}
-
-function removeRename(oldImagePath: string): void {
+function removeRenameEntry(oldImagePath: string): void {
     renameStore.update((oldValue: ImageRenameStore) =>
         produce(oldValue, (draftState: ImageRenameStore) => {
             draftState.delete(oldImagePath);
@@ -98,7 +83,7 @@ export async function renameImage(oldImagePath: string, newImagePath: string) {
     const albumPath = getParentFromPath(newImagePath);
     const album = get(albumStore.get(albumPath))?.album;
     if (!album) throw new Error(`Album [${albumPath}] not loaded`);
-    addRename(oldImagePath, newImagePath);
+    addRenameEntry(oldImagePath, newImagePath);
     console.log(`Attempting to rename image [${oldImagePath}] to [${newImagePath}]`);
     const newName = getNameFromPath(newImagePath);
     const url = renameImageUrl(oldImagePath);
@@ -112,10 +97,11 @@ export async function renameImage(oldImagePath: string, newImagePath: string) {
     };
     const response = await fetch(url, requestConfig);
     if (!response.ok) {
-        console.log(`Error renaming image [${oldImagePath}]`, response);
-        setError(oldImagePath, response.statusText);
+        removeRenameEntry(oldImagePath);
+        const msg = (await response.json()).errorMessage || response.statusText;
+        toast.push(`Error renaming image [${oldImagePath}]: ${msg}`);
     } else {
         await albumStore.fetchFromServerAsync(albumPath); // this will update the album store
-        removeRename(oldImagePath);
+        removeRenameEntry(oldImagePath);
     }
 }

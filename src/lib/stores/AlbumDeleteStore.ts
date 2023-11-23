@@ -83,7 +83,6 @@ export async function deleteAlbum(albumPath: string): Promise<void> {
             Accept: 'application/json',
             'Content-Type': 'application/json',
         },
-        cache: 'no-store',
     });
     removeDeleteEntry(albumPath);
     if (!response.ok) {

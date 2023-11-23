@@ -5,7 +5,7 @@
 
 import type { Image } from '$lib/models/GalleryItemInterfaces';
 import { derived, type Readable } from 'svelte/store';
-import { getImageRenameStatus, type RenameEntry } from './ImageRenameStore';
+import { getImageRenameEntry, type RenameEntry } from './ImageRenameStore';
 import { getUpload, type UploadEntry } from './UploadStore';
 import { albumStore, type AlbumEntry } from './AlbumStore';
 import { getParentFromPath } from '$lib/utils/galleryPathUtils';
@@ -27,7 +27,7 @@ export function getImage(imagePath: string): Readable<ImageEntry> {
     const albumPath = getParentFromPath(imagePath);
     const refetchAlbum = false;
     const albumEntry = albumStore.get(albumPath, refetchAlbum);
-    const rename = getImageRenameStatus(imagePath);
+    const rename = getImageRenameEntry(imagePath);
     const upload = getUpload(imagePath);
     return derived([albumEntry, rename, upload], ([$albumEntry, $rename, $upload]) => {
         return {

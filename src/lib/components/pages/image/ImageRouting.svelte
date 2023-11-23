@@ -2,14 +2,12 @@
   @component Route to the different loading statuses of a photo
 -->
 <script lang="ts">
-    import { AlbumLoadStatus } from '$lib/models/album';
+    import { AlbumLoadStatus, type RenameEntry } from '$lib/models/album';
     import ImageLoadingPage from '$lib/components/pages/image/ImageLoadingPage.svelte';
     import AlbumErrorPage from '../album/AlbumErrorPage.svelte';
     import HomeIcon from '$lib/components/site/icons/HomeIcon.svelte';
     import { UploadState, type UploadEntry } from '$lib/stores/UploadStore';
-    import { RenameState, type RenameEntry } from '$lib/stores/ImageRenameStore';
     import type { Image } from '$lib/models/GalleryItemInterfaces';
-    import ImageErrorPage from './ImageErrorPage.svelte';
     import ImageProcessingPage from './ImageProcessingPage.svelte';
 
     export let image: Image | undefined;
@@ -19,11 +17,7 @@
 </script>
 
 {#if rename}
-    {#if RenameState.IN_PROGRESS === rename?.status}
-        <ImageProcessingPage title="Rename In Progress" />
-    {:else if RenameState.ERROR === rename?.status}
-        <ImageErrorPage title="Error Renaming">Error renaming: {rename?.errorMessage}</ImageErrorPage>
-    {/if}
+    <ImageProcessingPage title="Rename In Progress" />
 {:else if upload}
     {#if UploadState.UPLOAD_NOT_STARTED === upload.status}
         <ImageProcessingPage title="Upload Not Started" />
