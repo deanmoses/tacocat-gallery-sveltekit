@@ -88,8 +88,8 @@ export async function deleteAlbum(albumPath: string): Promise<void> {
     if (!response.ok) {
         console.log(`Error deleting album [${albumPath}]`, response);
         const msg = (await response.json()).errorMessage || response.statusText;
-        toast.push(`Error deleting album [${albumPath}]: ${msg}`);
-        throw new Error(`Error deleting album [${albumPath}]: ${msg}`);
+        toast.push(`Error deleting: ${msg}`);
+        throw new Error(`Error deleting: ${msg}`);
     }
     console.log(`Album [${albumPath}] deleted`);
     toast.push(`Album [${albumPath}] deleted`);
