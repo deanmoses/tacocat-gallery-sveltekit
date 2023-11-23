@@ -11,6 +11,7 @@
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import UploadThumbnail from '$lib/components/site/admin/UploadThumbnail.svelte';
     import type { UploadEntry } from '$lib/stores/UploadStore';
+    import DayAlbumEmptyDropZone from './DayAlbumEmptyDropZone.svelte';
 
     export let album: Album;
     export let uploads: UploadEntry[];
@@ -40,8 +41,8 @@
             {#each album.images as image (image.path)}
                 <Thumbnail title={image.title} src={image.thumbnailUrl} summary={image.summary} href={image.href} />
             {/each}
-        {:else if !album.published}
-            <p style="padding:2em">Drag images or a 📁</p>
+        {:else if !album.published && !uploads?.length}
+            <DayAlbumEmptyDropZone />
         {/if}
         {#if uploads?.length}
             {#each uploads as upload (upload.imagePath)}
