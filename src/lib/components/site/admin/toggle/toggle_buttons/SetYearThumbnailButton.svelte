@@ -4,20 +4,23 @@
 <script lang="ts">
     import { page } from '$app/stores';
     import FilledStarIcon from '$lib/components/site/icons/FilledStarIcon.svelte';
+    import { setAlbumThumbnail } from '$lib/stores/AlbumThumbnailHelper';
     import { getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
+    import { toast } from '@zerodevx/svelte-toast';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
-    let path: string;
-    $: path = $page.url.pathname;
+    let imagePath: string;
+    $: imagePath = $page.url.pathname;
 
     let show: boolean = false;
-    $: show = isValidImagePath(path); // Show this button only on image pages
+    $: show = isValidImagePath(imagePath); // Show this button only on image pages
 
     async function onSetThumbnailButtonClick() {
-        const dayAlbumPath = getParentFromPath(path);
-        const yearPath = getParentFromPath(dayAlbumPath);
-        const year = yearPath.replaceAll('/', '');
-        console.log(`I should set image [${path}] as the thumbnail for year [${year}]`);
+        const dayAlbumPath = getParentFromPath(imagePath);
+        const yearAlbumPath = getParentFromPath(dayAlbumPath);
+        await setAlbumThumbnail(yearAlbumPath, imagePath);
+        const year = yearAlbumPath.replaceAll('/', '');
+        toast.push(`Thumnbnail set for ${year}}`);
     }
 </script>
 
