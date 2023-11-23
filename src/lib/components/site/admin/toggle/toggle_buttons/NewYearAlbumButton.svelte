@@ -5,6 +5,7 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     import CreateIcon from '$lib/components/site/icons/CreateIcon.svelte';
+    import { createAlbum } from '$lib/stores/AlbumCreateStore';
     import { albumStore } from '$lib/stores/AlbumStore';
     import { isValidYearAlbumPath, sanitizeDayAlbumName } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
@@ -26,7 +27,7 @@
 
     async function onNewAlbumName(e: CustomEvent<{ value: string }>) {
         const newAlbumPath = '/' + e.detail.value + '/';
-        await albumStore.createAlbum(newAlbumPath);
+        await createAlbum(newAlbumPath);
         goto(newAlbumPath);
     }
 

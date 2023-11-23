@@ -9,11 +9,13 @@
     $: image = $imageEntry?.image;
     $: album = $imageEntry?.albumEntry?.album;
     $: albumLoadStatus = $imageEntry?.albumEntry?.loadStatus;
-    $: rename = $imageEntry?.rename;
-    $: upload = $imageEntry?.upload;
+    $: renameEntry = $imageEntry?.rename;
+    $: uploadEntry = $imageEntry?.upload;
+    $: deleteEntryStore = data.deleteEntry;
+    $: deleteEntry = $deleteEntryStore;
 </script>
 
-<ImageRouting {image} {albumLoadStatus} {upload} {rename}>
+<ImageRouting {image} {albumLoadStatus} {uploadEntry} {renameEntry} {deleteEntry}>
     <svelte:fragment slot="loaded">
         {#if image && album}
             <ImagePage {image} {album} />

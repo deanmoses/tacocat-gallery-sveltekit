@@ -5,7 +5,7 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     import DeleteIcon from '$lib/components/site/icons/DeleteIcon.svelte';
-    import { albumStore } from '$lib/stores/AlbumStore';
+    import { deleteImage } from '$lib/stores/ImageDeleteStore';
     import { getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
@@ -15,7 +15,7 @@
     $: show = isValidImagePath(imagePath); // Show this button only on image pages
 
     async function onDeleteButtonClick() {
-        await albumStore.deleteImage(imagePath);
+        await deleteImage(imagePath);
         goto(getParentFromPath(imagePath));
     }
 </script>

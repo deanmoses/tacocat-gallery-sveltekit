@@ -63,7 +63,7 @@ function removeDeleteEntry(albumPath: string): void {
 }
 
 //
-// Above this is the Svelte data store
+// Above this is the Svelte store
 // Below this is the album delete functionality,
 // which relies on the data store but is separate.
 // They're in the same file to encapsulate the system, so that I don't have
@@ -86,7 +86,6 @@ export async function deleteAlbum(albumPath: string): Promise<void> {
     });
     removeDeleteEntry(albumPath);
     if (!response.ok) {
-        console.log(`Error deleting album [${albumPath}]`, response);
         const msg = (await response.json()).errorMessage || response.statusText;
         toast.push(`Error deleting: ${msg}`);
         throw new Error(`Error deleting: ${msg}`);

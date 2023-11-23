@@ -8,10 +8,10 @@ import { produce } from 'immer';
 import { AlbumType, AlbumLoadStatus, AlbumUpdateStatus, type RenameEntry } from '$lib/models/album';
 import toAlbum from '$lib/models/impl/AlbumCreator';
 import { getAlbumType } from '$lib/utils/path-utils';
-import { isValidAlbumPath, isValidPath } from '$lib/utils/galleryPathUtils';
+import { isValidAlbumPath } from '$lib/utils/galleryPathUtils';
 import type { Album } from '$lib/models/GalleryItemInterfaces';
 import type { AlbumRecord } from '$lib/models/impl/server';
-import { albumUrl, createUrl, deleteUrl } from '$lib/utils/config';
+import { albumUrl } from '$lib/utils/config';
 
 export type AlbumEntry = {
     loadStatus: AlbumLoadStatus;
@@ -396,28 +396,6 @@ class AlbumStore {
     }
 
     /**
-     * Delete image
-     * @param imagePath path to image
-     */
-    async deleteImage(imagePath: string) {
-        if (!isValidPath(imagePath)) throw new Error(`Invalid image path [${imagePath}]`);
-        await fetch(deleteUrl(imagePath), {
-            method: 'DELETE',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            // no-store: bypass the HTTP cache completely.
-            // This will make the browser not look into the HTTP cache
-            // on the way to the network, and never store the resulting
-            // response in the HTTP cache.
-            // Fetch() will behave as if no HTTP cache exists.
-            cache: 'no-store',
-        });
-        console.log(`Image [${imagePath}] deleted`);
-    }
-
-    /**
      * Remove album from client.
      * This assumes that the album has already been deleted from the server.
      */
@@ -432,28 +410,6 @@ class AlbumStore {
         // Delete from memory
         this.albums.delete(albumPath);
         console.log(`Album [${albumPath}] removed from memory`);
-    }
-
-    /**
-     * Create specified album
-     */
-    async createAlbum(albumPath: string) {
-        if (!isValidAlbumPath(albumPath)) throw new Error(`Invalid album path [${albumPath}]`);
-        await fetch(createUrl(albumPath), {
-            method: 'PUT',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({}),
-            // no-store: bypass the HTTP cache completely.
-            // This will make the browser not look into the HTTP cache
-            // on the way to the network, and never store the resulting
-            // response in the HTTP cache.
-            // Fetch() will behave as if no HTTP cache exists.
-            cache: 'no-store',
-        });
-        console.log(`Album [${albumPath}] created`);
     }
 }
 
