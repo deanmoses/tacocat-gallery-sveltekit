@@ -8,6 +8,7 @@
     import { goto } from '$app/navigation';
     import { albumStore } from '$lib/stores/AlbumStore';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
+    import { SvelteToast } from '@zerodevx/svelte-toast';
 
     /**
      * Handle keyboard navigation
@@ -37,5 +38,5 @@
 </script>
 
 <slot />
-
+<SvelteToast />
 <svelte:window on:keydown={onKeyPress} />

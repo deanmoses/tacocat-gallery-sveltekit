@@ -5,19 +5,15 @@
     import YearAlbumLoadingPage from '$lib/components/pages/album/year/YearAlbumLoadingPage.svelte';
     import AlbumErrorPage from '$lib/components/pages/album/AlbumErrorPage.svelte';
     import { AlbumLoadStatus } from '$lib/models/album';
-    import { DeleteState, type AlbumDeleteEntry } from '$lib/stores/AlbumDeleteStore';
     import AlbumProcessingPage from '../AlbumProcessingPage.svelte';
+    import type { AlbumDeleteEntry } from '$lib/stores/AlbumDeleteStore';
 
     export let loadStatus: AlbumLoadStatus;
     export let deleteEntry: AlbumDeleteEntry | undefined = undefined;
 </script>
 
 {#if deleteEntry}
-    {#if DeleteState.IN_PROGRESS === deleteEntry.status}
-        <AlbumProcessingPage title="Delete in progress" />
-    {:else if DeleteState.ERROR === deleteEntry.status}
-        <AlbumErrorPage title="Error Deleting">Error: {deleteEntry.errorMessage}</AlbumErrorPage>
-    {/if}
+    <AlbumProcessingPage title="Delete in progress" />
 {:else if AlbumLoadStatus.NOT_LOADED === loadStatus}
     <YearAlbumLoadingPage />
 {:else if AlbumLoadStatus.LOADING === loadStatus}

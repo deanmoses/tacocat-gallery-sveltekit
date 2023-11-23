@@ -8,6 +8,7 @@ import { writable, type Readable, derived } from 'svelte/store';
 import { albumStore } from './AlbumStore';
 import { produce, enableMapSet } from 'immer';
 import { deleteUrl } from '$lib/utils/config';
+import { toast } from '@zerodevx/svelte-toast';
 
 enableMapSet();
 
@@ -21,14 +22,11 @@ type AlbumDeleteStore = Map<string, AlbumDeleteEntry>;
  * Represents a single album being deleted
  */
 export type AlbumDeleteEntry = {
-    albumPath: string;
     status: DeleteState;
-    errorMessage?: string;
 };
 
 export enum DeleteState {
     IN_PROGRESS = 'In Progress',
-    ERROR = 'Error',
 }
 
 const initialState: AlbumDeleteStore = new Map();
@@ -45,26 +43,11 @@ export function getAlbumDeleteEntry(albumPath: string): Readable<AlbumDeleteEntr
 
 function addDeleteEntry(albumPath: string): void {
     const deleteEntry: AlbumDeleteEntry = {
-        albumPath: albumPath,
         status: DeleteState.IN_PROGRESS,
     };
     deleteStore.update((oldState: AlbumDeleteStore) =>
         produce(oldState, (draftState: AlbumDeleteStore) => {
             draftState.set(albumPath, deleteEntry);
-            return draftState;
-        }),
-    );
-}
-
-function setError(oldAlbumPath: string, errorMessage: string): void {
-    deleteStore.update((oldState: AlbumDeleteStore) =>
-        produce(oldState, (draftState: AlbumDeleteStore) => {
-            const deleteEntry = draftState.get(oldAlbumPath);
-            if (deleteEntry) {
-                deleteEntry.status = DeleteState.ERROR;
-                deleteEntry.errorMessage = errorMessage;
-                draftState.set(oldAlbumPath, deleteEntry);
-            }
             return draftState;
         }),
     );
@@ -100,23 +83,17 @@ export async function deleteAlbum(albumPath: string): Promise<void> {
             Accept: 'application/json',
             'Content-Type': 'application/json',
         },
-        // no-store: bypass the HTTP cache completely.
-        // This will make the browser not look into the HTTP cache
-        // on the way to the network, and never store the resulting
-        // response in the HTTP cache.
-        // Fetch() will behave as if no HTTP cache exists.
         cache: 'no-store',
     });
-
+    removeDeleteEntry(albumPath);
     if (!response.ok) {
         console.log(`Error deleting album [${albumPath}]`, response);
         const msg = (await response.json()).errorMessage || response.statusText;
-        setError(albumPath, msg);
+        toast.push(`Error deleting album [${albumPath}]: ${msg}`);
         throw new Error(`Error deleting album [${albumPath}]: ${msg}`);
     }
-
     console.log(`Album [${albumPath}] deleted`);
-    removeDeleteEntry(albumPath);
+    toast.push(`Album [${albumPath}] deleted`);
     // Don't await on this async call; return immediately
     // so that the UI can move off this album's page before
     // the delete happens

@@ -8,7 +8,7 @@
     import HomeIcon from '$lib/components/site/icons/HomeIcon.svelte';
     import { RenameState, type AlbumRenameEntry } from '$lib/stores/AlbumRenameStore';
     import AlbumProcessingPage from '../AlbumProcessingPage.svelte';
-    import { DeleteState, type AlbumDeleteEntry } from '$lib/stores/AlbumDeleteStore';
+    import type { AlbumDeleteEntry } from '$lib/stores/AlbumDeleteStore';
 
     export let loadStatus: AlbumLoadStatus;
     export let deleteEntry: AlbumDeleteEntry | undefined = undefined;
@@ -16,11 +16,7 @@
 </script>
 
 {#if deleteEntry}
-    {#if DeleteState.IN_PROGRESS === deleteEntry.status}
-        <AlbumProcessingPage title="Delete in progress" />
-    {:else if DeleteState.ERROR === deleteEntry.status}
-        <AlbumErrorPage title="Error Deleting">Error: {deleteEntry.errorMessage}</AlbumErrorPage>
-    {/if}
+    <AlbumProcessingPage title="Delete in progress" />
 {:else if renameEntry}
     {#if RenameState.IN_PROGRESS === renameEntry.status}
         <AlbumProcessingPage title="Rename in progress" />
