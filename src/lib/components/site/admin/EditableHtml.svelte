@@ -1,8 +1,5 @@
 <!--
-  @component
-
-  Make the passed-in HTML editable
-	When you select some text, it pops up a rich text editor
+  @component Make the passed-in HTML editable via a rich text editor
 -->
 <script lang="ts">
     import HtmlEditor from './HtmlEditor.svelte';

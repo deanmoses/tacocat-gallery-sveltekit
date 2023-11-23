@@ -1,7 +1,5 @@
 <!--
-  @component
-
-  WYSIWYG editor for HTML content
+  @component WYSIWYG editor for HTML content
 -->
 <script lang="ts">
     import { onMount, createEventDispatcher } from 'svelte';

@@ -1,9 +1,6 @@
 <!--
-  @component
-
-  Star that allows for selection.  Meant to be used in a thumbnail
+  @component Star that allows for selection.  Meant to be used in a thumbnail
 -->
-
 <script lang="ts">
     import EmptyStarIcon from '../icons/EmptyStarIcon.svelte';
     import FilledStarIcon from '../icons/FilledStarIcon.svelte';

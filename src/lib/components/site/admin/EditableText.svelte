@@ -1,8 +1,5 @@
 <!--
-  @component
-
-  Make the passed-in text editable
-	Plain text, not HTML
+  @component Make the passed-in plain text (not HTML) editable
 -->
 <script lang="ts">
     import DraftStore from '$lib/stores/DraftStore';
