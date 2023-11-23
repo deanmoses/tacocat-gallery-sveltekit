@@ -11,7 +11,7 @@
     export let albumThumbPath: string | undefined;
 
     let selected = false;
-    $: (selected = path === albumThumbPath), console.log('albumThumb: ', albumThumbPath);
+    $: selected = path === albumThumbPath;
 
     let selecting: boolean;
     $: {
