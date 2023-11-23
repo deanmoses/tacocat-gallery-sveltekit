@@ -72,6 +72,14 @@ export function deleteUrl(path: string): string {
 }
 
 /**
+ * URL to send HTTP PATCH to set album thumbnail
+ * @param albumPath path to an album like /2018/01-01/
+ */
+export function setThumbnailUrl(albumPath: string): string {
+    return baseApiUrl() + 'album-thumb' + albumPath;
+}
+
+/**
  * URL to send HTTP POST to rename an album
  * @param albumPath path to an album like /2018/01-01/
  */

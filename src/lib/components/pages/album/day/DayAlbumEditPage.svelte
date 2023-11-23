@@ -14,21 +14,14 @@
     import DraftStore from '$lib/stores/DraftStore';
     import { setAlbumThumbnail } from '$lib/stores/AlbumThumbnailHelper';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
-    import { getNameFromPath } from '$lib/utils/galleryPathUtils';
 
     export let album: Album;
 
     let okToNavigate = DraftStore.getOkToNavigate();
 
-    function albumThumbnailSelected(e: CustomEvent<{ path: string }>) {
+    async function albumThumbnailSelected(e: CustomEvent<{ path: string }>) {
         const imagePath = e.detail.path;
-        console.log(`<DayAlbumEditPage>: thumbnail ${imagePath}`, e.detail);
-        const imageLeafPath = getNameFromPath(imagePath);
-        if (imageLeafPath) {
-            setAlbumThumbnail(album.path, imageLeafPath);
-        } else {
-            console.error(`<DayAlbumEditPage>: can't find leaf item on thumbnail ${imagePath}`);
-        }
+        await setAlbumThumbnail(album.path, imagePath);
     }
 </script>
 
