@@ -20,7 +20,7 @@
         const yearAlbumPath = getParentFromPath(dayAlbumPath);
         await setAlbumThumbnail(yearAlbumPath, imagePath);
         const year = yearAlbumPath.replaceAll('/', '');
-        toast.push(`Thumnbnail set for ${year}}`);
+        toast.push(`Thumnbnail set for ${year}`);
     }
 </script>
 
