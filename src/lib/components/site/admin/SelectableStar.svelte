@@ -7,8 +7,11 @@
     import TransitionStarIcon from '../icons/TransitionStarIcon.svelte';
     import { createEventDispatcher } from 'svelte';
 
-    export let selected = false;
     export let path: string;
+    export let albumThumbPath: string | undefined;
+
+    let selected = false;
+    $: (selected = path === albumThumbPath), console.log('albumThumb: ', albumThumbPath);
 
     let selecting: boolean;
     $: {

@@ -7,7 +7,8 @@ import type { AlbumGalleryItem } from './impl/server';
 export interface Album extends Nextable {
     published: boolean;
     summary: string;
-    thumbnailUrl: string | undefined;
+    thumbnailPath: string | undefined;
+    readonly thumbnailUrl: string | undefined;
     readonly json: AlbumGalleryItem; // so that I can save the JSON to disk
     readonly parentHref: string;
     readonly parentTitle: string;
