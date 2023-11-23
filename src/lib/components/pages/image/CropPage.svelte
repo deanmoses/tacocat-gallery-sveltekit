@@ -17,6 +17,7 @@
     }
 
     function onSave() {
+        // TODO save crop
         console.log(`I should save crop`, cropper.getCrop());
     }
 </script>
