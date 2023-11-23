@@ -55,9 +55,11 @@ const initialState: UploadStore = !mock
 
 const uploadStore = writable<UploadStore>(initialState);
 
-export function getUploads(): Readable<UploadStore> {
-    // Derive a read-only Svelte store over the uploads
-    return derived(uploadStore, ($store) => $store);
+export function getUploads(albumPath: string): Readable<UploadStore> {
+    // Derive a read-only Svelte store over the uploads for a particular album
+    return derived(uploadStore, ($store) => {
+        return $store.filter((upload) => upload.imagePath.startsWith(albumPath));
+    });
 }
 
 export function getUpload(imagePath: string): Readable<UploadEntry | undefined> {
@@ -191,14 +193,14 @@ async function pollForProcessedImages(albumPath: string): Promise<void> {
     let count = 0;
     do {
         await sleep(1500);
-        processingComplete = mock ? await areMockImagesProcessed() : await areImagesProcessed(albumPath);
+        processingComplete = mock ? await areMockImagesProcessed(albumPath) : await areImagesProcessed(albumPath);
         count++;
     } while (!processingComplete && count <= 5);
     console.log(`Images have been processed.  Count: [${count}]`);
 }
 
-async function areMockImagesProcessed(): Promise<boolean> {
-    const uploads = get(getUploads());
+async function areMockImagesProcessed(albumPath: string): Promise<boolean> {
+    const uploads = get(getUploads(albumPath));
     if (!uploads || uploads.length === 0) return true;
     sleep(400);
     const upload = uploads[0];
@@ -207,7 +209,7 @@ async function areMockImagesProcessed(): Promise<boolean> {
 }
 
 async function areImagesProcessed(albumPath: string): Promise<boolean> {
-    const uploads = get(getUploads());
+    const uploads = get(getUploads(albumPath));
     if (!uploads || uploads.length === 0) return true;
     const album = await albumStore.fetchFromServerAsync(albumPath);
     for (let upload of uploads) {

@@ -7,7 +7,7 @@ import { getAlbumDeleteEntry } from '$lib/stores/AlbumDeleteStore';
 export const load: PageLoad = ({ params }) => {
     const albumPath = `/${params.year}/${params.day}/`;
     const albumEntry = albumStore.get(albumPath);
-    const uploads = getUploads();
+    const uploads = getUploads(albumPath);
     const renameEntry = getAlbumRenameEntry(albumPath);
     const deleteEntry = getAlbumDeleteEntry(albumPath);
     return {
