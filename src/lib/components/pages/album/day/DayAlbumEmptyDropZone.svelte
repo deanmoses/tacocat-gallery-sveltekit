@@ -25,14 +25,6 @@
             dragging = false;
         }
     }
-
-    async function drop(e: DragEvent) {
-        if (e.dataTransfer?.types.includes('Files')) {
-            e.preventDefault();
-            dragging = false;
-            await dropImages(e);
-        }
-    }
 </script>
 
 <p
@@ -40,7 +32,6 @@
     on:dragenter|preventDefault={dragEnter}
     on:dragover|preventDefault={dragOver}
     on:dragleave|preventDefault={dragLeave}
-    on:drop|preventDefault={drop}
 >
     Drag images or a 📁
 </p>
