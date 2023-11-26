@@ -43,6 +43,7 @@ export type ImageRecord = BaseGalleryRecord & {
     height: number;
     width: number;
     tags?: string[];
+    thumbnail?: Rectangle;
 };
 
 export type AlbumRecord = BaseGalleryRecord & {
@@ -53,6 +54,7 @@ export type AlbumRecord = BaseGalleryRecord & {
 
 export type AlbumThumbnailRecord = {
     path: string;
+    crop?: Rectangle;
     fileUpdatedOn: string;
 };
 
@@ -64,5 +66,16 @@ type BaseGalleryRecord = {
     updatedOn: string;
     description?: string;
 };
-
 export type GalleryItemType = 'album' | 'image';
+
+export type Rectangle = Point & Size;
+
+export type Point = {
+    x: number;
+    y: number;
+};
+
+export type Size = {
+    width: number;
+    height: number;
+};

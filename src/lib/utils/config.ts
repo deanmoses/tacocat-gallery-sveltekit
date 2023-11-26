@@ -1,4 +1,5 @@
 import { dev } from '$app/environment';
+import type { Rectangle } from '$lib/models/impl/server';
 import { isValidAlbumPath, isValidImagePath } from './galleryPathUtils';
 
 /**
@@ -17,15 +18,18 @@ export function siteShortTitle(): string {
 
 /**
  * URL to CDN'ed derived images
- * @param imagePath Path to an image like /2018/01-01/image.jpg
+ * @param imagePath Path to an image like /2001/12-31/image.jpg
  */
-export function thumbnailUrl(imagePath: string): string {
-    return `https://dacwtfk6o75l6.cloudfront.net/i${imagePath}/jpeg/200x200`;
+export function thumbnailUrl(imagePath: string, crop?: Rectangle | undefined): string {
+    return (
+        `https://dacwtfk6o75l6.cloudfront.net/i${imagePath}/jpeg/200x200` +
+        (crop ? `/crop=${crop.x},${crop.y},${crop.width},${crop.height}` : '')
+    );
 }
 
 /**
  * URL to optimized image for display on the image detail page
- * @param imagePath Path to an image like /2018/01-01/image.jpg
+ * @param imagePath Path to an image like /2001/12-31/image.jpg
  */
 export function detailImagelUrl(imagePath: string): string {
     return `https://dacwtfk6o75l6.cloudfront.net/i${imagePath}`;
@@ -33,7 +37,7 @@ export function detailImagelUrl(imagePath: string): string {
 
 /**
  * URL to view the full sized original raw image
- * @param imagePath path to an image like /2018/01-01/image.jpg
+ * @param imagePath path to an image like /2001/12-31/image.jpg
  */
 export function originalImageUrl(imagePath: string): string {
     return `https://dacwtfk6o75l6.cloudfront.net${imagePath}`;
@@ -73,15 +77,23 @@ export function deleteUrl(path: string): string {
 
 /**
  * URL to send HTTP PATCH to set album thumbnail
- * @param albumPath path to an album like /2018/01-01/
+ * @param albumPath path to an album like /2001/12-31/
  */
 export function setThumbnailUrl(albumPath: string): string {
     return baseApiUrl() + 'album-thumb' + albumPath;
 }
 
 /**
+ * URL to send HTTP PATCH to recrop an image thumbnail
+ * @param imagePath path to an image like /2001/12-31/image.jpg
+ */
+export function recropThumbnailUrl(imagePath: string): string {
+    return baseApiUrl() + 'thumb' + imagePath;
+}
+
+/**
  * URL to send HTTP POST to rename an album
- * @param albumPath path to an album like /2018/01-01/
+ * @param albumPath path to an album like /2001/12-31/
  */
 export function renameAlbumUrl(albumPath: string): string {
     return baseApiUrl() + 'album-rename' + albumPath;
@@ -89,7 +101,7 @@ export function renameAlbumUrl(albumPath: string): string {
 
 /**
  * URL to send HTTP POST to rename an image
- * @param imagePath path to an image like /2018/01-01/image.jpg
+ * @param imagePath path to an image like /2001/12-31/image.jpg
  */
 export function renameImageUrl(imagePath: string): string {
     return baseApiUrl() + 'image-rename' + imagePath;

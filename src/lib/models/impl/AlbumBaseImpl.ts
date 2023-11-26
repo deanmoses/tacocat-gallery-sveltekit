@@ -1,5 +1,5 @@
 import { albumPathToDate } from '$lib/utils/galleryPathUtils';
-import type { AlbumGalleryItem, GalleryRecord, ImageRecord } from './server';
+import type { AlbumGalleryItem, AlbumRecord, GalleryRecord, ImageRecord } from './server';
 import type { Album, Image, Thumbable } from '../GalleryItemInterfaces';
 import { ThumbableBaseImpl } from './ThumbableBaseImpl';
 import { ImageImpl } from './ImageImpl';
@@ -74,7 +74,9 @@ export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
     }
 
     get thumbnailUrl(): string | undefined {
-        return this.json?.thumbnail?.path ? thumbnailUrl(this.json.thumbnail.path) : undefined;
+        return this.json?.thumbnail?.path
+            ? thumbnailUrl(this.json.thumbnail.path, this.json.thumbnail.crop)
+            : undefined;
         // TODO: implement cachebuster like this: 'https://cdn.tacocat.com/zenphoto/cache/2023/10-29/halloween_party32_200_w200_h200_cw200_ch200_thumb.jpg?cached=1698637062';
     }
 
@@ -87,7 +89,7 @@ export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
 
     get albums(): Thumbable[] {
         if (!this.json?.children) return [];
-        return this.json?.children.filter((child) => child?.itemType == 'album').map((i) => toAlbum(i));
+        return this.json?.children.filter((child) => child?.itemType == 'album').map((i) => toAlbum(i as AlbumRecord));
     }
 
     getImage(imagePath: string): Image | undefined {
