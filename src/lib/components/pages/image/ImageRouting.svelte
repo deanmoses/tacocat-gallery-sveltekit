@@ -14,9 +14,9 @@
 
     export let image: Image | undefined;
     export let albumLoadStatus: AlbumLoadStatus | undefined;
-    export let renameEntry: RenameEntry | undefined;
-    export let uploadEntry: UploadEntry | undefined;
-    export let deleteEntry: DeleteEntry | undefined;
+    export let renameEntry: RenameEntry | undefined = undefined;
+    export let uploadEntry: UploadEntry | undefined = undefined;
+    export let deleteEntry: DeleteEntry | undefined = undefined;
 </script>
 
 {#if renameEntry}
