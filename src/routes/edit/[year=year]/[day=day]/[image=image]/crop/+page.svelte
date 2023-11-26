@@ -7,12 +7,12 @@
 
     $: albumEntry = data.albumEntry;
     $: album = $albumEntry.album;
-    $: status = $albumEntry.loadStatus;
+    $: albumLoadStatus = $albumEntry.loadStatus;
     $: imagePath = data.imagePath;
     $: image = album?.getImage(imagePath);
 </script>
 
-<ImageRouting albumLoadStatus={status} {image}>
+<ImageRouting {albumLoadStatus} {image}>
     <svelte:fragment slot="loaded">
         {#if image}
             <CropPage {image} />
