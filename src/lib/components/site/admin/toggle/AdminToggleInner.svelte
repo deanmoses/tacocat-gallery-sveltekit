@@ -8,7 +8,8 @@
     import RenameImageButton from './toggle_buttons/RenameImageButton.svelte';
     import NewYearAlbumButton from './toggle_buttons/NewYearAlbumButton.svelte';
     import NewDayAlbumButton from './toggle_buttons/NewDayAlbumButton.svelte';
-    import UploadButton from './toggle_buttons/UploadButton.svelte';
+    import UploadImageButton from './toggle_buttons/UploadImageButton.svelte';
+    import UploadImagesButton from './toggle_buttons/UploadImagesButton.svelte';
     import SetYearThumbnailButton from './toggle_buttons/SetYearThumbnailButton.svelte';
     import DeleteAlbumButton from './toggle_buttons/DeleteAlbumButton.svelte';
     import DeleteImageButton from './toggle_buttons/DeleteImageButton.svelte';
@@ -22,7 +23,8 @@
         <RenameDayAlbumButton />
         <NewYearAlbumButton />
         <NewDayAlbumButton />
-        <UploadButton />
+        <UploadImagesButton />
+        <UploadImageButton />
         <SetYearThumbnailButton />
         <DeleteAlbumButton />
         <DeleteImageButton />

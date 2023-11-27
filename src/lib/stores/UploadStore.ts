@@ -9,7 +9,13 @@ import { Upload } from '@aws-sdk/lib-storage';
 import { S3Client } from '@aws-sdk/client-s3';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-providers';
 import { albumStore } from '$lib/stores/AlbumStore';
-import { isValidDayAlbumPath, isValidImageName, sanitizeImageName } from '$lib/utils/galleryPathUtils';
+import {
+    getParentFromPath,
+    isValidDayAlbumPath,
+    isValidImageName,
+    isValidImagePath,
+    sanitizeImageName,
+} from '$lib/utils/galleryPathUtils';
 import { fromPathToS3OriginalBucketKey } from '$lib/utils/s3path';
 import { page } from '$app/stores';
 
@@ -103,6 +109,33 @@ function removeUpload(imagePath: string): void {
 // They're in the same file to encapsulate the system, so that I don't have
 // to expose the mutator methods on the data store to the rest of the system
 //
+
+/**
+ * Upload the specified single image file to overwrite the image at the specified path
+ *
+ * @param file A File object from browser's file picker
+ * @param imagePath image to replace
+ */
+export async function uploadSingleImage(file: File, imagePath: string): Promise<void> {
+    if (!file) return;
+    if (!isValidImageName(file.name)) {
+        console.error(`Skipping invalid image name [${file.name}]`);
+        return;
+    }
+    if (!isValidImagePath(imagePath)) throw new Error(`Invalid image path: [${imagePath}]`);
+    const isValidImageType = file.name.endsWith('jpg') || file.name.endsWith('jpeg');
+    if (!isValidImageType) {
+        console.error(`Skipping invalid type of image [${file.name}]`);
+        return;
+    }
+    console.log(`Adding [${imagePath}]`);
+    let imagesToUpload: ImagesToUpload[] = [];
+    imagesToUpload.push({ file, imagePath });
+    addUpload(file, imagePath);
+    await uploadImages(imagesToUpload);
+    const albumPath = getParentFromPath(imagePath);
+    await pollForProcessedImages(albumPath);
+}
 
 /**
  * Upload the specified images to the specified album

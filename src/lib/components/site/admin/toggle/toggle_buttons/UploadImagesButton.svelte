@@ -1,5 +1,5 @@
 <!--
-  @component Button to upload files
+  @component Button to upload multiple images on a day album page
 -->
 <script lang="ts">
     import { page } from '$app/stores';
