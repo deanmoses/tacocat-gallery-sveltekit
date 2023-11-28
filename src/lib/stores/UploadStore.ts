@@ -129,9 +129,8 @@ export async function uploadSingleImage(file: File, imagePath: string): Promise<
         return;
     }
     console.log(`Adding [${imagePath}]`);
-    let imagesToUpload: ImagesToUpload[] = [];
-    imagesToUpload.push({ file, imagePath });
     addUpload(file, imagePath);
+    const imagesToUpload: ImagesToUpload[] = [{ file, imagePath }];
     await uploadImages(imagesToUpload);
     const albumPath = getParentFromPath(imagePath);
     await pollForProcessedImages(albumPath);
@@ -229,7 +228,7 @@ async function pollForProcessedImages(albumPath: string): Promise<void> {
         processingComplete = mock ? await areMockImagesProcessed(albumPath) : await areImagesProcessed(albumPath);
         count++;
     } while (!processingComplete && count <= 5);
-    console.log(`Images have been processed.  Count: [${count}]`);
+    console.log(`Images have been processed.  Loop count: [${count}]`);
 }
 
 async function areMockImagesProcessed(albumPath: string): Promise<boolean> {
