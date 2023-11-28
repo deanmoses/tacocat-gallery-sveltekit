@@ -3,12 +3,13 @@
  */
 
 import { writable, type Writable, derived, type Readable, get } from 'svelte/store';
-import { get as getFromIdb, set as setToIdb } from 'idb-keyval';
+import { del, get as getFromIdb, set as setToIdb } from 'idb-keyval';
 import { produce } from 'immer';
 import { AlbumLoadStatus } from '$lib/models/album';
 import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
 import toAlbum from '$lib/models/impl/AlbumCreator';
 import { latestAlbumUrl } from '$lib/utils/config';
+import type { AlbumRecord } from '$lib/models/impl/server';
 
 export type LatestAlbumThumbnailEntry = {
     thumbnail?: Thumbable;
@@ -96,7 +97,9 @@ class LatestAlbumThumbnailStore {
                     this.handleFetchError(json.error);
                 } else {
                     if (!json || !json.path) {
-                        console.error(`Latest album thumbnail not found on server`);
+                        console.error(`Latest album thumbnail not found on server.  JSON: `, json);
+                        this.removeFromMemory();
+                        this.removeFromDisk();
                     } else {
                         console.log(`Latest album thumbnail fetched from server`, json);
                         this.setLatestAlbumThumbnail(json); // Put thumbnail in Svelte store
@@ -153,7 +156,7 @@ class LatestAlbumThumbnailStore {
      * Store the latest album thumbnail in my Svelte store
      */
     private setLatestAlbumThumbnail(json: unknown): void {
-        const albumThumb: Thumbable = toAlbum(json);
+        const albumThumb: Thumbable = toAlbum(json as AlbumRecord);
 
         const newState = produce(get(this.latestAlbumThumbnailStore), (draftState: LatestAlbumThumbnailEntry) => {
             draftState.status = AlbumLoadStatus.LOADED;
@@ -174,6 +177,20 @@ class LatestAlbumThumbnailStore {
         setToIdb(idbThumbnailKey, thumbnailJson)
             .then(() => console.log(`Latest album thumbnail stored in idb`))
             .catch((e) => console.error(`Latest album thumbnail error storing in idb`, e));
+    }
+
+    /**
+     * Remove the latest album thumbnail from memory
+     */
+    private removeFromMemory(): void {
+        this.latestAlbumThumbnailStore.update(() => initialStoreState);
+    }
+
+    /**
+     * Remove the latest album thumbnail from the browser's local disk storage
+     */
+    private removeFromDisk(): void {
+        del(idbThumbnailKey);
     }
 }
 
