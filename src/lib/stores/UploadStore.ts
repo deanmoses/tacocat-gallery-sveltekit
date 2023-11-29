@@ -137,14 +137,26 @@ export async function uploadSingleImage(file: File, imagePath: string): Promise<
 }
 
 /**
- * Upload the specified images to the specified album
+ * Upload the specified images to the specified album, overwriting any existing images
  *
  * @param files File objects from browser's file picker or drag/drop
  * @param albumPath album path
  */
-export async function upload(files: FileList | File[], albumPath: string): Promise<void> {
+export async function upload(files: FileList | File[] | null | undefined, albumPath: string): Promise<void> {
     if (!files) return;
     if (!isValidDayAlbumPath(albumPath)) throw new Error(`Invalid day album path: [${albumPath}]`);
+    console.log(`I'll upload [${files.length}] images to album [${albumPath}]`);
+    const imagesToUpload = getSanitizedFiles(files, albumPath);
+    uploadSanitizedImages(imagesToUpload, albumPath);
+}
+
+export async function uploadSanitizedImages(imagesToUpload: ImagesToUpload[], albumPath: string): Promise<void> {
+    if (!imagesToUpload || imagesToUpload.length === 0) return;
+    await uploadImages(imagesToUpload);
+    await pollForProcessedImages(albumPath);
+}
+
+export function getSanitizedFiles(files: FileList | File[], albumPath: string): ImagesToUpload[] {
     let imagesToUpload: ImagesToUpload[] = [];
     for (let file of files) {
         if (!isValidImageName(file.name)) {
@@ -157,21 +169,35 @@ export async function upload(files: FileList | File[], albumPath: string): Promi
                 const imagePath = albumPath + sanitizeImageName(file.name);
                 console.log(`Adding [${imagePath}]`);
                 imagesToUpload.push({ file, imagePath });
-                addUpload(file, imagePath);
             }
         }
     }
-    if (imagesToUpload.length === 0) return;
-    await uploadImages(imagesToUpload);
-    await pollForProcessedImages(albumPath);
+    return imagesToUpload;
 }
 
-type ImagesToUpload = {
+export function getFilesAlreadyInAlbum(files: ImagesToUpload[], albumPath: string): string[] {
+    let imageNames: string[] = [];
+    const albumEntry = albumStore.getFromInMemory(albumPath);
+    if (!albumEntry || !albumEntry.album || !albumEntry.album?.images?.length) return imageNames;
+    for (let file of files) {
+        const image = albumEntry.album?.getImage(file.imagePath);
+        if (image) {
+            console.log(`File [${file.imagePath}] is already in album [${albumPath}]`);
+            imageNames.push(file.file.name);
+        }
+    }
+    return imageNames;
+}
+
+export type ImagesToUpload = {
     file: File;
     imagePath: string;
 };
 
 async function uploadImages(imagesToUpload: ImagesToUpload[]): Promise<void> {
+    for (let imageToUpload of imagesToUpload) {
+        addUpload(imageToUpload.file, imageToUpload.imagePath);
+    }
     for (let imageToUpload of imagesToUpload) {
         updateUploadState(imageToUpload.imagePath, UploadState.UPLOADING);
         try {
@@ -265,13 +291,18 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 //
 
 export async function dropImages(e: DragEvent) {
+    const files = await getDroppedImages(e);
+    const albumPath = get(page).url.pathname + '/';
+    await upload(files, albumPath);
+}
+
+export async function getDroppedImages(e: DragEvent): Promise<File[]> {
     e.preventDefault(); // Prevent default behavior, which is the browser opening the files
+    let files: File[] = [];
     if (!e.dataTransfer) {
         console.log('No dataTransfer');
-        return;
+        return files;
     }
-    const albumPath = get(page).url.pathname + '/';
-    let files: File[] = [];
     if (e.dataTransfer.items) {
         // Use DataTransferItemList interface to access the file(s)
         for (const item of e.dataTransfer.items) {
@@ -280,16 +311,14 @@ export async function dropImages(e: DragEvent) {
                 const x = await getFilesInDirectory(itemEntry as FileSystemDirectoryEntry);
                 files = files.concat(x);
             } else if (itemEntry?.isFile) {
-                //console.log('Got a file not a folder', item);
                 const file = item.getAsFile();
                 if (file) {
-                    //console.log(`Adding file [${file.name}] of type [${file.type}]`);
                     files.push(file);
                 } else {
                     console.log(`There warn't no file name in ${file}`);
                 }
             } else {
-                console.log(`unrecognized type of file`, item, itemEntry);
+                console.log(`Unrecognized type of file`, item, itemEntry);
             }
         }
     } else {
@@ -298,8 +327,7 @@ export async function dropImages(e: DragEvent) {
             files.push(file);
         });
     }
-    console.log(`I'll upload [${files.length}] images to album [${albumPath}]`);
-    await upload(files, albumPath);
+    return files;
 }
 
 /**

@@ -7,28 +7,32 @@
     import { upload } from '$lib/stores/UploadStore';
     import { isValidDayAlbumPath } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
+    import UploadReplaceConfirmDialog from './UploadReplaceConfirmDialog.svelte';
 
-    let path: string;
-    $: path = $page.url.pathname;
+    $: albumPath = $page.url.pathname + '/';
+    $: show = isValidDayAlbumPath(albumPath); // Show this button only on day ablums
 
-    // Show this button only on day ablums
-    let show: boolean = false;
-    $: show = isValidDayAlbumPath($page.url.pathname + '/');
+    let dialog: UploadReplaceConfirmDialog;
+    let fileInput: HTMLInputElement;
 
     async function onUploadButtonClick() {
-        document.getElementById('fileInput')?.click();
+        fileInput.click();
     }
 
     async function onFilesSelected() {
-        const files = (<HTMLInputElement>document.getElementById('fileInput'))?.files;
-        if (!!files && !!files.length) {
-            const albumPath = path + '/';
-            await upload(files, albumPath);
-        }
+        upload(fileInput.files, albumPath);
     }
 </script>
 
 {#if show}
     <ControlStripButton on:click={onUploadButtonClick}><UploadIcon />Upload</ControlStripButton>
-    <input on:change={onFilesSelected} type="file" id="fileInput" multiple accept=".jpg, .jpeg" style="display:none" />
+    <input
+        bind:this={fileInput}
+        on:change={onFilesSelected}
+        type="file"
+        multiple
+        accept=".jpg, .jpeg"
+        style="display:none"
+    />
+    <UploadReplaceConfirmDialog bind:this={dialog} />
 {/if}

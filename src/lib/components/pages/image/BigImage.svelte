@@ -3,7 +3,47 @@
 -->
 <script lang="ts">
     import type { Image } from '$lib/models/GalleryItemInterfaces';
+    import { getDroppedImages, uploadSingleImage } from '$lib/stores/UploadStore';
+    import { get } from 'svelte/store';
+    import { page } from '$app/stores';
+
     export let image: Image;
+
+    let dragging = false;
+    $: dragging = dragging;
+
+    function dragEnter(e: DragEvent) {
+        if (!isSingleFile(e)) return;
+        e.preventDefault();
+        dragging = true;
+    }
+
+    function dragOver(e: DragEvent) {
+        if (!isSingleFile(e)) return;
+        e.preventDefault();
+    }
+
+    function dragLeave(e: DragEvent) {
+        if (!isSingleFile(e)) return;
+        dragging = false;
+    }
+
+    async function drop(e: DragEvent) {
+        if (!isSingleFile(e)) return;
+        e.preventDefault();
+        dragging = false;
+        const files = await getDroppedImages(e);
+        if (!files || files.length !== 1) return;
+        const albumPath = get(page).url.pathname;
+        await uploadSingleImage(files[0], albumPath);
+    }
+
+    function isSingleFile(e: DragEvent) {
+        return (
+            e.dataTransfer?.types?.includes('Files') &&
+            (e.dataTransfer?.files?.length === 1 || e.dataTransfer?.items?.length === 1)
+        );
+    }
 </script>
 
 <!-- 
@@ -17,6 +57,11 @@
             src={image.detailUrl}
             style="max-width: {image.width}px; max-height: {image.height}px;"
             alt={image.title}
+            class:dragging
+            on:dragenter|preventDefault={dragEnter}
+            on:dragover|preventDefault={dragOver}
+            on:dragleave|preventDefault={dragLeave}
+            on:drop|preventDefault={drop}
         />
     </a>
 {/key}
@@ -26,5 +71,10 @@
         object-fit: contain;
         width: 100%;
         height: 100%;
+    }
+    .dragging {
+        filter: grayscale(50%) brightness(1.1);
+        opacity: 80%;
+        filter: blur(3px);
     }
 </style>

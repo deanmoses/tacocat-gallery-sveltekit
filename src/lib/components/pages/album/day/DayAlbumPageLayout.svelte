@@ -8,12 +8,26 @@
     import PageContent from '$lib/components/site/PageContent.svelte';
     import MainContent from '$lib/components/site/MainContent.svelte';
     import Thumbnails from '$lib/components/site/Thumbnails.svelte';
-    import { dropImages } from '$lib/stores/UploadStore';
+    import {
+        getDroppedImages,
+        getSanitizedFiles,
+        getFilesAlreadyInAlbum,
+        type ImagesToUpload,
+        uploadSanitizedImages,
+    } from '$lib/stores/UploadStore';
+    import UploadReplaceConfirmDialog from '$lib/components/site/admin/toggle/toggle_buttons/UploadReplaceConfirmDialog.svelte';
+    import { page } from '$app/stores';
+    import { get } from 'svelte/store';
 
     export let title: string = '';
 
     let dragging = false;
     $: dragging = dragging;
+
+    let imagesToUpload: ImagesToUpload[] = [];
+    $: imagesToUpload = imagesToUpload;
+
+    let dialog: UploadReplaceConfirmDialog;
 
     function dragEnter(e: DragEvent) {
         if (e.dataTransfer?.types.includes('Files')) {
@@ -38,8 +52,22 @@
         if (e.dataTransfer?.types.includes('Files')) {
             e.preventDefault();
             dragging = false;
-            await dropImages(e);
+            const files = await getDroppedImages(e);
+            const albumPath = get(page).url.pathname + '/';
+            imagesToUpload = getSanitizedFiles(files, albumPath);
+            if (!imagesToUpload || !imagesToUpload.length) return;
+            const filesAlreadyInAlbum = getFilesAlreadyInAlbum(imagesToUpload, albumPath);
+            if (filesAlreadyInAlbum.length > 0) {
+                dialog.show(filesAlreadyInAlbum);
+            } else {
+                await uploadSanitizedImages(imagesToUpload, albumPath);
+            }
         }
+    }
+
+    async function onConfirmUploadReplace() {
+        const albumPath = get(page).url.pathname + '/';
+        await uploadSanitizedImages(imagesToUpload, albumPath);
     }
 </script>
 
@@ -77,6 +105,7 @@
         </MainContent>
     </PageContent>
 </SiteLayout>
+<UploadReplaceConfirmDialog bind:this={dialog} on:dialogConfirm={onConfirmUploadReplace} />
 
 <style>
     .dragging {
