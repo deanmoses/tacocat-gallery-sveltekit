@@ -191,6 +191,7 @@ async function uploadImage(file: File, imagePath: string): Promise<string | unde
             Bucket: 'tacocat-gallery-sam-dev-original-images',
             Key: key,
             Body: file,
+            ContentType: file.type,
         },
         client: new S3Client({
             region: 'us-east-1',
