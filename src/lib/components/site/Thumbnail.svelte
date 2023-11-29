@@ -30,8 +30,8 @@
     }
 
     a:nth-of-type(1) {
-        width: 200px;
-        height: 200px;
+        width: var(--thumbnail-width);
+        height: var(--thumbnail-height);
     }
 
     a:nth-of-type(2) {
@@ -39,8 +39,8 @@
     }
 
     img {
-        width: 200px;
-        height: 200px;
+        width: var(--thumbnail-width);
+        height: var(--thumbnail-height);
         border: var(--default-border);
     }
 
