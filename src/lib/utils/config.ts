@@ -2,6 +2,8 @@ import { dev } from '$app/environment';
 import type { Rectangle } from '$lib/models/impl/server';
 import { isValidAlbumPath, isValidImagePath } from './galleryPathUtils';
 
+const cdnDomain = 'dacwtfk6o75l6.cloudfront.net';
+
 /**
  * The title of the site, such as shown in the header of the site.
  */
@@ -19,10 +21,12 @@ export function siteShortTitle(): string {
 /**
  * URL to CDN'ed derived images
  * @param imagePath Path to an image like /2001/12-31/image.jpg
+ * @param versionId Version of the image
+ * @param crop Optional crop rectangle
  */
-export function thumbnailUrl(imagePath: string, crop?: Rectangle | undefined): string {
+export function thumbnailUrl(imagePath: string, versionId: string, crop?: Rectangle | undefined): string {
     return (
-        `https://dacwtfk6o75l6.cloudfront.net/i${imagePath}/jpeg/200x200` +
+        `https://${cdnDomain}/i${imagePath}/${versionId}/jpeg/200x200` +
         (crop ? `/crop=${crop.x},${crop.y},${crop.width},${crop.height}` : '')
     );
 }
@@ -30,9 +34,11 @@ export function thumbnailUrl(imagePath: string, crop?: Rectangle | undefined): s
 /**
  * URL to optimized image for display on the image detail page
  * @param imagePath Path to an image like /2001/12-31/image.jpg
+ * @param versionId Version of the image
+ * @param sizing size like '1024' (landscape) or 'x1024' (portrait)
  */
-export function detailImagelUrl(imagePath: string): string {
-    return `https://dacwtfk6o75l6.cloudfront.net/i${imagePath}`;
+export function detailImagelUrl(imagePath: string, versionId: string, sizing: string): string {
+    return `https://${cdnDomain}/i${imagePath}/${versionId}/jpeg/${sizing}`;
 }
 
 /**
@@ -40,7 +46,7 @@ export function detailImagelUrl(imagePath: string): string {
  * @param imagePath path to an image like /2001/12-31/image.jpg
  */
 export function originalImageUrl(imagePath: string): string {
-    return `https://dacwtfk6o75l6.cloudfront.net${imagePath}`;
+    return `https://${cdnDomain}${imagePath}`;
 }
 
 /**

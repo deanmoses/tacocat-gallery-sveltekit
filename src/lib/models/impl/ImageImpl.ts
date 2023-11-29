@@ -14,16 +14,15 @@ export class ImageImpl extends ImageThumbableImpl implements Image {
     }
 
     get detailUrl(): string {
-        let imageProcessingInstructions: string = '';
+        let sizing: string;
         if (!this.json.width || !this.json.height) {
-            imageProcessingInstructions = '/jpeg/1024';
+            sizing = '1024';
         } else if (this.json.width > this.json.height) {
-            imageProcessingInstructions = '/jpeg/1024';
+            sizing = '1024';
         } else {
-            imageProcessingInstructions = '/jpeg/x1024';
+            sizing = 'x1024';
         }
-        return detailImagelUrl(this.json.path + imageProcessingInstructions);
-        // TODO: implement cachebuster like this: 'https://cdn.tacocat.com/zenphoto/cache/2023/10-29/halloween_party32_200_w200_h200_cw200_ch200_thumb.jpg?cached=1698637062';
+        return detailImagelUrl(this.json.path, this.json.versionId, sizing);
     }
 
     get originalUrl(): string {

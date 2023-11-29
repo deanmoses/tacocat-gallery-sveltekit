@@ -66,18 +66,17 @@ export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
     }
 
     set thumbnailPath(imagePath: string) {
-        console.log(`TODO IMPLEMENT SETTING THUMB fileUpdatedOn FOR REAL ${imagePath}`);
+        // TODO: fix TypeScript error - thumbnail.versionId is required
+        // Probably should be setting Drafts to an intermediate object
         this.json.thumbnail = {
             path: imagePath,
-            fileUpdatedOn: new Date().toISOString(), // TODO THIS IS WRONG
         };
     }
 
     get thumbnailUrl(): string | undefined {
         return this.json?.thumbnail?.path
-            ? thumbnailUrl(this.json.thumbnail.path, this.json.thumbnail.crop)
+            ? thumbnailUrl(this.json.thumbnail.path, this.json.thumbnail.versionId, this.json.thumbnail.crop)
             : undefined;
-        // TODO: implement cachebuster like this: 'https://cdn.tacocat.com/zenphoto/cache/2023/10-29/halloween_party32_200_w200_h200_cw200_ch200_thumb.jpg?cached=1698637062';
     }
 
     get images(): Thumbable[] {

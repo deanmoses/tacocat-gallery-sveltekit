@@ -29,7 +29,6 @@ export class ImageThumbableImpl extends ThumbableBaseImpl implements Thumbable {
     }
 
     get thumbnailUrl(): string {
-        return thumbnailUrl(this.path, this.json.thumbnail);
-        // TODO: implement cachebuster like this: 'https://cdn.tacocat.com/zenphoto/cache/2023/10-29/halloween_party32_200_w200_h200_cw200_ch200_thumb.jpg?cached=1698637062';
+        return thumbnailUrl(this.path, this.json.versionId, this.json.thumbnail);
     }
 }

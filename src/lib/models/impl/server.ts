@@ -39,11 +39,12 @@ export type AlbumNavInfo = {
 export type GalleryRecord = AlbumRecord | ImageRecord;
 
 export type ImageRecord = BaseGalleryRecord & {
-    title?: string;
+    versionId: string;
     height: number;
     width: number;
-    tags?: string[];
     thumbnail?: Rectangle;
+    title?: string;
+    tags?: string[];
 };
 
 export type AlbumRecord = BaseGalleryRecord & {
@@ -54,6 +55,7 @@ export type AlbumRecord = BaseGalleryRecord & {
 
 export type AlbumThumbnailRecord = {
     path: string;
+    versionId: string;
     crop?: Rectangle;
     fileUpdatedOn: string;
 };
