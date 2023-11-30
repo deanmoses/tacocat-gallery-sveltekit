@@ -75,7 +75,7 @@
 {/each}
 
 <style>
-    h3 {
+    h2 {
         background-color: var(--month-color, var(--header-color));
         font-weight: bold;
         font-size: 1.3em;
