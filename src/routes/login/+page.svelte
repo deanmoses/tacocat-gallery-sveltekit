@@ -1,13 +1,16 @@
 <script lang="ts">
+    import type { PageData } from './$types';
     import BlankSearchPageLayout from '$lib/components/pages/search/BlankSearchPageLayout.svelte';
     import LoginIcon from '$lib/components/site/icons/LoginIcon.svelte';
     import LogoutIcon from '$lib/components/site/icons/LogoutIcon.svelte';
-    import { isAdmin } from '$lib/stores/SessionStore';
     import { getLoginUrl, getLogoutUrl } from '$lib/utils/config';
+
+    export let data: PageData;
+    $: isAdmin = data.isAdmin;
 </script>
 
-<BlankSearchPageLayout searchTerms="" returnPath="/" title={isAdmin ? 'Logout' : 'Login'}>
-    {#if !isAdmin}
+<BlankSearchPageLayout searchTerms="" returnPath="/" title={$isAdmin ? 'Logout' : 'Login'}>
+    {#if $isAdmin}
         <p>You're logged in</p>
         <p><a href={getLogoutUrl()}><LogoutIcon width="1.4em" height="1.3em" /> Logout</a></p>
     {:else}

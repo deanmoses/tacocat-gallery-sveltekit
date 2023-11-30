@@ -19,10 +19,7 @@ class SessionStore {
      * @returns a read-only Svelte store that says whether the current user is an admin
      */
     isAdmin(): Readable<boolean> {
-        // create a derived store
-        return derived(this._isAdmin, ($isAdmin) => {
-            return $isAdmin;
-        });
+        return derived(this._isAdmin, ($isAdmin) => $isAdmin);
     }
 
     /**
@@ -34,8 +31,7 @@ class SessionStore {
             console.warn('FAKE: setting user to be an admin');
             this._isAdmin.set(true);
         } else {
-            const uri = checkAuthenticationUrl();
-            const response = await fetch(uri, {
+            const response = await fetch(checkAuthenticationUrl(), {
                 // no-store: the browser fetches from the remote server without first looking in the cache,
                 // and will not update the cache with the downloaded resource
                 cache: 'no-store',
@@ -43,7 +39,7 @@ class SessionStore {
             });
             this.handleErrors(response);
             const json = await response.json();
-            const isAdmin = !!json.isAdmin;
+            const isAdmin = !!json.user;
             if (isAdmin) console.log('User is an admin');
             this._isAdmin.set(isAdmin);
         }

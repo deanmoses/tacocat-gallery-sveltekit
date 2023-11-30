@@ -7,7 +7,7 @@
     import SearchPage from '$lib/components/pages/search/SearchPage.svelte';
     import FullPageMessage from '$lib/components/site/FullPageMessage.svelte';
 
-    export let title: string;
+    export let title: string | undefined = undefined;
     export let searchTerms: string;
     export let returnPath: string | undefined;
 </script>
