@@ -60,7 +60,7 @@
 
 {#each albumsByMonth(album.albums) as month (month.monthName)}
     <section class="month">
-        <h3>{month.monthName}</h3>
+        <h2>{month.monthName}</h2>
         <Thumbnails>
             {#each month.albums as childAlbum (childAlbum.path)}
                 <Thumbnail
