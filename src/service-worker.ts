@@ -1,5 +1,5 @@
 /// <reference lib="webworker" />
-
+/// <reference types="@sveltejs/kit" />
 import { build, files, version } from '$service-worker';
 
 const worker = self as unknown as ServiceWorkerGlobalScope;
