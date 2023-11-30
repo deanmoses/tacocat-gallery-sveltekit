@@ -128,13 +128,31 @@ export function searchUrl(searchTerms: string): string {
     return baseApiUrl() + 'search/' + encodeURIComponent(searchTerms);
 }
 
+function baseApiUrl(): string {
+    return dev ? '/api/Prod/' : 'https://v2kdsvx1hf.execute-api.us-east-1.amazonaws.com/Prod/';
+}
+
 /**
  * URL to check user's authentication status
  */
 export function checkAuthenticationUrl(): string {
-    return 'https://tacocat.com/zenphoto/?api&auth'; // TODO MIGRATE
+    return baseAuthApiUrl();
 }
 
-function baseApiUrl(): string {
-    return dev ? '/api/Prod/' : 'https://v2kdsvx1hf.execute-api.us-east-1.amazonaws.com/Prod/';
+/**
+ * URL that redirects to the Cognito-hosted login page
+ */
+export function getLoginUrl(): string {
+    return baseAuthApiUrl() + 'login';
+}
+
+/**
+ * URL that deletes cookies and redirects to the Cognito-hosted logout page
+ */
+export function getLogoutUrl(): string {
+    return baseAuthApiUrl() + 'logout';
+}
+
+function baseAuthApiUrl(): string {
+    return 'https://auth.pix.tacocat.com/';
 }
