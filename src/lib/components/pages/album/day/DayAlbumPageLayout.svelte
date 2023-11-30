@@ -89,13 +89,13 @@
                 <h2 style="display:none">Album Description</h2>
                 <slot name="caption" />
             </section>
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
             <section
-                role="list"
+                class:dragging
                 on:dragenter|preventDefault={dragEnter}
                 on:dragover|preventDefault={dragOver}
                 on:dragleave|preventDefault={dragLeave}
                 on:drop|preventDefault={drop}
-                class:dragging
             >
                 <h2 style="display:none">Thumbnails</h2>
                 <Thumbnails>
