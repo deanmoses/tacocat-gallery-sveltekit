@@ -1,7 +1,7 @@
 {
     "name": "The Moses Family",
-    "short_name": "Mosii",
-    "description": "The Moses Family photo album",
+    "short_name": "The Mosii",
+    "description": "The Moses family photo album",
     "icons": [
         {
             "src": "images/favicons/android-chrome-192x192.png",
@@ -17,6 +17,28 @@
             "src": "images/favicons/android-chrome-512x512.png",
             "sizes": "512x512",
             "type": "image/png"
+        },
+        {
+            "src": "images/favicons/maskable-icon.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "images/pwa/screenshot_desktop.png",
+            "sizes": "790x385",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "The Moses Family"
+        },
+        {
+            "src": "images/pwa/screenshot_mobile.png",
+            "sizes": "320x482",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "The Moses Family"
         }
     ],
     "theme_color": "#ffffff",
