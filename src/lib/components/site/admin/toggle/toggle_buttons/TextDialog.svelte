@@ -61,6 +61,7 @@
                 <div class="label">{label}</div>
                 <input
                     type="text"
+                    name="text"
                     bind:this={textfield}
                     value={initialValue}
                     on:input={onTextChange}

@@ -28,11 +28,11 @@
     <svelte:fragment slot="rightControls">
         {#if showSummary}
             <div>
-                <input type="text" value={summary ?? ''} on:input={onSummaryChange} />
+                <input type="text" name="text" value={summary ?? ''} on:input={onSummaryChange} />
             </div>
         {/if}
         <div>
-            <input type="checkbox" checked={published} on:change={onPublishedChange} /> published
+            <input type="checkbox" name="check" checked={published} on:change={onPublishedChange} /> published
         </div>
     </svelte:fragment>
 </BaseEditControls>
