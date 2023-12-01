@@ -1,12 +1,14 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import type { UserConfig } from 'vite';
 
+const staging = true;
+
 const config: UserConfig = {
     plugins: [sveltekit()],
     server: {
         proxy: {
             '/api': {
-                target: 'https://v2kdsvx1hf.execute-api.us-east-1.amazonaws.com/',
+                target: staging ? 'https://api.staging-pix.tacocat.com/' : 'https://api.pix.tacocat.com/',
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/api/, ''),
                 configure: (proxy, _options) => {

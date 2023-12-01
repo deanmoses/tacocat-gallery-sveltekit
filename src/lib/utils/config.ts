@@ -2,7 +2,8 @@ import { dev } from '$app/environment';
 import type { Rectangle } from '$lib/models/impl/server';
 import { isValidAlbumPath, isValidImagePath } from './galleryPathUtils';
 
-const cdnDomain = 'dacwtfk6o75l6.cloudfront.net';
+export const staging = true; // manual switch to allow the front end to test either staging or prod
+const cdnDomain = staging ? 'img.staging-pix.tacocat.com' : 'img.pix.tacocat.com';
 
 /**
  * The title of the site, such as shown in the header of the site.
@@ -129,7 +130,7 @@ export function searchUrl(searchTerms: string): string {
 }
 
 function baseApiUrl(): string {
-    return dev ? '/api/Prod/' : 'https://v2kdsvx1hf.execute-api.us-east-1.amazonaws.com/Prod/';
+    return dev ? '/api/Prod/' : staging ? 'https://api.staging-pix.tacocat.com/' : 'https://api.pix.tacocat.com/';
 }
 
 /**
@@ -154,5 +155,5 @@ export function getLogoutUrl(): string {
 }
 
 function baseAuthApiUrl(): string {
-    return 'https://auth.pix.tacocat.com/';
+    return staging ? 'https://auth.staging-pix.tacocat.com/' : 'https://auth.pix.tacocat.com/';
 }
