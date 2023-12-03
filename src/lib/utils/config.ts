@@ -130,7 +130,7 @@ export function searchUrl(searchTerms: string): string {
 }
 
 function baseApiUrl(): string {
-    return dev ? '/api/Prod/' : staging ? 'https://api.staging-pix.tacocat.com/' : 'https://api.pix.tacocat.com/';
+    return dev ? '/api/' : staging ? 'https://api.staging-pix.tacocat.com/' : 'https://api.pix.tacocat.com/';
 }
 
 /**
