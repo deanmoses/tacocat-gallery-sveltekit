@@ -89,6 +89,7 @@ export async function renameImage(oldImagePath: string, newImagePath: string) {
     const url = renameImageUrl(oldImagePath);
     const requestConfig: RequestInit = {
         method: 'POST',
+        credentials: 'include',
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',

@@ -19,6 +19,7 @@ export async function setAlbumThumbnail(albumPath: string, imagePath: string): P
         // Make the save request
         const response = await fetch(setThumbnailUrl(albumPath), {
             method: 'PATCH',
+            credentials: 'include',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',

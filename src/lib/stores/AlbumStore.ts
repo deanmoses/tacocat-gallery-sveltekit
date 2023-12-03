@@ -63,7 +63,7 @@ class AlbumStore {
         // Then check server
         console.log(`Checking if album [${path}] exists on server`);
         const url = albumUrl(path);
-        const requestConfig = this.buildFetchConfig(path);
+        const requestConfig = this.buildFetchConfig();
         requestConfig.method = 'HEAD';
         const response = await fetch(url, requestConfig);
         if (response.status === 404) return false;
@@ -198,7 +198,7 @@ class AlbumStore {
      */
     private fetchFromServer(path: string): void {
         const url = albumUrl(path);
-        const requestConfig = this.buildFetchConfig(path);
+        const requestConfig = this.buildFetchConfig();
         fetch(url, requestConfig)
             .then((response: Response) => {
                 if (response.status == 404) throw 404;
@@ -225,7 +225,7 @@ class AlbumStore {
      */
     public async fetchFromServerAsync(path: string): Promise<Album> {
         const url = albumUrl(path);
-        const requestConfig = this.buildFetchConfig(path);
+        const requestConfig = this.buildFetchConfig();
         const response = await fetch(url, requestConfig);
         if (response.status === 404) throw 404;
         if (!response.ok) throw new Error(response.statusText);
@@ -239,7 +239,7 @@ class AlbumStore {
     /**
      * Build the configuration for the HTTP fetch
      */
-    private buildFetchConfig(albumPath: string): RequestInit {
+    private buildFetchConfig(): RequestInit {
         const requestConfig: RequestInit = {};
 
         // no-store: bypass the HTTP cache completely.
@@ -254,17 +254,7 @@ class AlbumStore {
         // The production build process replaces the text 'process.env.NODE_ENV'
         // with the literal string 'production'
         if ('production' === process.env.NODE_ENV) {
-            // Only send credentials for day albums.
-            // Because the root and year albums are served
-            // from *.json files on disk, and the apache
-            // .htaccess file in that directory is configured
-            // to serve Access-Control-Allow-Origin "*"
-            // And Chrome doesn't allow you to send credentials
-            // to a wildcard domain.  Blech.
-            const albumType = getAlbumType(albumPath);
-            if (albumType == AlbumType.DAY) {
-                requestConfig.credentials = 'include';
-            }
+            requestConfig.credentials = 'include';
         }
 
         return requestConfig;

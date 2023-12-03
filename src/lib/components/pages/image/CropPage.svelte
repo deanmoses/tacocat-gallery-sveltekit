@@ -33,6 +33,7 @@
             // Make the save request
             const response = await fetch(recropThumbnailUrl(imagePath), {
                 method: 'PATCH',
+                credentials: 'include',
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',

@@ -111,7 +111,7 @@ class DraftStore {
         }
         // Else I have something to save
         else {
-            console.log(`Saving draft [${draft.path}]: `, draft);
+            console.log(`Saving draft [${draft.path}]: `, draft.content);
             this.setStatus(DraftStatus.SAVING);
             // Send the save request
             fetch(updateUrl(draft.path), this.getSaveRequestConfig(draft.content))
@@ -129,6 +129,7 @@ class DraftStore {
     private getSaveRequestConfig(content: DraftContent): RequestInit {
         return {
             method: 'PATCH',
+            credentials: 'include',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
@@ -140,7 +141,6 @@ class DraftStore {
             // response in the HTTP cache.
             // Fetch() will behave as if no HTTP cache exists.
             cache: 'no-store',
-            credentials: 'include',
         };
     }
 

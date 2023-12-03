@@ -78,6 +78,7 @@ export async function deleteImage(imagePath: string) {
     addDeleteEntry(imagePath);
     const response = await fetch(deleteUrl(imagePath), {
         method: 'DELETE',
+        credentials: 'include',
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',

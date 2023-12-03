@@ -79,6 +79,7 @@ export async function deleteAlbum(albumPath: string): Promise<void> {
     addDeleteEntry(albumPath);
     const response = await fetch(deleteUrl(albumPath), {
         method: 'DELETE',
+        credentials: 'include',
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',

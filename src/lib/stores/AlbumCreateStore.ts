@@ -77,6 +77,7 @@ export async function createAlbum(albumPath: string) {
     addCreateEntry(albumPath);
     const response = await fetch(createUrl(albumPath), {
         method: 'PUT',
+        credentials: 'include',
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',

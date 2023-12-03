@@ -89,6 +89,7 @@ export async function renameDayAlbum(oldAlbumPath: string, newAlbumPath: string)
     const url = renameAlbumUrl(oldAlbumPath);
     const requestConfig: RequestInit = {
         method: 'POST',
+        credentials: 'include',
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
