@@ -9,31 +9,31 @@
 
     export let image: Image;
 
+    /** Enable drag/dropping new versions of the image */
+    export let enableDrop = false;
+    $: dropEnabled = enableDrop && $isAdmin;
+
     let dragging = false;
     $: dragging = dragging;
 
     function dragEnter(e: DragEvent) {
-        if (!$isAdmin) return;
-        if (!isSingleFile(e)) return;
+        if (!allowDrop(e)) return;
         e.preventDefault();
         dragging = true;
     }
 
     function dragOver(e: DragEvent) {
-        if (!$isAdmin) return;
-        if (!isSingleFile(e)) return;
+        if (!allowDrop(e)) return;
         e.preventDefault();
     }
 
     function dragLeave(e: DragEvent) {
-        if (!$isAdmin) return;
-        if (!isSingleFile(e)) return;
+        if (!allowDrop(e)) return;
         dragging = false;
     }
 
     async function drop(e: DragEvent) {
-        if (!$isAdmin) return;
-        if (!isSingleFile(e)) return;
+        if (!allowDrop(e)) return;
         e.preventDefault();
         dragging = false;
         // Lazy load these to encourage the code bundler to put them
@@ -45,9 +45,13 @@
         await uploadSingleImage(files[0], imagePath);
     }
 
-    function isSingleFile(e: DragEvent) {
+    function allowDrop(e: DragEvent): boolean {
+        return dropEnabled && isSingleFile(e);
+    }
+
+    function isSingleFile(e: DragEvent): boolean {
         return (
-            e.dataTransfer?.types?.includes('Files') &&
+            !!e.dataTransfer?.types?.includes('Files') &&
             (e.dataTransfer?.files?.length === 1 || e.dataTransfer?.items?.length === 1)
         );
     }

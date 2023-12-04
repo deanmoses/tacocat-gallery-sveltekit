@@ -11,6 +11,8 @@
     import { isAdmin } from '$lib/stores/SessionStore';
 
     export let title: string = '';
+    /** Adapt layout for edit mode */
+    export let edit: boolean = false;
 </script>
 
 <svelte:head>
@@ -31,12 +33,12 @@
                 <h2 style="display:none">Album Description</h2>
                 <slot name="caption" />
             </section>
-            {#if $isAdmin}
+            {#if !edit && $isAdmin}
                 <!-- 
                     Lazy / async / dynamic load this component.
                     It's a hint to the bundling system that this code 
-                    can be put into a separate bundle, so that non-admins
-                    aren't forced to load it.
+                    should be put into a separate bundle so that 
+                    non-admins aren't forced to load it.
                 -->
                 {#await import('./DayAlbumThumbnailDropZone.svelte') then { default: DayAlbumThumbnailDropZone }}
                     <DayAlbumThumbnailDropZone>

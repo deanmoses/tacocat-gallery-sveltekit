@@ -34,6 +34,6 @@
     </svelte:fragment>
 
     <svelte:fragment slot="image">
-        <BigImage {image} />
+        <BigImage {image} enableDrop />
     </svelte:fragment>
 </ImagePageLayout>
