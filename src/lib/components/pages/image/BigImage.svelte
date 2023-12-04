@@ -3,9 +3,9 @@
 -->
 <script lang="ts">
     import type { Image } from '$lib/models/GalleryItemInterfaces';
-    import { getDroppedImages, uploadSingleImage } from '$lib/stores/UploadStore';
     import { get } from 'svelte/store';
     import { page } from '$app/stores';
+    import { isAdmin } from '$lib/stores/SessionStore';
 
     export let image: Image;
 
@@ -13,29 +13,36 @@
     $: dragging = dragging;
 
     function dragEnter(e: DragEvent) {
+        if (!$isAdmin) return;
         if (!isSingleFile(e)) return;
         e.preventDefault();
         dragging = true;
     }
 
     function dragOver(e: DragEvent) {
+        if (!$isAdmin) return;
         if (!isSingleFile(e)) return;
         e.preventDefault();
     }
 
     function dragLeave(e: DragEvent) {
+        if (!$isAdmin) return;
         if (!isSingleFile(e)) return;
         dragging = false;
     }
 
     async function drop(e: DragEvent) {
+        if (!$isAdmin) return;
         if (!isSingleFile(e)) return;
         e.preventDefault();
         dragging = false;
+        // Lazy load these to encourage the code bundler to put them
+        // into separate bundles that non-admins never upload
+        const { getDroppedImages, uploadSingleImage } = await import('$lib/stores/admin/UploadStoreLogic');
         const files = await getDroppedImages(e);
         if (!files || files.length !== 1) return;
-        const albumPath = get(page).url.pathname;
-        await uploadSingleImage(files[0], albumPath);
+        const imagePath = get(page).url.pathname;
+        await uploadSingleImage(files[0], imagePath);
     }
 
     function isSingleFile(e: DragEvent) {
