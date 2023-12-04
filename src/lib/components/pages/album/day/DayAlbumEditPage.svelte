@@ -12,7 +12,7 @@
     import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
     import { editUrl } from '$lib/utils/path-utils';
     import DraftStore from '$lib/stores/DraftStore';
-    import { setAlbumThumbnail } from '$lib/stores/AlbumThumbnailHelper';
+    import { setAlbumThumbnail } from '$lib/stores/admin/AlbumThumbnailLogic';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
 
     export let album: Album;

@@ -1,18 +1,16 @@
 <!--
-  @component Flip through different statuses of a day album
+  @component Route to the different loading / error / display statuses of a day album
 -->
 <script lang="ts">
     import AlbumLoadingPage from '$lib/components/pages/album/AlbumLoadingPage.svelte';
     import AlbumErrorPage from '$lib/components/pages/album/AlbumErrorPage.svelte';
-    import { AlbumLoadStatus } from '$lib/models/album';
+    import { AlbumLoadStatus, type DeleteEntry, type RenameEntry } from '$lib/models/album';
     import HomeIcon from '$lib/components/site/icons/HomeIcon.svelte';
     import AlbumProcessingPage from '../AlbumProcessingPage.svelte';
-    import type { AlbumDeleteEntry } from '$lib/stores/AlbumDeleteStore';
-    import type { AlbumRenameEntry } from '$lib/stores/AlbumRenameStore';
 
     export let loadStatus: AlbumLoadStatus;
-    export let deleteEntry: AlbumDeleteEntry | undefined = undefined;
-    export let renameEntry: AlbumRenameEntry | undefined = undefined;
+    export let deleteEntry: DeleteEntry | undefined = undefined;
+    export let renameEntry: RenameEntry | undefined = undefined;
 </script>
 
 {#if deleteEntry}

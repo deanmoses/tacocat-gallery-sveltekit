@@ -8,7 +8,7 @@
     import { goto } from '$app/navigation';
     import { albumStore } from '$lib/stores/AlbumStore';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
-    import { SvelteToast } from '@zerodevx/svelte-toast';
+    import { isAdmin } from '$lib/stores/SessionStore';
 
     /**
      * Handle keyboard navigation
@@ -38,5 +38,15 @@
 </script>
 
 <slot />
-<SvelteToast />
+{#if $isAdmin}
+    <!-- 
+		Lazy / async / dynamic load this component.
+		It's a hint to the bundling system that  this code 
+        can be put into a separate bundle, so that non-admins
+		aren't forced to load it.
+	-->
+    {#await import('@zerodevx/svelte-toast') then { SvelteToast }}
+        <SvelteToast />
+    {/await}
+{/if}
 <svelte:window on:keydown={onKeyPress} />

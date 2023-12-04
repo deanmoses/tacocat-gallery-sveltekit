@@ -28,6 +28,10 @@ export class ImageThumbableImpl extends ThumbableBaseImpl implements Thumbable {
         return this.path;
     }
 
+    get versionId(): string {
+        return this.json.versionId;
+    }
+
     get thumbnailUrl(): string {
         return thumbnailUrl(this.path, this.json.versionId, this.json.thumbnail);
     }

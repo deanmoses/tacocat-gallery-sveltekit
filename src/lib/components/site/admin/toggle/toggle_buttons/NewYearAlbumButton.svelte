@@ -5,8 +5,8 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     import CreateIcon from '$lib/components/site/icons/CreateIcon.svelte';
-    import { createAlbum } from '$lib/stores/AlbumCreateStore';
     import { albumStore } from '$lib/stores/AlbumStore';
+    import { createAlbum } from '$lib/stores/admin/AlbumCreateStoreLogic';
     import { isValidYearAlbumPath, sanitizeDayAlbumName } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import TextDialog from './TextDialog.svelte';

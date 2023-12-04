@@ -4,12 +4,11 @@
 <script lang="ts">
     import YearAlbumLoadingPage from '$lib/components/pages/album/year/YearAlbumLoadingPage.svelte';
     import AlbumErrorPage from '$lib/components/pages/album/AlbumErrorPage.svelte';
-    import { AlbumLoadStatus } from '$lib/models/album';
+    import { AlbumLoadStatus, type DeleteEntry } from '$lib/models/album';
     import AlbumProcessingPage from '../AlbumProcessingPage.svelte';
-    import type { AlbumDeleteEntry } from '$lib/stores/AlbumDeleteStore';
 
     export let loadStatus: AlbumLoadStatus;
-    export let deleteEntry: AlbumDeleteEntry | undefined = undefined;
+    export let deleteEntry: DeleteEntry | undefined = undefined;
 </script>
 
 {#if deleteEntry}

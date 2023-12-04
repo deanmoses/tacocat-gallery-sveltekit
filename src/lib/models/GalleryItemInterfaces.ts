@@ -23,6 +23,7 @@ export interface Image extends Nextable {
     readonly originalUrl: string;
     readonly width: number;
     readonly height: number;
+    readonly versionId: string;
 }
 
 export interface Nextable extends Thumbable {

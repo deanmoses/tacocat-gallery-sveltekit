@@ -5,7 +5,7 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     import DeleteIcon from '$lib/components/site/icons/DeleteIcon.svelte';
-    import { deleteImage } from '$lib/stores/ImageDeleteStore';
+    import { deleteImage } from '$lib/stores/admin/ImageDeleteStoreLogic';
     import { getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 

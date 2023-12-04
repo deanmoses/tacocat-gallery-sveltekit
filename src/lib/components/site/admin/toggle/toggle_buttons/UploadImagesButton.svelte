@@ -4,7 +4,7 @@
 <script lang="ts">
     import { page } from '$app/stores';
     import UploadIcon from '$lib/components/site/icons/UploadIcon.svelte';
-    import { upload } from '$lib/stores/UploadStore';
+    import { upload } from '$lib/stores/admin/UploadStoreLogic';
     import { isValidDayAlbumPath } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import UploadReplaceConfirmDialog from './UploadReplaceConfirmDialog.svelte';

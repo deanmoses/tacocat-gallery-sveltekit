@@ -6,6 +6,9 @@ import { writable, type Writable, derived, type Readable } from 'svelte/store';
 import { dev } from '$app/environment';
 import { checkAuthenticationUrl } from '$lib/utils/config';
 
+/** True: simulate being an admin when in a dev (localhost) environment */
+const FAKE_ADMIN_ON_DEV = true;
+
 /**
  * Manages the Svelte stores about a user session
  */
@@ -26,7 +29,7 @@ class SessionStore {
      * Fetch current user's status from server
      */
     async fetchUserStatus(): Promise<void> {
-        const fakeAdmin: boolean = dev;
+        const fakeAdmin: boolean = FAKE_ADMIN_ON_DEV && dev;
         if (fakeAdmin) {
             console.warn('FAKE: setting user to be an admin');
             this._isAdmin.set(true);

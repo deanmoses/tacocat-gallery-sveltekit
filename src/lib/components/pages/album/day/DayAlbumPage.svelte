@@ -9,12 +9,10 @@
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
-    import UploadThumbnail from '$lib/components/site/admin/UploadThumbnail.svelte';
-    import type { UploadEntry } from '$lib/stores/UploadStore';
-    import DayAlbumEmptyDropZone from './DayAlbumEmptyDropZone.svelte';
+    import type { UploadEntry } from '$lib/models/album';
 
     export let album: Album;
-    export let uploads: UploadEntry[];
+    export let uploads: UploadEntry[] | undefined = undefined;
 </script>
 
 <DayAlbumPageLayout title={album.title}>
@@ -42,12 +40,26 @@
                 <Thumbnail title={image.title} src={image.thumbnailUrl} summary={image.summary} href={image.href} />
             {/each}
         {:else if !album.published && !uploads?.length}
-            <DayAlbumEmptyDropZone />
+            <!-- 
+                Lazy / async / dynamic load the component
+                It's a hint to the bundling system that it can be put into a separate bundle, 
+                so that non-admins aren't forced to download the code.
+            -->
+            {#await import('./DayAlbumEmptyDropZone.svelte') then { default: DayAlbumEmptyDropZone }}
+                <DayAlbumEmptyDropZone />
+            {/await}
         {/if}
         {#if uploads?.length}
-            {#each uploads as upload (upload.imagePath)}
-                <UploadThumbnail {upload} />
-            {/each}
+            <!-- 
+                Lazy / async / dynamic load the component
+                It's a hint to the bundling system that it can be put into a separate bundle, 
+                so that non-admins aren't forced to download the code.
+            -->
+            {#await import('$lib/components/site/admin/UploadThumbnail.svelte') then { default: UploadThumbnail }}
+                {#each uploads as upload (upload.imagePath)}
+                    <UploadThumbnail {upload} />
+                {/each}
+            {/await}
         {/if}
     </svelte:fragment>
 </DayAlbumPageLayout>

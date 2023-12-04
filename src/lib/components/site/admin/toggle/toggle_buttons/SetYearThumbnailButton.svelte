@@ -4,7 +4,7 @@
 <script lang="ts">
     import { page } from '$app/stores';
     import FilledStarIcon from '$lib/components/site/icons/FilledStarIcon.svelte';
-    import { setAlbumThumbnail } from '$lib/stores/AlbumThumbnailHelper';
+    import { setAlbumThumbnail } from '$lib/stores/admin/AlbumThumbnailLogic';
     import { getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
     import { toast } from '@zerodevx/svelte-toast';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';

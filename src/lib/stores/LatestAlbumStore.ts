@@ -20,9 +20,7 @@ const initialStoreState = {
     status: AlbumLoadStatus.NOT_LOADED,
 };
 
-/**
- * IndexedDB key where latest album numbnail is stored
- */
+/** IndexedDB key where latest album numbnail is stored */
 const idbThumbnailKey = 'latest';
 
 /**

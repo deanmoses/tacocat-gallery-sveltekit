@@ -157,3 +157,7 @@ export function getLogoutUrl(): string {
 function baseAuthApiUrl(): string {
     return staging ? 'https://auth.staging-pix.tacocat.com/' : 'https://auth.pix.tacocat.com/';
 }
+
+export function getOriginalImagesBucketName(): string {
+    return 'tacocat-gallery-sam-dev-original-images';
+}

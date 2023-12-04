@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { PageData } from './$types';
     import type { Readable } from 'svelte/store';
-    import type { AlbumEntry } from '$lib/stores/AlbumStore';
+    import type { AlbumEntry } from '$lib/models/album';
     import RootAlbumRouting from '$lib/components/pages/album/root/RootAlbumRouting.svelte';
 
     export let data: PageData;

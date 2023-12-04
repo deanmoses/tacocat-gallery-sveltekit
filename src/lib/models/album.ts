@@ -1,3 +1,5 @@
+import type { Album } from './GalleryItemInterfaces';
+
 /**
  * Types of albums
  */
@@ -6,6 +8,15 @@ export enum AlbumType {
     YEAR = 'YEAR',
     DAY = 'DAY',
 }
+
+/**
+ * An entry in the album store
+ */
+export type AlbumEntry = {
+    loadStatus: AlbumLoadStatus;
+    renameEntry?: RenameEntry;
+    album?: Album;
+};
 
 /**
  * Status of the initial load of the album
@@ -36,17 +47,66 @@ export enum AlbumUpdateStatus {
 }
 
 /**
- * An entry in a rename store
- * Represents a single item being renamed
+ * An entry in the album create store
+ * Represents a single album being created
+ */
+export type AlbumCreateEntry = {
+    status: AlbumCreateState;
+};
+
+/**
+ * Status of the create of a single album
+ */
+export enum AlbumCreateState {
+    IN_PROGRESS = 'In Progress',
+}
+
+/**
+ * An entry in the image upload store
+ * Represents a single image being uploaded
+ */
+export type UploadEntry = {
+    file: File;
+    imagePath: string;
+    status: UploadState;
+    /** S3 VersionId of newly uploaded image */
+    versionId?: string;
+};
+
+/**
+ * Status of of the upload of a single image
+ */
+export enum UploadState {
+    UPLOAD_NOT_STARTED = 'Not Started',
+    UPLOADING = 'Uploading',
+    PROCESSING = 'Processing',
+}
+
+/**
+ * An entry in the image or album rename store
+ * Represents a single image or album being renamed
  */
 export type RenameEntry = {
     oldPath: string;
     newPath: string;
     status: RenameState;
-    errorMessage?: string;
 };
 
+/**
+ * Status of the rename of a single image or album
+ */
 export enum RenameState {
     IN_PROGRESS = 'In Progress',
-    ERROR = 'Error',
+}
+
+/**
+ * An entry in the album or image delete store
+ * Represents a single album or image being deleted
+ */
+export type DeleteEntry = {
+    status: DeleteState;
+};
+
+export enum DeleteState {
+    IN_PROGRESS = 'In Progress',
 }

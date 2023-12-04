@@ -6,7 +6,7 @@
     import { page } from '$app/stores';
     import RenameIcon from '$lib/components/site/icons/RenameIcon.svelte';
     import { albumStore } from '$lib/stores/AlbumStore';
-    import { renameImage } from '$lib/stores/ImageRenameStore';
+    import { renameImage } from '$lib/stores/admin/ImageRenameStoreLogic';
     import {
         getNameFromPath,
         getParentFromPath,

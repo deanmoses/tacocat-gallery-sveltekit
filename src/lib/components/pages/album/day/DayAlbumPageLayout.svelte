@@ -8,67 +8,9 @@
     import PageContent from '$lib/components/site/PageContent.svelte';
     import MainContent from '$lib/components/site/MainContent.svelte';
     import Thumbnails from '$lib/components/site/Thumbnails.svelte';
-    import {
-        getDroppedImages,
-        getSanitizedFiles,
-        getFilesAlreadyInAlbum,
-        type ImagesToUpload,
-        uploadSanitizedImages,
-    } from '$lib/stores/UploadStore';
-    import UploadReplaceConfirmDialog from '$lib/components/site/admin/toggle/toggle_buttons/UploadReplaceConfirmDialog.svelte';
-    import { page } from '$app/stores';
-    import { get } from 'svelte/store';
+    import { isAdmin } from '$lib/stores/SessionStore';
 
     export let title: string = '';
-
-    let dragging = false;
-    $: dragging = dragging;
-
-    let imagesToUpload: ImagesToUpload[] = [];
-    $: imagesToUpload = imagesToUpload;
-
-    let dialog: UploadReplaceConfirmDialog;
-
-    function dragEnter(e: DragEvent) {
-        if (e.dataTransfer?.types.includes('Files')) {
-            e.preventDefault();
-            dragging = true;
-        }
-    }
-
-    function dragOver(e: DragEvent) {
-        if (e.dataTransfer?.types.includes('Files')) {
-            e.preventDefault();
-        }
-    }
-
-    function dragLeave(e: DragEvent) {
-        if (e.dataTransfer?.types.includes('Files')) {
-            dragging = false;
-        }
-    }
-
-    async function drop(e: DragEvent) {
-        if (e.dataTransfer?.types.includes('Files')) {
-            e.preventDefault();
-            dragging = false;
-            const files = await getDroppedImages(e);
-            const albumPath = get(page).url.pathname + '/';
-            imagesToUpload = getSanitizedFiles(files, albumPath);
-            if (!imagesToUpload || !imagesToUpload.length) return;
-            const filesAlreadyInAlbum = getFilesAlreadyInAlbum(imagesToUpload, albumPath);
-            if (filesAlreadyInAlbum.length > 0) {
-                dialog.show(filesAlreadyInAlbum);
-            } else {
-                await uploadSanitizedImages(imagesToUpload, albumPath);
-            }
-        }
-    }
-
-    async function onConfirmUploadReplace() {
-        const albumPath = get(page).url.pathname + '/';
-        await uploadSanitizedImages(imagesToUpload, albumPath);
-    }
 </script>
 
 <svelte:head>
@@ -89,27 +31,26 @@
                 <h2 style="display:none">Album Description</h2>
                 <slot name="caption" />
             </section>
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <section
-                class:dragging
-                on:dragenter|preventDefault={dragEnter}
-                on:dragover|preventDefault={dragOver}
-                on:dragleave|preventDefault={dragLeave}
-                on:drop|preventDefault={drop}
-            >
-                <h2 style="display:none">Thumbnails</h2>
-                <Thumbnails>
-                    <slot name="thumbnails" />
-                </Thumbnails>
-            </section>
+            {#if $isAdmin}
+                <!-- 
+                    Lazy / async / dynamic load this component.
+                    It's a hint to the bundling system that  this code 
+                    can be put into a separate bundle, so that non-admins
+                    aren't forced to load it.
+                -->
+                {#await import('./DayAlbumThumbnailDropZone.svelte') then { default: DayAlbumThumbnailDropZone }}
+                    <DayAlbumThumbnailDropZone>
+                        <slot name="thumbnails" slot="thumbnails" />
+                    </DayAlbumThumbnailDropZone>
+                {/await}
+            {:else}
+                <section>
+                    <h2 style="display:none">Thumbnails</h2>
+                    <Thumbnails>
+                        <slot name="thumbnails" />
+                    </Thumbnails>
+                </section>
+            {/if}
         </MainContent>
     </PageContent>
 </SiteLayout>
-<UploadReplaceConfirmDialog bind:this={dialog} on:dialogConfirm={onConfirmUploadReplace} />
-
-<style>
-    .dragging {
-        filter: grayscale(50%) brightness(1.1);
-        min-height: 100%;
-    }
-</style>

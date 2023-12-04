@@ -6,10 +6,11 @@ import { writable, type Writable, derived, type Readable, get } from 'svelte/sto
 import type { Draft, DraftContent } from '$lib/models/draft';
 import { DraftStatus } from '$lib/models/draft';
 import { produce } from 'immer';
-import { type AlbumEntry, albumStore } from './AlbumStore';
+import { albumStore } from './AlbumStore';
 import { getParentFromPath, isValidImagePath, isValidPath } from '$lib/utils/galleryPathUtils';
 import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
 import { updateUrl } from '$lib/utils/config';
+import type { AlbumEntry } from '$lib/models/album';
 
 const initialState: Draft = {
     status: DraftStatus.NO_CHANGES,

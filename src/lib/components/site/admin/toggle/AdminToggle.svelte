@@ -7,9 +7,9 @@
 
 {#if $isAdmin}
     <!-- 
-		Lazy load the actual component
-		Do this async because it's a hint to the bundling system that 
-		this code can be put into a separate bundle, so that non-admins
+		Lazy / async / dynamic load this component.
+		It's a hint to the bundling system that  this code 
+        can be put into a separate bundle, so that non-admins
 		aren't forced to load it.
 	-->
     {#await import('./AdminToggleInner.svelte') then { default: AdminToggleInner }}

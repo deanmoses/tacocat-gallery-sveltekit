@@ -3,21 +3,14 @@
  */
 
 import { writable, type Writable, derived, type Readable, get } from 'svelte/store';
-import { get as getFromIdb, set as setToIdb, del as delFromIdb } from 'idb-keyval';
 import { produce } from 'immer';
-import { AlbumType, AlbumLoadStatus, AlbumUpdateStatus, type RenameEntry } from '$lib/models/album';
+import { get as getFromIdb, set as setToIdb, del as delFromIdb } from 'idb-keyval';
+import { AlbumLoadStatus, AlbumUpdateStatus, type AlbumEntry } from '$lib/models/album';
 import toAlbum from '$lib/models/impl/AlbumCreator';
-import { getAlbumType } from '$lib/utils/path-utils';
 import { isValidAlbumPath } from '$lib/utils/galleryPathUtils';
 import type { Album } from '$lib/models/GalleryItemInterfaces';
 import type { AlbumRecord } from '$lib/models/impl/server';
 import { albumUrl } from '$lib/utils/config';
-
-export type AlbumEntry = {
-    loadStatus: AlbumLoadStatus;
-    renameEntry?: RenameEntry;
-    album?: Album;
-};
 
 /**
  * Manages the Svelte stores of photo albums

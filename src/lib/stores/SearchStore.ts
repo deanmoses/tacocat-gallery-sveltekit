@@ -81,8 +81,8 @@ class SearchStore {
             .then((jsonSearch) => {
                 if (jsonSearch) {
                     console.log(`Search [${searchTerms}] found in idb`);
-                    const searchResults = this.toSearchResults(jsonSearch);
-                    this.setSearch(searchTerms, searchResults); // Put search in Svelte store
+                    //const searchResults = this.toSearchResults(jsonSearch);
+                    this.setSearch(searchTerms, jsonSearch); // Put search in Svelte store
                 } else {
                     console.log(`Search [${searchTerms}] not found in idb`);
                 }
@@ -254,6 +254,7 @@ class SearchStore {
      */
     private toSearchResults(json: unknown): SearchResults {
         const items: [] = json as [];
+        console.log('Transforming search results', items);
         return {
             albums: items.filter((i) => i['item']['itemType'] == 'album').map((i) => toAlbum(i['item'])),
             images: items.filter((i) => i['item']['itemType'] == 'image').map((i) => new ImageThumbableImpl(i['item'])),

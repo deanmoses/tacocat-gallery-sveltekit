@@ -2,7 +2,7 @@
   @component A thumbnail of an uploading image
 -->
 <script lang="ts">
-    import type { UploadEntry } from '$lib/stores/UploadStore';
+    import type { UploadEntry } from '$lib/models/album';
     import Thumbnail from '../Thumbnail.svelte';
     import WaitingIcon from '../icons/WaitingIcon.svelte';
 
