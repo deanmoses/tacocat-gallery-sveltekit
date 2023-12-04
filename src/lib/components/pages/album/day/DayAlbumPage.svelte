@@ -15,7 +15,7 @@
     export let uploads: UploadEntry[] | undefined = undefined;
 </script>
 
-<DayAlbumPageLayout title={album.title}>
+<DayAlbumPageLayout title={album.title} published={album.published}>
     <svelte:fragment slot="editControls">
         <AdminToggle />
     </svelte:fragment>

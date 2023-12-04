@@ -9,10 +9,13 @@
     import MainContent from '$lib/components/site/MainContent.svelte';
     import Thumbnails from '$lib/components/site/Thumbnails.svelte';
     import { isAdmin } from '$lib/stores/SessionStore';
+    import UnpublishedIcon from '$lib/components/site/icons/UnpublishedIcon.svelte';
 
     export let title: string = '';
     /** Adapt layout for edit mode */
     export let edit: boolean = false;
+    export let published: boolean = false;
+    $: unpublished = !published;
 </script>
 
 <svelte:head>
@@ -53,6 +56,18 @@
                     </Thumbnails>
                 </section>
             {/if}
+            {#if unpublished}
+                <div class="unpublished">
+                    <UnpublishedIcon width="3em" height="3em" />
+                </div>
+            {/if}
         </MainContent>
     </PageContent>
 </SiteLayout>
+
+<style>
+    .unpublished {
+        display: flex;
+        justify-content: right;
+    }
+</style>

@@ -2,14 +2,23 @@
   @component A thumbnail of an album or image
 -->
 <script lang="ts">
+    import UnpublishedIcon from './icons/UnpublishedIcon.svelte';
+
     export let src: string = '';
     export let href: string = '';
     export let title: string = '';
     export let summary: string = '';
+    export let published: boolean = true;
+    $: unpublished = !published;
 </script>
 
 <div class="thumbnail">
-    <a {href}><img {src} alt={title} /></a><a {href}>{title}</a>
+    <a {href}
+        ><img {src} alt={title} />{#if unpublished}<div class="unpublished">
+                <UnpublishedIcon width="3em" height="3em" />
+            </div>{/if}</a
+    ><a {href}>{title}</a>
+
     <slot name="selectionControls" />
     {#if summary}
         <div class="summary">{summary}</div>
@@ -42,6 +51,14 @@
         width: var(--thumbnail-width);
         height: var(--thumbnail-height);
         border: var(--default-border);
+    }
+
+    .unpublished {
+        display: block;
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 1em;
     }
 
     .summary {

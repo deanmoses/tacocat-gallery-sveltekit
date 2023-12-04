@@ -41,4 +41,9 @@ export abstract class ThumbableBaseImpl implements Thumbable {
     get parentHref(): string {
         return this.json.parentPath;
     }
+
+    get published(): boolean {
+        // TODO: all images are published=false by this logic
+        return 'published' in this.json ? !!this.json.published : false;
+    }
 }

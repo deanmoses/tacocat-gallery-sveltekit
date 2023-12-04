@@ -68,6 +68,7 @@
                     summary={childAlbum.summary}
                     href={albumUrlCreator(childAlbum.path)}
                     src={childAlbum.thumbnailUrl}
+                    published={childAlbum.published}
                 />
             {/each}
         </Thumbnails>

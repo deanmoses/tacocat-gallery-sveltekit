@@ -25,7 +25,7 @@
     }
 </script>
 
-<DayAlbumPageLayout title={album.title} edit>
+<DayAlbumPageLayout title={album.title} edit published={album.published}>
     <svelte:fragment slot="editControls">
         <AlbumEditControls showSummary summary={album.summary} published={album.published} />
     </svelte:fragment>

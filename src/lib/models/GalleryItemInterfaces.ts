@@ -40,4 +40,5 @@ export interface Thumbable {
     readonly summary: string;
     readonly thumbnailUrl: string | undefined;
     readonly href: string;
+    readonly published: boolean;
 }
