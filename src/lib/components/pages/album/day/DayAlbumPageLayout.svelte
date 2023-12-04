@@ -34,7 +34,7 @@
             {#if $isAdmin}
                 <!-- 
                     Lazy / async / dynamic load this component.
-                    It's a hint to the bundling system that  this code 
+                    It's a hint to the bundling system that this code 
                     can be put into a separate bundle, so that non-admins
                     aren't forced to load it.
                 -->
