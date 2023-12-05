@@ -105,19 +105,25 @@ async function uploadImages(imagesToUpload: ImagesToUpload[]): Promise<void> {
     for (let imageToUpload of imagesToUpload) {
         addUpload(imageToUpload.file, imageToUpload.imagePath);
     }
+    const imageUploads: Promise<void>[] = [];
     for (let imageToUpload of imagesToUpload) {
-        updateUploadState(imageToUpload.imagePath, UploadState.UPLOADING);
-        try {
-            if (mock) await sleep(2000);
-            else {
-                const versionId = await uploadImage(imageToUpload.file, imageToUpload.imagePath);
-                markUploadAsProcessing(imageToUpload.imagePath, versionId);
-            }
-        } catch (e) {
-            console.error(`Error uploading [${imageToUpload.imagePath}]`, e);
-            removeUpload(imageToUpload.imagePath);
-            toast.push(`Error uploading [${imageToUpload.imagePath}]`);
+        imageUploads.push(uploadImageee(imageToUpload));
+    }
+    await Promise.allSettled(imageUploads);
+}
+
+async function uploadImageee(imageToUpload: ImagesToUpload): Promise<void> {
+    updateUploadState(imageToUpload.imagePath, UploadState.UPLOADING);
+    try {
+        if (mock) await sleep(2000);
+        else {
+            const versionId = await uploadImage(imageToUpload.file, imageToUpload.imagePath);
+            markUploadAsProcessing(imageToUpload.imagePath, versionId);
         }
+    } catch (e) {
+        console.error(`Error uploading [${imageToUpload.imagePath}]`, e);
+        removeUpload(imageToUpload.imagePath);
+        toast.push(`Error uploading [${imageToUpload.imagePath}]`);
     }
 }
 

@@ -19,12 +19,12 @@ const initialState: UploadStore = !mock
           },
           {
               imagePath: '/2021/11-27/image2.jpg',
-              status: UploadState.UPLOAD_NOT_STARTED,
+              status: UploadState.UPLOADING,
               file: new File([], 'image2.jpg'),
           },
           {
               imagePath: '/2021/11-27/image3.jpg',
-              status: UploadState.UPLOAD_NOT_STARTED,
+              status: UploadState.PROCESSING,
               file: new File([], 'image3.jpg'),
           },
       ];

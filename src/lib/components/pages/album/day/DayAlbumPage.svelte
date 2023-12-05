@@ -31,7 +31,13 @@
     </svelte:fragment>
 
     <svelte:fragment slot="caption">
-        {@html album.description}
+        {#if uploads?.length}
+            {#await import('./UploadStatusWidget.svelte') then { default: UploadStatusWidget }}
+                <UploadStatusWidget {uploads} />
+            {/await}
+        {:else}
+            {@html album.description}
+        {/if}
     </svelte:fragment>
 
     <svelte:fragment slot="thumbnails">
