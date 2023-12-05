@@ -1,4 +1,4 @@
-import type { ImageRecord, Rectangle, Size } from './server';
+import type { ImageRecord, Rectangle } from './server';
 import type { Album, Image, Thumbable } from '../GalleryItemInterfaces';
 import { ImageThumbableImpl } from './ImageThumbableImpl';
 import { detailImagelUrl, originalImageUrl } from '$lib/utils/config';
