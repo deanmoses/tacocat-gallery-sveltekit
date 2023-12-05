@@ -66,7 +66,7 @@
     <a href={image.originalUrl}>
         <img
             src={image.detailUrl}
-            style="max-width: {image.width}px; max-height: {image.height}px;"
+            style="max-width: {image.detailWidth}px; max-height: {image.detailHeight}px;"
             alt={image.title}
             class:dragging
             on:dragenter|preventDefault={dragEnter}

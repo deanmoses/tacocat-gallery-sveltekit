@@ -2,7 +2,7 @@
 // The interfaces used by the Sveltekit UI
 //
 
-import type { AlbumGalleryItem } from './impl/server';
+import type { AlbumGalleryItem, Rectangle } from './impl/server';
 
 export interface Album extends Nextable {
     published: boolean;
@@ -19,11 +19,14 @@ export interface Album extends Nextable {
 
 export interface Image extends Nextable {
     title: string;
-    readonly detailUrl: string;
     readonly originalUrl: string;
-    readonly width: number;
-    readonly height: number;
+    readonly originalWidth: number;
+    readonly originalHeight: number;
+    readonly detailUrl: string;
+    readonly detailWidth: number;
+    readonly detailHeight: number;
     readonly versionId: string;
+    readonly thumbnail: Rectangle | undefined;
 }
 
 export interface Nextable extends Thumbable {

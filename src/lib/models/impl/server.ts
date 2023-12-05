@@ -40,8 +40,7 @@ export type GalleryRecord = AlbumRecord | ImageRecord;
 
 export type ImageRecord = BaseGalleryRecord & {
     versionId: string;
-    height: number;
-    width: number;
+    dimensions: Size;
     thumbnail?: Rectangle;
     title?: string;
     tags?: string[];

@@ -1,4 +1,4 @@
-import type { ImageRecord } from './server';
+import type { ImageRecord, Rectangle, Size } from './server';
 import type { Album, Image, Thumbable } from '../GalleryItemInterfaces';
 import { ImageThumbableImpl } from './ImageThumbableImpl';
 import { detailImagelUrl, originalImageUrl } from '$lib/utils/config';
@@ -13,31 +13,57 @@ export class ImageImpl extends ImageThumbableImpl implements Image {
         this.album = album;
     }
 
+    get originalUrl(): string {
+        return originalImageUrl(this.json.path);
+        // TODO: implement cachebuster with the versionId
+    }
+
+    get originalWidth(): number {
+        return this.json.dimensions.width;
+    }
+
+    get originalHeight(): number {
+        return this.json.dimensions.height;
+    }
+
     get detailUrl(): string {
-        let sizing: string;
-        if (!this.json.width || !this.json.height) {
-            sizing = '1024';
-        } else if (this.json.width > this.json.height) {
-            sizing = '1024';
-        } else {
-            sizing = 'x1024';
-        }
+        const width = this.detailWidth;
+        const height = this.detailHeight;
+        const sizing = width > height ? width.toString() : 'x' + height.toString();
         return detailImagelUrl(this.json.path, this.json.versionId, sizing);
     }
 
-    get originalUrl(): string {
-        return originalImageUrl(this.json.path);
-        // TODO: implement cachebuster like this: 'https://cdn.tacocat.com/zenphoto/cache/2023/10-29/halloween_party32_200_w200_h200_cw200_ch200_thumb.jpg?cached=1698637062';
+    /** Width of detail image */
+    get detailWidth(): number {
+        const width = this.originalWidth;
+        const height = this.originalHeight;
+        if (!width) {
+            return 1024;
+        } else if (!height || width > height) {
+            // Don't enlarge images smaller than 1024
+            return width < 1024 ? width : 1024;
+        } else {
+            return Math.round(1024 * (width / height));
+        }
     }
 
-    get width(): number {
-        if (!this.json.width) return 4000; // TODO FIX
-        return this.json.width > this.json.height ? 1024 : Math.round(1024 * (this.json.width / this.json.height));
+    /** Height of detail image */
+    get detailHeight(): number {
+        const width = this.originalWidth;
+        const height = this.originalHeight;
+        // TODO: not sure setting a height of 1024 is correct
+        if (!height) {
+            return 1024;
+        } else if (!width || height > width) {
+            // Don't enlarge images smaller than 1024
+            return height < 1024 ? height : 1024;
+        } else {
+            return Math.round(1024 * (height / width));
+        }
     }
 
-    get height(): number {
-        if (!this.json.height) return 4000; // TODO FIX
-        return this.json.height > this.json.width ? 1024 : Math.round(1024 * (this.json.height / this.json.width));
+    get thumbnail(): Rectangle | undefined {
+        return this.json.thumbnail;
     }
 
     get parentTitle(): string {
