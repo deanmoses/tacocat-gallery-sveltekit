@@ -11,24 +11,16 @@
         return newCrop;
     }
 
-    let initialCrop = { x: 0, y: 0 };
     let newCrop: Crop;
 
-    function onCropChange(e) {
+    function onCropChange(e: CustomEvent<any>) {
         console.log('onCropChange', e.detail.percent);
         newCrop = e.detail.percent;
     }
 </script>
 
 <div class="cropContainer">
-    <Cropper
-        image={image.detailUrl}
-        aspect="1"
-        showGrid={false}
-        crop={initialCrop}
-        zoom="1"
-        on:cropcomplete={onCropChange}
-    />
+    <Cropper image={image.detailUrl} aspect={1} showGrid={false} on:cropcomplete={onCropChange} />
 </div>
 
 <style>
