@@ -18,11 +18,11 @@ export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
     abstract get prevTitle(): string | undefined;
     abstract get nextTitle(): string | undefined;
 
-    get published(): boolean {
+    override get published(): boolean {
         return this.json.published ?? false;
     }
 
-    set published(published: boolean) {
+    override set published(published: boolean) {
         this.json.published = published;
     }
 
@@ -67,7 +67,8 @@ export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
 
     set thumbnailPath(imagePath: string) {
         // TODO: fix TypeScript error - thumbnail.versionId is required
-        // Probably should be setting Drafts to an intermediate object
+        // The Drafts system should probably not be saving to this object,
+        // but instead some intermediate object...
         this.json.thumbnail = {
             path: imagePath,
         };
