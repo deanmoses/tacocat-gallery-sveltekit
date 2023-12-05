@@ -7,8 +7,9 @@ export class AlbumYearImpl extends AlbumBaseImpl implements Album {
         return this.date ? this.date.getFullYear().toString() : '';
     }
 
+    /** Never used but required to exist */
     get parentTitle(): string {
-        return 'XXX'; // never used
+        return '';
     }
 
     get nextTitle(): string {
@@ -19,9 +20,7 @@ export class AlbumYearImpl extends AlbumBaseImpl implements Album {
         return this.albumTitle(this.prev);
     }
 
-    /**
-     * Return title of another album to navigate to
-     */
+    /**  Get title of a prev/next album */
     private albumTitle(albumPath?: string): string {
         return !!albumPath ? albumPathToDate(albumPath).getFullYear().toString() : '';
     }
