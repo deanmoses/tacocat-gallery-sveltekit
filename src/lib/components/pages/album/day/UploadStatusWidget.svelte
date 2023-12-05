@@ -15,5 +15,11 @@
         : 0;
 </script>
 
-{#if uploadingCount}{uploadingCount} uploading,{/if}
-{#if processingCount}{processingCount} processing{/if}
+{#if uploadingCount}{uploadingCount} uploading <span>📤</span>{#if processingCount},{/if}{/if}
+{#if processingCount}{processingCount} processing <span>🕒</span>{/if}
+
+<style>
+    span {
+        filter: grayscale(100%);
+    }
+</style>
