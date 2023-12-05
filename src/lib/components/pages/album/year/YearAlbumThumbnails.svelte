@@ -37,8 +37,11 @@
                 const albumDate = albumPathToDate(album.path);
                 const month: number = albumDate.getMonth();
                 if (!albumsByMonth[month]) {
+                    let monthName = albumDate.toLocaleString('default', { month: 'long' });
+                    // capitalize the first letter
+                    monthName = monthName.charAt(0).toUpperCase() + monthName.slice(1);
                     albumsByMonth[month] = {
-                        monthName: albumDate.toLocaleString('default', { month: 'long' }),
+                        monthName,
                         albums: [],
                     };
                 }
