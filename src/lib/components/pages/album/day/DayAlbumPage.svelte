@@ -10,6 +10,7 @@
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import type { UploadEntry } from '$lib/models/album';
+    import { isAdmin } from '$lib/stores/SessionStore';
 
     export let album: Album;
     export let uploads: UploadEntry[] | undefined = undefined;
@@ -32,8 +33,8 @@
 
     <svelte:fragment slot="caption">
         {#if uploads?.length}
-            {#await import('./UploadStatusWidget.svelte') then { default: UploadStatusWidget }}
-                <UploadStatusWidget {uploads} />
+            {#await import('./UploadStatus.svelte') then { default: UploadStatus }}
+                <UploadStatus {uploads} />
             {/await}
         {:else}
             {@html album.description}
@@ -46,14 +47,7 @@
                 <Thumbnail title={image.title} src={image.thumbnailUrl} summary={image.summary} href={image.href} />
             {/each}
         {:else if !album.published && !uploads?.length}
-            <!-- 
-                Lazy / async / dynamic load the component
-                It's a hint to the bundling system that it can be put into a separate bundle, 
-                so that non-admins aren't forced to download the code.
-            -->
-            {#await import('./DayAlbumEmptyDropZone.svelte') then { default: DayAlbumEmptyDropZone }}
-                <DayAlbumEmptyDropZone />
-            {/await}
+            <p>Drop images or a 📁</p>
         {/if}
         {#if uploads?.length}
             <!-- 
@@ -69,3 +63,14 @@
         {/if}
     </svelte:fragment>
 </DayAlbumPageLayout>
+
+{#if $isAdmin}
+    <!-- 
+        Lazy / async / dynamic load the component
+        It's a hint to the bundling system that it can be put into a separate bundle, 
+        so that non-admins aren't forced to download the code.
+    -->
+    {#await import('./DayAlbumFullScreenDropZone.svelte') then { default: DayAlbumFullScreenDropZone }}
+        <DayAlbumFullScreenDropZone />
+    {/await}
+{/if}

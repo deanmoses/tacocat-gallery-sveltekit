@@ -5,7 +5,6 @@ import { albumStore } from '$lib/stores/AlbumStore';
 import {
     getParentFromPath,
     isValidDayAlbumPath,
-    isValidImageName,
     isValidImagePath,
     sanitizeImageName,
 } from '$lib/utils/galleryPathUtils';
@@ -25,17 +24,15 @@ import { getOriginalImagesBucketName } from '$lib/utils/config';
  */
 export async function uploadSingleImage(file: File, imagePath: string): Promise<void> {
     if (!file) return;
-    if (!isValidImageName(file.name)) {
-        console.error(`Skipping invalid image name [${file.name}]`);
-        return;
-    }
     if (!isValidImagePath(imagePath)) throw new Error(`Invalid image path: [${imagePath}]`);
     const isValidImageType = file.name.endsWith('jpg') || file.name.endsWith('jpeg');
     if (!isValidImageType) {
-        console.error(`Skipping invalid type of image [${file.name}]`);
+        const msg = `Skipping invalid type of image [${file.name}]`;
+        toast.push(msg);
+        console.error(msg);
         return;
     }
-    console.log(`Adding [${imagePath}]`);
+    console.log(`Replacing [${imagePath}] with [${file.name}]`);
     addUpload(file, imagePath);
     const imagesToUpload: ImagesToUpload[] = [{ file, imagePath }];
     await uploadImages(imagesToUpload);
@@ -66,17 +63,15 @@ export async function uploadSanitizedImages(imagesToUpload: ImagesToUpload[], al
 export function getSanitizedFiles(files: FileList | File[], albumPath: string): ImagesToUpload[] {
     let imagesToUpload: ImagesToUpload[] = [];
     for (let file of files) {
-        if (!isValidImageName(file.name)) {
-            console.error(`Skipping invalid image name [${file.name}]`);
+        const isValidImageType = file.name.endsWith('jpg') || file.name.endsWith('jpeg');
+        if (!isValidImageType) {
+            const msg = `Skipping invalid type of image [${file.name}]`;
+            toast.push(msg);
+            console.error(msg);
         } else {
-            const isValidImageType = file.name.endsWith('jpg') || file.name.endsWith('jpeg');
-            if (!isValidImageType) {
-                console.error(`Skipping invalid type of image [${file.name}]`);
-            } else {
-                const imagePath = albumPath + sanitizeImageName(file.name);
-                console.log(`Adding [${imagePath}]`);
-                imagesToUpload.push({ file, imagePath });
-            }
+            const imagePath = albumPath + sanitizeImageName(file.name);
+            console.log(`Adding [${imagePath}]`);
+            imagesToUpload.push({ file, imagePath });
         }
     }
     return imagesToUpload;

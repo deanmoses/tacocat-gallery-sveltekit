@@ -64,10 +64,4 @@
     .summary {
         color: var(--default-text-color);
     }
-
-    :global(.dragging .thumbnail) {
-        opacity: 40%;
-        transform: rotate(-1.7deg) scale(0.82);
-        filter: blur(1px);
-    }
 </style>

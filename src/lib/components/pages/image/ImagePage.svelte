@@ -9,6 +9,7 @@
     import BigImage from './BigImage.svelte';
     import AdminToggle from '$lib/components/site/admin/toggle/AdminToggle.svelte';
     import type { Album, Image } from '$lib/models/GalleryItemInterfaces';
+    import { isAdmin } from '$lib/stores/SessionStore';
 
     export let album: Album;
     export let image: Image;
@@ -34,6 +35,12 @@
     </svelte:fragment>
 
     <svelte:fragment slot="image">
-        <BigImage {image} enableDrop />
+        <BigImage {image} />
     </svelte:fragment>
 </ImagePageLayout>
+
+{#if $isAdmin}
+    {#await import('./ImageFullScreenDropZone.svelte') then { default: ImageFullScreenDropZone }}
+        <ImageFullScreenDropZone />
+    {/await}
+{/if}
