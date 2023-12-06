@@ -10,8 +10,8 @@
     export let label: string;
     export let initialValue: string;
     export let extension: string = '';
-    export let sanitizor: Function; // TODO: more specific type with function signature
-    export let validator: Function; // TODO: more specific type with function signature
+    export let sanitizor: (n: string) => string;
+    export let validator: (n: string) => Promise<string | undefined>;
     let dialog: HTMLDialogElement;
     let textfield: HTMLInputElement;
     let errorMsg: string;
