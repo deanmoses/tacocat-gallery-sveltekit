@@ -27,8 +27,8 @@ export function siteShortTitle(): string {
  */
 export function thumbnailUrl(imagePath: string, versionId: string, crop?: Rectangle | undefined): string {
     return (
-        `https://${cdnDomain}/i${imagePath}/${versionId}/jpeg/200x200` +
-        (crop ? `/crop=${crop.x},${crop.y},${crop.width},${crop.height}` : '')
+        `https://${cdnDomain}/i${imagePath}?version=${versionId}&size=200x200` +
+        (crop ? `&crop=${crop.x},${crop.y},${crop.width},${crop.height}` : '')
     );
 }
 
@@ -36,10 +36,10 @@ export function thumbnailUrl(imagePath: string, versionId: string, crop?: Rectan
  * URL to optimized image for display on the image detail page
  * @param imagePath Path to an image like /2001/12-31/image.jpg
  * @param versionId Version of the image
- * @param sizing size like '1024' (landscape) or 'x1024' (portrait)
+ * @param size size like '1024' (landscape) or 'x1024' (portrait)
  */
-export function detailImagelUrl(imagePath: string, versionId: string, sizing: string): string {
-    return `https://${cdnDomain}/i${imagePath}/${versionId}/jpeg/${sizing}`;
+export function detailImageUrl(imagePath: string, versionId: string, size: string): string {
+    return `https://${cdnDomain}/i${imagePath}?version=${versionId}&size=${size}`;
 }
 
 /**

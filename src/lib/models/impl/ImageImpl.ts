@@ -1,7 +1,7 @@
 import type { ImageRecord, Rectangle } from './server';
 import type { Album, Image, Thumbable } from '../GalleryItemInterfaces';
 import { ImageThumbableImpl } from './ImageThumbableImpl';
-import { detailImagelUrl, originalImageUrl } from '$lib/utils/config';
+import { detailImageUrl, originalImageUrl } from '$lib/utils/config';
 
 export class ImageImpl extends ImageThumbableImpl implements Image {
     protected override readonly json: ImageRecord;
@@ -30,7 +30,7 @@ export class ImageImpl extends ImageThumbableImpl implements Image {
         const width = this.detailWidth;
         const height = this.detailHeight;
         const sizing = width > height ? width.toString() : 'x' + height.toString();
-        return detailImagelUrl(this.json.path, this.json.versionId, sizing);
+        return detailImageUrl(this.json.path, this.json.versionId, sizing);
     }
 
     /** Width of detail image */
