@@ -18,7 +18,6 @@ const OFFLINE_CACHE_NAME = `offline${version}`;
 const staticAssets = new Set(build.concat(files));
 
 // remove files that aren't served to clients
-staticAssets.delete('/.htaccess');
 staticAssets.delete('/robots.txt');
 
 const to_cache = Array.from(staticAssets);
