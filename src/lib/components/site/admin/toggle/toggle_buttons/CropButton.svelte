@@ -20,5 +20,6 @@
 </script>
 
 {#if show}
-    <ControlStripButton on:click|once={onCropButtonClick}><CropIcon />Crop</ControlStripButton>
+    <ControlStripButton on:click|once={onCropButtonClick} title="Re-crop thumbnail"><CropIcon />Crop</ControlStripButton
+    >
 {/if}

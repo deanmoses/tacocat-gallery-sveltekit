@@ -27,7 +27,9 @@
 </script>
 
 {#if show}
-    <ControlStripButton on:click={onUploadButtonClick}><UploadIcon />Replace</ControlStripButton>
+    <ControlStripButton on:click={onUploadButtonClick} title="Upload new version of image"
+        ><UploadIcon />Replace</ControlStripButton
+    >
     <input
         bind:this={fileInput}
         on:change={onFileSelected}

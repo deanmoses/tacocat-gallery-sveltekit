@@ -25,5 +25,7 @@
 </script>
 
 {#if show}
-    <ControlStripButton on:click|once={onSetThumbnailButtonClick}><FilledStarIcon />Year</ControlStripButton>
+    <ControlStripButton title="Set thumbnail for year" on:click|once={onSetThumbnailButtonClick}
+        ><FilledStarIcon />Year</ControlStripButton
+    >
 {/if}

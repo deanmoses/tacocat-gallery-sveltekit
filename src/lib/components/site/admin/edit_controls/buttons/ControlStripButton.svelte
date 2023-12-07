@@ -3,9 +3,11 @@
 -->
 <script lang="ts">
     export let disabled: boolean = false;
+    /** Alt text*/
+    export let title: string | undefined = undefined;
 </script>
 
-<button on:click {disabled}><slot /></button>
+<button on:click {disabled} {title} type="button"><slot /></button>
 
 <style>
     button {
