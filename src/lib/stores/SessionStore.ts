@@ -40,6 +40,9 @@ class SessionStore {
                 cache: 'no-store',
                 credentials: 'include',
             });
+            if (401 === response.status) {
+                return;
+            }
             this.handleErrors(response);
             const json = await response.json();
             const isAdmin = !!json.user;
