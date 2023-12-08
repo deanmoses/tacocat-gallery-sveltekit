@@ -1,6 +1,5 @@
 import { get } from 'svelte/store';
 import { produce } from 'immer';
-import { toast } from '@zerodevx/svelte-toast';
 import { albumStore } from '../AlbumStore';
 import { getNameFromPath, getParentFromPath, isValidDayAlbumPath } from '$lib/utils/galleryPathUtils';
 import { renameAlbumUrl } from '$lib/utils/config';
@@ -15,43 +14,33 @@ export async function renameDayAlbum(oldAlbumPath: string, newAlbumPath: string)
     if (!isValidDayAlbumPath(newAlbumPath)) throw new Error(`Invalid new album path [${newAlbumPath}]`);
     const album = get(albumStore.get(oldAlbumPath))?.album;
     if (!album) throw new Error(`Album [${oldAlbumPath}] not loaded`);
-
-    addRenameEntry(oldAlbumPath, newAlbumPath);
-    console.log(`Attempting to rename album [${oldAlbumPath}] to [${newAlbumPath}]`);
     const newName = getNameFromPath(newAlbumPath);
-    const url = renameAlbumUrl(oldAlbumPath);
-    const requestConfig: RequestInit = {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ newName }),
-    };
-    const response = await fetch(url, requestConfig);
-
-    if (!response.ok) {
-        removeRenameEntry(oldAlbumPath);
-        const msg = (await response.json()).errorMessage || response.statusText;
-        toast.push(`Error renaming album [${oldAlbumPath}]: ${msg}`);
-    } else {
-        // Rename was successful
-
+    console.log(`Renaming album [${oldAlbumPath}] to [${newName}]...`);
+    try {
+        addRenameEntry(oldAlbumPath, newAlbumPath);
+        const response = await fetch(renameAlbumUrl(oldAlbumPath), {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ newName }),
+        });
+        if (!response.ok) {
+            const msg = (await response.json()).errorMessage || response.statusText;
+            throw msg;
+        }
         // Fetch parent album to get renamed album added to it
-        console.log(`Fetching parent album`);
-        const parentAlbumPath = getParentFromPath(oldAlbumPath);
         // Do NOT async await because we want the UI to move to
         // the new album now
+        const parentAlbumPath = getParentFromPath(oldAlbumPath);
         albumStore.fetchFromServerAsync(parentAlbumPath);
-        console.log(`Fetched parent album`);
-        removeRenameEntry(oldAlbumPath);
-
         // Remove old album from album store, but do NOT async await
         // because we want the UI to move away from the old album first
-        console.log(`Removing old album from client`);
         albumStore.removeFromMemoryAndDisk(oldAlbumPath);
-        console.log(`Removed old album from client`);
+    } finally {
+        removeRenameEntry(oldAlbumPath);
     }
 }
 

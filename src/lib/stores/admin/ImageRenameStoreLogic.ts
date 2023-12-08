@@ -1,6 +1,5 @@
 import { get } from 'svelte/store';
 import { produce } from 'immer';
-import { toast } from '@zerodevx/svelte-toast';
 import { albumStore } from '../AlbumStore';
 import { getNameFromPath, getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
 import { renameImageUrl } from '$lib/utils/config';
@@ -16,26 +15,25 @@ export async function renameImage(oldImagePath: string, newImagePath: string) {
     const albumPath = getParentFromPath(newImagePath);
     const album = get(albumStore.get(albumPath))?.album;
     if (!album) throw new Error(`Album [${albumPath}] not loaded`);
-    addRenameEntry(oldImagePath, newImagePath);
-    console.log(`Attempting to rename image [${oldImagePath}] to [${newImagePath}]`);
     const newName = getNameFromPath(newImagePath);
-    const url = renameImageUrl(oldImagePath);
-    const requestConfig: RequestInit = {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ newName }),
-    };
-    const response = await fetch(url, requestConfig);
-    if (!response.ok) {
-        removeRenameEntry(oldImagePath);
-        const msg = (await response.json()).errorMessage || response.statusText;
-        toast.push(`Error renaming image [${oldImagePath}]: ${msg}`);
-    } else {
+    console.log(`Renaming image [${oldImagePath}] to [${newName}]...`);
+    try {
+        addRenameEntry(oldImagePath, newImagePath);
+        const response = await fetch(renameImageUrl(oldImagePath), {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ newName }),
+        });
+        if (!response.ok) {
+            const msg = (await response.json()).errorMessage || response.statusText;
+            throw msg;
+        }
         await albumStore.fetchFromServerAsync(albumPath); // this will update the album store
+    } finally {
         removeRenameEntry(oldImagePath);
     }
 }

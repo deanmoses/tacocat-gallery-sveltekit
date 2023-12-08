@@ -14,6 +14,7 @@
         isValidImagePath,
         sanitizeImageNameWithoutExtension,
     } from '$lib/utils/galleryPathUtils';
+    import { toast } from '@zerodevx/svelte-toast';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import TextDialog from './TextDialog.svelte';
 
@@ -46,8 +47,12 @@
 
     async function onNewImageName(e: CustomEvent<{ value: string }>) {
         const newImagePath = imageNameWithoutExtensionToPath(e.detail.value);
-        await renameImage(imagePath, newImagePath);
-        goto(newImagePath);
+        try {
+            await renameImage(imagePath, newImagePath);
+            goto(newImagePath);
+        } catch (e) {
+            toast.push(`Error renaming image: ${e}`);
+        }
     }
 
     async function validateImageName(newImageName: string): Promise<string | undefined> {
