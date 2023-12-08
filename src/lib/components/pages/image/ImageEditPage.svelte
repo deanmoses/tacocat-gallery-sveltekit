@@ -13,6 +13,7 @@
     import { editUrl } from '$lib/utils/path-utils';
     import DraftStore from '$lib/stores/DraftStore';
     import type { Album, Image } from '$lib/models/GalleryItemInterfaces';
+    import ImageFullScreenDropZone from './ImageFullScreenDropZone.svelte';
 
     export let album: Album;
     export let image: Image;
@@ -52,3 +53,4 @@
         <BigImage {image} />
     </svelte:fragment>
 </ImagePageLayout>
+<ImageFullScreenDropZone imagePath={image.path} allowDrop={$okToNavigate} />

@@ -1,5 +1,5 @@
 <!--
-  @component Page showing a day album
+  @component Page displaying a day album
 -->
 <script lang="ts">
     import DayAlbumPageLayout from './DayAlbumPageLayout.svelte';
@@ -71,6 +71,6 @@
         so that non-admins aren't forced to download the code.
     -->
     {#await import('./DayAlbumFullScreenDropZone.svelte') then { default: DayAlbumFullScreenDropZone }}
-        <DayAlbumFullScreenDropZone />
+        <DayAlbumFullScreenDropZone albumPath={album.path} />
     {/await}
 {/if}

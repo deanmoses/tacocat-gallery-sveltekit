@@ -6,6 +6,7 @@
     import ImagePage from '$lib/components/pages/image/ImagePage.svelte';
 
     export let data: PageData;
+
     $: albumEntry = data.albumEntry;
     $: album = $albumEntry.album;
     $: albumLoadStatus = $albumEntry.loadStatus;

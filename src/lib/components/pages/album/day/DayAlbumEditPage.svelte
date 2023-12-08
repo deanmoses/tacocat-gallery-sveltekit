@@ -14,8 +14,12 @@
     import DraftStore from '$lib/stores/DraftStore';
     import { setAlbumThumbnail } from '$lib/stores/admin/AlbumThumbnailLogic';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
+    import DayAlbumFullScreenDropZone from './DayAlbumFullScreenDropZone.svelte';
+    import type { UploadEntry } from '$lib/models/album';
+    import UploadThumbnail from '$lib/components/site/admin/UploadThumbnail.svelte';
 
     export let album: Album;
+    export let uploads: UploadEntry[] | undefined = undefined;
 
     let okToNavigate = DraftStore.getOkToNavigate();
 
@@ -45,7 +49,7 @@
     </svelte:fragment>
 
     <svelte:fragment slot="thumbnails">
-        {#if album.images}
+        {#if album.images?.length}
             {#each album.images as image (image.path)}
                 {#if $okToNavigate}
                     <Thumbnail
@@ -68,9 +72,22 @@
                     </div>
                 {/if}
             {/each}
+        {:else if !album.published && !uploads?.length && $okToNavigate}
+            <p>Drop images or a 📁</p>
+        {/if}
+        {#if uploads?.length}
+            <!-- 
+                Lazy / async / dynamic load the component
+                It's a hint to the bundling system that it can be put into a separate bundle, 
+                so that non-admins aren't forced to download the code.
+            -->
+            {#each uploads as upload (upload.imagePath)}
+                <UploadThumbnail {upload} />
+            {/each}
         {/if}
     </svelte:fragment>
 </DayAlbumPageLayout>
+<DayAlbumFullScreenDropZone albumPath={album.path} allowDrop={$okToNavigate} />
 
 <style>
     div {

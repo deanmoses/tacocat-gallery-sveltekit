@@ -41,6 +41,6 @@
 
 {#if $isAdmin}
     {#await import('./ImageFullScreenDropZone.svelte') then { default: ImageFullScreenDropZone }}
-        <ImageFullScreenDropZone />
+        <ImageFullScreenDropZone imagePath={image.path} />
     {/await}
 {/if}

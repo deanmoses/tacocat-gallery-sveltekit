@@ -6,6 +6,7 @@
     import DayAlbumPage from '$lib/components/pages/album/day/DayAlbumPage.svelte';
 
     export let data: PageData;
+
     $: albumEntry = data.albumEntry;
     $: album = $albumEntry.album;
     $: loadStatus = $albumEntry.loadStatus;

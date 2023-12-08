@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { page } from '$app/stores';
     import FullScreenDropZone from '$lib/components/site/admin/FullScreenDropZone.svelte';
     import UploadReplaceConfirmDialog from '$lib/components/site/admin/toggle/toggle_buttons/UploadReplaceConfirmDialog.svelte';
     import { isAdmin } from '$lib/stores/SessionStore';
@@ -10,9 +9,11 @@
         uploadSanitizedImages,
         type ImagesToUpload,
     } from '$lib/stores/admin/UploadStoreLogic';
-    import { isValidDayAlbumPath } from '$lib/utils/galleryPathUtils';
 
-    $: albumPath = $page.url.pathname + '/';
+    export let albumPath: string;
+
+    /** So that the edit page can tell me whether it allows dropping */
+    export let allowDrop: boolean = true;
 
     let dragging = false;
     $: dragging = dragging;
@@ -23,7 +24,7 @@
     $: imagesToUpload = imagesToUpload;
 
     function isDropAllowed(e: DragEvent): boolean {
-        return $isAdmin && isValidDayAlbumPath(albumPath) && !!e.dataTransfer?.types.includes('Files');
+        return allowDrop && $isAdmin && !!e.dataTransfer?.types.includes('Files');
     }
 
     async function onDrop(e: DragEvent): Promise<void> {

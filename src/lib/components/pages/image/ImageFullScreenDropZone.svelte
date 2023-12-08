@@ -1,18 +1,19 @@
 <script lang="ts">
-    import { page } from '$app/stores';
     import FullScreenDropZone from '$lib/components/site/admin/FullScreenDropZone.svelte';
     import { isAdmin } from '$lib/stores/SessionStore';
     import { getDroppedImages, uploadSingleImage } from '$lib/stores/admin/UploadStoreLogic';
-    import { isValidImagePath } from '$lib/utils/galleryPathUtils';
     import { toast } from '@zerodevx/svelte-toast';
 
-    $: imagePath = $page.url.pathname;
+    export let imagePath: string;
+
+    /** So that the edit page can tell me whether it allows dropping */
+    export let allowDrop: boolean = true;
 
     let dragging = false;
     $: dragging = dragging;
 
     function isDropAllowed(e: DragEvent): boolean {
-        return $isAdmin && isValidImagePath(imagePath) && !!e.dataTransfer?.types.includes('Files');
+        return allowDrop && $isAdmin && !!e.dataTransfer?.types.includes('Files');
     }
 
     async function onDrop(e: DragEvent): Promise<void> {
