@@ -34,5 +34,6 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        background-color: rgba(255, 255, 255, 0.5);
     }
 </style>
