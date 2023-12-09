@@ -71,6 +71,7 @@
 </script>
 
 <ImagePageLayout title={image.title}>
+    <svelte:fragment slot="title">Thumbnail</svelte:fragment>
     <svelte:fragment slot="caption">
         <button on:click={onCancel}><CancelIcon /> Cancel</button>
         <button on:click={onSave}><SaveIcon /> Save</button>
