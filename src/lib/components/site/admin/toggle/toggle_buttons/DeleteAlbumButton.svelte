@@ -13,7 +13,7 @@
 
     $: albumPath = $page.url.pathname + '/';
     $: isValidPath = isValidDayAlbumPath(albumPath) || isValidYearAlbumPath(albumPath);
-    $: album = isValidPath ? albumStore.get(albumPath) : undefined;
+    $: album = isValidPath ? albumStore.get(albumPath, false /*don't trigger fetch*/) : undefined;
 
     // Show this button on year and day albums but not root albums, and only if they don't have children
     let show: boolean = false;
