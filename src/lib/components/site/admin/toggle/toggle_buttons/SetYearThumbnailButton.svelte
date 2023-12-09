@@ -3,11 +3,12 @@
 -->
 <script lang="ts">
     import { page } from '$app/stores';
-    import FilledStarIcon from '$lib/components/site/icons/FilledStarIcon.svelte';
     import { setAlbumThumbnail } from '$lib/stores/admin/AlbumThumbnailLogic';
     import { getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
     import { toast } from '@zerodevx/svelte-toast';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
+    import SetYearThumbnailConfirmDialog from './SetYearThumbnailConfirmDialog.svelte';
+    import StarIcon from '$lib/components/site/icons/StarIcon.svelte';
 
     let imagePath: string;
     $: imagePath = $page.url.pathname;
@@ -15,7 +16,13 @@
     let show: boolean = false;
     $: show = isValidImagePath(imagePath); // Show this button only on image pages
 
-    async function onSetThumbnailButtonClick() {
+    let dialog: SetYearThumbnailConfirmDialog;
+
+    function onClick(): void {
+        dialog.show();
+    }
+
+    async function onConfirm(): Promise<void> {
         const dayAlbumPath = getParentFromPath(imagePath);
         const yearAlbumPath = getParentFromPath(dayAlbumPath);
         await setAlbumThumbnail(yearAlbumPath, imagePath);
@@ -25,7 +32,6 @@
 </script>
 
 {#if show}
-    <ControlStripButton title="Set thumbnail for year" on:click|once={onSetThumbnailButtonClick}
-        ><FilledStarIcon />Year</ControlStripButton
-    >
+    <ControlStripButton title="Set thumbnail for year" on:click|once={onClick}><StarIcon />Year</ControlStripButton>
+    <SetYearThumbnailConfirmDialog bind:this={dialog} on:confirm={onConfirm} />
 {/if}
