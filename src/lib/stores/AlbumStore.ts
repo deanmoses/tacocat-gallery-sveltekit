@@ -186,16 +186,19 @@ class AlbumStore {
 
     /**
      * Fetch album from server
+     * TODO: get rid of this, only have the async version @see fetchFromServerAsync()
      *
      * @param path path of the album
      */
     private fetchFromServer(path: string): void {
-        const url = albumUrl(path);
-        const requestConfig = this.buildFetchConfig();
-        fetch(url, requestConfig)
+        fetch(albumUrl(path), this.buildFetchConfig())
             .then((response: Response) => {
-                if (response.status == 404) throw 404;
-                if (!response.ok) throw new Error(response.statusText);
+                if (response.status == 404) {
+                    console.warn(`Album not found on server: [${path}]`);
+                    this.setLoadStatus(path, AlbumLoadStatus.DOES_NOT_EXIST);
+                    this.albums.delete(path); // Delete album from Svelte store
+                    this.removeFromDisk(path); // Delete album from browser's local disk cache
+                } else if (!response.ok) throw new Error(response.statusText);
                 return response.json();
             })
             .then((json: AlbumRecord) => {
@@ -204,23 +207,19 @@ class AlbumStore {
                 this.writeToDisk(path, json); // Put album in browser's local disk cache
             })
             .catch((error) => {
-                if (error === 404) {
-                    console.warn(`Album not found on server: [${path}]`);
-                    this.setLoadStatus(path, AlbumLoadStatus.DOES_NOT_EXIST);
-                } else {
-                    this.handleFetchError(path, error);
-                }
+                this.handleFetchError(path, error);
             });
     }
 
     /**
      * Async version of fetchFromServer()
+     * TODO: get rid of the non-async version - @see fetchFromServer()
+     *
+     * @param path path of the album
      */
     public async fetchFromServerAsync(path: string): Promise<Album> {
-        const url = albumUrl(path);
-        const requestConfig = this.buildFetchConfig();
-        const response = await fetch(url, requestConfig);
-        if (response.status === 404) throw 404;
+        const response = await fetch(albumUrl(path), this.buildFetchConfig());
+        if (response.status === 404) throw 404; // TODO delete from memory & disk
         if (!response.ok) throw new Error(response.statusText);
         const json = await response.json();
         console.log(`Album [${path}] fetched from server`, json);
@@ -305,6 +304,16 @@ class AlbumStore {
         setToIdb(idbKey, album)
             .then(() => console.log(`Album [${path}] stored in idb`))
             .catch((e) => console.error(`Album [${path}] error storing in idb`, e));
+    }
+
+    /**
+     * Remove album from the browser's local disk storage
+     */
+    private removeFromDisk(path: string): void {
+        const idbKey = this.idbKey(path);
+        delFromIdb(idbKey)
+            .then(() => console.log(`Album [${path}] removed from idb`))
+            .catch((e) => console.error(`Album [${path}] error removing from idb`, e));
     }
 
     /**

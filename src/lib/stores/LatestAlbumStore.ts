@@ -95,7 +95,7 @@ class LatestAlbumThumbnailStore {
                     this.handleFetchError(json.error);
                 } else {
                     if (!json || !json.path) {
-                        console.error(`Latest album thumbnail not found on server.  JSON: `, json);
+                        console.warn(`Latest album thumbnail not found on server.  JSON: `, json);
                         this.removeFromMemory();
                         this.removeFromDisk();
                     } else {
