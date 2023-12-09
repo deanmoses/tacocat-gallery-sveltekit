@@ -1,26 +1,28 @@
 <!--
-  @component Dialog to ask user whether they want to overwrite files
+  @component Dialog to confirm overwriting files
 -->
 <script lang="ts">
-    import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
     import { createEventDispatcher } from 'svelte';
+    import Dialog from '../../Dialog.svelte';
+    import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
     import UploadIcon from '$lib/components/site/icons/UploadIcon.svelte';
+
     const dispatch = createEventDispatcher();
 
-    let dialog: HTMLDialogElement;
+    let dialog: Dialog;
     let filesAlreadyInAlbum: string[] = [];
     $: filesAlreadyInAlbum = filesAlreadyInAlbum;
     $: filez = filesAlreadyInAlbum.join(', ');
 
     export function show(f: string[]): void {
         filesAlreadyInAlbum = f;
-        dialog.showModal();
+        dialog.show();
     }
 
     async function onSubmit(): Promise<void> {
         dialog.close();
         filesAlreadyInAlbum = [];
-        dispatch('dialogConfirm', {
+        dispatch('confirm', {
             value: true,
         });
     }
@@ -39,41 +41,10 @@
     }
 </script>
 
-<dialog bind:this={dialog}>
-    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-    <form method="dialog" on:keydown={onKeyPress}>
-        <p>Already in album: {filez}</p>
-        <menu>
-            <button on:click={onCancelButtonClick}><CancelIcon /> Cancel</button>
-            <button on:click|preventDefault={onSubmit}><UploadIcon /> Overwrite</button>
-        </menu>
-    </form>
-</dialog>
-
-<style>
-    dialog::backdrop {
-        background-image: linear-gradient(45deg, magenta, rebeccapurple, dodgerblue, green);
-        opacity: 0.75;
-    }
-    dialog {
-        border: none;
-        box-shadow: #00000029 2px 2px 5px 2px;
-        border-radius: 8px;
-        padding: 0.5em;
-        background-color: rgb(143, 143, 143);
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-    }
-    p {
-        text-align: center;
-    }
-    menu {
-        display: flex;
-        justify-content: flex-end;
-    }
-    button {
-        margin-left: var(--default-padding);
-    }
-</style>
+<Dialog bind:this={dialog} on:keydown={onKeyPress}>
+    <svelte:fragment slot="content">Already in album: {filez}</svelte:fragment>
+    <svelte:fragment slot="buttons">
+        <button on:click={onCancelButtonClick}><CancelIcon /> Cancel</button>
+        <button on:click|preventDefault={onSubmit}><UploadIcon /> Overwrite</button>
+    </svelte:fragment>
+</Dialog>

@@ -2,9 +2,11 @@
   @component Dialog to get a text input from user, such as a new album name 
 -->
 <script lang="ts">
-    import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
     import { createEventDispatcher } from 'svelte';
+    import Dialog from '../../Dialog.svelte';
+    import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
     import SaveIcon from '$lib/components/site/icons/SaveIcon.svelte';
+
     const dispatch = createEventDispatcher();
 
     export let label: string;
@@ -12,12 +14,12 @@
     export let extension: string = '';
     export let sanitizor: (n: string) => string;
     export let validator: (n: string) => Promise<string | undefined>;
-    let dialog: HTMLDialogElement;
+    let dialog: Dialog;
     let textfield: HTMLInputElement;
     let errorMsg: string;
 
     export function show(): void {
-        dialog.showModal();
+        dialog.show();
     }
 
     function onTextChange(): void {
@@ -53,50 +55,30 @@
     }
 </script>
 
-<dialog bind:this={dialog}>
-    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-    <form method="dialog" on:keydown={onKeyPress}>
-        <p>
-            <label>
-                <div class="label">{label}</div>
-                <input
-                    type="text"
-                    name="text"
-                    bind:this={textfield}
-                    value={initialValue}
-                    on:input={onTextChange}
-                    required
-                />{extension}
-                {#if errorMsg}
-                    <div class="errorMsg">{errorMsg}</div>
-                {/if}
-            </label>
-        </p>
-        <menu>
-            <button on:click={onCancelButtonClick}><CancelIcon /> Cancel</button>
-            <button on:click|preventDefault={onSubmit}><SaveIcon /> Confirm</button>
-        </menu>
-    </form>
-</dialog>
+<Dialog bind:this={dialog} on:keydown={onKeyPress}>
+    <svelte:fragment slot="content">
+        <label>
+            <div class="label">{label}</div>
+            <input
+                type="text"
+                name="text"
+                bind:this={textfield}
+                value={initialValue}
+                on:input={onTextChange}
+                required
+            />{extension}
+            {#if errorMsg}
+                <div class="errorMsg">{errorMsg}</div>
+            {/if}
+        </label>
+    </svelte:fragment>
+    <svelte:fragment slot="buttons">
+        <button on:click={onCancelButtonClick}><CancelIcon /> Cancel</button>
+        <button on:click|preventDefault={onSubmit}><SaveIcon /> Confirm</button>
+    </svelte:fragment>
+</Dialog>
 
 <style>
-    dialog::backdrop {
-        background-image: linear-gradient(45deg, magenta, rebeccapurple, dodgerblue, green);
-        opacity: 0.75;
-    }
-
-    dialog {
-        border: none;
-        box-shadow: #00000029 2px 2px 5px 2px;
-        border-radius: 8px;
-        padding: 0.5em;
-        background-color: rgb(143, 143, 143);
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-    }
-
     .label {
         margin-bottom: 0.3em;
     }

@@ -7,12 +7,10 @@
     import { upload } from '$lib/stores/admin/UploadStoreLogic';
     import { isValidDayAlbumPath } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
-    import UploadReplaceConfirmDialog from './UploadReplaceConfirmDialog.svelte';
 
     $: albumPath = $page.url.pathname + '/';
     $: show = isValidDayAlbumPath(albumPath); // Show this button only on day ablums
 
-    let dialog: UploadReplaceConfirmDialog;
     let fileInput: HTMLInputElement;
 
     async function onUploadButtonClick() {
@@ -34,5 +32,4 @@
         accept=".jpg, .jpeg"
         style="display:none"
     />
-    <UploadReplaceConfirmDialog bind:this={dialog} />
 {/if}
