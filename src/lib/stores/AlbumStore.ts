@@ -311,7 +311,7 @@ class AlbumStore {
      * @returns key of the album in IndexedDB
      */
     private idbKey(path: string): string {
-        return `/${path}`;
+        return `${path}`;
     }
 
     /**
