@@ -25,7 +25,7 @@
         "lint": "prettier --plugin-search-dir . --check . && eslint .",
         "format": "prettier --plugin-search-dir . --write .",
         "deploy-staging": "./deploy_staging.sh",
-        "deploy-prod": "TODO DEPLOY TO AWS INSTEAD OF DREAMHOST rsync -r -a -v --delete --exclude '.DS_Store' --exclude '.well-known' build/ deanmoses@tacocat.com:~/prod-pix.tacocat.com"
+        "deploy-prod": "TODO DEPLOY TO AWS"
     },
     "devDependencies": {
         "@playwright/test": "1.40.1",
