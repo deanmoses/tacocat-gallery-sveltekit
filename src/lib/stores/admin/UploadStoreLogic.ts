@@ -25,7 +25,8 @@ import { getOriginalImagesBucketName } from '$lib/utils/config';
 export async function uploadSingleImage(file: File, imagePath: string): Promise<void> {
     if (!file) return;
     if (!isValidImagePath(imagePath)) throw new Error(`Invalid image path: [${imagePath}]`);
-    const isValidImageType = file.name.endsWith('jpg') || file.name.endsWith('jpeg');
+    const name = file.name.toLowerCase();
+    const isValidImageType = name.endsWith('jpg') || name.endsWith('jpeg') || name.endsWith('png');
     if (!isValidImageType) {
         const msg = `Skipping invalid type of image [${file.name}]`;
         toast.push(msg);
@@ -63,7 +64,8 @@ export async function uploadSanitizedImages(imagesToUpload: ImagesToUpload[], al
 export function getSanitizedFiles(files: FileList | File[], albumPath: string): ImagesToUpload[] {
     let imagesToUpload: ImagesToUpload[] = [];
     for (let file of files) {
-        const isValidImageType = file.name.endsWith('jpg') || file.name.endsWith('jpeg');
+        const name = file.name.toLowerCase();
+        const isValidImageType = name.endsWith('jpg') || name.endsWith('jpeg') || name.endsWith('png');
         if (!isValidImageType) {
             const msg = `Skipping invalid type of image [${file.name}]`;
             toast.push(msg);
