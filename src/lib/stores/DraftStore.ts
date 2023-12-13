@@ -11,6 +11,7 @@ import { getParentFromPath, isValidImagePath, isValidPath } from '$lib/utils/gal
 import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
 import { updateUrl } from '$lib/utils/config';
 import type { AlbumEntry } from '$lib/models/album';
+import { toast } from '@zerodevx/svelte-toast';
 
 const initialState: Draft = {
     status: DraftStatus.NO_CHANGES,
@@ -81,7 +82,7 @@ class DraftStore {
     /**
      * Set the album summary of the current draft
      */
-    setCustomData(summary: string): void {
+    setSummary(summary: string): void {
         this.updateContent((content) => (content.summary = summary));
     }
 
@@ -103,82 +104,33 @@ class DraftStore {
     /**
      * Save the current draft to the server
      */
-    save(): void {
+    async save(): Promise<void> {
         const draft: Draft = get(this._draft);
-        // Do I actually have anything to save?  This should never happen
         if (!draft || !draft.path || !draft.content) {
-            console.error(`Error saving draft at path [${draft.path}]: nothing to save!`);
+            console.error(`Error saving [${draft.path}]: nothing to save!`);
             this.setStatus(DraftStatus.ERRORED);
-        }
-        // Else I have something to save
-        else {
+        } else {
             console.log(`Saving draft [${draft.path}]: `, draft.content);
             this.setStatus(DraftStatus.SAVING);
-            // Send the save request
-            fetch(updateUrl(draft.path), this.getSaveRequestConfig(draft.content))
-                .then((response) => this.checkForErrors(response))
-                .then((response) => response.json())
-                .then((json) => this.checkJsonForErrors(json, draft))
-                .then(() => this.updateClientStateAfterSave(draft))
-                .catch((error) => this.handleSaveError(error));
-        }
-    }
-
-    /**
-     * @returns the configuration for the save request
-     */
-    private getSaveRequestConfig(content: DraftContent): RequestInit {
-        return {
-            method: 'PATCH',
-            credentials: 'include',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(content),
-            // no-store: bypass the HTTP cache completely.
-            // This will make the browser not look into the HTTP cache
-            // on the way to the network, and never store the resulting
-            // response in the HTTP cache.
-            // Fetch() will behave as if no HTTP cache exists.
-            cache: 'no-store',
-        };
-    }
-
-    /**
-     * Check for errors in the draft save response
-     *
-     * @throws error if there was anything but a success returned
-     */
-    private checkForErrors(response: Response): Response {
-        if (!response.ok) {
-            throw Error(`Response not OK: ${response.statusText}`);
-        }
-        if (response.status !== 200) {
-            throw Error(`Expected response to be 200.  Instead got ${response.status}: ${response.statusText}`);
-        }
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.startsWith('application/json')) {
-            throw Error(
-                `Expected response to be in JSON.  Instead got ${response.headers.get('content-type')}. ${
-                    response.statusText
-                }`,
-            );
-        }
-        return response;
-    }
-
-    /**
-     * Check that the JSON coming back from the save response indicates success
-     * @throws error if there was anything but a success returned
-     */
-    private checkJsonForErrors(json: any, draft: Draft): void {
-        if (!json || !json.success) {
-            const msg = `Server did not respond with success saving draft for ${draft.path}.  Instead, responded with:`;
-            console.error(msg, json, 'Draft:', draft);
-            throw new Error(msg + json);
-        } else {
-            console.log(`Draft [${draft.path}] save success.  JSON: `, json);
+            try {
+                const response = await fetch(updateUrl(draft.path), {
+                    method: 'PATCH',
+                    credentials: 'include',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    cache: 'no-store',
+                    body: JSON.stringify(draft.content),
+                });
+                const json = await response.json();
+                if (!response.ok) throw Error(json?.errorMessage || response.statusText);
+                this.updateClientStateAfterSave(draft);
+            } catch (e) {
+                console.error(`Error saving [${draft.path}]: ${e}`);
+                toast.push(e instanceof Error ? e.message : 'Error saving');
+                this.setStatus(DraftStatus.ERRORED);
+            }
         }
     }
 
@@ -248,14 +200,6 @@ class DraftStore {
                 console.log('Draft status was not still SAVED');
             }
         }, 4000);
-    }
-
-    /**
-     * There was an error saving the draft
-     */
-    private handleSaveError(e: unknown) {
-        console.error('Error saving draft: ', e);
-        this.setStatus(DraftStatus.ERRORED);
     }
 
     /**

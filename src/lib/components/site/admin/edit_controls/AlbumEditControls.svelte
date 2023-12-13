@@ -16,7 +16,7 @@
     export let summary: string = '';
 
     function onSummaryChange(event: Event & { currentTarget: EventTarget & HTMLInputElement }) {
-        if (event.target) draftStore.setCustomData(event.currentTarget.value);
+        if (event.target) draftStore.setSummary(event.currentTarget.value);
     }
 
     function onPublishedChange(event: Event & { currentTarget: EventTarget & HTMLInputElement }) {
