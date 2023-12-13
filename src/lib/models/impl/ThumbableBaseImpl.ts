@@ -1,4 +1,3 @@
-import { processCaption } from '$lib/utils/legacyUrlHandler';
 import type { GalleryItemType, GalleryRecord } from './server';
 import type { Thumbable } from '../GalleryItemInterfaces';
 
@@ -31,7 +30,7 @@ export abstract class ThumbableBaseImpl implements Thumbable {
     }
 
     get description(): string {
-        return !!this.json.description ? processCaption(this.json.description) : '';
+        return this.json.description || '';
     }
 
     set description(description: string) {
