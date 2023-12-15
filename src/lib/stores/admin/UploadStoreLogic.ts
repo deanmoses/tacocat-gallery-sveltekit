@@ -9,12 +9,9 @@ import {
     sanitizeImageName,
 } from '$lib/utils/galleryPathUtils';
 import { page } from '$app/stores';
-import { fromPathToS3OriginalBucketKey } from '$lib/utils/s3path';
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { fromCognitoIdentityPool } from '@aws-sdk/credential-providers';
 import { UploadState, type UploadEntry } from '$lib/models/album';
 import { getUploads, mock, uploadStore, type UploadStore } from '../UploadStore';
-import { getOriginalImagesBucketName } from '$lib/utils/config';
+import { getPresignedUploadUrlGenerationUrl } from '$lib/utils/config';
 
 /**
  * Upload the specified single image file to overwrite the image at the specified path
@@ -99,22 +96,55 @@ export type ImagesToUpload = {
 };
 
 async function uploadImages(imagesToUpload: ImagesToUpload[]): Promise<void> {
-    for (let imageToUpload of imagesToUpload) {
-        addUpload(imageToUpload.file, imageToUpload.imagePath);
+    try {
+        const presignedUrls = await getPresignedUploadUrls(imagesToUpload);
+        for (let imageToUpload of imagesToUpload) {
+            addUpload(imageToUpload.file, imageToUpload.imagePath);
+        }
+        const imageUploads: Promise<void>[] = [];
+        for (let imageToUpload of imagesToUpload) {
+            const presignedUrl = presignedUrls[imageToUpload.imagePath];
+            if (!presignedUrl) throw new Error(`No presigned URL for image [${imageToUpload.imagePath}]`);
+            imageUploads.push(uploadImageViaPresignedUrl(imageToUpload, presignedUrl));
+        }
+        await Promise.allSettled(imageUploads);
+    } catch (e) {
+        toast.push(`${e}`);
+        return;
     }
-    const imageUploads: Promise<void>[] = [];
-    for (let imageToUpload of imagesToUpload) {
-        imageUploads.push(uploadImageee(imageToUpload));
-    }
-    await Promise.allSettled(imageUploads);
 }
 
-async function uploadImageee(imageToUpload: ImagesToUpload): Promise<void> {
+/**
+ * Retrieve presigned image upload URLs from server
+ *
+ * @returns map of image path to presigned URL
+ */
+async function getPresignedUploadUrls(imagesToUpload: ImagesToUpload[]): Promise<{ [key: string]: string }> {
+    const albumPath = getParentFromPath(imagesToUpload[0].imagePath);
+    const imagePaths = imagesToUpload.map((imageToUpload) => imageToUpload.imagePath);
+    const response = await fetch(getPresignedUploadUrlGenerationUrl(albumPath), {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(imagePaths),
+    });
+    if (!response.ok) {
+        const msg = (await response.json()).errorMessage || response.statusText;
+        throw msg;
+    }
+    const presignedUploadUrls = await response.json();
+    return presignedUploadUrls;
+}
+
+async function uploadImageViaPresignedUrl(imageToUpload: ImagesToUpload, presignedUrl: string): Promise<void> {
     updateUploadState(imageToUpload.imagePath, UploadState.UPLOADING);
     try {
         if (mock) await sleep(2000);
         else {
-            const versionId = await uploadImage(imageToUpload.file, imageToUpload.imagePath);
+            const versionId = await uploadViaPresignedUrl(imageToUpload, presignedUrl);
             markUploadAsProcessing(imageToUpload.imagePath, versionId);
         }
     } catch (e) {
@@ -124,43 +154,29 @@ async function uploadImageee(imageToUpload: ImagesToUpload): Promise<void> {
     }
 }
 
-/**
- * Upload specified image to S3 and return new versionId
- *
- * @param file image to upload
- * @param imagePath name under which to save the image
- * @returns versionId of the newly uploaded image
- */
-async function uploadImage(file: File, imagePath: string): Promise<string> {
-    const key = fromPathToS3OriginalBucketKey(imagePath);
-    const command = new PutObjectCommand({
-        Bucket: getOriginalImagesBucketName(),
-        Key: key,
-        Body: file,
-        ContentType: file.type,
+/** Upload using a presigned URL */
+async function uploadViaPresignedUrl(imageToUpload: ImagesToUpload, presignedUrl: string): Promise<string> {
+    console.log(`Uploading image [${imageToUpload.imagePath}]`);
+    const response = await fetch(presignedUrl, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': imageToUpload.file.type,
+        },
+        body: imageToUpload.file,
     });
-    const client = new S3Client({
-        region: 'us-east-1',
-        credentials: fromCognitoIdentityPool({
-            identityPoolId: 'us-east-1:fc3588c7-7907-40b7-8157-195778a5385e',
-            clientConfig: { region: 'us-east-1' },
-        }),
-    });
-    const response = await client.send(command);
-    if (200 != response?.$metadata?.httpStatusCode) {
-        const msg = `Got non-200 status code [${response.$metadata.httpStatusCode}] uploading image [${imagePath}]`;
-        console.error(msg, response);
-        throw new Error(msg);
+    if (!response.ok) {
+        throw response.statusText;
     }
-    if (!response.VersionId) {
+    const versionId = response.headers.get('x-amz-version-id');
+    if (!versionId) {
         console.error(
-            `No versionId for image [${imagePath}].  Does the bucket's CORS configuration allow the browser to read the x-amz-version-id header?`,
+            `No versionId for image [${imageToUpload.imagePath}].  Does the bucket's CORS configuration allow the browser to read the x-amz-version-id header?`,
             response,
         );
-        throw new Error(`No versionId for image ${imagePath}`);
+        throw new Error(`No versionId for image ${imageToUpload.imagePath}`);
     }
-    console.log(`Uploaded image [${imagePath}]`, response);
-    return response.VersionId;
+    console.log(`Uploaded image [${imageToUpload.imagePath}], got versionId [${versionId}]`);
+    return versionId;
 }
 
 /**

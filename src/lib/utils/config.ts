@@ -91,6 +91,14 @@ export function setThumbnailUrl(albumPath: string): string {
 }
 
 /**
+ * URL to send HTTP POST to generate presigned upload URLs
+ * @param albumPath path to an album like /2001/12-31/
+ */
+export function getPresignedUploadUrlGenerationUrl(albumPath: string): string {
+    return baseApiUrl() + 'presigned' + albumPath;
+}
+
+/**
  * URL to send HTTP PATCH to recrop an image thumbnail
  * @param imagePath path to an image like /2001/12-31/image.jpg
  */
