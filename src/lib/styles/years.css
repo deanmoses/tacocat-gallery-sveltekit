@@ -2,8 +2,14 @@
 	Per-year styling
 */
 
-/* default colors for years with no styling of their own */
-.site-container,
+.site-container, /* default colors for years with no styling of their own */
+.site-container[data-year='2024'] {
+    --body-color: #fcbe9b; /* Peach Fuzz */
+    --header-color: #efcfbb; /* Peaches & Cream */
+    --sidebar-color: #daa692; /* Almond Butter */
+    --button-color: #c9848b; /* Raspberry Sorbet */
+}
+
 .site-container[data-year='2023'] {
     --body-color: #7a3f0b;
     --header-color: #c5d5cb;
