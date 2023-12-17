@@ -13,6 +13,6 @@ export function redirectIfLegacyUrl(hashLocation: string) {
         if (!newUrl.startsWith('/')) {
             newUrl = '/' + newUrl;
         }
-        throw redirect(301, newUrl);
+        redirect(301, newUrl);
     }
 }
