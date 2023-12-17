@@ -1,6 +1,6 @@
 {
     "name": "tacocat-gallery-sveltekit",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "private": true,
     "description": "Javascript front end for the tacocat.com photo gallery, built with Sveltekit",
     "keywords": [
@@ -30,8 +30,8 @@
     },
     "devDependencies": {
         "@playwright/test": "1.40.1",
-        "@sveltejs/adapter-static": "^2.0.3",
-        "@sveltejs/kit": "1.27.7",
+        "@sveltejs/adapter-static": "^3.0.0",
+        "@sveltejs/kit": "^2.0.1",
         "@types/quill": "^2.0.14",
         "@typescript-eslint/eslint-plugin": "^6.14.0",
         "@typescript-eslint/parser": "^6.14.0",
@@ -47,7 +47,7 @@
         "svelte-preprocess": "^5.1.2",
         "tslib": "^2.6.2",
         "typescript": "^5.3.3",
-        "vite": "^4.5.0"
+        "vite": "^5.0.10"
     },
     "dependencies": {
         "idb-keyval": "^6.2.1",
