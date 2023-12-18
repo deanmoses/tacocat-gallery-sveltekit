@@ -202,25 +202,30 @@ async function areMockImagesProcessed(albumPath: string): Promise<boolean> {
 async function areImagesProcessed(albumPath: string): Promise<boolean> {
     const uploads = get(getUploads(albumPath));
     if (!uploads || uploads.length === 0) return true;
-    const album = await albumStore.fetchFromServerAsync(albumPath);
-    for (let upload of uploads) {
-        // Skip checking uploads that are not yet in the processing state,
-        // which means they have not yet been uploaded to S3, which means
-        // they don't yet have a version (the versionId check is redundant)
-        if (upload.status !== UploadState.PROCESSING || !upload.versionId) return false;
-        const image = album.getImage(upload.imagePath);
-        if (image && image.versionId == upload.versionId) {
-            // Found image. Remove it from list of images being processed
-            removeUpload(upload.imagePath);
-        } else {
-            console.log(
-                `Did not find file [${upload.imagePath}] version [${upload.versionId}] in the album, it must still be processing`,
-            );
-            return false;
+    try {
+        const album = await albumStore.fetchFromServerAsync(albumPath);
+        for (let upload of uploads) {
+            // Skip checking uploads that are not yet in the processing state,
+            // which means they have not yet been uploaded to S3, which means
+            // they don't yet have a version (the versionId check is redundant)
+            if (upload.status !== UploadState.PROCESSING || !upload.versionId) return false;
+            const image = album.getImage(upload.imagePath);
+            if (image && image.versionId == upload.versionId) {
+                // Found image. Remove it from list of images being processed
+                removeUpload(upload.imagePath);
+            } else {
+                console.log(
+                    `Did not find file [${upload.imagePath}] version [${upload.versionId}] in the album, it must still be processing`,
+                );
+                return false;
+            }
         }
+        console.log(`Found all uploaded files in the album, processing complete!`);
+        return true;
+    } catch (e) {
+        console.error(`Error checking if images are processed`, e);
+        return false;
     }
-    console.log(`Found all uploaded files in the album, processing complete!`);
-    return true;
 }
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
