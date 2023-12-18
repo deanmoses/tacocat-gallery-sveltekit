@@ -72,7 +72,7 @@ export function isValidImageNameStrict(imageName: string): boolean {
     return /^[a-z0-9]+([a-z0-9_]*[a-z0-9]+)*\.(jpg|gif|png)$/.test(imageName);
 }
 
-export function isValidImageNameWithoutExtenstionStrict(imageName: string): boolean {
+export function isValidImageNameWithoutExtensionStrict(imageName: string): boolean {
     return /^[a-z0-9]+([a-z0-9_]*[a-z0-9]+)*$/.test(imageName);
 }
 
@@ -189,4 +189,21 @@ export function albumPathToDate(albumPath: string): Date {
         return new Date(year, month, day);
     }
     return new Date(year, 0, 1); // Use Jan 1 for year albums
+}
+
+/** Return true if specified filename ends with a supported extension */
+export function hasValidExtension(fileName: string): boolean {
+    return /\.(jpg|jpeg|gif|png)$/i.test(fileName);
+}
+
+/** Supported file extensions */
+export function validFileExtensions(): string[] {
+    return ['jpg', 'jpeg', 'png', 'gif'];
+}
+
+/** Return something like ".jpg, .jpeg, .png, .gif" */
+export function validExtensionsString(): string {
+    return validFileExtensions()
+        .map((ext) => `.${ext}`)
+        .join(', ');
 }

@@ -4,6 +4,7 @@ import { toast } from '@zerodevx/svelte-toast';
 import { albumStore } from '$lib/stores/AlbumStore';
 import {
     getParentFromPath,
+    hasValidExtension,
     isValidDayAlbumPath,
     isValidImagePath,
     sanitizeImageName,
@@ -22,9 +23,7 @@ import { getPresignedUploadUrlGenerationUrl } from '$lib/utils/config';
 export async function uploadSingleImage(file: File, imagePath: string): Promise<void> {
     if (!file) return;
     if (!isValidImagePath(imagePath)) throw new Error(`Invalid image path: [${imagePath}]`);
-    const name = file.name.toLowerCase();
-    const isValidImageType = name.endsWith('jpg') || name.endsWith('jpeg') || name.endsWith('png');
-    if (!isValidImageType) {
+    if (!hasValidExtension(file.name)) {
         const msg = `Skipping invalid type of image [${file.name}]`;
         toast.push(msg);
         console.error(msg);
@@ -61,9 +60,7 @@ export async function uploadSanitizedImages(imagesToUpload: ImagesToUpload[], al
 export function getSanitizedFiles(files: FileList | File[], albumPath: string): ImagesToUpload[] {
     let imagesToUpload: ImagesToUpload[] = [];
     for (let file of files) {
-        const name = file.name.toLowerCase();
-        const isValidImageType = name.endsWith('jpg') || name.endsWith('jpeg') || name.endsWith('png');
-        if (!isValidImageType) {
+        if (!hasValidExtension(file.name)) {
             const msg = `Skipping invalid type of image [${file.name}]`;
             toast.push(msg);
             console.error(msg);

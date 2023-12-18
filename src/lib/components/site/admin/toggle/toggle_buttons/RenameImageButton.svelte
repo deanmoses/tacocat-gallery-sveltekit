@@ -10,7 +10,7 @@
     import {
         getNameFromPath,
         getParentFromPath,
-        isValidImageNameWithoutExtenstionStrict,
+        isValidImageNameWithoutExtensionStrict,
         isValidImagePath,
         sanitizeImageNameWithoutExtension,
     } from '$lib/utils/galleryPathUtils';
@@ -56,7 +56,7 @@
     }
 
     async function validateImageName(newImageName: string): Promise<string | undefined> {
-        if (!isValidImageNameWithoutExtenstionStrict(newImageName)) return 'invalid image name';
+        if (!isValidImageNameWithoutExtensionStrict(newImageName)) return 'invalid image name';
         const newImagePath = imageNameWithoutExtensionToPath(newImageName);
         const albumPath = getParentFromPath(newImagePath);
         const album = albumStore.getFromInMemory(albumPath);
@@ -66,7 +66,7 @@
     }
 
     function imageNameWithoutExtensionToPath(imageNameWithoutExtension: string): string {
-        const newName = imageNameWithoutExtension + '.jpg';
+        const newName = imageNameWithoutExtension + fileExtension();
         return getParentFromPath(imagePath) + newName;
     }
 </script>

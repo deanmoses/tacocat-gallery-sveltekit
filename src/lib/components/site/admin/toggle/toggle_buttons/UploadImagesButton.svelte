@@ -5,7 +5,7 @@
     import { page } from '$app/stores';
     import UploadIcon from '$lib/components/site/icons/UploadIcon.svelte';
     import { upload } from '$lib/stores/admin/UploadStoreLogic';
-    import { isValidDayAlbumPath } from '$lib/utils/galleryPathUtils';
+    import { isValidDayAlbumPath, validExtensionsString } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
     $: albumPath = $page.url.pathname + '/';
@@ -29,7 +29,7 @@
         on:change={onFilesSelected}
         type="file"
         multiple
-        accept=".jpg, .jpeg"
+        accept={validExtensionsString()}
         style="display:none"
     />
 {/if}
