@@ -12,15 +12,21 @@
     export let returnPath: string = '';
     export let title: string = '';
 
+    let searchInput: HTMLInputElement;
+
     $: pageTitle = searchTerms ? `Search for ${searchTerms}` : title || 'Search The Moses Family';
+    $: disabled = 3 > searchTerms.length;
 
     function autofocus(formInput: HTMLInputElement) {
         formInput.focus();
     }
 
-    function onSubmit(e: SubmitEvent) {
-        const formData = new FormData(e.target as HTMLFormElement);
-        const searchTerms = formData.get('searchTerms');
+    function onInput() {
+        searchTerms = searchInput.value;
+    }
+
+    function onSubmit() {
+        const searchTerms = searchInput.value;
         if (searchTerms) {
             goto(`/search/${searchTerms}?returnPath=${returnPath}`);
         }
@@ -37,8 +43,16 @@
             <ReturnIcon />
         </a>
         <form on:submit|preventDefault={onSubmit}>
-            <input name="searchTerms" type="text" placeholder="search" value={searchTerms} use:autofocus />
-            <button type="submit" class="btn"> Search </button>
+            <input
+                name="searchTerms"
+                type="text"
+                placeholder="search"
+                value={searchTerms}
+                on:input={onInput}
+                bind:this={searchInput}
+                use:autofocus
+            />
+            <button type="submit" class="btn" {disabled}> Search </button>
         </form>
     </header>
 
