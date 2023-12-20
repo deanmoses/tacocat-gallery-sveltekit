@@ -26,7 +26,7 @@
         "lint": "prettier --plugin-search-dir . --check . && eslint .",
         "format": "prettier --plugin-search-dir . --write .",
         "deploy-staging": "./deploy_staging.sh",
-        "deploy-prod": "TODO DEPLOY TO AWS"
+        "deploy-prod": "./deploy_prod.sh"
     },
     "devDependencies": {
         "@playwright/test": "1.40.1",
