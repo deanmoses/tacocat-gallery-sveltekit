@@ -2,7 +2,7 @@ import { dev } from '$app/environment';
 import type { Rectangle } from '$lib/models/impl/server';
 import { isValidAlbumPath, isValidImagePath } from './galleryPathUtils';
 
-export const staging = true; // manual switch to allow the front end to test either staging or prod
+export const staging = false; // manual switch to allow the front end to test either staging or prod
 const cdnDomain = staging ? 'img.staging-pix.tacocat.com' : 'img.pix.tacocat.com';
 
 /**

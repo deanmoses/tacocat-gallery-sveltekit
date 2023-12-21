@@ -1,7 +1,7 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import type { UserConfig } from 'vite';
 
-const staging = true;
+const staging = false;
 
 const config: UserConfig = {
     plugins: [sveltekit()],
