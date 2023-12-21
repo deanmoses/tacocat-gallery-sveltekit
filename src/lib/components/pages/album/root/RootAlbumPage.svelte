@@ -18,6 +18,8 @@
     import AdminToggle from '$lib/components/site/admin/toggle/AdminToggle.svelte';
 
     export let album: Album;
+
+    $: sortedAlbums = album.albums ? album.albums.sort((a, b) => b.path.localeCompare(a.path)) : [];
 </script>
 
 <svelte:head>
@@ -35,11 +37,9 @@
         </Sidebar>
         <MainContent>
             <Thumbnails>
-                {#if album.albums}
-                    {#each album.albums as childAlbum (childAlbum.path)}
-                        <Thumbnail title={childAlbum.title} href={childAlbum.path} src={childAlbum.thumbnailUrl} />
-                    {/each}
-                {/if}
+                {#each sortedAlbums as childAlbum (childAlbum.path)}
+                    <Thumbnail title={childAlbum.title} href={childAlbum.path} src={childAlbum.thumbnailUrl} />
+                {/each}
             </Thumbnails>
         </MainContent>
     </PageContent>
