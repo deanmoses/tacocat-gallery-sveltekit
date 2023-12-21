@@ -31,7 +31,6 @@
     }
 </script>
 
-<slot />
 {#if dragging}
     <p on:dragleave|preventDefault={dragLeave} on:dragover|preventDefault={dragOver} on:drop|preventDefault={drop}>
         <slot />
