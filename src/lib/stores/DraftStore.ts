@@ -221,7 +221,7 @@ class DraftStore {
             if (originalState.content === undefined) throw 'originalState.content is undefined';
             applyChangesToDraftContent(originalState.content);
         });
-        console.log('Update draft: ', newState.content);
+        console.log(`Update draft [${newState.path}]: `, newState.content);
         this._draft.set(newState);
     }
 }

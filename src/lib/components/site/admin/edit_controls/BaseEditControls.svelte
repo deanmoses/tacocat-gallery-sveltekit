@@ -20,14 +20,21 @@
 
     let path: string | undefined = unEditUrl($page.url.pathname);
     $: path = unEditUrl($page.url.pathname);
+    $: handleNavigation(path);
 
     let hasUnsavedChanges: boolean;
     $: hasUnsavedChanges = $status == DraftStatus.UNSAVED_CHANGES;
 
-    // Cancel the draft when any navigation happens
-    if (path === undefined) throw new Error(`path is undefined`);
-    const backEndPath = isValidImagePath(path) ? path : path + '/';
-    $: draftStore.init(backEndPath);
+    function handleNavigation(path: string | undefined): void {
+        // Cancel the draft when any navigation happens
+        // TODO: there's no reason to do it here, the draft store
+        // could subscribe to $page.url.pathname itself.
+        // I guess the only reason to do it here is that when you're
+        // NOT in edit mode, there's no need to listen to it.
+        if (path === undefined) throw new Error(`path is undefined`);
+        const backEndPath = isValidImagePath(path) ? path : path + '/';
+        draftStore.init(backEndPath);
+    }
 
     function onCancelButtonClick() {
         draftStore.cancel();
