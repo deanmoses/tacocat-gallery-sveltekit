@@ -12,6 +12,9 @@
     $: search = data.search;
     $: status = $search.status;
     $: searchResults = $search.results;
+    $: oldestYear = data.oldestYear;
+    $: newestYear = data.newestYear;
+    $: oldestFirst = data.oldestFirst;
 </script>
 
 {#if SearchLoadStatus.NOT_LOADED === status}
@@ -21,7 +24,7 @@
 {:else if SearchLoadStatus.ERROR_LOADING === status}
     <BlankSearchPageLayout {searchTerms} {returnPath}>There was an error searching</BlankSearchPageLayout>
 {:else if SearchLoadStatus.LOADED === status}
-    <SearchResultsPage {searchTerms} {searchResults} {returnPath} />
+    <SearchResultsPage {searchTerms} {searchResults} {returnPath} {oldestYear} {newestYear} {oldestFirst} />
 {:else}
     <BlankSearchPageLayout {searchTerms} {returnPath}>
         Unhandled status: <div>{status}</div>

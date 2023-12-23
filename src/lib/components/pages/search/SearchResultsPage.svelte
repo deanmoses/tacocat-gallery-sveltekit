@@ -11,12 +11,41 @@
     export let searchTerms: string;
     export let searchResults: SearchResults | undefined;
     export let returnPath: string | undefined;
-
+    export let oldestYear: number | undefined;
+    export let newestYear: number | undefined;
+    export let oldestFirst: boolean;
+    console.log(`oldestfirst: ${oldestFirst}`);
     let noResults: boolean;
     $: noResults = !searchResults?.images && !searchResults?.albums;
 </script>
 
 <SearchPage {searchTerms} {returnPath}>
+    <section>
+        <h2 style="display:none">Search Controls</h2>
+        <label
+            ><input
+                type="number"
+                name="oldestYear"
+                id="oldestYear"
+                min="1964"
+                max="2024"
+                placeholder="oldest year"
+                value={oldestYear}
+            /></label
+        >
+        <label
+            ><input
+                type="number"
+                name="newestYear"
+                id="newestYear"
+                min="1964"
+                max="2024"
+                placeholder="newest year"
+                value={newestYear}
+            /></label
+        >
+        <label>Oldest first: <input type="checkbox" name="oldestFirst" id="oldestFirst" checked={oldestFirst} /></label>
+    </section>
     <section class:noResults>
         <h2 style="display:none">Search Results</h2>
         <Thumbnails>
@@ -28,7 +57,7 @@
 
             {#if searchResults?.images}
                 {#each searchResults.images as image (image.path)}
-                    <Thumbnail title={image.title} href={image.href} src={image.thumbnailUrl} />
+                    <Thumbnail title={image.title} href={image.href} src={image.thumbnailUrl} summary={image.summary} />
                 {/each}
             {/if}
 
@@ -48,5 +77,9 @@
     section.noResults {
         display: flex;
         justify-content: center;
+    }
+
+    label {
+        white-space: nowrap;
     }
 </style>

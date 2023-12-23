@@ -1,5 +1,6 @@
 import { dev } from '$app/environment';
 import type { Rectangle } from '$lib/models/impl/server';
+import type { SearchQuery } from '$lib/stores/SearchStore';
 import { isValidAlbumPath, isValidImagePath } from './galleryPathUtils';
 
 export const staging = false; // manual switch to allow the front end to test either staging or prod
@@ -131,10 +132,29 @@ export function latestAlbumUrl(): string {
 
 /**
  * URL of the JSON REST API to search for the specified terms
- * @param searchTerms the terms to search for
  */
-export function searchUrl(searchTerms: string): string {
-    return baseApiUrl() + 'search/' + encodeURIComponent(searchTerms);
+export function searchUrl(q: SearchQuery): string {
+    let url = baseApiUrl() + 'search/' + encodeURIComponent(q.terms);
+    const params: string[] = [];
+    if (q.oldestYear) params.push('oldest=' + q.oldestYear);
+    if (q.newestYear) params.push('newest=' + q.newestYear);
+    if (q.oldestFirst) params.push('oldestFirst=' + q.oldestFirst);
+    if (params) url += '?' + params.join('&');
+    return url;
+}
+
+/**
+ * Relative search URL within the Sveltekit app
+ */
+export function localSearchUrl(q: SearchQuery, returnPath: string): string {
+    let url = '/search/' + encodeURIComponent(q.terms);
+    const params: string[] = [];
+    params.push('returnPath=' + returnPath);
+    if (q.oldestYear) params.push('oldest=' + q.oldestYear);
+    if (q.newestYear) params.push('newest=' + q.newestYear);
+    if (q.oldestFirst) params.push('oldestFirst=' + q.oldestFirst);
+    if (params) url += '?' + params.join('&');
+    return url;
 }
 
 function baseApiUrl(): string {

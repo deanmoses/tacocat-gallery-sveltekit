@@ -3,13 +3,22 @@
  */
 
 import { writable, type Writable, derived, type Readable, get } from 'svelte/store';
-import { get as getFromIdb, set as setToIdb } from 'idb-keyval';
 import { produce } from 'immer';
 import type { Search, SearchResults } from '$lib/models/search';
 import { SearchLoadStatus, SearchUpdateStatus } from '$lib/models/search';
 import toAlbum from '$lib/models/impl/AlbumCreator';
 import { ImageThumbableImpl } from '$lib/models/impl/ImageThumbableImpl';
 import { searchUrl } from '$lib/utils/config';
+import { longDate } from '$lib/utils/date-utils';
+import { albumPathToDate, getParentFromPath } from '$lib/utils/galleryPathUtils';
+import type { AlbumRecord, GalleryRecord, ImageRecord } from '$lib/models/impl/server';
+
+export type SearchQuery = {
+    terms: string;
+    oldestYear: number | undefined;
+    newestYear: number | undefined;
+    oldestFirst: boolean | undefined;
+};
 
 /**
  * Manages the Svelte stores of search results
@@ -18,7 +27,7 @@ class SearchStore {
     /**
      * A set of Svelte stores holding search results
      */
-    private searches: Map<string, Writable<Search>> = new Map<string, Writable<Search>>();
+    private searches: Map<SearchQuery, Writable<Search>> = new Map<SearchQuery, Writable<Search>>();
 
     /**
      * A set of Svelte stores holding the search update state
@@ -26,8 +35,8 @@ class SearchStore {
      * Update status is different than load status: updates are AFTER the
      * initial search has loaded.  You are refreshing the existing results.
      */
-    private SearchUpdateStatuses: Map<string, Writable<SearchUpdateStatus>> = new Map<
-        string,
+    private SearchUpdateStatuses: Map<SearchQuery, Writable<SearchUpdateStatus>> = new Map<
+        SearchQuery,
         Writable<SearchUpdateStatus>
     >();
 
@@ -45,24 +54,23 @@ class SearchStore {
      *
      * 3) And then it will async fetch a live version over the network.
      *
-     * @param searchTerms the search terms
      * @returns a Svelte store
      */
-    get(searchTerms: string, refetch = true): Readable<Search> {
+    get(query: SearchQuery, refetch = true): Readable<Search> {
         // Get or create the writable version of the search
-        const searchEntry = this.getOrCreateWritableStore(searchTerms);
+        const searchEntry = this.getOrCreateWritableStore(query);
 
         const status = get(searchEntry).status;
 
         // I don't have a copy in memory.  Go get it
         if (SearchLoadStatus.NOT_LOADED === status) {
-            this.setLoadStatus(searchTerms, SearchLoadStatus.LOADING);
-            this.fetchFromDiskThenServer(searchTerms);
+            this.setLoadStatus(query, SearchLoadStatus.LOADING);
+            this.fetchFromServer(query);
         }
         // I have a copy in memory, but the caller has asked to re-fetch
         else if (refetch && SearchLoadStatus.LOADING !== status) {
-            this.setUpdateStatus(searchTerms, SearchUpdateStatus.UPDATING);
-            this.fetchFromServer(searchTerms);
+            this.setUpdateStatus(query, SearchUpdateStatus.UPDATING);
+            this.fetchFromServer(query);
         }
 
         // Derive a read-only Svelte store over the search
@@ -70,39 +78,10 @@ class SearchStore {
     }
 
     /**
-     * Fetch search from browser's local disk,
-     * then fetch from server
-     *
-     * @param searchTerms the search terms
-     */
-    private fetchFromDiskThenServer(searchTerms: string): void {
-        const idbKey = this.idbKey(searchTerms);
-        getFromIdb(idbKey)
-            .then((jsonSearch) => {
-                if (jsonSearch) {
-                    console.log(`Search [${searchTerms}] found in idb`);
-                    //const searchResults = this.toSearchResults(jsonSearch);
-                    this.setSearch(searchTerms, jsonSearch); // Put search in Svelte store
-                } else {
-                    console.log(`Search [${searchTerms}] not found in idb`);
-                }
-            })
-            .catch((error) => {
-                console.error(`Search [${searchTerms}] error fetching from disk`, error);
-            })
-            // Always fetch from server regardless of whether it was found on disk
-            .finally(() => {
-                this.fetchFromServer(searchTerms);
-            });
-    }
-
-    /**
      * Fetch search results from server
-     *
-     * @param searchTerms the search terms
      */
-    private fetchFromServer(searchTerms: string): void {
-        fetch(searchUrl(searchTerms))
+    private fetchFromServer(query: SearchQuery): void {
+        fetch(searchUrl(query))
             .then((response: Response) => {
                 if (!response.ok) {
                     throw new Error(response.statusText);
@@ -110,27 +89,26 @@ class SearchStore {
                 return response.json();
             })
             .then((json) => {
-                console.log(`Search [${searchTerms}] fetched from server`, json);
+                console.log(`Search [${query}] fetched from server`, json);
                 const searchResults = this.toSearchResults(json);
                 console.log(`Transformed search results `, searchResults);
-                this.setSearch(searchTerms, searchResults); // Put search results in Svelte store
-                this.writeToDisk(searchTerms, searchResults); // Put search results in browser's local disk cache
+                this.setSearch(query, searchResults); // Put search results in Svelte store
             })
             .catch((error) => {
-                this.handleFetchError(searchTerms, error);
+                this.handleFetchError(query, error);
             });
     }
 
-    private handleFetchError(searchTerms: string, error: string): void {
-        console.error(`Search [${searchTerms}] error fetching from server: `, error);
-        const status = this.getLoadStatus(searchTerms);
+    private handleFetchError(query: SearchQuery, error: string): void {
+        console.error(`Search [${query}] error fetching from server: `, error);
+        const status = this.getLoadStatus(query);
         switch (status) {
             case SearchLoadStatus.LOADING:
             case SearchLoadStatus.NOT_LOADED:
-                this.setLoadStatus(searchTerms, SearchLoadStatus.ERROR_LOADING);
+                this.setLoadStatus(query, SearchLoadStatus.ERROR_LOADING);
                 break;
             case SearchLoadStatus.LOADED:
-                this.setUpdateStatus(searchTerms, SearchUpdateStatus.ERROR_UPDATING);
+                this.setUpdateStatus(query, SearchUpdateStatus.ERROR_UPDATING);
                 break;
             case SearchLoadStatus.ERROR_LOADING:
                 // already in correct state
@@ -141,86 +119,53 @@ class SearchStore {
     }
 
     /**
-     * Store the search results in Svelte store
-     *
-     * @param searchTerms the search terms
-     * @param searchResults the search results
+     * Store search results in Svelte store
      */
-    private setSearch(searchTerms: string, searchResults: SearchResults): void {
-        const searchEntry = this.getOrCreateWritableStore(searchTerms);
+    private setSearch(query: SearchQuery, searchResults: SearchResults): void {
+        const searchEntry = this.getOrCreateWritableStore(query);
         const newState = produce(get(searchEntry), (draftState: Search) => {
             draftState.status = SearchLoadStatus.LOADED;
             draftState.results = searchResults;
         });
         searchEntry.set(newState);
 
-        this.setUpdateStatus(searchTerms, SearchUpdateStatus.NOT_UPDATING);
-    }
-
-    /**
-     * Store the search results in the browser's local disk storage
-     *
-     * @param searchTerms the search terms
-     * @param searchResults the search results
-     */
-    private writeToDisk(searchTerms: string, searchResults: SearchResults): void {
-        const key = this.idbKey(searchTerms);
-        // TODO: maybe don't write it if the value is unchanged?
-        // Or maybe refresh some sort of last_fetched timestamp?
-        setToIdb(key, searchResults)
-            .then(() => console.log(`Search [${searchTerms}] stored in idb`))
-            .catch((e) => console.error(`Search [${searchTerms}] error storing in idb`, e));
-    }
-
-    /**
-     * Get the IndexedDB key under which to store the search results
-     *
-     * @param searchTerms the search terms
-     * @returns the key under which to store the search results in IndexedDB
-     */
-    private idbKey(searchTerms: string): string {
-        return `s:${searchTerms}`;
+        this.setUpdateStatus(query, SearchUpdateStatus.NOT_UPDATING);
     }
 
     /**
      * Set the load status of the search
-     *
-     * @param searchTerms the search terms
-     * @param loadStatus
      */
-    private setLoadStatus(searchTerms: string, loadStatus: SearchLoadStatus): void {
-        const searchEntry = this.getOrCreateWritableStore(searchTerms);
+    private setLoadStatus(query: SearchQuery, loadStatus: SearchLoadStatus): void {
+        const searchEntry = this.getOrCreateWritableStore(query);
         const newState = produce(get(searchEntry), (draftState: Search) => {
             draftState.status = loadStatus;
         });
         searchEntry.set(newState);
     }
 
-    private getLoadStatus(searchTerms: string): SearchLoadStatus {
-        const search = this.searches.get(searchTerms);
+    private getLoadStatus(query: SearchQuery): SearchLoadStatus {
+        const search = this.searches.get(query);
         return !!search ? get(search).status : SearchLoadStatus.NOT_LOADED;
     }
 
-    private setUpdateStatus(searchTerms: string, status: SearchUpdateStatus): void {
-        console.log(`Search [${searchTerms}] set update status:`, status);
-        const updateStatusStore = this.getOrCreateUpdateStatusStore(searchTerms);
+    private setUpdateStatus(query: SearchQuery, status: SearchUpdateStatus): void {
+        console.log(`Search [${query}] set update status:`, status);
+        const updateStatusStore = this.getOrCreateUpdateStatusStore(query);
         updateStatusStore.set(status);
     }
 
     /**
      * Get the private read-write Svelte store containing the search's update status,
      * creating it if it doesn't exist
-     *
-     * @param searchTerms the search terms
      */
-    private getOrCreateUpdateStatusStore(searchTerms: string): Writable<SearchUpdateStatus> {
+    private getOrCreateUpdateStatusStore(query: SearchQuery): Writable<SearchUpdateStatus> {
         let entryStore: Writable<SearchUpdateStatus> | undefined;
-        entryStore = this.SearchUpdateStatuses.get(searchTerms);
+        entryStore = this.SearchUpdateStatuses.get(query);
         if (!entryStore) {
             const newEntry: SearchUpdateStatus = SearchUpdateStatus.NOT_UPDATING;
             entryStore = writable(newEntry);
         }
-        this.SearchUpdateStatuses.set(searchTerms, entryStore);
+        this.SearchUpdateStatuses.set(query, entryStore);
         return entryStore;
     }
 
@@ -228,20 +173,20 @@ class SearchStore {
      * Get the private read-write version of the search,
      * creating a stand-in if it doesn't exist.
      *
-     * @param searchTerms the search terms
+     * @param query the search terms
      */
-    private getOrCreateWritableStore(searchTerms: string): Writable<Search> {
-        let searchEntry = this.searches.get(searchTerms);
+    private getOrCreateWritableStore(query: SearchQuery): Writable<Search> {
+        let searchEntry = this.searches.get(query);
 
         // If the search wasn't found in memory
         if (!searchEntry) {
-            console.log(`Search [${searchTerms}] not found in memory`);
+            console.log(`Search [${query}] not found in memory`);
             // Create blank entry so that consumers have some object
             // to which they can subscribe to changes
             searchEntry = writable({
                 status: SearchLoadStatus.NOT_LOADED,
             });
-            this.searches.set(searchTerms, searchEntry);
+            this.searches.set(query, searchEntry);
         }
 
         return searchEntry;
@@ -252,14 +197,24 @@ class SearchStore {
      *
      * @param json JSON object coming from server or IDB
      */
-    private toSearchResults(json: unknown): SearchResults {
-        const items: [] = json as [];
-        console.log('Transforming search results', items);
+    private toSearchResults(json: ServerSearchResults): SearchResults {
+        const items: GalleryRecord[] = json.items;
         return {
-            albums: items.filter((i) => i['item']['itemType'] == 'album').map((i) => toAlbum(i['item'])),
-            images: items.filter((i) => i['item']['itemType'] == 'image').map((i) => new ImageThumbableImpl(i['item'])),
+            albums: items.filter((i) => i['itemType'] == 'album').map((i) => toAlbum(i as AlbumRecord)),
+            images: items.filter((i) => i['itemType'] == 'image').map((i) => this.toImage(i as ImageRecord)),
         };
+    }
+
+    private toImage(json: ImageRecord): ImageThumbableImpl {
+        const image = new ImageThumbableImpl(json as any);
+        image.summary = longDate(albumPathToDate(getParentFromPath(image.path)));
+        return image;
     }
 }
 
 export const searchStore: SearchStore = new SearchStore();
+
+type ServerSearchResults = {
+    total: number;
+    items: GalleryRecord[];
+};

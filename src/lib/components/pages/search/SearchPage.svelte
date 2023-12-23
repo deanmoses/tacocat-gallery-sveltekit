@@ -7,6 +7,7 @@
     import { goto } from '$app/navigation';
     import SiteLayout from '$lib/components/site/SiteLayout.svelte';
     import ReturnIcon from '$lib/components/site/icons/ReturnIcon.svelte';
+    import { localSearchUrl } from '$lib/utils/config';
 
     export let searchTerms: string = '';
     export let returnPath: string = '';
@@ -27,9 +28,23 @@
 
     function onSubmit() {
         const searchTerms = searchInput.value;
+        const oldestYear = toInt((document.getElementById('oldestYear') as HTMLInputElement)?.value);
+        const newestYear = toInt((document.getElementById('newestYear') as HTMLInputElement)?.value);
+        const oldestFirst = toBool((document.getElementById('oldestFirst') as HTMLInputElement)?.checked);
+
+        console.log('oldestYear', oldestYear);
         if (searchTerms) {
-            goto(`/search/${searchTerms}?returnPath=${returnPath}`);
+            const searchUrl = localSearchUrl({ terms: searchTerms, oldestYear, newestYear, oldestFirst }, returnPath);
+            goto(searchUrl);
         }
+    }
+
+    function toInt(s: string | null): number | undefined {
+        return s ? parseInt(s, 10) : undefined;
+    }
+
+    function toBool(s: boolean | null): boolean {
+        return s ?? false;
     }
 </script>
 
