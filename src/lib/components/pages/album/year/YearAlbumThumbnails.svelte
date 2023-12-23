@@ -45,7 +45,7 @@
                         albums: [],
                     };
                 }
-                albumsByMonth[month].albums.push(album);
+                albumsByMonth[month].albums.unshift(album);
             });
         }
 
