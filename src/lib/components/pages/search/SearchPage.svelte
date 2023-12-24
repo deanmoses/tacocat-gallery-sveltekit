@@ -61,6 +61,7 @@
                 name="searchTerms"
                 type="text"
                 placeholder="search"
+                autocapitalize="off"
                 value={searchTerms}
                 on:input={onInput}
                 bind:this={searchInput}
