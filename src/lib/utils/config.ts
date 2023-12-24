@@ -147,7 +147,7 @@ export function searchUrl(q: SearchQuery): string {
  * Relative search URL within the Sveltekit app
  */
 export function localSearchUrl(q: SearchQuery, returnPath: string): string {
-    let url = '/search/' + encodeURIComponent(q.terms);
+    let url = '/search/' + encodeURIComponent(ensureDumbQuotes(q.terms));
     const params: string[] = [];
     params.push('returnPath=' + returnPath);
     if (q.oldestYear) params.push('oldest=' + q.oldestYear);
@@ -155,6 +155,15 @@ export function localSearchUrl(q: SearchQuery, returnPath: string): string {
     if (q.oldestFirst) params.push('oldestFirst=' + q.oldestFirst);
     if (params) url += '?' + params.join('&');
     return url;
+}
+
+/**
+ * Phones insert smart quotes.
+ * The search engine doesn't understand them.
+ * Turn them into dumb quotes.
+ */
+function ensureDumbQuotes(searchTerms: string): string {
+    return searchTerms.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"');
 }
 
 function baseApiUrl(): string {
