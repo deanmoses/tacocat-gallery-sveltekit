@@ -32,7 +32,6 @@
         const newestYear = toInt((document.getElementById('newestYear') as HTMLInputElement)?.value);
         const oldestFirst = toBool((document.getElementById('oldestFirst') as HTMLInputElement)?.checked);
 
-        console.log('oldestYear', oldestYear);
         if (searchTerms) {
             const searchUrl = localSearchUrl({ terms: searchTerms, oldestYear, newestYear, oldestFirst }, returnPath);
             goto(searchUrl);
