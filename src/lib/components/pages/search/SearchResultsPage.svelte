@@ -27,7 +27,7 @@
                 name="oldestYear"
                 id="oldestYear"
                 min="1964"
-                max="2024"
+                max={new Date().getFullYear()}
                 placeholder="oldest year"
                 value={oldestYear}
             /></label
@@ -38,7 +38,7 @@
                 name="newestYear"
                 id="newestYear"
                 min="1964"
-                max="2024"
+                max={new Date().getFullYear()}
                 placeholder="newest year"
                 value={newestYear}
             /></label
