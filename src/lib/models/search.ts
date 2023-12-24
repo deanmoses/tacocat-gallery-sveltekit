@@ -12,9 +12,7 @@ export type Search = {
  * Search results
  */
 export type SearchResults = {
-    albums?: Thumbable[];
-    images?: Thumbable[];
-    thumb_size?: number;
+    items?: Thumbable[];
 };
 
 /**

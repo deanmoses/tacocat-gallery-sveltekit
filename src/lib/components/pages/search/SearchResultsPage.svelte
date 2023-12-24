@@ -14,9 +14,8 @@
     export let oldestYear: number | undefined;
     export let newestYear: number | undefined;
     export let oldestFirst: boolean;
-    console.log(`oldestfirst: ${oldestFirst}`);
     let noResults: boolean;
-    $: noResults = !searchResults?.images && !searchResults?.albums;
+    $: noResults = !searchResults?.items;
 </script>
 
 <SearchPage {searchTerms} {returnPath}>
@@ -49,19 +48,11 @@
     <section class:noResults>
         <h2 style="display:none">Search Results</h2>
         <Thumbnails>
-            {#if searchResults?.albums}
-                {#each searchResults.albums as album (album.path)}
-                    <Thumbnail title={album.title} summary={album.summary} href={album.href} src={album.thumbnailUrl} />
+            {#if searchResults?.items}
+                {#each searchResults.items as item (item.path)}
+                    <Thumbnail href={item.href} src={item.thumbnailUrl} title={item.title} summary={item.summary} />
                 {/each}
-            {/if}
-
-            {#if searchResults?.images}
-                {#each searchResults.images as image (image.path)}
-                    <Thumbnail title={image.title} href={image.href} src={image.thumbnailUrl} summary={image.summary} />
-                {/each}
-            {/if}
-
-            {#if !searchResults?.images && !searchResults?.albums}
+            {:else}
                 <FullPageMessage>No results</FullPageMessage>
             {/if}
         </Thumbnails>

@@ -12,6 +12,7 @@ import { searchUrl } from '$lib/utils/config';
 import { longDate } from '$lib/utils/date-utils';
 import { albumPathToDate, getParentFromPath } from '$lib/utils/galleryPathUtils';
 import type { AlbumRecord, GalleryRecord, ImageRecord } from '$lib/models/impl/server';
+import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
 
 export type SearchQuery = {
     terms: string;
@@ -89,7 +90,7 @@ class SearchStore {
                 return response.json();
             })
             .then((json) => {
-                console.log(`Search [${query}] fetched from server`, json);
+                console.log(`Search fetched from server`, query, json);
                 const searchResults = this.toSearchResults(json);
                 console.log(`Transformed search results `, searchResults);
                 this.setSearch(query, searchResults); // Put search results in Svelte store
@@ -100,7 +101,7 @@ class SearchStore {
     }
 
     private handleFetchError(query: SearchQuery, error: string): void {
-        console.error(`Search [${query}] error fetching from server: `, error);
+        console.error(`Search error fetching from server: `, query, error);
         const status = this.getLoadStatus(query);
         switch (status) {
             case SearchLoadStatus.LOADING:
@@ -149,7 +150,7 @@ class SearchStore {
     }
 
     private setUpdateStatus(query: SearchQuery, status: SearchUpdateStatus): void {
-        console.log(`Search [${query}] set update status:`, status);
+        console.log(`Search set update status [${status}]`, query);
         const updateStatusStore = this.getOrCreateUpdateStatusStore(query);
         updateStatusStore.set(status);
     }
@@ -180,7 +181,7 @@ class SearchStore {
 
         // If the search wasn't found in memory
         if (!searchEntry) {
-            console.log(`Search [${query}] not found in memory`);
+            console.log(`Search not found in memory `, query);
             // Create blank entry so that consumers have some object
             // to which they can subscribe to changes
             searchEntry = writable({
@@ -200,9 +201,19 @@ class SearchStore {
     private toSearchResults(json: ServerSearchResults): SearchResults {
         const items: GalleryRecord[] = json.items;
         return {
-            albums: items.filter((i) => i['itemType'] == 'album').map((i) => toAlbum(i as AlbumRecord)),
-            images: items.filter((i) => i['itemType'] == 'image').map((i) => this.toImage(i as ImageRecord)),
+            items: items.map((i) => this.toThumbable(i)),
         };
+    }
+
+    private toThumbable(json: GalleryRecord): Thumbable {
+        switch (json.itemType) {
+            case 'album':
+                return toAlbum(json as AlbumRecord);
+            case 'image':
+                return this.toImage(json as ImageRecord);
+            default:
+                throw new Error(`Unknown item type: ${json.itemType}`);
+        }
     }
 
     private toImage(json: ImageRecord): ImageThumbableImpl {
