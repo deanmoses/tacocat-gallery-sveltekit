@@ -23,6 +23,7 @@
         <h2 style="display:none">Search Controls</h2>
         <label
             ><input
+                class="yearInput"
                 type="number"
                 name="oldestYear"
                 id="oldestYear"
@@ -34,6 +35,7 @@
         >
         <label
             ><input
+                class="yearInput"
                 type="number"
                 name="newestYear"
                 id="newestYear"
@@ -64,13 +66,14 @@
         background-color: white;
         padding: var(--default-padding);
     }
-
     section.noResults {
         display: flex;
         justify-content: center;
     }
-
     label {
         white-space: nowrap;
+    }
+    .yearInput {
+        width: 8em;
     }
 </style>
