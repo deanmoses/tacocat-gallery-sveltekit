@@ -166,6 +166,13 @@ function ensureDumbQuotes(searchTerms: string): string {
     return searchTerms.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"');
 }
 
+/**
+ * URL to send HTTP POST to reset Redis search engine
+ */
+export function redisResetUrl(): string {
+    return baseApiUrl() + 'redis-reset';
+}
+
 function baseApiUrl(): string {
     return dev ? '/api/' : staging ? 'https://api.staging-pix.tacocat.com/' : 'https://api.pix.tacocat.com/';
 }

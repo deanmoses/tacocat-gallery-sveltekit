@@ -1,5 +1,5 @@
-<!--
-  @component Layout of an image page
+<!-- 
+    @component Layout of an image page 
 -->
 <script lang="ts">
     import SiteLayout from '$lib/components/site/SiteLayout.svelte';

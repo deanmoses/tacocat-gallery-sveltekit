@@ -1,5 +1,5 @@
-<!--
-  @component Lays out the shell of the app
+<!-- 
+    @component Lays out the shell of the app 
 -->
 <script lang="ts">
     import { getYear } from '$lib/stores/YearStore';
