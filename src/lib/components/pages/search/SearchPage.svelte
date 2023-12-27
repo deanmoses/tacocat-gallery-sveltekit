@@ -1,7 +1,5 @@
 <!--
-  @component
-
-  Page that displays a blank search input
+  @component Page that displays blank search input
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
