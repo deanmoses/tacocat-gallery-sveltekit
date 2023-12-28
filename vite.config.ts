@@ -1,14 +1,15 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import type { UserConfig } from 'vite';
-
-const staging = false;
+import { emulateProdOnLocalhost } from './src/lib/utils/settings';
 
 const config: UserConfig = {
     plugins: [sveltekit()],
     server: {
         proxy: {
             '/api': {
-                target: staging ? 'https://api.staging-pix.tacocat.com/' : 'https://api.pix.tacocat.com/',
+                target: emulateProdOnLocalhost
+                    ? 'https://api.pix.tacocat.com/'
+                    : 'https://api.staging-pix.tacocat.com/',
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/api/, ''),
                 configure: (proxy, _options) => {

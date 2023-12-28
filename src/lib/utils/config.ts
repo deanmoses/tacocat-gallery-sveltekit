@@ -1,23 +1,33 @@
 import { dev } from '$app/environment';
 import type { Rectangle } from '$lib/models/impl/server';
 import type { SearchQuery } from '$lib/stores/SearchStore';
+import { emulateProdOnLocalhost } from './settings';
 import { isValidAlbumPath, isValidImagePath } from './galleryPathUtils';
-
-export const staging = false; // manual switch to allow the front end to test either staging or prod
-const cdnDomain = staging ? 'img.staging-pix.tacocat.com' : 'img.pix.tacocat.com';
+import { browser } from '$app/environment';
 
 /**
- * The title of the site, such as shown in the header of the site.
+ * I'm in staging (aka development) when one of these is true:
+ *  - I'm on the staging domain
+ *  - I'm on localhost and I'm not emulating prod
+ * At all other times, I'm in prod.
  */
-export function siteTitle(): string {
-    return 'Dean, Lucie, Felix and Milo Moses';
+function isStaging(): boolean {
+    if (!browser) return false; // To make SSR build happy
+    return (
+        window?.location?.hostname?.includes('staging') ||
+        (window?.location?.hostname?.includes('localhost') && !emulateProdOnLocalhost)
+    );
 }
 
-/**
- * The shorter title of the site, to be shown when space is limited.
- */
-export function siteShortTitle(): string {
-    return 'The Moses Family';
+function baseApiUrl(): string {
+    return dev ? '/api/' : isStaging() ? 'https://api.staging-pix.tacocat.com/' : 'https://api.pix.tacocat.com/';
+}
+function baseAuthApiUrl(): string {
+    return isStaging() ? 'https://auth.staging-pix.tacocat.com/' : 'https://auth.pix.tacocat.com/';
+}
+
+function cdnDomain(): string {
+    return isStaging() ? 'img.staging-pix.tacocat.com' : 'img.pix.tacocat.com';
 }
 
 /**
@@ -28,7 +38,7 @@ export function siteShortTitle(): string {
  */
 export function thumbnailUrl(imagePath: string, versionId: string, crop?: Rectangle | undefined): string {
     return (
-        `https://${cdnDomain}/i${imagePath}?version=${versionId}&size=200x200` +
+        `https://${cdnDomain()}/i${imagePath}?version=${versionId}&size=200x200` +
         (crop ? `&crop=${crop.x},${crop.y},${crop.width},${crop.height}` : '')
     );
 }
@@ -40,7 +50,7 @@ export function thumbnailUrl(imagePath: string, versionId: string, crop?: Rectan
  * @param size size like '1024' (landscape) or 'x1024' (portrait)
  */
 export function detailImageUrl(imagePath: string, versionId: string, size: string): string {
-    return `https://${cdnDomain}/i${imagePath}?version=${versionId}&size=${size}`;
+    return `https://${cdnDomain()}/i${imagePath}?version=${versionId}&size=${size}`;
 }
 
 /**
@@ -48,7 +58,7 @@ export function detailImageUrl(imagePath: string, versionId: string, size: strin
  * @param imagePath path to an image like /2001/12-31/image.jpg
  */
 export function originalImageUrl(imagePath: string): string {
-    return `https://${cdnDomain}${imagePath}`;
+    return `https://${cdnDomain()}${imagePath}`;
 }
 
 /**
@@ -173,10 +183,6 @@ export function redisResetUrl(): string {
     return baseApiUrl() + 'redis-reset';
 }
 
-function baseApiUrl(): string {
-    return dev ? '/api/' : staging ? 'https://api.staging-pix.tacocat.com/' : 'https://api.pix.tacocat.com/';
-}
-
 /**
  * URL to check user's authentication status
  */
@@ -198,10 +204,16 @@ export function getLogoutUrl(): string {
     return baseAuthApiUrl() + 'logout';
 }
 
-function baseAuthApiUrl(): string {
-    return staging ? 'https://auth.staging-pix.tacocat.com/' : 'https://auth.pix.tacocat.com/';
+/**
+ * The title of the site, such as shown in the header of the site.
+ */
+export function siteTitle(): string {
+    return 'Dean, Lucie, Felix and Milo Moses';
 }
 
-export function getOriginalImagesBucketName(): string {
-    return 'tacocat-gallery-sam-dev-original-images';
+/**
+ * The shorter title of the site, to be shown when space is limited.
+ */
+export function siteShortTitle(): string {
+    return 'The Moses Family';
 }
