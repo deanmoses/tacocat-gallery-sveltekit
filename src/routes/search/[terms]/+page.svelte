@@ -8,13 +8,11 @@
     export let data: PageData;
 
     $: returnPath = data.returnPath;
-    $: searchTerms = data.searchTerms;
+    $: query = data.query;
+    $: searchTerms = data.query.terms;
     $: search = data.search;
     $: status = $search.status;
-    $: searchResults = $search.results;
-    $: oldestYear = data.oldestYear;
-    $: newestYear = data.newestYear;
-    $: oldestFirst = data.oldestFirst;
+    $: results = $search.results;
 </script>
 
 {#if SearchLoadStatus.NOT_LOADED === status}
@@ -23,8 +21,8 @@
     <SearchLoadingPage {searchTerms} {returnPath} />
 {:else if SearchLoadStatus.ERROR_LOADING === status}
     <BlankSearchPageLayout {searchTerms} {returnPath}>There was an error searching</BlankSearchPageLayout>
-{:else if SearchLoadStatus.LOADED === status}
-    <SearchResultsPage {searchTerms} {searchResults} {returnPath} {oldestYear} {newestYear} {oldestFirst} />
+{:else if SearchLoadStatus.LOADED === status || SearchLoadStatus.LOADING_MORE_RESULTS === status || SearchLoadStatus.ERROR_LOADING_MORE_RESULTS === status}
+    <SearchResultsPage {returnPath} {query} {status} {results} />
 {:else}
     <BlankSearchPageLayout {searchTerms} {returnPath}>
         Unhandled status: <div>{status}</div>

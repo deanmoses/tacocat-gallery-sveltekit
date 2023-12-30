@@ -25,14 +25,12 @@
     }
 
     function onSubmit() {
-        const searchTerms = searchInput.value;
-        const oldestYear = toInt((document.getElementById('oldestYear') as HTMLInputElement)?.value);
-        const newestYear = toInt((document.getElementById('newestYear') as HTMLInputElement)?.value);
-        const oldestFirst = toBool((document.getElementById('oldestFirst') as HTMLInputElement)?.checked);
-
-        if (searchTerms) {
-            const searchUrl = localSearchUrl({ terms: searchTerms, oldestYear, newestYear, oldestFirst }, returnPath);
-            goto(searchUrl);
+        const terms = searchInput.value;
+        if (terms) {
+            const oldestYear = toInt((document.getElementById('oldestYear') as HTMLInputElement)?.value);
+            const newestYear = toInt((document.getElementById('newestYear') as HTMLInputElement)?.value);
+            const oldestFirst = toBool((document.getElementById('oldestFirst') as HTMLInputElement)?.checked);
+            goto(localSearchUrl({ terms, oldestYear, newestYear, oldestFirst }, returnPath));
         }
     }
 
@@ -51,9 +49,7 @@
 
 <SiteLayout hideFooter>
     <header>
-        <a href={returnPath}>
-            <ReturnIcon />
-        </a>
+        <a href={returnPath}><ReturnIcon /></a>
         <form on:submit|preventDefault={onSubmit}>
             <input
                 name="searchTerms"
@@ -68,7 +64,6 @@
             <button type="submit" class="btn" {disabled}> Search </button>
         </form>
     </header>
-
     <slot />
 </SiteLayout>
 

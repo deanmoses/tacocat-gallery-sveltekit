@@ -1,9 +1,9 @@
 import { dev } from '$app/environment';
 import type { Rectangle } from '$lib/models/impl/server';
-import type { SearchQuery } from '$lib/stores/SearchStore';
 import { emulateProdOnLocalhost } from './settings';
 import { isValidAlbumPath, isValidImagePath } from './galleryPathUtils';
 import { browser } from '$app/environment';
+import type { SearchQuery } from '$lib/models/search';
 
 /**
  * I'm in staging (aka development) when one of these is true:
@@ -134,27 +134,29 @@ export function renameImageUrl(imagePath: string): string {
 }
 
 /**
- * URL to retrieve latest album
+ * URL to send HTTP GET retrieve latest album
  */
 export function latestAlbumUrl(): string {
     return baseApiUrl() + 'latest-album/';
 }
 
 /**
- * URL of the JSON REST API to search for the specified terms
+ * URL to send HTTP GET to search for the specified terms
  */
-export function searchUrl(q: SearchQuery): string {
+export function searchUrl(q: SearchQuery, startAt: number, pageSize: number): string {
     let url = baseApiUrl() + 'search/' + encodeURIComponent(q.terms);
     const params: string[] = [];
     if (q.oldestYear) params.push('oldest=' + q.oldestYear);
     if (q.newestYear) params.push('newest=' + q.newestYear);
     if (q.oldestFirst) params.push('oldestFirst=' + q.oldestFirst);
+    if (startAt) params.push('startAt=' + startAt);
+    if (pageSize) params.push('pageSize=' + pageSize);
     if (params) url += '?' + params.join('&');
     return url;
 }
 
 /**
- * Relative search URL within the Sveltekit app
+ * Relative URL to the search page within the Sveltekit app
  */
 export function localSearchUrl(q: SearchQuery, returnPath: string): string {
     let url = '/search/' + encodeURIComponent(ensureDumbQuotes(q.terms));

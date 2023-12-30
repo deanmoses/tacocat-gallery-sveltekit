@@ -5,17 +5,29 @@
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import Thumbnails from '$lib/components/site/Thumbnails.svelte';
     import SearchPage from '$lib/components/pages/search/SearchPage.svelte';
-    import type { SearchResults } from '$lib/models/search';
+    import { SearchLoadStatus, type SearchQuery, type SearchResults } from '$lib/models/search';
     import FullPageMessage from '$lib/components/site/FullPageMessage.svelte';
+    import { searchStore } from '$lib/stores/SearchStore';
 
-    export let searchTerms: string;
-    export let searchResults: SearchResults | undefined;
     export let returnPath: string | undefined;
-    export let oldestYear: number | undefined;
-    export let newestYear: number | undefined;
-    export let oldestFirst: boolean;
-    let noResults: boolean;
-    $: noResults = !searchResults?.items;
+    export let query: SearchQuery;
+    export let status: SearchLoadStatus;
+    export let results: SearchResults | undefined;
+
+    $: searchTerms = query.terms;
+    $: oldestYear = query.oldestYear;
+    $: newestYear = query.newestYear;
+    $: oldestFirst = query.oldestFirst;
+    $: noResults = !results?.items;
+    $: moreResultsOnServer = results?.items?.length && results.items.length < results.total;
+    $: numResultsUnfetched = !results?.items?.length ? 0 : results.total - results.items.length;
+    $: loadingMore = SearchLoadStatus.LOADING_MORE_RESULTS == status;
+    $: errorLoadingMore = SearchLoadStatus.ERROR_LOADING_MORE_RESULTS == status;
+
+    function getMoreResults() {
+        const startAt = results?.items?.length ?? 0;
+        searchStore.getMore(query, startAt);
+    }
 </script>
 
 <SearchPage {searchTerms} {returnPath}>
@@ -50,10 +62,22 @@
     <section class:noResults>
         <h2 style="display:none">Search Results</h2>
         <Thumbnails>
-            {#if searchResults?.items}
-                {#each searchResults.items as item (item.path)}
+            {#if results?.items}
+                {#each results.items as item (item.path)}
                     <Thumbnail href={item.href} src={item.thumbnailUrl} title={item.title} summary={item.summary} />
                 {/each}
+                {#if moreResultsOnServer}
+                    {#if errorLoadingMore}
+                        Error loading more results
+                    {:else}
+                        <button on:click={getMoreResults} disabled={loadingMore}>Get More</button>
+                        {#if loadingMore}
+                            Loading...
+                        {:else}
+                            ({numResultsUnfetched} results left)
+                        {/if}
+                    {/if}
+                {/if}
             {:else}
                 <FullPageMessage>No results</FullPageMessage>
             {/if}

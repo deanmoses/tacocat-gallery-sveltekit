@@ -4,8 +4,8 @@
 
 import { writable, type Writable, derived, type Readable, get } from 'svelte/store';
 import { produce } from 'immer';
-import type { Search, SearchResults } from '$lib/models/search';
-import { SearchLoadStatus, SearchUpdateStatus } from '$lib/models/search';
+import type { Search, SearchQuery, SearchResults } from '$lib/models/search';
+import { SearchLoadStatus } from '$lib/models/search';
 import toAlbum from '$lib/models/impl/AlbumCreator';
 import { ImageThumbableImpl } from '$lib/models/impl/ImageThumbableImpl';
 import { searchUrl } from '$lib/utils/config';
@@ -13,13 +13,6 @@ import { longDate } from '$lib/utils/date-utils';
 import { albumPathToDate, getParentFromPath } from '$lib/utils/galleryPathUtils';
 import type { AlbumRecord, GalleryRecord, ImageRecord } from '$lib/models/impl/server';
 import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
-
-export type SearchQuery = {
-    terms: string;
-    oldestYear: number | undefined;
-    newestYear: number | undefined;
-    oldestFirst: boolean | undefined;
-};
 
 /**
  * Manages the Svelte stores of search results
@@ -31,17 +24,6 @@ class SearchStore {
     private searches: Map<SearchQuery, Writable<Search>> = new Map<SearchQuery, Writable<Search>>();
 
     /**
-     * A set of Svelte stores holding the search update state
-     *
-     * Update status is different than load status: updates are AFTER the
-     * initial search has loaded.  You are refreshing the existing results.
-     */
-    private SearchUpdateStatuses: Map<SearchQuery, Writable<SearchUpdateStatus>> = new Map<
-        SearchQuery,
-        Writable<SearchUpdateStatus>
-    >();
-
-    /**
      * Get search results.
      *
      * This will:
@@ -50,39 +32,53 @@ class SearchStore {
      * It will only have search results in it if was already requested
      * since the last page refresh.
      *
-     * 2) It'll then asynchronously look for a version cached on the
-     * browser's local disk.
-     *
-     * 3) And then it will async fetch a live version over the network.
+     * 2) And then it will async fetch a live version over the network.
      *
      * @returns a Svelte store
      */
-    get(query: SearchQuery, refetch = true): Readable<Search> {
+    get(query: SearchQuery): Readable<Search> {
+        // Remove any undefined keys, simply to make logging cleaner
+        for (const key in query) {
+            const k = key as keyof SearchQuery;
+            if (query[k] === undefined) delete query[k];
+        }
         // Get or create the writable version of the search
         const searchEntry = this.getOrCreateWritableStore(query);
-
         const status = get(searchEntry).status;
-
         // I don't have a copy in memory.  Go get it
         if (SearchLoadStatus.NOT_LOADED === status) {
             this.setLoadStatus(query, SearchLoadStatus.LOADING);
             this.fetchFromServer(query);
         }
-        // I have a copy in memory, but the caller has asked to re-fetch
-        else if (refetch && SearchLoadStatus.LOADING !== status) {
-            this.setUpdateStatus(query, SearchUpdateStatus.UPDATING);
-            this.fetchFromServer(query);
-        }
-
         // Derive a read-only Svelte store over the search
         return derived(searchEntry, ($store) => $store);
     }
 
     /**
-     * Fetch search results from server
+     * Get more results for an existing search
+     *
+     * @param startAt The number result from which to start fetching
      */
-    private fetchFromServer(query: SearchQuery): void {
-        fetch(searchUrl(query))
+    getMore(query: SearchQuery, startAt: number): void {
+        // Remove any undefined keys, simply to make logging cleaner
+        for (const key in query) {
+            const k = key as keyof SearchQuery;
+            if (query[k] === undefined) delete query[k];
+        }
+        console.log(`Getting more results...`, query, startAt);
+        this.getOrCreateWritableStore(query);
+        this.setLoadStatus(query, SearchLoadStatus.LOADING_MORE_RESULTS);
+        this.fetchFromServer(query, startAt);
+    }
+
+    /**
+     * Fetch search results from server
+     *
+     * @param startAt The number result from which to start fetching
+     */
+    private fetchFromServer(query: SearchQuery, startAt: number = 0): void {
+        const pageSize = 30;
+        fetch(searchUrl(query, startAt, pageSize))
             .then((response: Response) => {
                 if (!response.ok) {
                     throw new Error(response.statusText);
@@ -90,9 +86,21 @@ class SearchStore {
                 return response.json();
             })
             .then((json) => {
-                console.log(`Search fetched from server`, query, json);
+                console.log(`Search`, query, `fetched from server`, json);
                 const searchResults = this.toSearchResults(json);
                 console.log(`Transformed search results `, searchResults);
+                if (startAt > 0) {
+                    const read = this.searches.get(query);
+                    if (read) {
+                        const prev = get(read);
+                        if (prev.results?.items && searchResults.items) {
+                            console.log(
+                                `Adding ${searchResults.items.length} new results to ${prev.results.items.length} existing results`,
+                            );
+                            searchResults.items = prev.results.items.concat(searchResults.items);
+                        }
+                    }
+                }
                 this.setSearch(query, searchResults); // Put search results in Svelte store
             })
             .catch((error) => {
@@ -108,8 +116,9 @@ class SearchStore {
             case SearchLoadStatus.NOT_LOADED:
                 this.setLoadStatus(query, SearchLoadStatus.ERROR_LOADING);
                 break;
+            case SearchLoadStatus.LOADING_MORE_RESULTS:
             case SearchLoadStatus.LOADED:
-                this.setUpdateStatus(query, SearchUpdateStatus.ERROR_UPDATING);
+                this.setLoadStatus(query, SearchLoadStatus.ERROR_LOADING_MORE_RESULTS);
                 break;
             case SearchLoadStatus.ERROR_LOADING:
                 // already in correct state
@@ -129,8 +138,6 @@ class SearchStore {
             draftState.results = searchResults;
         });
         searchEntry.set(newState);
-
-        this.setUpdateStatus(query, SearchUpdateStatus.NOT_UPDATING);
     }
 
     /**
@@ -147,27 +154,6 @@ class SearchStore {
     private getLoadStatus(query: SearchQuery): SearchLoadStatus {
         const search = this.searches.get(query);
         return !!search ? get(search).status : SearchLoadStatus.NOT_LOADED;
-    }
-
-    private setUpdateStatus(query: SearchQuery, status: SearchUpdateStatus): void {
-        console.log(`Search set update status [${status}]`, query);
-        const updateStatusStore = this.getOrCreateUpdateStatusStore(query);
-        updateStatusStore.set(status);
-    }
-
-    /**
-     * Get the private read-write Svelte store containing the search's update status,
-     * creating it if it doesn't exist
-     */
-    private getOrCreateUpdateStatusStore(query: SearchQuery): Writable<SearchUpdateStatus> {
-        let entryStore: Writable<SearchUpdateStatus> | undefined;
-        entryStore = this.SearchUpdateStatuses.get(query);
-        if (!entryStore) {
-            const newEntry: SearchUpdateStatus = SearchUpdateStatus.NOT_UPDATING;
-            entryStore = writable(newEntry);
-        }
-        this.SearchUpdateStatuses.set(query, entryStore);
-        return entryStore;
     }
 
     /**
@@ -196,11 +182,12 @@ class SearchStore {
     /**
      * Transform from server JSON to a search results object
      *
-     * @param json JSON object coming from server or IDB
+     * @param json JSON object coming from server
      */
     private toSearchResults(json: ServerSearchResults): SearchResults {
         const items: GalleryRecord[] = json.items;
         return {
+            total: json.total,
             items: items.map((i) => this.toThumbable(i)),
         };
     }
