@@ -6,7 +6,7 @@ echo "Deploying files to S3..."
 aws s3 sync build s3://tacocat-gallery-website-hosting-dev-bucket/ --delete --exclude '.DS_Store' --exclude '.well-known'
 
 echo "Kicking off CloudFront invalidation..."
-invalidation_id=$(aws cloudfront create-invalidation --distribution-id $cloudfront_distribution_id --paths "/*" --query Invalidation.Id)
+invalidation_id=$(aws cloudfront create-invalidation --distribution-id $cloudfront_distribution_id --paths "/*" --output json --query Invalidation.Id)
 invalidation_id="${invalidation_id//\"/}" # Remove quotes from around ID
 
 # Wait for cloudfront invalidation to complete
