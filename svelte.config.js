@@ -1,10 +1,10 @@
 import adapter from '@sveltejs/adapter-static';
-import preprocess from 'svelte-preprocess';
+import { sveltePreprocess } from 'svelte-preprocess';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
     // For info on preprocessors, see https://github.com/sveltejs/svelte-preprocess
-    preprocess: preprocess(),
+    preprocess: sveltePreprocess(),
 
     kit: {
         adapter: adapter({
