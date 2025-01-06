@@ -3,6 +3,13 @@
 */
 
 .site-container, /* default colors for years with no styling of their own */
+.site-container[data-year='2025'] {
+    --body-color: #9d7967; /* Mocha Mousse */
+    --header-color: #efe9e1; /* Gardenia */
+    --sidebar-color: #a59a90; /* Cobblestone */
+    --button-color: #8d9e70; /* Tendril */
+}
+
 .site-container[data-year='2024'] {
     --body-color: #fcbe9b; /* Peach Fuzz */
     --header-color: #efcfbb; /* Peaches & Cream */
