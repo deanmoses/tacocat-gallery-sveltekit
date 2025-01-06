@@ -17,9 +17,6 @@ const OFFLINE_CACHE_NAME = `offline${version}`;
 // `files` is an array of everything in the `static` directory
 const staticAssets = new Set(build.concat(files));
 
-// remove files that aren't served to clients
-staticAssets.delete('/robots.txt');
-
 const to_cache = Array.from(staticAssets);
 
 worker.addEventListener('install', (event) => {
