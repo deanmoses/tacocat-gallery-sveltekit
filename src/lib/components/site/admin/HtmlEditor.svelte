@@ -41,12 +41,12 @@
                 toolbar: [['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link']],
             },
             // The formatting to allow in content, including pasted-in content
-            formats: ['header', 'bold', 'italic', 'underline', 'strike', 'list', 'bullet', 'link'],
+            formats: ['header', 'bold', 'italic', 'underline', 'strike', 'list', 'link'],
         });
 
         quill.on('text-change', () => {
             dispatch('change', {
-                html: quill.root.innerHTML,
+                html: quill.getSemanticHTML(),
             });
         });
     }
@@ -60,7 +60,7 @@
     $: {
         if (quill) {
             quill.setContents(
-                quill.clipboard.convert(htmlContent ?? ''),
+                quill.clipboard.convert({html: htmlContent ?? ''}),
                 'silent' /* Don't trigger a text-change event */,
             );
         }
@@ -70,7 +70,7 @@
 <div use:createEditorOnMount />
 
 <style>
-    @import 'https://cdn.quilljs.com/1.3.7/quill.bubble.css';
+    @import 'https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.bubble.css';
 
     /* Undo styling added by Quill's style sheet */
     :global(.ql-container) {
