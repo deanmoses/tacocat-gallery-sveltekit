@@ -2,6 +2,8 @@
   @component Button to create new album
 -->
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     import CreateIcon from '$lib/components/site/icons/CreateIcon.svelte';
@@ -11,13 +13,15 @@
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import TextDialog from './TextDialog.svelte';
 
-    let albumPath: string;
-    $: albumPath = $page.url.pathname + '/';
+    let albumPath: string = $derived($page.url.pathname + '/');
+    
 
-    let show: boolean = false;
-    $: show = isValidYearAlbumPath(albumPath); // Show this button only on year albums
+    let show: boolean = $state(false);
+    run(() => {
+    show = isValidYearAlbumPath(albumPath);
+  }); // Show this button only on year albums
 
-    let dialog: TextDialog;
+    let dialog: TextDialog = $state();
 
     function todayAlbumName(): string {
         const d = new Date();

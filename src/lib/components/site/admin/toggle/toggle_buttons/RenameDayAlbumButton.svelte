@@ -2,6 +2,8 @@
   @component Button to rename a day album
 -->
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     import RenameIcon from '$lib/components/site/icons/RenameIcon.svelte';
@@ -17,14 +19,16 @@
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import TextDialog from './TextDialog.svelte';
 
-    let albumPath: string;
-    $: albumPath = $page.url.pathname + '/';
+    let albumPath: string = $derived($page.url.pathname + '/');
+    
 
     // Show this button only on day albums
-    let show: boolean = false;
-    $: show = isValidDayAlbumPath(albumPath);
+    let show: boolean = $state(false);
+    run(() => {
+    show = isValidDayAlbumPath(albumPath);
+  });
 
-    let dialog: TextDialog;
+    let dialog: TextDialog = $state();
 
     function originalName(): string {
         const albumName = getNameFromPath(albumPath);

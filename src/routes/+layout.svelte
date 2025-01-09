@@ -9,6 +9,11 @@
     import { albumStore } from '$lib/stores/AlbumStore';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import { isAdmin } from '$lib/stores/SessionStore';
+    interface Props {
+        children?: import('svelte').Snippet;
+    }
+
+    let { children }: Props = $props();
 
     /**
      * Handle keyboard navigation
@@ -37,7 +42,7 @@
     }
 </script>
 
-<slot />
+{@render children?.()}
 {#if $isAdmin}
     <!-- 
 		Lazy / async / dynamic load this component.
@@ -49,4 +54,4 @@
         <SvelteToast />
     {/await}
 {/if}
-<svelte:window on:keydown={onKeyPress} />
+<svelte:window onkeydown={onKeyPress} />

@@ -2,11 +2,20 @@
   @component Full screen zone for dropping images into an album or replacing a single image
 -->
 <script lang="ts">
-    export let isDropAllowed: (e: DragEvent) => boolean;
-    export let onDrop: (e: DragEvent) => Promise<void>;
+  import { run, preventDefault } from 'svelte/legacy';
 
-    let dragging = false;
-    $: dragging = dragging;
+  interface Props {
+    isDropAllowed: (e: DragEvent) => boolean;
+    onDrop: (e: DragEvent) => Promise<void>;
+    children?: import('svelte').Snippet;
+  }
+
+  let { isDropAllowed, onDrop, children }: Props = $props();
+
+    let dragging = $state(false);
+    run(() => {
+    dragging = dragging;
+  });
 
     function dragEnter(e: DragEvent) {
         if (!isDropAllowed(e)) return;
@@ -32,11 +41,11 @@
 </script>
 
 {#if dragging}
-    <p on:dragleave|preventDefault={dragLeave} on:dragover|preventDefault={dragOver} on:drop|preventDefault={drop}>
-        <slot />
+    <p ondragleave={preventDefault(dragLeave)} ondragover={preventDefault(dragOver)} ondrop={preventDefault(drop)}>
+        {@render children?.()}
     </p>
 {/if}
-<svelte:window on:dragenter|preventDefault={dragEnter} on:dragover|preventDefault={dragOver} />
+<svelte:window ondragenter={preventDefault(dragEnter)} ondragover={preventDefault(dragOver)} />
 
 <style>
     p {

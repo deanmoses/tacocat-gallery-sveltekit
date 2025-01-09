@@ -5,14 +5,18 @@
     import { SearchLoadStatus } from '$lib/models/search';
     import type { PageData } from './$types';
 
-    export let data: PageData;
+    interface Props {
+        data: PageData;
+    }
 
-    $: returnPath = data.returnPath;
-    $: query = data.query;
-    $: searchTerms = data.query.terms;
-    $: search = data.search;
-    $: status = $search.status;
-    $: results = $search.results;
+    let { data }: Props = $props();
+
+    let returnPath = $derived(data.returnPath);
+    let query = $derived(data.query);
+    let searchTerms = $derived(data.query.terms);
+    let search = $derived(data.search);
+    let status = $derived($search.status);
+    let results = $derived($search.results);
 </script>
 
 {#if SearchLoadStatus.NOT_LOADED === status}

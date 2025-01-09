@@ -3,19 +3,25 @@
     import ImageRouting from '$lib/components/pages/image/ImageRouting.svelte';
     import type { PageData } from './$types';
 
-    export let data: PageData;
+    interface Props {
+        data: PageData;
+    }
 
-    $: albumEntry = data.albumEntry;
-    $: album = $albumEntry.album;
-    $: albumLoadStatus = $albumEntry.loadStatus;
-    $: imagePath = data.imagePath;
-    $: image = album?.getImage(imagePath);
+    let { data }: Props = $props();
+
+    let albumEntry = $derived(data.albumEntry);
+    let album = $derived($albumEntry.album);
+    let albumLoadStatus = $derived($albumEntry.loadStatus);
+    let imagePath = $derived(data.imagePath);
+    let image = $derived(album?.getImage(imagePath));
 </script>
 
 <ImageRouting {albumLoadStatus} {image}>
-    <svelte:fragment slot="loaded">
-        {#if image}
-            <CropPage {image} />
-        {/if}
-    </svelte:fragment>
+    {#snippet loaded()}
+    
+            {#if image}
+                <CropPage {image} />
+            {/if}
+        
+    {/snippet}
 </ImageRouting>

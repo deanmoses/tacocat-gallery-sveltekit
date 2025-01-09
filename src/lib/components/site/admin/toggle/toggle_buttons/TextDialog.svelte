@@ -2,6 +2,8 @@
   @component Dialog to get a text input from user, such as a new album name 
 -->
 <script lang="ts">
+  import { preventDefault } from 'svelte/legacy';
+
     import { createEventDispatcher } from 'svelte';
     import Dialog from '../../Dialog.svelte';
     import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
@@ -9,14 +11,24 @@
 
     const dispatch = createEventDispatcher();
 
-    export let label: string;
-    export let initialValue: string;
-    export let extension: string = '';
-    export let sanitizor: (n: string) => string;
-    export let validator: (n: string) => Promise<string | undefined>;
-    let dialog: Dialog;
-    let textfield: HTMLInputElement;
-    let errorMsg: string;
+  interface Props {
+    label: string;
+    initialValue: string;
+    extension?: string;
+    sanitizor: (n: string) => string;
+    validator: (n: string) => Promise<string | undefined>;
+  }
+
+  let {
+    label,
+    initialValue,
+    extension = '',
+    sanitizor,
+    validator
+  }: Props = $props();
+    let dialog: Dialog = $state();
+    let textfield: HTMLInputElement = $state();
+    let errorMsg: string = $state();
 
     export function show(): void {
         dialog.show();
@@ -56,26 +68,30 @@
 </script>
 
 <Dialog bind:this={dialog} on:keydown={onKeyPress}>
-    <svelte:fragment slot="content">
-        <label>
-            <div class="label">{label}</div>
-            <input
-                type="text"
-                name="text"
-                bind:this={textfield}
-                value={initialValue}
-                on:input={onTextChange}
-                required
-            />{extension}
-            {#if errorMsg}
-                <div class="errorMsg">{errorMsg}</div>
-            {/if}
-        </label>
-    </svelte:fragment>
-    <svelte:fragment slot="buttons">
-        <button on:click={onCancelButtonClick}><CancelIcon /> Cancel</button>
-        <button on:click|preventDefault={onSubmit}><SaveIcon /> Confirm</button>
-    </svelte:fragment>
+    {#snippet content()}
+  
+          <label>
+              <div class="label">{label}</div>
+              <input
+                  type="text"
+                  name="text"
+                  bind:this={textfield}
+                  value={initialValue}
+                  oninput={onTextChange}
+                  required
+              />{extension}
+              {#if errorMsg}
+                  <div class="errorMsg">{errorMsg}</div>
+              {/if}
+          </label>
+      
+  {/snippet}
+    {#snippet buttons()}
+  
+          <button onclick={onCancelButtonClick}><CancelIcon /> Cancel</button>
+          <button onclick={preventDefault(onSubmit)}><SaveIcon /> Confirm</button>
+      
+  {/snippet}
 </Dialog>
 
 <style>

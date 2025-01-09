@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import { page } from '$app/stores';
     import AlbumErrorPage from '$lib/components/pages/album/AlbumErrorPage.svelte';
 </script>

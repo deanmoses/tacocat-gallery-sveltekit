@@ -4,12 +4,24 @@
 <script lang="ts">
     import UnpublishedIcon from './icons/UnpublishedIcon.svelte';
 
-    export let src: string = '';
-    export let href: string = '';
-    export let title: string = '';
-    export let summary: string = '';
-    export let published: boolean = true;
-    $: unpublished = !published;
+  interface Props {
+    src?: string;
+    href?: string;
+    title?: string;
+    summary?: string;
+    published?: boolean;
+    selectionControls?: import('svelte').Snippet;
+  }
+
+  let {
+    src = '',
+    href = '',
+    title = '',
+    summary = '',
+    published = true,
+    selectionControls
+  }: Props = $props();
+    let unpublished = $derived(!published);
 </script>
 
 <div class="thumbnail">
@@ -19,7 +31,7 @@
             </div>{/if}</a
     ><a {href}>{title}</a>
 
-    <slot name="selectionControls" />
+    {@render selectionControls?.()}
     {#if summary}
         <div class="summary">{summary}</div>
     {/if}

@@ -9,8 +9,23 @@
     import Sidebar from '$lib/components/site/Sidebar.svelte';
     import MainContent from '$lib/components/site/MainContent.svelte';
     import { getYear } from '$lib/stores/YearStore';
+  interface Props {
+    editControls?: import('svelte').Snippet;
+    nav?: import('svelte').Snippet;
+    caption?: import('svelte').Snippet;
+    thumbnails?: import('svelte').Snippet;
+  }
 
-    $: year = getYear();
+  let {
+    editControls,
+    nav,
+    caption,
+    thumbnails
+  }: Props = $props();
+
+    let year = $derived(getYear());
+
+  const editControls_render = $derived(editControls);
 </script>
 
 <svelte:head>
@@ -18,24 +33,26 @@
 </svelte:head>
 
 <SiteLayout>
-    <svelte:fragment slot="editControls"><slot name="editControls" /></svelte:fragment>
+    {#snippet editControls()}
+    {@render editControls_render?.()}
+  {/snippet}
     <Header hideBottomBorder>
         {$year}
     </Header>
     <Nav>
-        <slot name="nav" />
+        {@render nav?.()}
     </Nav>
     <PageContent>
         <Sidebar>
             <section class="caption">
                 <h2>Year In Review</h2>
-                <slot name="caption" />
+                {@render caption?.()}
             </section>
         </Sidebar>
         <MainContent>
             <section class="months">
                 <h2>Thumbnails</h2>
-                <slot name="thumbnails" />
+                {@render thumbnails?.()}
             </section>
         </MainContent>
     </PageContent>

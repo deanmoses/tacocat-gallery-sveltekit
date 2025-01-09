@@ -1,7 +1,7 @@
 <!--
     @component Page containing gallery administration functionality
 -->
-<script>
+<script lang="ts">
     import ResetRedisButton from '$lib/components/site/admin/admin_controls/ResetRedisButton.svelte';
 </script>
 

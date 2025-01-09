@@ -5,8 +5,12 @@
     import { getLoginUrl } from '$lib/utils/config';
     import type { PageData } from './$types';
 
-    export let data: PageData;
-    $: isAdmin = data.isAdmin;
+    interface Props {
+        data: PageData;
+    }
+
+    let { data }: Props = $props();
+    let isAdmin = $derived(data.isAdmin);
 </script>
 
 <AdminPageLayout>

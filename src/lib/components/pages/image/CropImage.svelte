@@ -6,7 +6,11 @@
     import type { Image } from '$lib/models/GalleryItemInterfaces';
 
     type Crop = { x: number; y: number; height: number; width: number };
-    export let image: Image;
+  interface Props {
+    image: Image;
+  }
+
+  let { image }: Props = $props();
     export function getCrop(): Crop {
         return newCrop;
     }

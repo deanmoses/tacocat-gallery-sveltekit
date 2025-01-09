@@ -4,11 +4,15 @@
     import type { AlbumEntry } from '$lib/models/album';
     import RootAlbumRouting from '$lib/components/pages/album/root/RootAlbumRouting.svelte';
 
-    export let data: PageData;
+    interface Props {
+        data: PageData;
+    }
+
+    let { data }: Props = $props();
 
     let albumEntry: Readable<AlbumEntry> = data.albumEntry;
-    $: album = $albumEntry.album;
-    $: status = $albumEntry.loadStatus;
+    let album = $derived($albumEntry.album);
+    let status = $derived($albumEntry.loadStatus);
 </script>
 
 <RootAlbumRouting {status} {album} />

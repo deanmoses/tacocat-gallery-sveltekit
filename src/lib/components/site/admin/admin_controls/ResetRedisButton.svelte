@@ -1,17 +1,23 @@
 <!--
     @component Button to reset the Redis search engine
 -->
-<script>
+<script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import { redisResetUrl } from '$lib/utils/config';
     import { toast } from '@zerodevx/svelte-toast';
     import ResetIcon from '../../icons/ResetIcon.svelte';
 
-    let resetStatus = '';
-    $: resetStatus;
-    $: title = resetStatus || 'Reset Redis';
+    let resetStatus = $state('');
+    run(() => {
+        resetStatus;
+    });
+    let title = $derived(resetStatus || 'Reset Redis');
 
-    let disabled = false;
-    $: disabled = resetStatus !== '';
+    let disabled = $state(false);
+    run(() => {
+        disabled = resetStatus !== '';
+    });
 
     async function onClick() {
         resetStatus = 'Resetting...';
@@ -34,6 +40,6 @@
 </script>
 
 <label>
-    <button {title} type="button" on:click={onClick} {disabled}><ResetIcon /> {title}</button>
+    <button {title} type="button" onclick={onClick} {disabled}><ResetIcon /> {title}</button>
     Reset the Redis search engine
 </label>

@@ -11,8 +11,13 @@
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
     import FullPageMessage from '$lib/components/site/FullPageMessage.svelte';
 
-    export let title: string;
-    export let hideFooter = false;
+  interface Props {
+    title: string;
+    hideFooter?: boolean;
+    children?: import('svelte').Snippet;
+  }
+
+  let { title, hideFooter = false, children }: Props = $props();
 </script>
 
 <svelte:head>
@@ -27,6 +32,6 @@
         <NextButton />
     </Nav>
     <FullPageMessage>
-        <slot />
+        {@render children?.()}
     </FullPageMessage>
 </SiteLayout>

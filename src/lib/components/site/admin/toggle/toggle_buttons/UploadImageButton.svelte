@@ -8,10 +8,10 @@
     import { isValidImagePath, validExtensionsString } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
-    $: imagePath = $page.url.pathname;
-    $: show = isValidImagePath($page.url.pathname); // Show this button only on image pages
+    let imagePath = $derived($page.url.pathname);
+    let show = $derived(isValidImagePath($page.url.pathname)); // Show this button only on image pages
 
-    let fileInput: HTMLInputElement;
+    let fileInput: HTMLInputElement = $state();
 
     async function onUploadButtonClick() {
         fileInput.click();
@@ -32,7 +32,7 @@
     >
     <input
         bind:this={fileInput}
-        on:change={onFileSelected}
+        onchange={onFileSelected}
         type="file"
         id="fileInput"
         accept={validExtensionsString()}

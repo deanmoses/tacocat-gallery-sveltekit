@@ -15,42 +15,55 @@
     import type { Album, Image } from '$lib/models/GalleryItemInterfaces';
     import ImageFullScreenDropZone from './ImageFullScreenDropZone.svelte';
 
-    export let album: Album;
-    export let image: Image;
+  interface Props {
+    album: Album;
+    image: Image;
+  }
+
+  let { album, image }: Props = $props();
 
     let okToNavigate = DraftStore.getOkToNavigate();
 </script>
 
 <ImagePageLayout title={image.title}>
-    <svelte:fragment slot="editControls">
-        <BaseEditControls />
-    </svelte:fragment>
+    {#snippet editControls()}
+  
+          <BaseEditControls />
+      
+  {/snippet}
 
-    <svelte:fragment slot="title">
+    <!-- @migration-task: migrate this slot by hand, `title` would shadow a prop on the parent component -->
+  <svelte:fragment slot="title">
         <!-- The #key block is an attempt to prevent the lagging title problem. Have not yet tested it out.  -->
         {#key image.path}
             <EditableText textContent={image.title} />
         {/key}
     </svelte:fragment>
 
-    <svelte:fragment slot="caption">
-        <EditableHtml htmlContent={image.description} />
-    </svelte:fragment>
+    {#snippet caption()}
+  
+          <EditableHtml htmlContent={image.description} />
+      
+  {/snippet}
 
-    <svelte:fragment slot="nav">
-        {#if $okToNavigate}
-            <PrevButton href={editUrl(image.prevHref)} />
-            <UpButton href={editUrl(album.href)} title={album.title} />
-            <NextButton href={editUrl(image.nextHref)} />
-        {:else}
-            <PrevButton />
-            <UpButton title={album.title} />
-            <NextButton />
-        {/if}
-    </svelte:fragment>
+    {#snippet nav()}
+  
+          {#if $okToNavigate}
+              <PrevButton href={editUrl(image.prevHref)} />
+              <UpButton href={editUrl(album.href)} title={album.title} />
+              <NextButton href={editUrl(image.nextHref)} />
+          {:else}
+              <PrevButton />
+              <UpButton title={album.title} />
+              <NextButton />
+          {/if}
+      
+  {/snippet}
 
-    <svelte:fragment slot="image">
-        <BigImage {image} />
-    </svelte:fragment>
+    {#snippet image()}
+  
+          <BigImage {image} />
+      
+  {/snippet}
 </ImagePageLayout>
 <ImageFullScreenDropZone imagePath={image.path} allowDrop={$okToNavigate} />

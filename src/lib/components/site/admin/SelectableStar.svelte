@@ -2,22 +2,30 @@
   @component Star that allows for selection.  Meant to be used in a thumbnail
 -->
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
     import EmptyStarIcon from '../icons/EmptyStarIcon.svelte';
     import FilledStarIcon from '../icons/FilledStarIcon.svelte';
     import TransitionStarIcon from '../icons/TransitionStarIcon.svelte';
     import { createEventDispatcher } from 'svelte';
 
-    export let path: string;
-    export let albumThumbPath: string | undefined;
+  interface Props {
+    path: string;
+    albumThumbPath: string | undefined;
+  }
 
-    let selected = false;
-    $: selected = path === albumThumbPath;
+  let { path, albumThumbPath }: Props = $props();
 
-    let selecting: boolean;
-    $: {
+    let selected = $state(false);
+    run(() => {
+    selected = path === albumThumbPath;
+  });
+
+    let selecting: boolean = $state();
+    run(() => {
         console.log('selected: ', selected); // this is needed so that $: changes every time selected changes.  Grr.
         selecting = false;
-    }
+    });
 
     const dispatch = createEventDispatcher<{ selected: { path: string } }>();
 

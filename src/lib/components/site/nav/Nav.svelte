@@ -1,9 +1,17 @@
+<script lang="ts">
+  interface Props {
+    children?: import('svelte').Snippet;
+  }
+
+  let { children }: Props = $props();
+</script>
+
 <!--
   @component For grouping a set of navigation buttons together
 -->
 
 <nav>
-    <slot />
+    {@render children?.()}
 </nav>
 
 <style>

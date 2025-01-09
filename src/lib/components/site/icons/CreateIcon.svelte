@@ -4,9 +4,13 @@
 <script lang="ts">
     import Icon from './Icon.svelte';
 
-    export let width = '1em';
-    export let height = '1em';
-    export let title: string | undefined = undefined;
+  interface Props {
+    width?: string;
+    height?: string;
+    title?: string | undefined;
+  }
+
+  let { width = '1em', height = '1em', title = undefined }: Props = $props();
 
     const d = 'M10 1.6a8.4 8.4 0 1 0 0 16.8 8.4 8.4 0 0 0 0-16.8zm5 9.4h-4v4H9v-4H5V9h4V5h2v4h4v2z';
     const viewBox = '-1 -3 22 22';

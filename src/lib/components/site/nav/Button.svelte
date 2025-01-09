@@ -2,14 +2,18 @@
   @component Base component for nav buttons
 -->
 <script lang="ts">
-    export let href: string = '';
-    export let title: string;
+    interface Props {
+        href?: string;
+        title: string;
+        children?: import('svelte').Snippet;
+    }
 
-    let disabled: boolean;
-    $: disabled = !href ? true : null;
+    let { href = '', title, children }: Props = $props();
+
+    let ariaDisabled: boolean | null = $derived(!href ? true : null);
 </script>
 
-<a {title} {href} {disabled}><span><slot /></span></a>
+<a {title} {href} aria-disabled={ariaDisabled}><span>{@render children?.()}</span></a>
 
 <style>
     a {
@@ -31,11 +35,11 @@
         padding: 6px 12px;
     }
 
-    a[disabled] {
+    a[aria-disabled] {
         background-color: white;
     }
 
-    a[disabled] span {
+    a[aria-disabled] span {
         color: #ccc;
         cursor: not-allowed;
         opacity: 0.65;

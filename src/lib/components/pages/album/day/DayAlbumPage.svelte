@@ -12,56 +12,69 @@
     import type { UploadEntry } from '$lib/models/album';
     import { isAdmin } from '$lib/stores/SessionStore';
 
-    export let album: Album;
-    export let uploads: UploadEntry[] | undefined = undefined;
+  interface Props {
+    album: Album;
+    uploads?: UploadEntry[] | undefined;
+  }
+
+  let { album, uploads = undefined }: Props = $props();
 </script>
 
 <DayAlbumPageLayout title={album.title} published={album.published}>
-    <svelte:fragment slot="editControls">
-        <AdminToggle />
-    </svelte:fragment>
+    {#snippet editControls()}
+  
+          <AdminToggle />
+      
+  {/snippet}
 
-    <svelte:fragment slot="title">
+    <!-- @migration-task: migrate this slot by hand, `title` would shadow a prop on the parent component -->
+  <svelte:fragment slot="title">
         {album.title}
     </svelte:fragment>
 
-    <svelte:fragment slot="nav">
-        <PrevButton href={album.nextHref} title={album.nextTitle} />
-        <UpButton href={album.parentHref} title={album.parentTitle} />
-        <NextButton href={album.prevHref} title={album.prevTitle} />
-    </svelte:fragment>
+    {#snippet nav()}
+  
+          <PrevButton href={album.nextHref} title={album.nextTitle} />
+          <UpButton href={album.parentHref} title={album.parentTitle} />
+          <NextButton href={album.prevHref} title={album.prevTitle} />
+      
+  {/snippet}
 
-    <svelte:fragment slot="caption">
-        {#if uploads?.length}
-            {#await import('./UploadStatus.svelte') then { default: UploadStatus }}
-                <UploadStatus {uploads} />
-            {/await}
-        {:else}
-            {@html album.description}
-        {/if}
-    </svelte:fragment>
+    {#snippet caption()}
+  
+          {#if uploads?.length}
+              {#await import('./UploadStatus.svelte') then { default: UploadStatus }}
+                  <UploadStatus {uploads} />
+              {/await}
+          {:else}
+              {@html album.description}
+          {/if}
+      
+  {/snippet}
 
-    <svelte:fragment slot="thumbnails">
-        {#if album.images?.length}
-            {#each album.images as image (image.path)}
-                <Thumbnail title={image.title} src={image.thumbnailUrl} summary={image.summary} href={image.href} />
-            {/each}
-        {:else if !album.published && !uploads?.length}
-            <p>Drop images or a 📁</p>
-        {/if}
-        {#if uploads?.length}
-            <!-- 
-                Lazy / async / dynamic load the component
-                It's a hint to the bundling system that it can be put into a separate bundle, 
-                so that non-admins aren't forced to download the code.
-            -->
-            {#await import('$lib/components/site/admin/UploadThumbnail.svelte') then { default: UploadThumbnail }}
-                {#each uploads as upload (upload.imagePath)}
-                    <UploadThumbnail {upload} />
-                {/each}
-            {/await}
-        {/if}
-    </svelte:fragment>
+    {#snippet thumbnails()}
+  
+          {#if album.images?.length}
+              {#each album.images as image (image.path)}
+                  <Thumbnail title={image.title} src={image.thumbnailUrl} summary={image.summary} href={image.href} />
+              {/each}
+          {:else if !album.published && !uploads?.length}
+              <p>Drop images or a 📁</p>
+          {/if}
+          {#if uploads?.length}
+              <!-- 
+                  Lazy / async / dynamic load the component
+                  It's a hint to the bundling system that it can be put into a separate bundle, 
+                  so that non-admins aren't forced to download the code.
+              -->
+              {#await import('$lib/components/site/admin/UploadThumbnail.svelte') then { default: UploadThumbnail }}
+                  {#each uploads as upload (upload.imagePath)}
+                      <UploadThumbnail {upload} />
+                  {/each}
+              {/await}
+          {/if}
+      
+  {/snippet}
 </DayAlbumPageLayout>
 
 {#if $isAdmin}

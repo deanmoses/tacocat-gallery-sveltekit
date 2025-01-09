@@ -7,11 +7,11 @@
     import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
     import { latestAlbumThumbnailEntry } from '$lib/stores/LatestAlbumStore';
 
-    let status: AlbumLoadStatus;
-    $: status = $latestAlbumThumbnailEntry.status;
+    let status: AlbumLoadStatus = $derived($latestAlbumThumbnailEntry.status);
+    
 
-    let thumb: Thumbable | undefined;
-    $: thumb = $latestAlbumThumbnailEntry.thumbnail;
+    let thumb: Thumbable | undefined = $derived($latestAlbumThumbnailEntry.thumbnail);
+    
 </script>
 
 {#if AlbumLoadStatus.NOT_LOADED == status}

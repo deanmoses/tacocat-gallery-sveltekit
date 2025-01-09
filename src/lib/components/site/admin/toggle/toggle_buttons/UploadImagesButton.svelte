@@ -8,10 +8,10 @@
     import { isValidDayAlbumPath, validExtensionsString } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
-    $: albumPath = $page.url.pathname + '/';
-    $: show = isValidDayAlbumPath(albumPath); // Show this button only on day ablums
+    let albumPath = $derived($page.url.pathname + '/');
+    let show = $derived(isValidDayAlbumPath(albumPath)); // Show this button only on day ablums
 
-    let fileInput: HTMLInputElement;
+    let fileInput: HTMLInputElement = $state();
 
     async function onUploadButtonClick() {
         fileInput.click();
@@ -26,7 +26,7 @@
     <ControlStripButton on:click={onUploadButtonClick}><UploadIcon />Upload</ControlStripButton>
     <input
         bind:this={fileInput}
-        on:change={onFilesSelected}
+        onchange={onFilesSelected}
         type="file"
         multiple
         accept={validExtensionsString()}

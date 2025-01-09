@@ -1,9 +1,17 @@
+<script lang="ts">
+  interface Props {
+    children?: import('svelte').Snippet;
+  }
+
+  let { children }: Props = $props();
+</script>
+
 <!--
   @component The main content of a page.  In an image page, that'd be the caption and image.  In an album, the thumbnails.
 -->
 
 <div class="main-content">
-    <slot />
+    {@render children?.()}
 </div>
 
 <style>

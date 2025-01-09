@@ -5,8 +5,12 @@
     import LogoutIcon from '$lib/components/site/icons/LogoutIcon.svelte';
     import { getLoginUrl, getLogoutUrl } from '$lib/utils/config';
 
-    export let data: PageData;
-    $: isAdmin = data.isAdmin;
+    interface Props {
+        data: PageData;
+    }
+
+    let { data }: Props = $props();
+    let isAdmin = $derived(data.isAdmin);
 </script>
 
 <BlankSearchPageLayout searchTerms="" returnPath="/" title={$isAdmin ? 'Logout' : 'Login'}>

@@ -8,16 +8,21 @@
     import { albumPathToDate } from '$lib/utils/galleryPathUtils';
     import type { Album, Thumbable } from '$lib/models/GalleryItemInterfaces';
 
-    export let album: Album;
 
+    
+  interface Props {
+    album: Album;
     /**
      * Function to create URL to child album.
      * Needed to handle edit URLs.
      * If not passed in, uses default non-edit URL behavior
      */
-    export let albumUrlCreator: (path: string | undefined) => string | undefined = (path) => {
+    albumUrlCreator?: (path: string | undefined) => string | undefined;
+  }
+
+  let { album, albumUrlCreator = (path) => {
         return path;
-    };
+    } }: Props = $props();
 
     type AlbumsByMonth = Array<{
         monthName: string;

@@ -5,13 +5,23 @@
     import SearchPage from '$lib/components/pages/search/SearchPage.svelte';
     import FullPageMessage from '$lib/components/site/FullPageMessage.svelte';
 
-    export let title: string | undefined = undefined;
-    export let searchTerms: string;
-    export let returnPath: string | undefined;
+  interface Props {
+    title?: string | undefined;
+    searchTerms: string;
+    returnPath: string | undefined;
+    children?: import('svelte').Snippet;
+  }
+
+  let {
+    title = undefined,
+    searchTerms,
+    returnPath,
+    children
+  }: Props = $props();
 </script>
 
 <SearchPage {searchTerms} {returnPath} {title}>
     <FullPageMessage>
-        <slot />
+        {@render children?.()}
     </FullPageMessage>
 </SearchPage>

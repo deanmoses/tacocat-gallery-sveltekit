@@ -5,6 +5,8 @@
 -->
 
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
     import EditControlsLayout from './EditControlsLayout.svelte';
     import CancelButton from './buttons/CancelButton.svelte';
     import SaveButton from './buttons/SaveButton.svelte';
@@ -15,15 +17,17 @@
     import { goto } from '$app/navigation';
     import { unEditUrl } from '$lib/utils/path-utils';
     import { isValidImagePath } from '$lib/utils/galleryPathUtils';
+  interface Props {
+    rightControls?: import('svelte').Snippet;
+  }
+
+  let { rightControls }: Props = $props();
 
     const status = draftStore.getStatus();
 
-    let path: string | undefined = unEditUrl($page.url.pathname);
-    $: path = unEditUrl($page.url.pathname);
-    $: handleNavigation(path);
+    let path: string | undefined = $state(unEditUrl($page.url.pathname));
 
-    let hasUnsavedChanges: boolean;
-    $: hasUnsavedChanges = $status == DraftStatus.UNSAVED_CHANGES;
+    let hasUnsavedChanges: boolean = $derived($status == DraftStatus.UNSAVED_CHANGES);
 
     function handleNavigation(path: string | undefined): void {
         // Cancel the draft when any navigation happens
@@ -45,19 +49,34 @@
     async function onSaveButtonClick() {
         await draftStore.save();
     }
+    run(() => {
+    path = unEditUrl($page.url.pathname);
+  });
+    run(() => {
+    handleNavigation(path);
+  });
+    
+
+  const rightControls_render = $derived(rightControls);
 </script>
 
 <EditControlsLayout>
-    <svelte:fragment slot="leftControls">
-        <CancelButton on:click|once={onCancelButtonClick} />
-    </svelte:fragment>
+    {#snippet leftControls()}
+  
+          <CancelButton on:click|once={onCancelButtonClick} />
+      
+  {/snippet}
 
-    <svelte:fragment slot="status">
-        <StatusMessage status={$status} />
-    </svelte:fragment>
+    {#snippet status()}
+  
+          <StatusMessage status={$status} />
+      
+  {/snippet}
 
-    <svelte:fragment slot="rightControls">
-        <slot name="rightControls" />
-        <SaveButton on:click={onSaveButtonClick} {hasUnsavedChanges} />
-    </svelte:fragment>
+    {#snippet rightControls()}
+  
+          {@render rightControls_render?.()}
+          <SaveButton on:click={onSaveButtonClick} {hasUnsavedChanges} />
+      
+  {/snippet}
 </EditControlsLayout>

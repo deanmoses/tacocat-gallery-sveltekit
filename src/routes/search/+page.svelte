@@ -2,9 +2,13 @@
 	import SearchPage from '$lib/components/pages/search/SearchPage.svelte';
 	import type { PageData } from './$types';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
 
-	$: returnPath = data.returnPath;
+	let { data }: Props = $props();
+
+	let returnPath = $derived(data.returnPath);
 </script>
 
 <SearchPage {returnPath} />

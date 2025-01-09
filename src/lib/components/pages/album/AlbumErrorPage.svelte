@@ -4,9 +4,14 @@
 <script lang="ts">
     import BlankAlbumPageLayout from './BlankAlbumPageLayout.svelte';
 
-    export let title = 'Error';
+  interface Props {
+    title?: string;
+    children?: import('svelte').Snippet;
+  }
+
+  let { title = 'Error', children }: Props = $props();
 </script>
 
 <BlankAlbumPageLayout {title} hideFooter>
-    <slot />
+    {@render children?.()}
 </BlankAlbumPageLayout>

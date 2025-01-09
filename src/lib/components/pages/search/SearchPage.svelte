@@ -2,19 +2,31 @@
   @component Page that displays blank search input
 -->
 <script lang="ts">
+  import { preventDefault } from 'svelte/legacy';
+
     import { goto } from '$app/navigation';
     import SiteLayout from '$lib/components/site/SiteLayout.svelte';
     import ReturnIcon from '$lib/components/site/icons/ReturnIcon.svelte';
     import { localSearchUrl } from '$lib/utils/config';
 
-    export let searchTerms: string = '';
-    export let returnPath: string = '';
-    export let title: string = '';
+  interface Props {
+    searchTerms?: string;
+    returnPath?: string;
+    title?: string;
+    children?: import('svelte').Snippet;
+  }
 
-    let searchInput: HTMLInputElement;
+  let {
+    searchTerms = $bindable(''),
+    returnPath = '',
+    title = '',
+    children
+  }: Props = $props();
 
-    $: pageTitle = searchTerms ? `Search for ${searchTerms}` : title || 'Search The Moses Family';
-    $: disabled = 3 > searchTerms.length;
+    let searchInput: HTMLInputElement = $state();
+
+    let pageTitle = $derived(searchTerms ? `Search for ${searchTerms}` : title || 'Search The Moses Family');
+    let disabled = $derived(3 > searchTerms.length);
 
     function autofocus(formInput: HTMLInputElement) {
         formInput.focus();
@@ -50,21 +62,21 @@
 <SiteLayout hideFooter>
     <header>
         <a href={returnPath}><ReturnIcon /></a>
-        <form on:submit|preventDefault={onSubmit}>
+        <form onsubmit={preventDefault(onSubmit)}>
             <input
                 name="searchTerms"
                 type="text"
                 placeholder="search"
                 autocapitalize="off"
                 value={searchTerms}
-                on:input={onInput}
+                oninput={onInput}
                 bind:this={searchInput}
                 use:autofocus
             />
             <button type="submit" class="btn" {disabled}> Search </button>
         </form>
     </header>
-    <slot />
+    {@render children?.()}
 </SiteLayout>
 
 <style>

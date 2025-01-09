@@ -2,6 +2,8 @@
   @component Button to rename an image
 -->
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     import RenameIcon from '$lib/components/site/icons/RenameIcon.svelte';
@@ -18,14 +20,16 @@
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import TextDialog from './TextDialog.svelte';
 
-    let imagePath: string;
-    $: imagePath = $page.url.pathname;
+    let imagePath: string = $derived($page.url.pathname);
+    
 
     // Show this button only on images
-    let show: boolean = false;
-    $: show = isValidImagePath(imagePath);
+    let show: boolean = $state(false);
+    run(() => {
+    show = isValidImagePath(imagePath);
+  });
 
-    let dialog: TextDialog;
+    let dialog: TextDialog = $state();
 
     function originalImageName(): string {
         const imageName = getNameFromPath(imagePath);

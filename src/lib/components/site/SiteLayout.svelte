@@ -5,15 +5,21 @@
     import { getYear } from '$lib/stores/YearStore';
     import Footer from './Footer.svelte';
 
-    export let hideFooter = false;
-    $: year = getYear();
+    interface Props {
+        hideFooter?: boolean;
+        editControls?: import('svelte').Snippet;
+        children?: import('svelte').Snippet;
+    }
+
+    let { hideFooter = false, editControls, children }: Props = $props();
+    let year = $derived(getYear());
 </script>
 
-<slot name="editControls" />
+{@render editControls?.()}
 
 <div class="site-container" data-year={$year || null}>
     <div class="page-container">
-        <slot />
+        {@render children?.()}
     </div>
     {#if !hideFooter}<Footer />{/if}
 </div>

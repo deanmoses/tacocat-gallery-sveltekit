@@ -4,6 +4,11 @@
 <script lang="ts">
     import SiteLayout from '$lib/components/site/SiteLayout.svelte';
     import ReturnIcon from '$lib/components/site/icons/ReturnIcon.svelte';
+    interface Props {
+        children?: import('svelte').Snippet;
+    }
+
+    let { children }: Props = $props();
 </script>
 
 <svelte:head>
@@ -16,7 +21,7 @@
         <h1>Administer Gallery</h1>
     </header>
 
-    <slot />
+    {@render children?.()}
 </SiteLayout>
 
 <style>

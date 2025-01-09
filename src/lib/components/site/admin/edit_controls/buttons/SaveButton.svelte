@@ -5,7 +5,11 @@
     import SaveIcon from '$lib/components/site/icons/SaveIcon.svelte';
     import ControlStripButton from './ControlStripButton.svelte';
 
-    export let hasUnsavedChanges: boolean;
+  interface Props {
+    hasUnsavedChanges: boolean;
+  }
+
+  let { hasUnsavedChanges }: Props = $props();
 </script>
 
 <ControlStripButton on:click disabled={!hasUnsavedChanges}>

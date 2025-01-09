@@ -6,21 +6,33 @@
     import { page } from '$app/stores';
     import { siteTitle } from '$lib/utils/config';
 
-    /** Hide the header on small viewports */
-    export let hideWhenSmall = false;
+    interface Props {
+        /** Hide the header on small viewports */
+        hideWhenSmall?: boolean;
 
-    /** Don't show the bottom border of the header.  Which you don't when there's nav buttons below the header. */
-    export let hideBottomBorder = false;
+        /** Don't show the bottom border of the header.  Which you don't when there's nav buttons below the header. */
+        hideBottomBorder?: boolean;
 
-    /** Don't show the search icon */
-    export let hideSearch = false;
+        /** Don't show the search icon */
+        hideSearch?: boolean;
 
-    /** Don't show the site's title (this is different than the page title)*/
-    export let hideSiteTitle = false;
+        /** Don't show the site's title (this is different than the page title)*/
+        hideSiteTitle?: boolean;
+
+        children?: import('svelte').Snippet;
+    }
+
+    let {
+        hideWhenSmall = false,
+        hideBottomBorder = false,
+        hideSearch = false,
+        hideSiteTitle = false,
+        children,
+    }: Props = $props();
 </script>
 
 <header class:bottomBorder={!hideBottomBorder} class:hidden-sm={hideWhenSmall}>
-    <h1><slot /></h1>
+    <h1>{@render children?.()}</h1>
 
     <div>
         {#if !hideSiteTitle}

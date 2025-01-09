@@ -15,27 +15,39 @@
     import DraftStore from '$lib/stores/DraftStore';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
 
-    export let album: Album;
+  interface Props {
+    album: Album;
+  }
+
+  let { album }: Props = $props();
 
     let okToNavigate = DraftStore.getOkToNavigate();
 </script>
 
 <YearAlbumPageLayout>
-    <svelte:fragment slot="editControls">
-        <AlbumEditControls published={album.published} />
-    </svelte:fragment>
+    {#snippet editControls()}
+  
+          <AlbumEditControls published={album.published} />
+      
+  {/snippet}
 
-    <svelte:fragment slot="nav">
-        <PrevButton href={$okToNavigate ? editUrl(album.nextHref) : undefined} title={album.nextTitle} />
-        <UpButton href={$okToNavigate ? '../' : undefined} title="All Years" />
-        <NextButton href={$okToNavigate ? editUrl(album.prevHref) : undefined} title={album.prevTitle} />
-    </svelte:fragment>
+    {#snippet nav()}
+  
+          <PrevButton href={$okToNavigate ? editUrl(album.nextHref) : undefined} title={album.nextTitle} />
+          <UpButton href={$okToNavigate ? '../' : undefined} title="All Years" />
+          <NextButton href={$okToNavigate ? editUrl(album.prevHref) : undefined} title={album.prevTitle} />
+      
+  {/snippet}
 
-    <svelte:fragment slot="caption">
-        <EditableHtml htmlContent={album.description} />
-    </svelte:fragment>
+    {#snippet caption()}
+  
+          <EditableHtml htmlContent={album.description} />
+      
+  {/snippet}
 
-    <svelte:fragment slot="thumbnails">
-        <YearAlbumThumbnails {album} albumUrlCreator={editUrl} />
-    </svelte:fragment>
+    {#snippet thumbnails()}
+  
+          <YearAlbumThumbnails {album} albumUrlCreator={editUrl} />
+      
+  {/snippet}
 </YearAlbumPageLayout>

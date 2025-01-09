@@ -15,11 +15,23 @@
     import ImageProcessingPage from './ImageProcessingPage.svelte';
     import AlbumErrorPage from '../album/AlbumErrorPage.svelte';
 
-    export let image: Image | undefined;
-    export let albumLoadStatus: AlbumLoadStatus | undefined;
-    export let uploadEntry: UploadEntry | undefined = undefined;
-    export let renameEntry: RenameEntry | undefined = undefined;
-    export let deleteEntry: DeleteEntry | undefined = undefined;
+  interface Props {
+    image: Image | undefined;
+    albumLoadStatus: AlbumLoadStatus | undefined;
+    uploadEntry?: UploadEntry | undefined;
+    renameEntry?: RenameEntry | undefined;
+    deleteEntry?: DeleteEntry | undefined;
+    loaded?: import('svelte').Snippet;
+  }
+
+  let {
+    image,
+    albumLoadStatus,
+    uploadEntry = undefined,
+    renameEntry = undefined,
+    deleteEntry = undefined,
+    loaded
+  }: Props = $props();
 </script>
 
 {#if uploadEntry}
@@ -40,7 +52,7 @@
     <ImageLoadingPage />
 {:else if AlbumLoadStatus.LOADED === albumLoadStatus}
     {#if image}
-        <slot name="loaded" />
+        {@render loaded?.()}
     {:else}
         <AlbumErrorPage title="Image Not Found">
             <p>Image not found</p>

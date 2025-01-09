@@ -2,6 +2,8 @@
   @component Button to set image as the thumbnail for the year
 -->
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
     import { page } from '$app/stores';
     import { setAlbumThumbnail } from '$lib/stores/admin/AlbumThumbnailLogic';
     import { getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
@@ -10,13 +12,15 @@
     import SetYearThumbnailConfirmDialog from './SetYearThumbnailConfirmDialog.svelte';
     import StarIcon from '$lib/components/site/icons/StarIcon.svelte';
 
-    let imagePath: string;
-    $: imagePath = $page.url.pathname;
+    let imagePath: string = $derived($page.url.pathname);
+    
 
-    let show: boolean = false;
-    $: show = isValidImagePath(imagePath); // Show this button only on image pages
+    let show: boolean = $state(false);
+    run(() => {
+    show = isValidImagePath(imagePath);
+  }); // Show this button only on image pages
 
-    let dialog: SetYearThumbnailConfirmDialog;
+    let dialog: SetYearThumbnailConfirmDialog = $state();
 
     function onClick(): void {
         dialog.show();

@@ -8,9 +8,19 @@
     import HomeIcon from '$lib/components/site/icons/HomeIcon.svelte';
     import AlbumProcessingPage from '../AlbumProcessingPage.svelte';
 
-    export let loadStatus: AlbumLoadStatus;
-    export let deleteEntry: DeleteEntry | undefined = undefined;
-    export let renameEntry: RenameEntry | undefined = undefined;
+  interface Props {
+    loadStatus: AlbumLoadStatus;
+    deleteEntry?: DeleteEntry | undefined;
+    renameEntry?: RenameEntry | undefined;
+    loaded?: import('svelte').Snippet;
+  }
+
+  let {
+    loadStatus,
+    deleteEntry = undefined,
+    renameEntry = undefined,
+    loaded
+  }: Props = $props();
 </script>
 
 {#if deleteEntry}
@@ -22,7 +32,7 @@
 {:else if AlbumLoadStatus.LOADING === loadStatus}
     <AlbumLoadingPage />
 {:else if AlbumLoadStatus.LOADED === loadStatus}
-    <slot name="loaded" />
+    {@render loaded?.()}
 {:else if AlbumLoadStatus.ERROR_LOADING === loadStatus}
     <AlbumErrorPage>Error retrieving album</AlbumErrorPage>
 {:else if AlbumLoadStatus.DOES_NOT_EXIST === loadStatus}

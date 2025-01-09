@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import FullScreenDropZone from '$lib/components/site/admin/FullScreenDropZone.svelte';
     import UploadReplaceConfirmDialog from '$lib/components/site/admin/toggle/toggle_buttons/UploadReplaceConfirmDialog.svelte';
     import { isAdmin } from '$lib/stores/SessionStore';
@@ -10,18 +12,27 @@
         type ImagesToUpload,
     } from '$lib/stores/admin/UploadStoreLogic';
 
-    export let albumPath: string;
 
-    /** So that the edit page can tell me whether it allows dropping */
-    export let allowDrop: boolean = true;
+    
+    interface Props {
+        albumPath: string;
+        /** So that the edit page can tell me whether it allows dropping */
+        allowDrop?: boolean;
+    }
 
-    let dragging = false;
-    $: dragging = dragging;
+    let { albumPath, allowDrop = true }: Props = $props();
 
-    let dialog: UploadReplaceConfirmDialog;
+    let dragging = $state(false);
+    run(() => {
+        dragging = dragging;
+    });
 
-    let imagesToUpload: ImagesToUpload[] = [];
-    $: imagesToUpload = imagesToUpload;
+    let dialog: UploadReplaceConfirmDialog = $state();
+
+    let imagesToUpload: ImagesToUpload[] = $state([]);
+    run(() => {
+        imagesToUpload = imagesToUpload;
+    });
 
     function isDropAllowed(e: DragEvent): boolean {
         return allowDrop && $isAdmin && !!e.dataTransfer?.types.includes('Files');

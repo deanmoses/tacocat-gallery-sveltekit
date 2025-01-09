@@ -2,6 +2,8 @@
   @component Button to delete image
 -->
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     import DeleteIcon from '$lib/components/site/icons/DeleteIcon.svelte';
@@ -9,10 +11,12 @@
     import { getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
-    $: imagePath = $page.url.pathname;
+    let imagePath = $derived($page.url.pathname);
 
-    let show: boolean = false;
-    $: show = isValidImagePath(imagePath); // Show this button only on image pages
+    let show: boolean = $state(false);
+    run(() => {
+    show = isValidImagePath(imagePath);
+  }); // Show this button only on image pages
 
     async function onDeleteButtonClick() {
         await deleteImage(imagePath);

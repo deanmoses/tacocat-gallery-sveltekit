@@ -5,11 +5,15 @@
     import Button from './Button.svelte';
     import HomeIcon from '../icons/HomeIcon.svelte';
 
-    export let href = '';
-    export let title = '';
+  interface Props {
+    href?: string;
+    title?: string;
+  }
 
-    let a11yTitle: string;
-    $: a11yTitle = title ? title : 'Up';
+  let { href = '', title = '' }: Props = $props();
+
+    let a11yTitle: string = $derived(title ? title : 'Up');
+    
 </script>
 
 <Button {href} title={a11yTitle}><HomeIcon /><span class="hidden-xs">{title}</span></Button>

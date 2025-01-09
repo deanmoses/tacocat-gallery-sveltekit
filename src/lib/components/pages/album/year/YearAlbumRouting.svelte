@@ -7,8 +7,13 @@
     import { AlbumLoadStatus, type DeleteEntry } from '$lib/models/album';
     import AlbumProcessingPage from '../AlbumProcessingPage.svelte';
 
-    export let loadStatus: AlbumLoadStatus;
-    export let deleteEntry: DeleteEntry | undefined = undefined;
+  interface Props {
+    loadStatus: AlbumLoadStatus;
+    deleteEntry?: DeleteEntry | undefined;
+    loaded?: import('svelte').Snippet;
+  }
+
+  let { loadStatus, deleteEntry = undefined, loaded }: Props = $props();
 </script>
 
 {#if deleteEntry}
@@ -18,7 +23,7 @@
 {:else if AlbumLoadStatus.LOADING === loadStatus}
     <YearAlbumLoadingPage />
 {:else if AlbumLoadStatus.LOADED === loadStatus}
-    <slot name="loaded" />
+    {@render loaded?.()}
 {:else if AlbumLoadStatus.ERROR_LOADING === loadStatus}
     <AlbumErrorPage>Error retrieving album</AlbumErrorPage>
 {:else if AlbumLoadStatus.DOES_NOT_EXIST === loadStatus}

@@ -2,6 +2,8 @@
   @component Dialog to confirm setting year thumbnail
 -->
 <script lang="ts">
+  import { preventDefault } from 'svelte/legacy';
+
     import { createEventDispatcher } from 'svelte';
     import Dialog from '../../Dialog.svelte';
     import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
@@ -9,7 +11,7 @@
 
     const dispatch = createEventDispatcher();
 
-    let dialog: Dialog;
+    let dialog: Dialog = $state();
 
     export function show() {
         dialog.show();
@@ -36,9 +38,13 @@
 </script>
 
 <Dialog bind:this={dialog} on:keydown={onKeyPress}>
-    <svelte:fragment slot="content">Set as thumbnail for year?</svelte:fragment>
-    <svelte:fragment slot="buttons">
-        <button on:click={onCancelButtonClick}><CancelIcon /> Cancel</button>
-        <button on:click|preventDefault={onSubmit}><StarIcon /> Set Year Thumb</button>
-    </svelte:fragment>
+    {#snippet content()}
+    Set as thumbnail for year?
+  {/snippet}
+    {#snippet buttons()}
+  
+          <button onclick={onCancelButtonClick}><CancelIcon /> Cancel</button>
+          <button onclick={preventDefault(onSubmit)}><StarIcon /> Set Year Thumb</button>
+      
+  {/snippet}
 </Dialog>

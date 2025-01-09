@@ -6,7 +6,11 @@
     import Thumbnail from '../Thumbnail.svelte';
     import WaitingIcon from '../icons/WaitingIcon.svelte';
 
-    export let upload: UploadEntry;
+  interface Props {
+    upload: UploadEntry;
+  }
+
+  let { upload }: Props = $props();
     let url = URL.createObjectURL(upload.file);
 
     function onLoad() {
@@ -21,9 +25,11 @@
 </script>
 
 <Thumbnail title={upload.file.name} src={url} summary={upload.status} on:load={onLoad}>
-    <svelte:fragment slot="selectionControls">
-        <div><WaitingIcon height="100px" width="100px" /></div>
-    </svelte:fragment>
+    {#snippet selectionControls()}
+  
+          <div><WaitingIcon height="100px" width="100px" /></div>
+      
+  {/snippet}
 </Thumbnail>
 
 <style>

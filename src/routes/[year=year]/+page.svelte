@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import type { PageData } from './$types';
     import { isAdmin } from '$lib/stores/SessionStore';
     import { get } from 'svelte/store';
@@ -6,23 +8,31 @@
     import YearAlbumRouting from '$lib/components/pages/album/year/YearAlbumRouting.svelte';
     import YearAlbumPage from '$lib/components/pages/album/year/YearAlbumPage.svelte';
 
-    export let data: PageData;
-    $: albumEntry = data.albumEntry;
-    $: album = $albumEntry.album;
-    $: loadStatus = $albumEntry.loadStatus;
-    let deleteEntry: DeleteEntry | undefined = undefined;
-    $: if ($isAdmin) {
-        import('$lib/stores/AlbumDeleteStore').then(({ getAlbumDeleteEntry }) => {
-            if (!album?.path) return;
-            deleteEntry = get(getAlbumDeleteEntry(album.path));
-        });
+    interface Props {
+        data: PageData;
     }
+
+    let { data }: Props = $props();
+    let albumEntry = $derived(data.albumEntry);
+    let album = $derived($albumEntry.album);
+    let loadStatus = $derived($albumEntry.loadStatus);
+    let deleteEntry: DeleteEntry | undefined = $state(undefined);
+    run(() => {
+        if ($isAdmin) {
+            import('$lib/stores/AlbumDeleteStore').then(({ getAlbumDeleteEntry }) => {
+                if (!album?.path) return;
+                deleteEntry = get(getAlbumDeleteEntry(album.path));
+            });
+        }
+    });
 </script>
 
 <YearAlbumRouting {loadStatus} {deleteEntry}>
-    <svelte:fragment slot="loaded">
-        {#if album}
-            <YearAlbumPage {album} />
-        {/if}
-    </svelte:fragment>
+    {#snippet loaded()}
+    
+            {#if album}
+                <YearAlbumPage {album} />
+            {/if}
+        
+    {/snippet}
 </YearAlbumRouting>

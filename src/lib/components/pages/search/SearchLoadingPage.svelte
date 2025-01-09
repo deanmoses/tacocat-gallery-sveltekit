@@ -5,8 +5,12 @@
     import WaitingSpinner from '$lib/components/site/WaitingSpinner.svelte';
     import BlankSearchPageLayout from './BlankSearchPageLayout.svelte';
 
-    export let searchTerms: string;
-    export let returnPath: string | undefined;
+  interface Props {
+    searchTerms: string;
+    returnPath: string | undefined;
+  }
+
+  let { searchTerms, returnPath }: Props = $props();
 </script>
 
 <BlankSearchPageLayout {searchTerms} {returnPath}>

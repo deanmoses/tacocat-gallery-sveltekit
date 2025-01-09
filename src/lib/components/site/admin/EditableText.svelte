@@ -4,10 +4,15 @@
 <script lang="ts">
     import DraftStore from '$lib/stores/DraftStore';
 
+    
+  interface Props {
     /** The text content to be made editable */
-    export let textContent = '';
+    textContent?: string;
+  }
 
-    let div: HTMLElement;
+  let { textContent = '' }: Props = $props();
+
+    let div: HTMLElement = $state();
 
     function onInput() {
         let editedText = div.innerText;
@@ -20,4 +25,4 @@
     }
 </script>
 
-<div contenteditable bind:this={div} on:input={onInput}>{textContent}</div>
+<div contenteditable bind:this={div} oninput={onInput}>{textContent}</div>

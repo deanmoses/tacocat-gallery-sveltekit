@@ -2,18 +2,25 @@
   @component WYSIWYG editor for HTML content
 -->
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
     import { onMount, createEventDispatcher } from 'svelte';
     import Quill from 'quill';
 
     const dispatch = createEventDispatcher<{ change: { html: string } }>();
 
+    
+  interface Props {
     /**
      * The HTML content to be made editable
      */
-    export let htmlContent = '';
+    htmlContent?: string;
+  }
+
+  let { htmlContent = '' }: Props = $props();
 
     // Instance of the Quill rich text editor
-    let quill: Quill;
+    let quill: Quill = $state();
 
     // Load the Quill.js WYSIWYG editor when the component is mounted,
     // so as to be able to pass the DOM node into Quill's constructor
@@ -57,17 +64,17 @@
     // the next while in edit mode, Svelte doesn't create a new rich text
     // editor component, but instead re-uses the existing one, which
     // contains the caption from the previous photo.
-    $: {
+    run(() => {
         if (quill) {
             quill.setContents(
                 quill.clipboard.convert({html: htmlContent ?? ''}),
                 'silent' /* Don't trigger a text-change event */,
             );
         }
-    }
+    });
 </script>
 
-<div use:createEditorOnMount />
+<div use:createEditorOnMount></div>
 
 <style>
     @import 'https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.bubble.css';

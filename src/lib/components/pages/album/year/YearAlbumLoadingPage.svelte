@@ -14,15 +14,19 @@
 </script>
 
 <YearAlbumPageLayout>
-    <svelte:fragment slot="nav">
-        <PrevButton />
-        <UpButton />
-        <NextButton />
-    </svelte:fragment>
+    {#snippet nav()}
+  
+          <PrevButton />
+          <UpButton />
+          <NextButton />
+      
+  {/snippet}
 
-    <svelte:fragment slot="thumbnails">
-        <FullPageMessage>
-            <WaitingSpinner />
-        </FullPageMessage>
-    </svelte:fragment>
+    {#snippet thumbnails()}
+  
+          <FullPageMessage>
+              <WaitingSpinner />
+          </FullPageMessage>
+      
+  {/snippet}
 </YearAlbumPageLayout>

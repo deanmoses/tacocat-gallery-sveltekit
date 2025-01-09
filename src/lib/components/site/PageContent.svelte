@@ -1,9 +1,17 @@
+<script lang="ts">
+  interface Props {
+    children?: import('svelte').Snippet;
+  }
+
+  let { children }: Props = $props();
+</script>
+
 <!--
   @component Put the page's content in me.  That's usually both a sidebar and the main content of page.
 -->
 
 <main>
-    <slot />
+    {@render children?.()}
 </main>
 
 <style>

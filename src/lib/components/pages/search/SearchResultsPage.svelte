@@ -9,20 +9,29 @@
     import FullPageMessage from '$lib/components/site/FullPageMessage.svelte';
     import { searchStore } from '$lib/stores/SearchStore';
 
-    export let returnPath: string | undefined;
-    export let query: SearchQuery;
-    export let status: SearchLoadStatus;
-    export let results: SearchResults | undefined;
+  interface Props {
+    returnPath: string | undefined;
+    query: SearchQuery;
+    status: SearchLoadStatus;
+    results: SearchResults | undefined;
+  }
 
-    $: searchTerms = query.terms;
-    $: oldestYear = query.oldestYear;
-    $: newestYear = query.newestYear;
-    $: oldestFirst = query.oldestFirst;
-    $: noResults = !results?.items;
-    $: moreResultsOnServer = results?.items?.length && results.items.length < results.total;
-    $: numResultsUnfetched = !results?.items?.length ? 0 : results.total - results.items.length;
-    $: loadingMore = SearchLoadStatus.LOADING_MORE_RESULTS == status;
-    $: errorLoadingMore = SearchLoadStatus.ERROR_LOADING_MORE_RESULTS == status;
+  let {
+    returnPath,
+    query,
+    status,
+    results
+  }: Props = $props();
+
+    let searchTerms = $derived(query.terms);
+    let oldestYear = $derived(query.oldestYear);
+    let newestYear = $derived(query.newestYear);
+    let oldestFirst = $derived(query.oldestFirst);
+    let noResults = $derived(!results?.items);
+    let moreResultsOnServer = $derived(results?.items?.length && results.items.length < results.total);
+    let numResultsUnfetched = $derived(!results?.items?.length ? 0 : results.total - results.items.length);
+    let loadingMore = $derived(SearchLoadStatus.LOADING_MORE_RESULTS == status);
+    let errorLoadingMore = $derived(SearchLoadStatus.ERROR_LOADING_MORE_RESULTS == status);
 
     function getMoreResults() {
         const startAt = results?.items?.length ?? 0;
@@ -70,7 +79,7 @@
                     {#if errorLoadingMore}
                         Error loading more results
                     {:else}
-                        <button on:click={getMoreResults} disabled={loadingMore}>Get More</button>
+                        <button onclick={getMoreResults} disabled={loadingMore}>Get More</button>
                         {#if loadingMore}
                             Loading...
                         {:else}

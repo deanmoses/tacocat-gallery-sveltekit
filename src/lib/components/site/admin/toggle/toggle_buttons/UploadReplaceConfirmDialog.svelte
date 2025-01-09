@@ -2,6 +2,8 @@
   @component Dialog to confirm overwriting files
 -->
 <script lang="ts">
+  import { run, preventDefault } from 'svelte/legacy';
+
     import { createEventDispatcher } from 'svelte';
     import Dialog from '../../Dialog.svelte';
     import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
@@ -9,10 +11,12 @@
 
     const dispatch = createEventDispatcher();
 
-    let dialog: Dialog;
-    let filesAlreadyInAlbum: string[] = [];
-    $: filesAlreadyInAlbum = filesAlreadyInAlbum;
-    $: filez = filesAlreadyInAlbum.join(', ');
+    let dialog: Dialog = $state();
+    let filesAlreadyInAlbum: string[] = $state([]);
+    run(() => {
+    filesAlreadyInAlbum = filesAlreadyInAlbum;
+  });
+    let filez = $derived(filesAlreadyInAlbum.join(', '));
 
     export function show(f: string[]): void {
         filesAlreadyInAlbum = f;
@@ -42,9 +46,13 @@
 </script>
 
 <Dialog bind:this={dialog} on:keydown={onKeyPress}>
-    <svelte:fragment slot="content">Already in album: {filez}</svelte:fragment>
-    <svelte:fragment slot="buttons">
-        <button on:click={onCancelButtonClick}><CancelIcon /> Cancel</button>
-        <button on:click|preventDefault={onSubmit}><UploadIcon /> Overwrite</button>
-    </svelte:fragment>
+    {#snippet content()}
+    Already in album: {filez}
+  {/snippet}
+    {#snippet buttons()}
+  
+          <button onclick={onCancelButtonClick}><CancelIcon /> Cancel</button>
+          <button onclick={preventDefault(onSubmit)}><UploadIcon /> Overwrite</button>
+      
+  {/snippet}
 </Dialog>

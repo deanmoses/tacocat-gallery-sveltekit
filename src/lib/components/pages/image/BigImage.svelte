@@ -4,7 +4,11 @@
 <script lang="ts">
     import type { Image } from '$lib/models/GalleryItemInterfaces';
 
-    export let image: Image;
+  interface Props {
+    image: Image;
+  }
+
+  let { image }: Props = $props();
 </script>
 
 <!-- 

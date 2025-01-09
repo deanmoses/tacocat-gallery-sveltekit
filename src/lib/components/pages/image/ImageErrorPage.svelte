@@ -4,9 +4,14 @@
 <script lang="ts">
     import BlankImagePageLayout from './layouts/BlankImagePageLayout.svelte';
 
-    export let title = 'Error';
+  interface Props {
+    title?: string;
+    children?: import('svelte').Snippet;
+  }
+
+  let { title = 'Error', children }: Props = $props();
 </script>
 
 <BlankImagePageLayout {title}>
-    <slot />
+    {@render children?.()}
 </BlankImagePageLayout>

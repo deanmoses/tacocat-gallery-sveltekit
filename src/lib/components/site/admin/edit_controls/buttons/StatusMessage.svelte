@@ -4,7 +4,11 @@
 <script lang="ts">
     import { DraftStatus } from '$lib/models/draft';
 
-    export let status: DraftStatus | undefined;
+  interface Props {
+    status: DraftStatus | undefined;
+  }
+
+  let { status }: Props = $props();
 </script>
 
 {#if status === DraftStatus.SAVING}

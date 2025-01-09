@@ -1,3 +1,13 @@
+<script lang="ts">
+  interface Props {
+    leftControls?: import('svelte').Snippet;
+    status?: import('svelte').Snippet;
+    rightControls?: import('svelte').Snippet;
+  }
+
+  let { leftControls, status, rightControls }: Props = $props();
+</script>
+
 <!--
   @component
 
@@ -7,12 +17,12 @@
 <div class="editing-controls-container">
     <div class="editing-controls">
         <div class="left">
-            <slot name="leftControls" />
+            {@render leftControls?.()}
             <div>
-                <slot name="status" />
+                {@render status?.()}
             </div>
         </div>
-        <slot name="rightControls" />
+        {@render rightControls?.()}
     </div>
 </div>
 

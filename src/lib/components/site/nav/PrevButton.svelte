@@ -5,11 +5,15 @@
     import Button from './Button.svelte';
     import PrevIcon from '../icons/PrevIcon.svelte';
 
-    export let href = '';
-    export let title = '';
+  interface Props {
+    href?: string;
+    title?: string;
+  }
 
-    let a11yTitle: string;
-    $: a11yTitle = title ? title : 'Previous';
+  let { href = '', title = '' }: Props = $props();
+
+    let a11yTitle: string = $derived(title ? title : 'Previous');
+    
 </script>
 
 <Button {href} title={a11yTitle}><PrevIcon /><span class="hidden-xs">{title}</span></Button>

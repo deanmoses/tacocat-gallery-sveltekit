@@ -12,25 +12,37 @@
     import AdminToggle from '$lib/components/site/admin/toggle/AdminToggle.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
 
-    export let album: Album;
+  interface Props {
+    album: Album;
+  }
+
+  let { album }: Props = $props();
 </script>
 
 <YearAlbumPageLayout>
-    <svelte:fragment slot="editControls">
-        <AdminToggle />
-    </svelte:fragment>
+    {#snippet editControls()}
+  
+          <AdminToggle />
+      
+  {/snippet}
 
-    <svelte:fragment slot="nav">
-        <PrevButton href={album.nextHref} title={album.nextTitle} />
-        <UpButton href="../" title="All Years" />
-        <NextButton href={album.prevHref} title={album.prevTitle} />
-    </svelte:fragment>
+    {#snippet nav()}
+  
+          <PrevButton href={album.nextHref} title={album.nextTitle} />
+          <UpButton href="../" title="All Years" />
+          <NextButton href={album.prevHref} title={album.prevTitle} />
+      
+  {/snippet}
 
-    <svelte:fragment slot="caption">
-        {@html album.description}
-    </svelte:fragment>
+    {#snippet caption()}
+  
+          {@html album.description}
+      
+  {/snippet}
 
-    <svelte:fragment slot="thumbnails">
-        <YearAlbumThumbnails {album} />
-    </svelte:fragment>
+    {#snippet thumbnails()}
+  
+          <YearAlbumThumbnails {album} />
+      
+  {/snippet}
 </YearAlbumPageLayout>

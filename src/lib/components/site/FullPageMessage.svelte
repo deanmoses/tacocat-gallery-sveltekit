@@ -1,9 +1,17 @@
+<script lang="ts">
+  interface Props {
+    children?: import('svelte').Snippet;
+  }
+
+  let { children }: Props = $props();
+</script>
+
 <!--
   @component For displaying some big message or waiting spinner in the main content area of a page
 -->
 
 <div>
-    <slot />
+    {@render children?.()}
 </div>
 
 <style>
