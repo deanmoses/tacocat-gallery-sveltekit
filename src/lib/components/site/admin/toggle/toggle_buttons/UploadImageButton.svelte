@@ -2,14 +2,14 @@
   @component Button to upload a single image to replace existing image
 -->
 <script lang="ts">
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import UploadIcon from '$lib/components/site/icons/UploadIcon.svelte';
     import { uploadSingleImage } from '$lib/stores/admin/UploadStoreLogic';
     import { isValidImagePath, validExtensionsString } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
-    let imagePath = $derived($page.url.pathname);
-    let show = $derived(isValidImagePath($page.url.pathname)); // Show this button only on image pages
+    let imagePath = $derived(page.url.pathname);
+    let show = $derived(isValidImagePath(page.url.pathname)); // Show this button only on image pages
 
     let fileInput: HTMLInputElement = $state();
 

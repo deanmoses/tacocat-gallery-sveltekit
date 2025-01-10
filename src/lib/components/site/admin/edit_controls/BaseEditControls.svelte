@@ -13,7 +13,7 @@
     import StatusMessage from './buttons/StatusMessage.svelte';
     import draftStore from '$lib/stores/DraftStore';
     import { DraftStatus } from '$lib/models/draft';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import { goto } from '$app/navigation';
     import { unEditUrl } from '$lib/utils/path-utils';
     import { isValidImagePath } from '$lib/utils/galleryPathUtils';
@@ -26,14 +26,14 @@
 
     let status: DraftStatus | undefined = undefined; //draftStore.getStatus(); TODO fix, I uncommented just to get the migration to Svelte 5 running
 
-    let path: string | undefined = $state(unEditUrl($page.url.pathname));
+    let path: string | undefined = $state(unEditUrl(page.url.pathname));
 
     let hasUnsavedChanges: boolean = $derived(status == DraftStatus.UNSAVED_CHANGES);
 
     function handleNavigation(path: string | undefined): void {
         // Cancel the draft when any navigation happens
         // TODO: there's no reason to do it here, the draft store
-        // could subscribe to $page.url.pathname itself.
+        // could subscribe to page.url.pathname itself.
         // I guess the only reason to do it here is that when you're
         // NOT in edit mode, there's no need to listen to it.
         if (path === undefined) throw new Error(`path is undefined`);
@@ -51,7 +51,7 @@
         await draftStore.save();
     }
     run(() => {
-        path = unEditUrl($page.url.pathname);
+        path = unEditUrl(page.url.pathname);
     });
     run(() => {
         handleNavigation(path);

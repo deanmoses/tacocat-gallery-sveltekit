@@ -5,13 +5,13 @@
     import { run } from 'svelte/legacy';
 
     import { goto } from '$app/navigation';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import DeleteIcon from '$lib/components/site/icons/DeleteIcon.svelte';
     import { deleteImage } from '$lib/stores/admin/ImageDeleteStoreLogic';
     import { getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
-    let imagePath = $derived($page.url.pathname);
+    let imagePath = $derived(page.url.pathname);
 
     let show: boolean = $state(false);
     run(() => {

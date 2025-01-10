@@ -5,7 +5,7 @@
     import { run } from 'svelte/legacy';
 
     import { goto } from '$app/navigation';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import RenameIcon from '$lib/components/site/icons/RenameIcon.svelte';
     import { albumStore } from '$lib/stores/AlbumStore';
     import { renameDayAlbum } from '$lib/stores/admin/AlbumRenameStoreLogic';
@@ -19,7 +19,7 @@
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import TextDialog from './TextDialog.svelte';
 
-    let albumPath: string = $derived($page.url.pathname + '/');
+    let albumPath: string = $derived(page.url.pathname + '/');
 
     // Show this button only on day albums
     let show: boolean = $state(false);

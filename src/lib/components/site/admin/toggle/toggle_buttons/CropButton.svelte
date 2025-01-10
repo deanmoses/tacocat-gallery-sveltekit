@@ -5,12 +5,12 @@
     import { run } from 'svelte/legacy';
 
     import { goto } from '$app/navigation';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import CropIcon from '$lib/components/site/icons/CropIcon.svelte';
     import { isValidImagePath } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
-    let path: string = $derived($page.url.pathname);
+    let path: string = $derived(page.url.pathname);
 
     let show: boolean = $state(false);
     run(() => {

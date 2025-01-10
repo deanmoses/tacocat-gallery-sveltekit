@@ -5,7 +5,7 @@
     import { run } from 'svelte/legacy';
 
     import { goto } from '$app/navigation';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import CreateIcon from '$lib/components/site/icons/CreateIcon.svelte';
     import { albumStore } from '$lib/stores/AlbumStore';
     import { createAlbum } from '$lib/stores/admin/AlbumCreateStoreLogic';
@@ -13,7 +13,7 @@
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import TextDialog from './TextDialog.svelte';
 
-    let albumPath: string = $derived($page.url.pathname + '/');
+    let albumPath: string = $derived(page.url.pathname + '/');
 
     let show: boolean = $state(false);
     run(() => {

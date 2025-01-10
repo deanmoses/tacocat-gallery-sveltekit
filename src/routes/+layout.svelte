@@ -4,7 +4,7 @@
     import '$lib/styles/years.css';
 
     import { handleKeyboardNavigation } from '$lib/utils/keyboard-navigation';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import { goto } from '$app/navigation';
     import { albumStore } from '$lib/stores/AlbumStore';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
@@ -25,7 +25,7 @@
             return;
         }
 
-        let currentPath = $page.url.pathname;
+        let currentPath = page.url.pathname;
         if (!currentPath.startsWith('/edit')) {
             const newPath = handleKeyboardNavigation(event.key, currentPath, getAlbum);
             if (newPath) {

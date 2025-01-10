@@ -4,7 +4,7 @@
 <script lang="ts">
     import { run } from 'svelte/legacy';
 
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import { setAlbumThumbnail } from '$lib/stores/admin/AlbumThumbnailLogic';
     import { getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
     import { toast } from '@zerodevx/svelte-toast';
@@ -12,7 +12,7 @@
     import SetYearThumbnailConfirmDialog from './SetYearThumbnailConfirmDialog.svelte';
     import StarIcon from '$lib/components/site/icons/StarIcon.svelte';
 
-    let imagePath: string = $derived($page.url.pathname);
+    let imagePath: string = $derived(page.url.pathname);
 
     let show: boolean = $state(false);
     run(() => {

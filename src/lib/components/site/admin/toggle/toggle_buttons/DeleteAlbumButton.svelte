@@ -5,7 +5,7 @@
     import { run } from 'svelte/legacy';
 
     import { goto } from '$app/navigation';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import DeleteIcon from '$lib/components/site/icons/DeleteIcon.svelte';
     import type { AlbumEntry } from '$lib/models/album';
     import { albumStore } from '$lib/stores/AlbumStore';
@@ -28,7 +28,7 @@
             console.error(e);
         }
     }
-    let albumPath = $derived($page.url.pathname + '/');
+    let albumPath = $derived(page.url.pathname + '/');
     let isValidPath = $derived(isValidDayAlbumPath(albumPath) || isValidYearAlbumPath(albumPath));
     let album = $derived(isValidPath ? albumStore.get(albumPath, false /*don't trigger fetch*/) : undefined);
     run(() => {
