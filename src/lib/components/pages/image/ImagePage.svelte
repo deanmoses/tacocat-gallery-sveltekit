@@ -37,7 +37,10 @@
     {/snippet}
 
     {#snippet image()}
-        <BigImage {image} />
+        <!-- #key ensures image changes when navigating prev/next -->
+        {#key image.path}
+            <BigImage {image} />
+        {/key}
     {/snippet}
 </ImagePageLayout>
 

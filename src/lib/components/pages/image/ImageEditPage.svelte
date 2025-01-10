@@ -53,7 +53,9 @@
     {/snippet}
 
     {#snippet image()}
-        <BigImage {image} />
+        {#key image.path}
+            <BigImage {image} />
+        {/key}
     {/snippet}
 </ImagePageLayout>
 <ImageFullScreenDropZone imagePath={image.path} allowDrop={$okToNavigate} />
