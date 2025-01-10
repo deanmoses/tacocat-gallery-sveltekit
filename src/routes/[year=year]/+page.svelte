@@ -14,7 +14,7 @@
     let albumEntry = $derived(data.albumEntry);
     let album = $derived($albumEntry.album);
     let loadStatus = $derived($albumEntry.loadStatus);
-    let deleteEntry: DeleteEntry | undefined = $state(undefined);
+    let deleteEntry: DeleteEntry | undefined = $state();
     $effect(() => {
         if ($isAdmin) {
             import('$lib/stores/AlbumDeleteStore').then(({ getAlbumDeleteEntry }) => {

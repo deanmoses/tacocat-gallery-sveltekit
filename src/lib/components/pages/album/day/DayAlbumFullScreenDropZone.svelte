@@ -23,17 +23,9 @@
 
     let { albumPath, allowDrop = true }: Props = $props();
 
-    let dragging = $state(false);
-    $effect(() => {
-        dragging = dragging;
-    });
-
     let dialog: UploadReplaceConfirmDialog | undefined = $state();
 
     let imagesToUpload: ImagesToUpload[] = $state([]);
-    $effect(() => {
-        imagesToUpload = imagesToUpload;
-    });
 
     function isDropAllowed(e: DragEvent): boolean {
         return allowDrop && $isAdmin && !!e.dataTransfer?.types.includes('Files');

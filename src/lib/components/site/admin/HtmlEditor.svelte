@@ -55,7 +55,7 @@
         });
     }
 
-    // Use Svelte's $: reactive syntax to ensure when a new value is passed
+    // Use Svelte's $effect to ensure that when a new value is passed
     // in to the htmlContent property, it sets the contents of the editor.
     // We need to do it this way because when navigating from one photo to
     // the next while in edit mode, Svelte doesn't create a new rich text

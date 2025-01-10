@@ -11,11 +11,7 @@
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
     let path: string = $derived($page.url.pathname);
-
-    let show: boolean = $state(false);
-    $effect(() => {
-        show = path !== '/';
-    }); // Show this button everywhere but root
+    let show: boolean = $derived(path !== '/'); // Show this button everywhere but root
 
     /**
      * The Edit button was clicked.

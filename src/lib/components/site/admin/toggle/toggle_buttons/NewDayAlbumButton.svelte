@@ -14,13 +14,9 @@
     import TextDialog from './TextDialog.svelte';
 
     let albumPath: string = $derived(page.url.pathname + '/');
+    let show: boolean = $derived(isValidYearAlbumPath(albumPath)); // Show this button only on year albums
 
-    let show: boolean = $state(false);
-    $effect(() => {
-        show = isValidYearAlbumPath(albumPath);
-    }); // Show this button only on year albums
-
-    let dialog: TextDialog = $state();
+    let dialog: TextDialog | undefined = $state();
 
     function todayAlbumName(): string {
         const d = new Date();
@@ -31,7 +27,7 @@
     }
 
     function onButtonClick() {
-        dialog.show();
+        dialog?.show();
     }
 
     async function onNewAlbumName(e: CustomEvent<{ value: string }>) {

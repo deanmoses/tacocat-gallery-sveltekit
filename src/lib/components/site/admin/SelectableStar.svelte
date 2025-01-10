@@ -16,12 +16,9 @@
 
     let { path, albumThumbPath }: Props = $props();
 
-    let selected = $state(false);
-    $effect(() => {
-        selected = path === albumThumbPath;
-    });
+    let selected: boolean = $derived(path === albumThumbPath);
 
-    let selecting: boolean = $state();
+    let selecting: boolean = $state(false);
     $effect(() => {
         console.log('selected: ', selected); // this is needed so that $: changes every time selected changes.  Grr.
         selecting = false;

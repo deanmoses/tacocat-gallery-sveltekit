@@ -17,9 +17,9 @@
 
     // Lazy load these to encourage the code bundler to put them
     // into separate bundles that non-admins don't upload
-    let uploads: UploadEntry[] | undefined = $state(undefined);
-    let renameEntry: RenameEntry | undefined = $state(undefined);
-    let deleteEntry: DeleteEntry | undefined = $state(undefined);
+    let uploads: UploadEntry[] | undefined = $state();
+    let renameEntry: RenameEntry | undefined = $state();
+    let deleteEntry: DeleteEntry | undefined = $state();
     $effect(() => {
         if ($isAdmin) {
             import('$lib/stores/UploadStore').then(({ getUploads }) => {

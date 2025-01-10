@@ -15,9 +15,6 @@
     let { isDropAllowed, onDrop, children }: Props = $props();
 
     let dragging = $state(false);
-    $effect(() => {
-        dragging = dragging;
-    });
 
     function ondragenter(e: DragEvent) {
         if (!isDropAllowed(e)) return;

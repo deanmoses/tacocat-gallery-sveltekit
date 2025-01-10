@@ -13,9 +13,10 @@
 
     let dialog: Dialog | undefined = $state();
     let filesAlreadyInAlbum: string[] = $state([]);
-    $effect(() => {
-        filesAlreadyInAlbum = filesAlreadyInAlbum;
-    });
+    // TODO delete below once I verify that the migrated code above works
+    // $effect(() => {
+    //     filesAlreadyInAlbum = filesAlreadyInAlbum;
+    // });
     let filez = $derived(filesAlreadyInAlbum.join(', '));
 
     export function show(f: string[]): void {

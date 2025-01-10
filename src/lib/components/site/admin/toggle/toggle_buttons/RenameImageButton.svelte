@@ -21,14 +21,8 @@
     import TextDialog from './TextDialog.svelte';
 
     let imagePath: string = $derived(page.url.pathname);
-
-    // Show this button only on images
-    let show: boolean = $state(false);
-    $effect(() => {
-        show = isValidImagePath(imagePath);
-    });
-
-    let dialog: TextDialog = $state();
+    let show: boolean = $derived(isValidImagePath(imagePath)); // Show this button only on images
+    let dialog: TextDialog | undefined = $state();
 
     function originalImageName(): string {
         const imageName = getNameFromPath(imagePath);
@@ -45,7 +39,7 @@
     }
 
     function onButtonClick() {
-        dialog.show();
+        dialog?.show();
     }
 
     async function onNewImageName(e: CustomEvent<{ value: string }>) {

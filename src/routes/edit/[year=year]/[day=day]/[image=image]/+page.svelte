@@ -19,9 +19,9 @@
 
     // Lazy load these, not that it matters on the edit page,
     // but to allow copy/paste from the non-edit page
-    let uploadEntry: UploadEntry | undefined = $state(undefined);
-    let renameEntry: RenameEntry | undefined = $state(undefined);
-    let deleteEntry: DeleteEntry | undefined = $state(undefined);
+    let uploadEntry: UploadEntry | undefined = $state();
+    let renameEntry: RenameEntry | undefined = $state();
+    let deleteEntry: DeleteEntry | undefined = $state();
     $effect(() => {
         if ($isAdmin) {
             import('$lib/stores/UploadStore').then(({ getUpload }) => {

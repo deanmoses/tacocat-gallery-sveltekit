@@ -23,11 +23,18 @@
 
     let { rightControls }: Props = $props();
 
-    let path: string | undefined = $state(unEditUrl(page.url.pathname));
+    let path: string | undefined = $derived(unEditUrl(page.url.pathname));
 
     let draftStoreStatus = draftStore.getStatus();
     let status: DraftStatus | undefined = $derived($draftStoreStatus);
     let hasUnsavedChanges: boolean = $derived(status == DraftStatus.UNSAVED_CHANGES);
+
+    // Navigate to new path whenever it changes
+    $effect(() => {
+        handleNavigation(path);
+    });
+
+    const rightControls_render = $derived(rightControls);
 
     function handleNavigation(path: string | undefined): void {
         // Cancel the draft when any navigation happens
@@ -49,14 +56,6 @@
     async function onSaveButtonClick() {
         await draftStore.save();
     }
-    $effect(() => {
-        path = unEditUrl(page.url.pathname);
-    });
-    $effect(() => {
-        handleNavigation(path);
-    });
-
-    const rightControls_render = $derived(rightControls);
 </script>
 
 <!-- 

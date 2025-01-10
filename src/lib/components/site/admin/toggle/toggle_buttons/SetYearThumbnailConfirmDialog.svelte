@@ -13,21 +13,21 @@
 
     const dispatch = createEventDispatcher();
 
-    let dialog: Dialog = $state();
+    let dialog: Dialog | undefined = $state();
 
     export function show() {
-        dialog.show();
+        dialog?.show();
     }
 
     function onSubmit(): void {
-        dialog.close();
+        dialog?.close();
         dispatch('confirm', {
             value: true,
         });
     }
 
     function onCancelButtonClick(): void {
-        dialog.close();
+        dialog?.close();
     }
 
     function onkeydown(event: KeyboardEvent): void {

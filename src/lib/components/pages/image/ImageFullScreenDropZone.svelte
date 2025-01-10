@@ -1,3 +1,8 @@
+<!--
+  @component 
+  
+  Full screen drag/drop zone for dropping a replacement image onto the image page.
+-->
 <script lang="ts">
     import FullScreenDropZone from '$lib/components/site/admin/FullScreenDropZone.svelte';
     import { isAdmin } from '$lib/stores/SessionStore';
@@ -11,11 +16,6 @@
     }
 
     let { imagePath, allowDrop = true }: Props = $props();
-
-    let dragging = $state(false);
-    $effect(() => {
-        dragging = dragging;
-    });
 
     function isDropAllowed(e: DragEvent): boolean {
         return allowDrop && $isAdmin && !!e.dataTransfer?.types.includes('Files');

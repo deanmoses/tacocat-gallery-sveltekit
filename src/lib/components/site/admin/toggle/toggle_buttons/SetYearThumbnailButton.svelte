@@ -13,16 +13,11 @@
     import StarIcon from '$lib/components/site/icons/StarIcon.svelte';
 
     let imagePath: string = $derived(page.url.pathname);
-
-    let show: boolean = $state(false);
-    $effect(() => {
-        show = isValidImagePath(imagePath);
-    }); // Show this button only on image pages
-
-    let dialog: SetYearThumbnailConfirmDialog = $state();
+    let show: boolean = $derived(isValidImagePath(imagePath)); // Show this button only on image pages
+    let dialog: SetYearThumbnailConfirmDialog | undefined = $state();
 
     function onclick(): void {
-        dialog.show();
+        dialog?.show();
     }
 
     async function onConfirm(): Promise<void> {

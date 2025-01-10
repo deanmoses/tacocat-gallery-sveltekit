@@ -9,15 +9,8 @@
     import ResetIcon from '../../icons/ResetIcon.svelte';
 
     let resetStatus = $state('');
-    $effect(() => {
-        resetStatus;
-    });
     let title = $derived(resetStatus || 'Reset Redis');
-
-    let disabled = $state(false);
-    $effect(() => {
-        disabled = resetStatus !== '';
-    });
+    let disabled = $derived(resetStatus !== '');
 
     async function onClick() {
         resetStatus = 'Resetting...';

@@ -20,14 +20,8 @@
     import TextDialog from './TextDialog.svelte';
 
     let albumPath: string = $derived(page.url.pathname + '/');
-
-    // Show this button only on day albums
-    let show: boolean = $state(false);
-    $effect(() => {
-        show = isValidDayAlbumPath(albumPath);
-    });
-
-    let dialog: TextDialog = $state();
+    let show: boolean = $derived(isValidDayAlbumPath(albumPath)); // Show this button only on day albums
+    let dialog: TextDialog | undefined = $state();
 
     function originalName(): string {
         const albumName = getNameFromPath(albumPath);
@@ -36,7 +30,7 @@
     }
 
     function onButtonClick() {
-        dialog.show();
+        dialog?.show();
     }
 
     async function onNewAlbumName(e: CustomEvent<{ value: string }>) {

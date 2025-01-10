@@ -13,12 +13,8 @@
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import TextDialog from './TextDialog.svelte';
 
-    let show: boolean = $state(false);
-    $effect(() => {
-        show = page.url.pathname === '/';
-    }); // Show this button only on root album
-
-    let dialog: TextDialog = $state();
+    let show: boolean = $derived(page.url.pathname === '/'); // Show this button only on root album
+    let dialog: TextDialog | undefined = $state();
 
     function yearAlbumName(): string {
         const d = new Date();
@@ -26,7 +22,7 @@
     }
 
     function onButtonClick() {
-        dialog.show();
+        dialog?.show();
     }
 
     async function onNewAlbumName(e: CustomEvent<{ value: string }>) {

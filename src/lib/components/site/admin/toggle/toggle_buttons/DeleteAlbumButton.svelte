@@ -13,8 +13,11 @@
     import { getParentFromPath, isValidDayAlbumPath, isValidYearAlbumPath } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
+    let albumPath = $derived(page.url.pathname + '/');
+    let isValidPath = $derived(isValidDayAlbumPath(albumPath) || isValidYearAlbumPath(albumPath));
+    let album = $derived(isValidPath ? albumStore.get(albumPath, false /*don't trigger fetch*/) : undefined);
     // Show this button on year and day albums but not root albums, and only if they don't have children
-    let show: boolean = $state(false);
+    let show: boolean = $derived(isValidPath && !hasChildren($album));
 
     export function hasChildren(album: AlbumEntry | undefined): boolean {
         return !!album?.album?.albums?.length || !!album?.album?.images?.length;
@@ -28,12 +31,6 @@
             console.error(e);
         }
     }
-    let albumPath = $derived(page.url.pathname + '/');
-    let isValidPath = $derived(isValidDayAlbumPath(albumPath) || isValidYearAlbumPath(albumPath));
-    let album = $derived(isValidPath ? albumStore.get(albumPath, false /*don't trigger fetch*/) : undefined);
-    $effect(() => {
-        show = isValidPath && !hasChildren($album);
-    });
 </script>
 
 {#if show}

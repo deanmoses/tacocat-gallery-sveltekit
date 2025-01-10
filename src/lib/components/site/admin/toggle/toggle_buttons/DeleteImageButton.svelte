@@ -11,12 +11,8 @@
     import { getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
-    let imagePath = $derived(page.url.pathname);
-
-    let show: boolean = $state(false);
-    $effect(() => {
-        show = isValidImagePath(imagePath);
-    }); // Show this button only on image pages
+    let imagePath: string = $derived(page.url.pathname);
+    let show: boolean = $derived(isValidImagePath(imagePath)); // Show this button only on image pages
 
     async function onDeleteButtonClick() {
         await deleteImage(imagePath);

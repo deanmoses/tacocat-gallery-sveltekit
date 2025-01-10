@@ -11,11 +11,7 @@
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
     let path: string = $derived(page.url.pathname);
-
-    let show: boolean = $state(false);
-    $effect(() => {
-        show = isValidImagePath(path);
-    }); // Show this button only on image pages
+    let show: boolean = $derived(isValidImagePath(path)); // Show this button only on image pages
 
     async function onCropButtonClick() {
         goto(`/edit${path}/crop`);
