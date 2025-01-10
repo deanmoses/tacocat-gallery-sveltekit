@@ -13,14 +13,14 @@
     }
 
     let { content, buttons, onkeydown }: Props = $props();
-    let dialog: HTMLDialogElement = $state();
+    let dialog: HTMLDialogElement | undefined = $state();
 
     export function show(): void {
-        dialog.showModal();
+        dialog?.showModal();
     }
 
     export function close(): void {
-        dialog.close();
+        dialog?.close();
     }
 
     /** Close dialog when user clicks outside it */

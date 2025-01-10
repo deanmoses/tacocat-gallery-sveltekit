@@ -4,8 +4,6 @@
   Dialog to confirm overwriting files
 -->
 <script lang="ts">
-    import { preventDefault } from 'svelte/legacy';
-
     import { createEventDispatcher } from 'svelte';
     import Dialog from '../../Dialog.svelte';
     import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
@@ -13,7 +11,7 @@
 
     const dispatch = createEventDispatcher();
 
-    let dialog: Dialog = $state();
+    let dialog: Dialog | undefined = $state();
     let filesAlreadyInAlbum: string[] = $state([]);
     $effect(() => {
         filesAlreadyInAlbum = filesAlreadyInAlbum;
@@ -22,11 +20,12 @@
 
     export function show(f: string[]): void {
         filesAlreadyInAlbum = f;
-        dialog.show();
+        dialog?.show();
     }
 
-    async function onSubmit(): Promise<void> {
-        dialog.close();
+    async function onSubmit(e: Event): Promise<void> {
+        e.preventDefault();
+        dialog?.close();
         filesAlreadyInAlbum = [];
         dispatch('confirm', {
             value: true,
@@ -34,7 +33,7 @@
     }
 
     function onCancelButtonClick(): void {
-        dialog.close();
+        dialog?.close();
         filesAlreadyInAlbum = [];
     }
 
@@ -42,7 +41,7 @@
         switch (event.key) {
             case 'Enter':
                 event.preventDefault();
-                await onSubmit();
+                await onSubmit(event);
         }
     }
 </script>
@@ -53,6 +52,6 @@
     {/snippet}
     {#snippet buttons()}
         <button onclick={onCancelButtonClick}><CancelIcon /> Cancel</button>
-        <button onclick={preventDefault(onSubmit)}><UploadIcon /> Overwrite</button>
+        <button onclick={onSubmit}><UploadIcon /> Overwrite</button>
     {/snippet}
 </Dialog>

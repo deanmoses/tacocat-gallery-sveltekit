@@ -4,7 +4,6 @@
   Page that displays blank search input
 -->
 <script lang="ts">
-    import { preventDefault } from 'svelte/legacy';
     import type { Snippet } from 'svelte';
     import { goto } from '$app/navigation';
     import SiteLayout from '$lib/components/site/SiteLayout.svelte';
@@ -20,7 +19,7 @@
 
     let { searchTerms = $bindable(''), returnPath = '', title = '', children }: Props = $props();
 
-    let searchInput: HTMLInputElement = $state();
+    let searchInput: HTMLInputElement | undefined = $state();
 
     let pageTitle = $derived(searchTerms ? `Search for ${searchTerms}` : title || 'Search The Moses Family');
     let disabled = $derived(3 > searchTerms.length);
@@ -30,11 +29,12 @@
     }
 
     function onInput() {
-        searchTerms = searchInput.value;
+        searchTerms = searchInput?.value || '';
     }
 
-    function onSubmit() {
-        const terms = searchInput.value;
+    function onSubmit(e: Event) {
+        e.preventDefault();
+        const terms = searchInput?.value;
         if (terms) {
             const oldestYear = toInt((document.getElementById('oldestYear') as HTMLInputElement)?.value);
             const newestYear = toInt((document.getElementById('newestYear') as HTMLInputElement)?.value);
@@ -59,7 +59,7 @@
 <SiteLayout hideFooter>
     <header>
         <a href={returnPath}><ReturnIcon /></a>
-        <form onsubmit={preventDefault(onSubmit)}>
+        <form onsubmit={onSubmit}>
             <input
                 name="searchTerms"
                 type="text"

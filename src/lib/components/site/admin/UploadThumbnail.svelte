@@ -1,5 +1,7 @@
 <!--
-  @component A thumbnail of an uploading image
+  @component 
+  
+  A thumbnail of an uploading image
 -->
 <script lang="ts">
     import type { UploadEntry } from '$lib/models/album';
@@ -12,19 +14,9 @@
 
     let { upload }: Props = $props();
     let url = URL.createObjectURL(upload.file);
-
-    function onLoad() {
-        if (url) {
-            try {
-                URL.revokeObjectURL(url);
-            } catch (e) {
-                console.log(`Error revoking URL [${url}]:`, e);
-            }
-        }
-    }
 </script>
 
-<Thumbnail title={upload.file.name} src={url} summary={upload.status} on:load={onLoad}>
+<Thumbnail title={upload.file.name} src={url} summary={upload.status}>
     {#snippet selectionControls()}
         <div><WaitingIcon height="100px" width="100px" /></div>
     {/snippet}
