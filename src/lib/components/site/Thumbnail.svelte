@@ -1,5 +1,7 @@
 <!--
-  @component A thumbnail of an album or image
+  @component 
+  
+  A thumbnail of an album or image
 -->
 <script lang="ts">
     import UnpublishedIcon from './icons/UnpublishedIcon.svelte';

@@ -1,5 +1,7 @@
 <!--
-  @component Site's footer
+  @component 
+  
+  Site's footer
 -->
 
 <footer class="hidden-sm">

@@ -1,5 +1,7 @@
 <!--
-  @component Sidebar of the site
+  @component 
+  
+  Sidebar of the site
 -->
 <script lang="ts">
     import type { Snippet } from 'svelte';

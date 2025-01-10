@@ -1,5 +1,7 @@
 <!--
-  @component For displaying some big message or waiting spinner in the main content area of a page
+  @component 
+  
+  For displaying some big message or waiting spinner in the main content area of a page
 -->
 <script lang="ts">
     import type { Snippet } from 'svelte';

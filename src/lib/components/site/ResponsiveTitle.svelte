@@ -1,5 +1,7 @@
 <!--
-  @component Displays different title-length text based on responsive breakpoints
+  @component 
+  
+  Displays different title-length text based on responsive breakpoints
 -->
 <script lang="ts">
     interface Props {
