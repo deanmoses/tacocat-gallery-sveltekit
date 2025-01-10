@@ -4,10 +4,8 @@
   An icon meant to represent a transition between an unselected star to a selected star
 -->
 <script lang="ts">
-    import type { MouseEventHandler } from 'svelte/elements';
-
     interface Props {
-        onclick?: MouseEventHandler<SVGSVGElement> | null;
+        onclick?: (event: MouseEvent) => void;
     }
 
     let { onclick }: Props = $props();

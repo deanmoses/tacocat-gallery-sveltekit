@@ -1,11 +1,13 @@
 <!--
-  @component An icon representing the concept of "go back to the last thing"
+  @component 
+  
+  An icon representing the concept of "go back to the last thing"
 -->
 <script lang="ts">
     import Icon from './Icon.svelte';
 
     interface Props {
-        title?: string | undefined;
+        title?: string;
     }
 
     let { title = undefined }: Props = $props();
@@ -15,4 +17,4 @@
     const viewBox = '0 0 1156 1156';
 </script>
 
-<Icon {onclick} {viewBox} {title} {d} />
+<Icon {viewBox} {title} {d} />

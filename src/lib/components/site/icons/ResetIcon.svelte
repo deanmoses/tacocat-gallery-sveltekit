@@ -1,5 +1,7 @@
 <!--
-  @component An icon representing the concept of "reset"
+  @component 
+  
+  An icon representing the concept of "reset"
 -->
 <script lang="ts">
     import Icon from './Icon.svelte';
@@ -7,7 +9,7 @@
     interface Props {
         width?: string;
         height?: string;
-        title?: string | undefined;
+        title?: string;
     }
 
     let { width = '20', height = '20', title = undefined }: Props = $props();
@@ -17,4 +19,4 @@
     const viewBox = '0 0 20 20';
 </script>
 
-<Icon {onclick} {width} {height} {viewBox} {title} {d} />
+<Icon {width} {height} {viewBox} {title} {d} />

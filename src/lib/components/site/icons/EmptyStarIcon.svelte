@@ -4,12 +4,10 @@
   A hollow outline (not filled-in) of a star
 -->
 <script lang="ts">
-    import type { MouseEventHandler } from 'svelte/elements';
-
     interface Props {
         width?: string;
         height?: string;
-        onclick?: MouseEventHandler<SVGSVGElement> | null;
+        onclick?: (event: MouseEvent) => void;
     }
 
     let { width = '1em', height = '1em', onclick }: Props = $props();

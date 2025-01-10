@@ -1,5 +1,7 @@
 <!--
-  @component An icon representing the concept of "save"
+  @component 
+  
+  An icon representing the concept of "save"
 -->
 <script lang="ts">
     import Icon from './Icon.svelte';
@@ -9,4 +11,4 @@
     const viewBox = '0 0 1218 1012';
 </script>
 
-<Icon {onclick} {viewBox} {d} />
+<Icon {viewBox} {d} />

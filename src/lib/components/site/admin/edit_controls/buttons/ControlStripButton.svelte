@@ -9,7 +9,7 @@
     interface Props {
         disabled?: boolean;
         /** Alt text*/
-        title?: string | undefined;
+        title?: string;
         children?: Snippet;
         onclick?: (event: MouseEvent) => void;
     }

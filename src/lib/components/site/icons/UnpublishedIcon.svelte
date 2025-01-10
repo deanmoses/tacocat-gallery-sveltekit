@@ -1,15 +1,15 @@
 <!--
-  @component An icon representing the concept of "not publshed"
+  @component 
+  
+  An icon representing the concept of "not publshed"
 -->
 <script lang="ts">
-    import type { MouseEventHandler } from 'svelte/elements';
     import Icon from './Icon.svelte';
 
     interface Props {
         width?: string;
         height?: string;
-        title?: string | undefined;
-        onclick?: MouseEventHandler<HTMLElement>;
+        title?: string;
     }
 
     let { width = '0.85em', height = '0.85em', title = undefined }: Props = $props();
@@ -20,4 +20,4 @@
     const viewBox = '0 0 20 20';
 </script>
 
-<Icon {onclick} {width} {height} {viewBox} {title} {d} />
+<Icon {width} {height} {viewBox} {title} {d} />

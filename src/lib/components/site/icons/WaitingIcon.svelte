@@ -5,8 +5,8 @@
     import Icon from './Icon.svelte';
 
     interface Props {
-        title?: string | undefined;
-        width?: string; //148
+        title?: string;
+        width?: string;
         height?: string;
     }
 
@@ -17,4 +17,4 @@
     const viewBox = '0 0 20 20';
 </script>
 
-<Icon {onclick} {viewBox} {title} {d} {width} {height} />
+<Icon {viewBox} {title} {d} {width} {height} />

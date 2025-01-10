@@ -9,9 +9,9 @@
     import type { Snippet } from 'svelte';
 
     interface Props {
-        title?: string | undefined;
+        title?: string;
         searchTerms: string;
-        returnPath: string | undefined;
+        returnPath?: string;
         children?: Snippet;
     }
 

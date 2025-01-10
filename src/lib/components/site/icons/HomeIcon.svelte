@@ -9,7 +9,7 @@
     interface Props {
         width?: string;
         height?: string;
-        title?: string | undefined;
+        title?: string;
     }
 
     let { width = '1.2em', height = '1.25em', title = undefined }: Props = $props();
@@ -19,4 +19,4 @@
     const viewBox = '0 0 20 20';
 </script>
 
-<Icon {onclick} {width} {height} {viewBox} {title} {d} />
+<Icon {width} {height} {viewBox} {title} {d} />

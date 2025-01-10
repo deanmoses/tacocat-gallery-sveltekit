@@ -1,5 +1,7 @@
 <!--
-  @component An icon representing the concept of "create" or "add"
+  @component 
+  
+  An icon representing the concept of "create" or "add"
 -->
 <script lang="ts">
     import Icon from './Icon.svelte';
@@ -7,7 +9,7 @@
     interface Props {
         width?: string;
         height?: string;
-        title?: string | undefined;
+        title?: string;
     }
 
     let { width = '1em', height = '1em', title = undefined }: Props = $props();
@@ -19,4 +21,4 @@
     // const viewBox = '0 0 20 15';
 </script>
 
-<Icon {onclick} {width} {height} {viewBox} {title} {d} />
+<Icon {width} {height} {viewBox} {title} {d} />
