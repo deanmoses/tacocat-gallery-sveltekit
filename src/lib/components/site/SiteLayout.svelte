@@ -1,14 +1,17 @@
 <!-- 
-    @component Lays out the shell of the app 
+    @component 
+    
+    Lays out the shell of the app 
 -->
 <script lang="ts">
     import { getYear } from '$lib/stores/YearStore';
     import Footer from './Footer.svelte';
+    import type { Snippet } from 'svelte';
 
     interface Props {
         hideFooter?: boolean;
-        editControls?: import('svelte').Snippet;
-        children?: import('svelte').Snippet;
+        editControls?: Snippet;
+        children?: Snippet;
     }
 
     let { hideFooter = false, editControls, children }: Props = $props();

@@ -5,11 +5,12 @@
 -->
 <script lang="ts">
     import { createBubbler } from 'svelte/legacy';
+    import type { Snippet } from 'svelte';
 
     const bubble = createBubbler();
     interface Props {
-        content?: import('svelte').Snippet;
-        buttons?: import('svelte').Snippet;
+        content?: Snippet;
+        buttons?: Snippet;
     }
 
     let { content, buttons }: Props = $props();

@@ -1,13 +1,16 @@
 <!--
-  @component Full screen zone for dropping images into an album or replacing a single image
+  @component 
+  
+  Full screen zone for dropping images into an album or replacing a single image
 -->
 <script lang="ts">
     import { run, preventDefault } from 'svelte/legacy';
+    import type { Snippet } from 'svelte';
 
     interface Props {
         isDropAllowed: (e: DragEvent) => boolean;
         onDrop: (e: DragEvent) => Promise<void>;
-        children?: import('svelte').Snippet;
+        children?: Snippet;
     }
 
     let { isDropAllowed, onDrop, children }: Props = $props();

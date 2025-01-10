@@ -9,12 +9,13 @@
     import { AlbumLoadStatus, type DeleteEntry, type RenameEntry } from '$lib/models/album';
     import HomeIcon from '$lib/components/site/icons/HomeIcon.svelte';
     import AlbumProcessingPage from '../AlbumProcessingPage.svelte';
+    import type { Snippet } from 'svelte';
 
     interface Props {
         loadStatus: AlbumLoadStatus;
         deleteEntry?: DeleteEntry | undefined;
         renameEntry?: RenameEntry | undefined;
-        loaded?: import('svelte').Snippet;
+        loaded?: Snippet;
     }
 
     let { loadStatus, deleteEntry = undefined, renameEntry = undefined, loaded }: Props = $props();

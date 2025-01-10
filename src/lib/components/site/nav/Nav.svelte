@@ -1,14 +1,17 @@
+<!--
+  @component 
+  
+  For grouping a set of navigation buttons together
+-->
 <script lang="ts">
+    import type { Snippet } from 'svelte';
+
     interface Props {
-        children?: import('svelte').Snippet;
+        children?: Snippet;
     }
 
     let { children }: Props = $props();
 </script>
-
-<!--
-  @component For grouping a set of navigation buttons together
--->
 
 <nav>
     {@render children?.()}

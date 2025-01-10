@@ -5,10 +5,11 @@
 -->
 <script lang="ts">
     import BlankAlbumPageLayout from './BlankAlbumPageLayout.svelte';
+    import type { Snippet } from 'svelte';
 
     interface Props {
         title?: string;
-        children?: import('svelte').Snippet;
+        children?: Snippet;
     }
 
     let { title = 'Error', children }: Props = $props();

@@ -8,21 +8,17 @@
     import UpButton from '$lib/components/site/nav/UpButton.svelte';
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
     import FullPageMessage from '$lib/components/site/FullPageMessage.svelte';
+    import type { Snippet } from 'svelte';
 
     interface Props {
         title: string;
-        children?: import('svelte').Snippet;
+        children?: Snippet;
     }
 
     let { title, children }: Props = $props();
 </script>
 
 <ImagePageLayout {title}>
-    <!-- @migration-task: migrate this slot by hand, `title` would shadow a prop on the parent component -->
-    <svelte:fragment slot="title">
-        {title}
-    </svelte:fragment>
-
     {#snippet nav()}
         <PrevButton />
         <UpButton />

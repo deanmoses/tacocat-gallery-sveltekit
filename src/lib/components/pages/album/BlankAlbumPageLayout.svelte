@@ -10,11 +10,12 @@
     import UpButton from '$lib/components/site/nav/UpButton.svelte';
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
     import FullPageMessage from '$lib/components/site/FullPageMessage.svelte';
+    import type { Snippet } from 'svelte';
 
     interface Props {
         title: string;
         hideFooter?: boolean;
-        children?: import('svelte').Snippet;
+        children?: Snippet;
     }
 
     let { title, hideFooter = false, children }: Props = $props();

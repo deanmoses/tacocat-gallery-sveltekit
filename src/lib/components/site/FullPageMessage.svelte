@@ -1,14 +1,15 @@
+<!--
+  @component For displaying some big message or waiting spinner in the main content area of a page
+-->
 <script lang="ts">
+    import type { Snippet } from 'svelte';
+
     interface Props {
-        children?: import('svelte').Snippet;
+        children?: Snippet;
     }
 
     let { children }: Props = $props();
 </script>
-
-<!--
-  @component For displaying some big message or waiting spinner in the main content area of a page
--->
 
 <div>
     {@render children?.()}

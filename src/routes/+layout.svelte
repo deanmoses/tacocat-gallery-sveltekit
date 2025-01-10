@@ -9,8 +9,10 @@
     import { albumStore } from '$lib/stores/AlbumStore';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import { isAdmin } from '$lib/stores/SessionStore';
+    import type { Snippet } from 'svelte';
+
     interface Props {
-        children?: import('svelte').Snippet;
+        children?: Snippet;
     }
 
     let { children }: Props = $props();

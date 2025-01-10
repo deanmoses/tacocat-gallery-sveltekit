@@ -14,6 +14,7 @@
     import type { Image } from '$lib/models/GalleryItemInterfaces';
     import ImageProcessingPage from './ImageProcessingPage.svelte';
     import AlbumErrorPage from '../album/AlbumErrorPage.svelte';
+    import type { Snippet } from 'svelte';
 
     interface Props {
         image: Image | undefined;
@@ -21,7 +22,7 @@
         uploadEntry?: UploadEntry | undefined;
         renameEntry?: RenameEntry | undefined;
         deleteEntry?: DeleteEntry | undefined;
-        loaded?: import('svelte').Snippet;
+        loaded?: Snippet;
     }
 
     let {

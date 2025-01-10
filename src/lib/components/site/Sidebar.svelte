@@ -1,14 +1,15 @@
+<!--
+  @component Sidebar of the site
+-->
 <script lang="ts">
+    import type { Snippet } from 'svelte';
+
     interface Props {
-        children?: import('svelte').Snippet;
+        children?: Snippet;
     }
 
     let { children }: Props = $props();
 </script>
-
-<!--
-  @component Sidebar of the site
--->
 
 <div class="sidebar hidden-sm">
     {@render children?.()}

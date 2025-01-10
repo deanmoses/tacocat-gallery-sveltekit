@@ -1,11 +1,15 @@
 <!--
-  @component Layout of gallery administration area
+  @component 
+  
+  Layout of gallery administration area
 -->
 <script lang="ts">
     import SiteLayout from '$lib/components/site/SiteLayout.svelte';
     import ReturnIcon from '$lib/components/site/icons/ReturnIcon.svelte';
+    import type { Snippet } from 'svelte';
+
     interface Props {
-        children?: import('svelte').Snippet;
+        children?: Snippet;
     }
 
     let { children }: Props = $props();

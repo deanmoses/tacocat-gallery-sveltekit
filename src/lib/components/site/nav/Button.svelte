@@ -1,11 +1,15 @@
 <!--
-  @component Base component for nav buttons
+  @component 
+  
+  Base component for nav buttons
 -->
 <script lang="ts">
+    import type { Snippet } from 'svelte';
+
     interface Props {
         href?: string;
         title: string;
-        children?: import('svelte').Snippet;
+        children?: Snippet;
     }
 
     let { href = '', title, children }: Props = $props();

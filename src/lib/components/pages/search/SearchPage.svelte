@@ -1,9 +1,11 @@
 <!--
-  @component Page that displays blank search input
+  @component 
+  
+  Page that displays blank search input
 -->
 <script lang="ts">
     import { preventDefault } from 'svelte/legacy';
-
+    import type { Snippet } from 'svelte';
     import { goto } from '$app/navigation';
     import SiteLayout from '$lib/components/site/SiteLayout.svelte';
     import ReturnIcon from '$lib/components/site/icons/ReturnIcon.svelte';
@@ -13,7 +15,7 @@
         searchTerms?: string;
         returnPath?: string;
         title?: string;
-        children?: import('svelte').Snippet;
+        children?: Snippet;
     }
 
     let { searchTerms = $bindable(''), returnPath = '', title = '', children }: Props = $props();

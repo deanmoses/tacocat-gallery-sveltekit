@@ -8,11 +8,12 @@
     import AlbumErrorPage from '$lib/components/pages/album/AlbumErrorPage.svelte';
     import { AlbumLoadStatus, type DeleteEntry } from '$lib/models/album';
     import AlbumProcessingPage from '../AlbumProcessingPage.svelte';
+    import type { Snippet } from 'svelte';
 
     interface Props {
         loadStatus: AlbumLoadStatus;
         deleteEntry?: DeleteEntry | undefined;
-        loaded?: import('svelte').Snippet;
+        loaded?: Snippet;
     }
 
     let { loadStatus, deleteEntry = undefined, loaded }: Props = $props();

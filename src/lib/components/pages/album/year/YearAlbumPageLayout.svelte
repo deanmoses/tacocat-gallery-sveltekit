@@ -11,11 +11,13 @@
     import Sidebar from '$lib/components/site/Sidebar.svelte';
     import MainContent from '$lib/components/site/MainContent.svelte';
     import { getYear } from '$lib/stores/YearStore';
+    import type { Snippet } from 'svelte';
+
     interface Props {
-        editControls?: import('svelte').Snippet;
-        nav?: import('svelte').Snippet;
-        caption?: import('svelte').Snippet;
-        thumbnails?: import('svelte').Snippet;
+        editControls?: Snippet;
+        nav?: Snippet;
+        caption?: Snippet;
+        thumbnails?: Snippet;
     }
 
     let { editControls, nav, caption, thumbnails }: Props = $props();

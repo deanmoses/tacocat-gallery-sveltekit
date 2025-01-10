@@ -3,6 +3,7 @@
 -->
 <script lang="ts">
     import UnpublishedIcon from './icons/UnpublishedIcon.svelte';
+    import type { Snippet } from 'svelte';
 
     interface Props {
         src?: string;
@@ -10,7 +11,7 @@
         title?: string;
         summary?: string;
         published?: boolean;
-        selectionControls?: import('svelte').Snippet;
+        selectionControls?: Snippet;
     }
 
     let { src = '', href = '', title = '', summary = '', published = true, selectionControls }: Props = $props();

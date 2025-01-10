@@ -1,14 +1,17 @@
+<!--
+  @component 
+  
+  The main content of a page.  In an image page, that'd be the caption and image.  In an album, the thumbnails.
+-->
 <script lang="ts">
+    import type { Snippet } from 'svelte';
+
     interface Props {
-        children?: import('svelte').Snippet;
+        children?: Snippet;
     }
 
     let { children }: Props = $props();
 </script>
-
-<!--
-  @component The main content of a page.  In an image page, that'd be the caption and image.  In an album, the thumbnails.
--->
 
 <div class="main-content">
     {@render children?.()}

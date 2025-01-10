@@ -1,14 +1,17 @@
+<!--
+  @component 
+  
+  A grid of thumbnails
+-->
 <script lang="ts">
+    import type { Snippet } from 'svelte';
+
     interface Props {
-        children?: import('svelte').Snippet;
+        children?: Snippet;
     }
 
     let { children }: Props = $props();
 </script>
-
-<!--
-  @component A grid of thumbnails
--->
 
 <div>
     {@render children?.()}

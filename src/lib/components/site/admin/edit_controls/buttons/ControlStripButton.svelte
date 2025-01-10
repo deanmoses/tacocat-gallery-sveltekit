@@ -1,8 +1,11 @@
 <!--
-  @component Base for all buttons on the edit control strip
+  @component 
+  
+  Base for all buttons on the edit control strip
 -->
 <script lang="ts">
     import { createBubbler } from 'svelte/legacy';
+    import type { Snippet } from 'svelte';
 
     const bubble = createBubbler();
 
@@ -10,7 +13,7 @@
         disabled?: boolean;
         /** Alt text*/
         title?: string | undefined;
-        children?: import('svelte').Snippet;
+        children?: Snippet;
     }
 
     let { disabled = false, title = undefined, children }: Props = $props();
