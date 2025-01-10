@@ -62,7 +62,7 @@
 
 <EditControlsLayout>
     {#snippet leftControls()}
-        <CancelButton on:click|once={onCancelButtonClick} />
+        <CancelButton onclick={onCancelButtonClick} />
     {/snippet}
 
     {#snippet status()}
@@ -73,6 +73,6 @@
 
     {#snippet rightControls()}
         {@render rightControls_render?.()}
-        <SaveButton on:click={onSaveButtonClick} {hasUnsavedChanges} />
+        <SaveButton onclick={onSaveButtonClick} {hasUnsavedChanges} />
     {/snippet}
 </EditControlsLayout>

@@ -21,7 +21,7 @@
 
     let dialog: SetYearThumbnailConfirmDialog = $state();
 
-    function onClick(): void {
+    function onclick(): void {
         dialog.show();
     }
 
@@ -35,6 +35,6 @@
 </script>
 
 {#if show}
-    <ControlStripButton title="Set thumbnail for year" on:click|once={onClick}><StarIcon />Year</ControlStripButton>
+    <ControlStripButton title="Set thumbnail for year" {onclick}><StarIcon />Year</ControlStripButton>
     <SetYearThumbnailConfirmDialog bind:this={dialog} on:confirm={onConfirm} />
 {/if}

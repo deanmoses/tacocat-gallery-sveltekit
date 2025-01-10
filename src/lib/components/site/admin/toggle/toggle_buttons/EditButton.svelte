@@ -1,5 +1,7 @@
 <!--
-  @component Button to go into edit mode for an album or image
+  @component 
+  
+  Button to go into edit mode for an album or image
 -->
 <script lang="ts">
     import { run } from 'svelte/legacy';
@@ -28,5 +30,5 @@
 </script>
 
 {#if show}
-    <ControlStripButton on:click|once={onEditButtonClick}><EditIcon />Edit</ControlStripButton>
+    <ControlStripButton onclick={onEditButtonClick}><EditIcon />Edit</ControlStripButton>
 {/if}

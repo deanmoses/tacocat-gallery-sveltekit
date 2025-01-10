@@ -1,5 +1,7 @@
 <!--
-  @component An icon representing the concept of "upload"
+  @component 
+  
+  An icon representing the concept of "upload"
 -->
 <script lang="ts">
     import Icon from './Icon.svelte';

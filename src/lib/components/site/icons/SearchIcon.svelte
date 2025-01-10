@@ -1,5 +1,7 @@
 <!--
-  @component An icon representing the concept of "search"
+  @component 
+  
+  An icon representing the concept of "search"
 -->
 <script lang="ts">
     import Icon from './Icon.svelte';

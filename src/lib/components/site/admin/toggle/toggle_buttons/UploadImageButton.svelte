@@ -27,7 +27,7 @@
 </script>
 
 {#if show}
-    <ControlStripButton on:click={onUploadButtonClick} title="Upload new version of image"
+    <ControlStripButton onclick={onUploadButtonClick} title="Upload new version of image"
         ><UploadIcon />Replace</ControlStripButton
     >
     <input

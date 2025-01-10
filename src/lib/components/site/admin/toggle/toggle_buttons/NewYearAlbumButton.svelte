@@ -43,7 +43,7 @@
 </script>
 
 {#if show}
-    <ControlStripButton on:click={onButtonClick}><CreateIcon />New Year Album</ControlStripButton>
+    <ControlStripButton onclick={onButtonClick}><CreateIcon />New Year Album</ControlStripButton>
     <TextDialog
         label="New Year!"
         bind:this={dialog}

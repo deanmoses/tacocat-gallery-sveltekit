@@ -1,5 +1,7 @@
 <!--
-  @component A save button
+  @component 
+  
+  A save button
 -->
 <script lang="ts">
     import SaveIcon from '$lib/components/site/icons/SaveIcon.svelte';
@@ -7,12 +9,13 @@
 
     interface Props {
         hasUnsavedChanges: boolean;
+        onclick?: (event: MouseEvent) => void;
     }
 
-    let { hasUnsavedChanges }: Props = $props();
+    let { hasUnsavedChanges, onclick }: Props = $props();
 </script>
 
-<ControlStripButton on:click disabled={!hasUnsavedChanges}>
+<ControlStripButton {onclick} disabled={!hasUnsavedChanges}>
     {#if hasUnsavedChanges}
         <SaveIcon /> Save*
     {:else}

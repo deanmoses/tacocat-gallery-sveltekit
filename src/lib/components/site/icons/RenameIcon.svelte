@@ -1,5 +1,7 @@
 <!--
-  @component An icon representing the concept of "rename"
+  @component 
+  
+  An icon representing the concept of "rename"
 -->
 <script lang="ts">
     import Icon from './Icon.svelte';

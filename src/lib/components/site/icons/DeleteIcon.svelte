@@ -1,5 +1,7 @@
 <!--
-  @component An icon representing the concept of "delete"
+  @component 
+  
+  An icon representing the concept of "delete"
 -->
 <script lang="ts">
     import Icon from './Icon.svelte';

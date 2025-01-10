@@ -1,5 +1,7 @@
 <!--
-  @component An icon repepresenting the concept of "favorite" aka "set as thumbnail"
+  @component 
+  
+  An icon repepresenting the concept of "favorite" aka "set as thumbnail"
 -->
 <script lang="ts">
     import Icon from './Icon.svelte';

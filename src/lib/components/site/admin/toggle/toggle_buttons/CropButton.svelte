@@ -1,5 +1,7 @@
 <!--
-  @component Button to re-crop image thumbnail
+  @component 
+  
+  Button to re-crop image thumbnail
 -->
 <script lang="ts">
     import { run } from 'svelte/legacy';
@@ -23,6 +25,5 @@
 </script>
 
 {#if show}
-    <ControlStripButton on:click|once={onCropButtonClick} title="Re-crop thumbnail"><CropIcon />Crop</ControlStripButton
-    >
+    <ControlStripButton onclick={onCropButtonClick} title="Re-crop thumbnail"><CropIcon />Crop</ControlStripButton>
 {/if}

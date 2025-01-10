@@ -23,7 +23,7 @@
 </script>
 
 {#if show}
-    <ControlStripButton on:click={onUploadButtonClick}><UploadIcon />Upload</ControlStripButton>
+    <ControlStripButton onclick={onUploadButtonClick}><UploadIcon />Upload</ControlStripButton>
     <input
         bind:this={fileInput}
         onchange={onFilesSelected}

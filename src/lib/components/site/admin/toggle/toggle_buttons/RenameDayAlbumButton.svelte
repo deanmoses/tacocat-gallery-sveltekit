@@ -61,7 +61,7 @@
 </script>
 
 {#if show}
-    <ControlStripButton on:click={onButtonClick} title="Rename album on disk"><RenameIcon />Rename</ControlStripButton>
+    <ControlStripButton onclick={onButtonClick} title="Rename album on disk"><RenameIcon />Rename</ControlStripButton>
     <TextDialog
         label="New Album Name"
         bind:this={dialog}

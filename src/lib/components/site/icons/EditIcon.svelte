@@ -1,5 +1,7 @@
 <!--
-  @component An icon repepresenting the concept of "edit"
+  @component 
+  
+  An icon repepresenting the concept of "edit"
 -->
 <script lang="ts">
     import Icon from './Icon.svelte';

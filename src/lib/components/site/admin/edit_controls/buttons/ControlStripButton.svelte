@@ -4,22 +4,20 @@
   Base for all buttons on the edit control strip
 -->
 <script lang="ts">
-    import { createBubbler } from 'svelte/legacy';
     import type { Snippet } from 'svelte';
-
-    const bubble = createBubbler();
 
     interface Props {
         disabled?: boolean;
         /** Alt text*/
         title?: string | undefined;
         children?: Snippet;
+        onclick?: (event: MouseEvent) => void;
     }
 
-    let { disabled = false, title = undefined, children }: Props = $props();
+    let { disabled = false, title = undefined, children, onclick }: Props = $props();
 </script>
 
-<button onclick={bubble('click')} {disabled} {title} type="button">{@render children?.()}</button>
+<button {onclick} {disabled} {title} type="button">{@render children?.()}</button>
 
 <style>
     button {

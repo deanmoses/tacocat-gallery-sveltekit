@@ -52,7 +52,7 @@
 </script>
 
 {#if show}
-    <ControlStripButton on:click={onButtonClick}><CreateIcon />New Album</ControlStripButton>
+    <ControlStripButton onclick={onButtonClick}><CreateIcon />New Album</ControlStripButton>
     <TextDialog
         label="New Album Name"
         bind:this={dialog}

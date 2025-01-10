@@ -1,5 +1,7 @@
 <!--
-  @component An icon representing the concept of "next"
+  @component 
+  
+  An icon representing the concept of "next"
 -->
 <script lang="ts">
     import Icon from './Icon.svelte';

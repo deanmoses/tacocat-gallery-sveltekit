@@ -1,5 +1,7 @@
 <!--
-  @component An icon representing the concept of "logout"
+  @component 
+  
+  An icon representing the concept of "logout"
 -->
 <script lang="ts">
     import Icon from './Icon.svelte';

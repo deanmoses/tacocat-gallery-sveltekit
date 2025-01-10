@@ -1,5 +1,7 @@
 <!--
-  @component An icon representing the concept of "prev"
+  @component 
+  
+  An icon representing the concept of "prev"
 -->
 <script lang="ts">
     import Icon from './Icon.svelte';
