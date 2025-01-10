@@ -27,13 +27,13 @@
     {/snippet}
 
     {#snippet caption()}
-        {@html image?.description}
+        {@html image.description}
     {/snippet}
 
     {#snippet nav()}
-        <PrevButton href={image?.prevHref} />
+        <PrevButton href={image.prevHref} />
         <UpButton href={album.href} title={album.title} />
-        <NextButton href={image?.nextHref} />
+        <NextButton href={image.nextHref} />
     {/snippet}
 
     {#snippet image()}
