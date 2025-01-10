@@ -1,6 +1,7 @@
-<!-- @migration-task Error while migrating Svelte code: This migration would change the name of a slot making the component unusable -->
 <!--
-  @component Layout for day album pages
+  @component 
+  
+  Layout for day album pages
 -->
 <script lang="ts">
     import SiteLayout from '$lib/components/site/SiteLayout.svelte';
@@ -10,34 +11,44 @@
     import MainContent from '$lib/components/site/MainContent.svelte';
     import Thumbnails from '$lib/components/site/Thumbnails.svelte';
     import UnpublishedIcon from '$lib/components/site/icons/UnpublishedIcon.svelte';
+    import type { Snippet } from 'svelte';
 
-    export let title: string = '';
-    export let published: boolean = false;
-    $: unpublished = !published;
+    interface Props {
+        title: string;
+        published: boolean;
+        editControls?: Snippet;
+        nav?: Snippet;
+        caption?: Snippet;
+        thumbnails?: Snippet;
+    }
+
+    let { title = '', published = false, editControls, nav, caption, thumbnails }: Props = $props();
+
+    let unpublished = $derived(!published);
 </script>
 
 <svelte:head>
     <title>{title}</title>
 </svelte:head>
 
-<slot name="editControls" />
+{@render editControls?.()}
 <SiteLayout>
     <Header hideBottomBorder>
-        <slot name="title" />
+        {title}
     </Header>
     <Nav>
-        <slot name="nav" />
+        {@render nav?.()}
     </Nav>
     <PageContent>
         <MainContent>
             <section class="caption">
                 <h2 style="display:none">Album Description</h2>
-                <slot name="caption" />
+                {@render caption?.()}
             </section>
             <section>
                 <h2 style="display:none">Thumbnails</h2>
                 <Thumbnails>
-                    <slot name="thumbnails" />
+                    {@render thumbnails?.()}
                 </Thumbnails>
             </section>
             {#if unpublished}

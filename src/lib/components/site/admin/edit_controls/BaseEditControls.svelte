@@ -5,8 +5,8 @@
 -->
 
 <script lang="ts">
-  import { run } from 'svelte/legacy';
-
+    import type { Snippet } from 'svelte';
+    import { run } from 'svelte/legacy';
     import EditControlsLayout from './EditControlsLayout.svelte';
     import CancelButton from './buttons/CancelButton.svelte';
     import SaveButton from './buttons/SaveButton.svelte';
@@ -17,17 +17,18 @@
     import { goto } from '$app/navigation';
     import { unEditUrl } from '$lib/utils/path-utils';
     import { isValidImagePath } from '$lib/utils/galleryPathUtils';
-  interface Props {
-    rightControls?: import('svelte').Snippet;
-  }
 
-  let { rightControls }: Props = $props();
+    interface Props {
+        rightControls?: Snippet;
+    }
 
-    const status = draftStore.getStatus();
+    let { rightControls }: Props = $props();
+
+    let status: DraftStatus | undefined = undefined; //draftStore.getStatus(); TODO fix, I uncommented just to get the migration to Svelte 5 running
 
     let path: string | undefined = $state(unEditUrl($page.url.pathname));
 
-    let hasUnsavedChanges: boolean = $derived($status == DraftStatus.UNSAVED_CHANGES);
+    let hasUnsavedChanges: boolean = $derived(status == DraftStatus.UNSAVED_CHANGES);
 
     function handleNavigation(path: string | undefined): void {
         // Cancel the draft when any navigation happens
@@ -50,33 +51,28 @@
         await draftStore.save();
     }
     run(() => {
-    path = unEditUrl($page.url.pathname);
-  });
+        path = unEditUrl($page.url.pathname);
+    });
     run(() => {
-    handleNavigation(path);
-  });
-    
+        handleNavigation(path);
+    });
 
-  const rightControls_render = $derived(rightControls);
+    const rightControls_render = $derived(rightControls);
 </script>
 
 <EditControlsLayout>
     {#snippet leftControls()}
-  
-          <CancelButton on:click|once={onCancelButtonClick} />
-      
-  {/snippet}
+        <CancelButton on:click|once={onCancelButtonClick} />
+    {/snippet}
 
     {#snippet status()}
-  
-          <StatusMessage status={$status} />
-      
-  {/snippet}
+        <!--StatusMessage {status} /-->
+        <!-- TODO fix I commented out just to get the migration to Svelte 5 working -->
+        <StatusMessage />
+    {/snippet}
 
     {#snippet rightControls()}
-  
-          {@render rightControls_render?.()}
-          <SaveButton on:click={onSaveButtonClick} {hasUnsavedChanges} />
-      
-  {/snippet}
+        {@render rightControls_render?.()}
+        <SaveButton on:click={onSaveButtonClick} {hasUnsavedChanges} />
+    {/snippet}
 </EditControlsLayout>

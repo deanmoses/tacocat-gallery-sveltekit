@@ -1,18 +1,20 @@
-<script lang="ts">
-  interface Props {
-    leftControls?: import('svelte').Snippet;
-    status?: import('svelte').Snippet;
-    rightControls?: import('svelte').Snippet;
-  }
-
-  let { leftControls, status, rightControls }: Props = $props();
-</script>
-
 <!--
   @component
 
   The layout for the image and album editing controls
 -->
+
+<script lang="ts">
+    import type { Snippet } from 'svelte';
+
+    interface Props {
+        leftControls?: Snippet;
+        status?: Snippet;
+        rightControls?: Snippet;
+    }
+
+    let { leftControls, status, rightControls }: Props = $props();
+</script>
 
 <div class="editing-controls-container">
     <div class="editing-controls">

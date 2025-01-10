@@ -1,14 +1,24 @@
-<!-- @migration-task Error while migrating Svelte code: This migration would change the name of a slot making the component unusable -->
 <!-- 
-    @component Layout of an image page 
+    @component 
+    
+    Layout of an image page 
 -->
 <script lang="ts">
     import SiteLayout from '$lib/components/site/SiteLayout.svelte';
     import Header from '$lib/components/site/Header.svelte';
     import PageContent from '$lib/components/site/PageContent.svelte';
     import Nav from '$lib/components/site/nav/Nav.svelte';
+    import type { Snippet } from 'svelte';
 
-    export let title: string;
+    interface Props {
+        title: string;
+        caption?: Snippet;
+        image?: Snippet;
+        nav?: Snippet;
+        editControls?: Snippet;
+    }
+
+    let { title, caption, image, nav, editControls }: Props = $props();
 </script>
 
 <svelte:head>
@@ -16,29 +26,29 @@
 </svelte:head>
 
 <SiteLayout>
-    <svelte:fragment slot="editControls"><slot name="editControls" /></svelte:fragment>
-    {#if $$slots.title}
+    {@render editControls?.()}
+    {#if title}
         <Header hideSiteTitle hideSearch hideWhenSmall>
-            <slot name="title" />
+            {title}
         </Header>
     {/if}
     <PageContent>
         <div class="captionAndPhoto">
-            {#if $$slots.caption}
+            {#if caption}
                 <section class="caption">
                     <h2 style="display:none">Caption</h2>
-                    <slot name="caption" />
+                    {@render caption?.()}
                 </section>
             {/if}
             <div class="navAndPhoto">
-                {#if $$slots.nav}
+                {#if nav}
                     <Nav>
-                        <slot name="nav" />
+                        {@render nav?.()}
                     </Nav>
                 {/if}
                 <section>
                     <h2 style="display:none">Photo</h2>
-                    <slot name="image" />
+                    {@render image?.()}
                 </section>
             </div>
         </div>

@@ -1,5 +1,7 @@
 <!--
-  @component Page to display an image
+  @component 
+  
+  Page to display an image
 -->
 <script lang="ts">
     import ImagePageLayout from './layouts/ImagePageLayout.svelte';
@@ -11,45 +13,32 @@
     import type { Album, Image } from '$lib/models/GalleryItemInterfaces';
     import { isAdmin } from '$lib/stores/SessionStore';
 
-  interface Props {
-    album: Album;
-    image: Image;
-  }
+    interface Props {
+        album: Album;
+        image: Image;
+    }
 
-  let { album, image }: Props = $props();
+    let { album, image }: Props = $props();
 </script>
 
 <ImagePageLayout title={image.title}>
     {#snippet editControls()}
-  
-          <AdminToggle />
-      
-  {/snippet}
-
-    <!-- @migration-task: migrate this slot by hand, `title` would shadow a prop on the parent component -->
-  <svelte:fragment slot="title">
-        {image.title}
-    </svelte:fragment>
+        <AdminToggle />
+    {/snippet}
 
     {#snippet caption()}
-  
-          {@html image.description}
-      
-  {/snippet}
+        {@html image?.description}
+    {/snippet}
 
     {#snippet nav()}
-  
-          <PrevButton href={image.prevHref} />
-          <UpButton href={album.href} title={album.title} />
-          <NextButton href={image.nextHref} />
-      
-  {/snippet}
+        <PrevButton href={image?.prevHref} />
+        <UpButton href={album.href} title={album.title} />
+        <NextButton href={image?.nextHref} />
+    {/snippet}
 
     {#snippet image()}
-  
-          <BigImage {image} />
-      
-  {/snippet}
+        <BigImage {image} />
+    {/snippet}
 </ImagePageLayout>
 
 {#if $isAdmin}

@@ -5,6 +5,7 @@
     import SearchIcon from './icons/SearchIcon.svelte';
     import { page } from '$app/stores';
     import { siteTitle } from '$lib/utils/config';
+    import type { Snippet } from 'svelte';
 
     interface Props {
         /** Hide the header on small viewports */
@@ -19,7 +20,7 @@
         /** Don't show the site's title (this is different than the page title)*/
         hideSiteTitle?: boolean;
 
-        children?: import('svelte').Snippet;
+        children?: Snippet;
     }
 
     let {

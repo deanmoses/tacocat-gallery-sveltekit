@@ -2,29 +2,24 @@
   @component Base component for all SVG icons
 -->
 <script lang="ts">
-  import { createBubbler } from 'svelte/legacy';
+    import type { MouseEventHandler } from 'svelte/elements';
 
-  const bubble = createBubbler();
-  interface Props {
-    width?: string;
-    height?: string;
-    title?: string | undefined;
-    d: string;
-    viewBox: string;
-  }
+    interface Props {
+        width?: string;
+        height?: string;
+        title?: string | undefined;
+        d: string;
+        viewBox: string;
+        onclick?: MouseEventHandler<HTMLElement>;
+    }
 
-  let {
-    width = '1em',
-    height = '1em',
-    title = undefined,
-    d,
-    viewBox
-  }: Props = $props();
+    let { width = '1em', height = '1em', title = undefined, d, viewBox }: Props = $props();
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<svg onclick={bubble('click')} {width} {height} {viewBox}>
+<!-- svelte-ignore attribute_global_event_reference-->
+<svg {onclick} {width} {height} {viewBox}>
     {#if title}<title>{title}</title>{/if}
     <path {d} />
 </svg>

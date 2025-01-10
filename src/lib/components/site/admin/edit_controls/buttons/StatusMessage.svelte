@@ -1,14 +1,16 @@
 <!--
-  @component A status message
+  @component 
+  
+  A status message
 -->
 <script lang="ts">
     import { DraftStatus } from '$lib/models/draft';
 
-  interface Props {
-    status: DraftStatus | undefined;
-  }
+    interface Props {
+        status?: DraftStatus;
+    }
 
-  let { status }: Props = $props();
+    let { status }: Props = $props();
 </script>
 
 {#if status === DraftStatus.SAVING}

@@ -7,19 +7,17 @@
     import BaseEditControls from './BaseEditControls.svelte';
     import draftStore from '$lib/stores/DraftStore';
 
-    
+    interface Props {
+        /** Whether album is published or not */
+        published?: boolean;
 
-    
+        /** Show the summary field.  Should only be shown on day albums, not year albums */
+        showSummary?: boolean;
 
-  interface Props {
-    /** Whether album is published or not */
-    published?: boolean;
-    /** Show the summary field.  Should only be shown on day albums, not year albums */
-    showSummary?: boolean;
-    summary?: string;
-  }
+        summary?: string;
+    }
 
-  let { published = false, showSummary = false, summary = '' }: Props = $props();
+    let { published = false, showSummary = false, summary = '' }: Props = $props();
 
     function onSummaryChange(event: Event & { currentTarget: EventTarget & HTMLInputElement }) {
         if (event.target) draftStore.setSummary(event.currentTarget.value);
@@ -32,15 +30,13 @@
 
 <BaseEditControls>
     {#snippet rightControls()}
-  
-          {#if showSummary}
-              <div>
-                  <input type="text" name="text" value={summary ?? ''} oninput={onSummaryChange} />
-              </div>
-          {/if}
-          <div>
-              <input type="checkbox" name="check" checked={published} onchange={onPublishedChange} /> published
-          </div>
-      
-  {/snippet}
+        {#if showSummary}
+            <div>
+                <input type="text" name="text" value={summary ?? ''} oninput={onSummaryChange} />
+            </div>
+        {/if}
+        <div>
+            <input type="checkbox" name="check" checked={published} onchange={onPublishedChange} /> published
+        </div>
+    {/snippet}
 </BaseEditControls>

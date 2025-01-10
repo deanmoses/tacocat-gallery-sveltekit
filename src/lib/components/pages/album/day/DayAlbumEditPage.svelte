@@ -18,12 +18,12 @@
     import type { UploadEntry } from '$lib/models/album';
     import UploadThumbnail from '$lib/components/site/admin/UploadThumbnail.svelte';
 
-  interface Props {
-    album: Album;
-    uploads?: UploadEntry[] | undefined;
-  }
+    interface Props {
+        album: Album;
+        uploads?: UploadEntry[] | undefined;
+    }
 
-  let { album, uploads = undefined }: Props = $props();
+    let { album, uploads = undefined }: Props = $props();
 
     let okToNavigate = DraftStore.getOkToNavigate();
 
@@ -35,72 +35,62 @@
 
 <DayAlbumPageLayout title={album.title} published={album.published}>
     {#snippet editControls()}
-  
-          <AlbumEditControls showSummary summary={album.summary} published={album.published} />
-      
-  {/snippet}
+        <AlbumEditControls showSummary summary={album.summary} published={album.published} />
+    {/snippet}
 
     <!-- @migration-task: migrate this slot by hand, `title` would shadow a prop on the parent component -->
-  <svelte:fragment slot="title">
+    <svelte:fragment slot="title">
         {album.title}
     </svelte:fragment>
 
     {#snippet nav()}
-  
-          <PrevButton href={$okToNavigate ? editUrl(album.nextHref) : undefined} title={album.nextTitle} />
-          <UpButton href={$okToNavigate ? editUrl(album.parentHref) : undefined} title={album.parentTitle} />
-          <NextButton href={$okToNavigate ? editUrl(album.prevHref) : undefined} title={album.prevTitle} />
-      
-  {/snippet}
+        <PrevButton href={$okToNavigate ? editUrl(album.nextHref) : undefined} title={album.nextTitle} />
+        <UpButton href={$okToNavigate ? editUrl(album.parentHref) : undefined} title={album.parentTitle} />
+        <NextButton href={$okToNavigate ? editUrl(album.prevHref) : undefined} title={album.prevTitle} />
+    {/snippet}
 
     {#snippet caption()}
-  
-          <EditableHtml htmlContent={album.description} />
-      
-  {/snippet}
+        <EditableHtml htmlContent={album.description} />
+    {/snippet}
 
     {#snippet thumbnails()}
-  
-          {#if album.images?.length}
-              {#each album.images as image (image.path)}
-                  {#if $okToNavigate}
-                      <Thumbnail
-                          title={image.title}
-                          summary={image.summary}
-                          href={editUrl(`${image.path}`)}
-                          src={image.thumbnailUrl}
-                      >
-                          {#snippet selectionControls()}
-                      
-                                <SelectableStar
-                                    albumThumbPath={album.thumbnailPath}
-                                    path={image.path}
-                                    on:selected={albumThumbnailSelected}
-                                />
-                            
-                      {/snippet}
-                      </Thumbnail>
-                  {:else}
-                      <div title="💾 Save changes before navigating">
-                          <Thumbnail title={image.title} summary={image.summary} src={image.thumbnailUrl} />
-                      </div>
-                  {/if}
-              {/each}
-          {:else if !album.published && !uploads?.length && $okToNavigate}
-              <p>Drop images or a 📁</p>
-          {/if}
-          {#if uploads?.length}
-              <!-- 
+        {#if album.images?.length}
+            {#each album.images as image (image.path)}
+                {#if $okToNavigate}
+                    <Thumbnail
+                        title={image.title}
+                        summary={image.summary}
+                        href={editUrl(`${image.path}`)}
+                        src={image.thumbnailUrl}
+                    >
+                        {#snippet selectionControls()}
+                            <SelectableStar
+                                albumThumbPath={album.thumbnailPath}
+                                path={image.path}
+                                on:selected={albumThumbnailSelected}
+                            />
+                        {/snippet}
+                    </Thumbnail>
+                {:else}
+                    <div title="💾 Save changes before navigating">
+                        <Thumbnail title={image.title} summary={image.summary} src={image.thumbnailUrl} />
+                    </div>
+                {/if}
+            {/each}
+        {:else if !album.published && !uploads?.length && $okToNavigate}
+            <p>Drop images or a 📁</p>
+        {/if}
+        {#if uploads?.length}
+            <!-- 
                   Lazy / async / dynamic load the component
                   It's a hint to the bundling system that it can be put into a separate bundle, 
                   so that non-admins aren't forced to download the code.
               -->
-              {#each uploads as upload (upload.imagePath)}
-                  <UploadThumbnail {upload} />
-              {/each}
-          {/if}
-      
-  {/snippet}
+            {#each uploads as upload (upload.imagePath)}
+                <UploadThumbnail {upload} />
+            {/each}
+        {/if}
+    {/snippet}
 </DayAlbumPageLayout>
 <DayAlbumFullScreenDropZone albumPath={album.path} allowDrop={$okToNavigate} />
 

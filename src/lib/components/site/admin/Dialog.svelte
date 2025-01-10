@@ -1,16 +1,18 @@
 <!--
-  @component Base dialog component that other components extend
+  @component 
+  
+  Base dialog component that other components extend
 -->
 <script lang="ts">
-  import { createBubbler } from 'svelte/legacy';
+    import { createBubbler } from 'svelte/legacy';
 
-  const bubble = createBubbler();
-  interface Props {
-    content?: import('svelte').Snippet;
-    buttons?: import('svelte').Snippet;
-  }
+    const bubble = createBubbler();
+    interface Props {
+        content?: import('svelte').Snippet;
+        buttons?: import('svelte').Snippet;
+    }
 
-  let { content, buttons }: Props = $props();
+    let { content, buttons }: Props = $props();
     let dialog: HTMLDialogElement = $state();
 
     export function show(): void {
