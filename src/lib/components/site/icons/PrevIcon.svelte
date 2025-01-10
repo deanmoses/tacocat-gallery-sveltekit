@@ -14,4 +14,4 @@
     const viewBox = '0 0 749 1102';
 </script>
 
-<Icon on:click {viewBox} {title} {d} />
+<Icon {onclick} {viewBox} {title} {d} />

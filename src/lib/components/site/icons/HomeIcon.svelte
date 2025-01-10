@@ -1,5 +1,7 @@
 <!--
-  @component An icon representing the concept of "home" or "up"
+  @component 
+  
+  An icon representing the concept of "home" or "up"
 -->
 <script lang="ts">
     import Icon from './Icon.svelte';
@@ -17,4 +19,4 @@
     const viewBox = '0 0 20 20';
 </script>
 
-<Icon on:click {width} {height} {viewBox} {title} {d} />
+<Icon {onclick} {width} {height} {viewBox} {title} {d} />

@@ -38,9 +38,9 @@
 {#if selected}
     <div class="selected"><FilledStarIcon height="2em" width="2em" /></div>
 {:else if selecting}
-    <div class="selecting"><TransitionStarIcon on:click={onEmptyStarClick} /></div>
+    <div class="selecting"><TransitionStarIcon onclick={onEmptyStarClick} /></div>
 {:else}
-    <div class="notSelected"><EmptyStarIcon on:click={onEmptyStarClick} /></div>
+    <div class="notSelected"><EmptyStarIcon onclick={onEmptyStarClick} /></div>
 {/if}
 
 <style>

@@ -15,4 +15,4 @@
     const viewBox = '0 -320 1600 1600';
 </script>
 
-<Icon on:click {viewBox} {title} {d} />
+<Icon {onclick} {viewBox} {title} {d} />

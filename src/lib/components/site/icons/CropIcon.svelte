@@ -1,5 +1,7 @@
 <!--
-  @component An icon representing the concept of "crop"
+  @component 
+  
+  An icon representing the concept of "crop"
 -->
 <script lang="ts">
     import Icon from './Icon.svelte';
@@ -16,4 +18,4 @@
     const viewBox = '0 -3 21 21';
 </script>
 
-<Icon on:click {width} {height} {viewBox} {title} {d} />
+<Icon {onclick} {width} {height} {viewBox} {title} {d} />
