@@ -139,7 +139,7 @@ class DraftStore {
      * Updates both the album in memory and on the browser's local filesystem.
      */
     private updateClientStateAfterSave(draft: Draft): void {
-        let path = draft.path;
+        const path = draft.path;
 
         // If it was an image that was saved...
         if (isValidImagePath(path)) {
