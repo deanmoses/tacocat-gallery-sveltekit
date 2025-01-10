@@ -16,9 +16,5 @@
 </script>
 
 <ControlStripButton {onclick} disabled={!hasUnsavedChanges}>
-    {#if hasUnsavedChanges}
-        <SaveIcon /> Save*
-    {:else}
-        <SaveIcon /> Save
-    {/if}
+    <SaveIcon /> Save{#if hasUnsavedChanges}*{/if}
 </ControlStripButton>
