@@ -26,7 +26,7 @@
     let path: string | undefined = $state(unEditUrl(page.url.pathname));
 
     let draftStoreStatus = draftStore.getStatus();
-    let status: DraftStatus | undefined = $state($draftStoreStatus);
+    let status: DraftStatus | undefined = $derived($draftStoreStatus);
     let hasUnsavedChanges: boolean = $derived(status == DraftStatus.UNSAVED_CHANGES);
 
     function handleNavigation(path: string | undefined): void {
