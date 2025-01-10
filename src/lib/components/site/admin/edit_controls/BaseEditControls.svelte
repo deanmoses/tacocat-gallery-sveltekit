@@ -23,10 +23,10 @@
 
     let { rightControls }: Props = $props();
 
-    let status: DraftStatus | undefined = undefined; //draftStore.getStatus(); TODO fix, I uncommented just to get the migration to Svelte 5 running
-
     let path: string | undefined = $state(unEditUrl(page.url.pathname));
 
+    let draftStoreStatus = draftStore.getStatus();
+    let status: DraftStatus | undefined = $state($draftStoreStatus);
     let hasUnsavedChanges: boolean = $derived(status == DraftStatus.UNSAVED_CHANGES);
 
     function handleNavigation(path: string | undefined): void {
@@ -59,15 +59,23 @@
     const rightControls_render = $derived(rightControls);
 </script>
 
+<!-- 
+    This snippet is necessary because trying to execute <StatusMessage {status} />  
+    directly within <EditControlsLayout>'s {#snippet status()} would create a conflict 
+    between the EditControlsLayout.status property and this component's status
+    property, which are of two different datatypes. 
+-->
+{#snippet statusMessage()}
+    <StatusMessage {status} />
+{/snippet}
+
 <EditControlsLayout>
     {#snippet leftControls()}
         <CancelButton onclick={onCancelButtonClick} />
     {/snippet}
 
     {#snippet status()}
-        <!--StatusMessage {status} /-->
-        <!-- TODO fix I commented out just to get the migration to Svelte 5 working -->
-        <StatusMessage />
+        {@render statusMessage()}
     {/snippet}
 
     {#snippet rightControls()}
