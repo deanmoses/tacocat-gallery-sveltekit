@@ -5,12 +5,12 @@
 -->
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import EditIcon from '$lib/components/site/icons/EditIcon.svelte';
     import { editUrl } from '$lib/utils/path-utils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
-    let path: string = $derived($page.url.pathname);
+    let path: string = $derived(page.url.pathname);
     let show: boolean = $derived(path !== '/'); // Show this button everywhere but root
 
     /**

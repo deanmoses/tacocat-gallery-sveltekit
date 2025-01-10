@@ -1,9 +1,11 @@
 <!--
-  @component Header of the site
+  @component 
+  
+  Header of the site
 -->
 <script lang="ts">
     import SearchIcon from './icons/SearchIcon.svelte';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import { siteTitle } from '$lib/utils/config';
     import type { Snippet } from 'svelte';
 
@@ -40,7 +42,7 @@
             <span class="site-title hidden-xs">{siteTitle()}</span>
         {/if}
         {#if !hideSearch}
-            <a href="/search?returnPath={$page.url.pathname}" class="hidden-xxs" title="Search">
+            <a href="/search?returnPath={page.url.pathname}" class="hidden-xxs" title="Search">
                 <SearchIcon />
             </a>
         {/if}

@@ -1,24 +1,28 @@
 <!--
-  @component Button to upload multiple images on a day album page
+  @component 
+  
+  Button to upload multiple images on a day album page
 -->
 <script lang="ts">
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import UploadIcon from '$lib/components/site/icons/UploadIcon.svelte';
     import { upload } from '$lib/stores/admin/UploadStoreLogic';
     import { isValidDayAlbumPath, validExtensionsString } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
-    let albumPath = $derived($page.url.pathname + '/');
+    let albumPath = $derived(page.url.pathname + '/');
     let show = $derived(isValidDayAlbumPath(albumPath)); // Show this button only on day ablums
 
-    let fileInput: HTMLInputElement = $state();
+    let fileInput: HTMLInputElement | undefined = $state();
 
     async function onUploadButtonClick() {
-        fileInput.click();
+        fileInput?.click();
     }
 
     async function onFilesSelected() {
-        upload(fileInput.files, albumPath);
+        if (fileInput) {
+            upload(fileInput.files, albumPath);
+        }
     }
 </script>
 
