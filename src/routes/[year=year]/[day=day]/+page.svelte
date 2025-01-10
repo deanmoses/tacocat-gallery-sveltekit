@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
     import type { PageData } from './$types';
     import { isAdmin } from '$lib/stores/SessionStore';
     import type { UploadEntry, RenameEntry, DeleteEntry } from '$lib/models/album';
@@ -22,7 +20,7 @@
     let uploads: UploadEntry[] | undefined = $state(undefined);
     let renameEntry: RenameEntry | undefined = $state(undefined);
     let deleteEntry: DeleteEntry | undefined = $state(undefined);
-    run(() => {
+    $effect(() => {
         if ($isAdmin) {
             import('$lib/stores/UploadStore').then(({ getUploads }) => {
                 if (!album?.path) return;

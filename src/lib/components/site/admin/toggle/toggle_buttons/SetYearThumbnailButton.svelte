@@ -1,9 +1,9 @@
 <!--
-  @component Button to set image as the thumbnail for the year
+  @component 
+  
+  Button to set image as the thumbnail for the year
 -->
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
     import { page } from '$app/state';
     import { setAlbumThumbnail } from '$lib/stores/admin/AlbumThumbnailLogic';
     import { getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
@@ -15,7 +15,7 @@
     let imagePath: string = $derived(page.url.pathname);
 
     let show: boolean = $state(false);
-    run(() => {
+    $effect(() => {
         show = isValidImagePath(imagePath);
     }); // Show this button only on image pages
 

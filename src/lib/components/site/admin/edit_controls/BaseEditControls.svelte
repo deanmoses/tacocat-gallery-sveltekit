@@ -6,7 +6,6 @@
 
 <script lang="ts">
     import type { Snippet } from 'svelte';
-    import { run } from 'svelte/legacy';
     import EditControlsLayout from './EditControlsLayout.svelte';
     import CancelButton from './buttons/CancelButton.svelte';
     import SaveButton from './buttons/SaveButton.svelte';
@@ -50,10 +49,10 @@
     async function onSaveButtonClick() {
         await draftStore.save();
     }
-    run(() => {
+    $effect(() => {
         path = unEditUrl(page.url.pathname);
     });
-    run(() => {
+    $effect(() => {
         handleNavigation(path);
     });
 

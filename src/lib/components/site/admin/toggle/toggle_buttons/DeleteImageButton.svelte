@@ -1,9 +1,9 @@
 <!--
-  @component Button to delete image
+  @component 
+  
+  Button to delete image
 -->
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import DeleteIcon from '$lib/components/site/icons/DeleteIcon.svelte';
@@ -14,7 +14,7 @@
     let imagePath = $derived(page.url.pathname);
 
     let show: boolean = $state(false);
-    run(() => {
+    $effect(() => {
         show = isValidImagePath(imagePath);
     }); // Show this button only on image pages
 

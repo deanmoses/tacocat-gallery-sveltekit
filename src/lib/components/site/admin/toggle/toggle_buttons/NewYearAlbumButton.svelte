@@ -1,9 +1,9 @@
 <!--
-  @component Button to create new album
+  @component 
+  
+  Button to create new year album
 -->
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import CreateIcon from '$lib/components/site/icons/CreateIcon.svelte';
@@ -14,7 +14,7 @@
     import TextDialog from './TextDialog.svelte';
 
     let show: boolean = $state(false);
-    run(() => {
+    $effect(() => {
         show = page.url.pathname === '/';
     }); // Show this button only on root album
 

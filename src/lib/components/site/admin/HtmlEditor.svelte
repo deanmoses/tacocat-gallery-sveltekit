@@ -2,8 +2,6 @@
   @component WYSIWYG editor for HTML content
 -->
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
     import { onMount, createEventDispatcher } from 'svelte';
     import Quill from 'quill';
 
@@ -63,7 +61,7 @@
     // the next while in edit mode, Svelte doesn't create a new rich text
     // editor component, but instead re-uses the existing one, which
     // contains the caption from the previous photo.
-    run(() => {
+    $effect(() => {
         if (quill) {
             quill.setContents(
                 quill.clipboard.convert({ html: htmlContent ?? '' }),

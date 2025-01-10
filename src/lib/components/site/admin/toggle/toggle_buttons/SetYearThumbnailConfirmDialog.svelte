@@ -1,5 +1,7 @@
 <!--
-  @component Dialog to confirm setting year thumbnail
+  @component 
+  
+  Dialog to confirm setting year thumbnail
 -->
 <script lang="ts">
     import { preventDefault } from 'svelte/legacy';

@@ -1,13 +1,13 @@
 <!--
-  @component A filled-in star icon
+  @component 
+  
+  A filled-in star icon
 -->
 <script lang="ts">
-    import { createBubbler } from 'svelte/legacy';
-
-    const bubble = createBubbler();
     interface Props {
         width?: string;
         height?: string;
+        onclick?: (event: MouseEvent) => void;
     }
 
     let { width = '1em', height = '1em' }: Props = $props();
@@ -19,7 +19,7 @@
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<svg onclick={bubble('click')} {width} {height} {viewBox}><path {d} /></svg>
+<svg {onclick} {width} {height} {viewBox}><path {d} /></svg>
 
 <style>
     path {

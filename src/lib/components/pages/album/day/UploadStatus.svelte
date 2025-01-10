@@ -4,8 +4,6 @@
   Widget that displays the status of the uploads
 -->
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
     import { UploadState, type UploadEntry } from '$lib/models/album';
 
     interface Props {
@@ -15,12 +13,12 @@
     let { uploads = undefined }: Props = $props();
     let uploadingCount: number = $state(0);
     let processingCount: number = $state(0);
-    run(() => {
+    $effect(() => {
         uploadingCount = uploads
             ? uploads.reduce((acc, upload) => acc + (upload.status === UploadState.UPLOADING ? 1 : 0), 0)
             : 0;
     });
-    run(() => {
+    $effect(() => {
         processingCount = uploads
             ? uploads.reduce((acc, upload) => acc + (upload.status === UploadState.PROCESSING ? 1 : 0), 0)
             : 0;

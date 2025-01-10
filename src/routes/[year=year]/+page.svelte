@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
     import type { PageData } from './$types';
     import { isAdmin } from '$lib/stores/SessionStore';
     import { get } from 'svelte/store';
@@ -17,7 +15,7 @@
     let album = $derived($albumEntry.album);
     let loadStatus = $derived($albumEntry.loadStatus);
     let deleteEntry: DeleteEntry | undefined = $state(undefined);
-    run(() => {
+    $effect(() => {
         if ($isAdmin) {
             import('$lib/stores/AlbumDeleteStore').then(({ getAlbumDeleteEntry }) => {
                 if (!album?.path) return;

@@ -4,8 +4,6 @@
   Button to re-crop image thumbnail
 -->
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import CropIcon from '$lib/components/site/icons/CropIcon.svelte';
@@ -15,7 +13,7 @@
     let path: string = $derived(page.url.pathname);
 
     let show: boolean = $state(false);
-    run(() => {
+    $effect(() => {
         show = isValidImagePath(path);
     }); // Show this button only on image pages
 

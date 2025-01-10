@@ -1,9 +1,9 @@
 <!--
-  @component Button to delete album
+  @component 
+  
+  Button to delete album
 -->
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import DeleteIcon from '$lib/components/site/icons/DeleteIcon.svelte';
@@ -31,7 +31,7 @@
     let albumPath = $derived(page.url.pathname + '/');
     let isValidPath = $derived(isValidDayAlbumPath(albumPath) || isValidYearAlbumPath(albumPath));
     let album = $derived(isValidPath ? albumStore.get(albumPath, false /*don't trigger fetch*/) : undefined);
-    run(() => {
+    $effect(() => {
         show = isValidPath && !hasChildren($album);
     });
 </script>

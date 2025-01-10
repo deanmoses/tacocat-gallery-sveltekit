@@ -1,9 +1,9 @@
 <!--
-  @component Button to create new album
+  @component 
+  
+  Button to create new day album
 -->
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import CreateIcon from '$lib/components/site/icons/CreateIcon.svelte';
@@ -16,7 +16,7 @@
     let albumPath: string = $derived(page.url.pathname + '/');
 
     let show: boolean = $state(false);
-    run(() => {
+    $effect(() => {
         show = isValidYearAlbumPath(albumPath);
     }); // Show this button only on year albums
 

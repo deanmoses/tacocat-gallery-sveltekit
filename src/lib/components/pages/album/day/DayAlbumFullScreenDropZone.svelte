@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
     import FullScreenDropZone from '$lib/components/site/admin/FullScreenDropZone.svelte';
     import UploadReplaceConfirmDialog from '$lib/components/site/admin/toggle/toggle_buttons/UploadReplaceConfirmDialog.svelte';
     import { isAdmin } from '$lib/stores/SessionStore';
@@ -21,14 +19,14 @@
     let { albumPath, allowDrop = true }: Props = $props();
 
     let dragging = $state(false);
-    run(() => {
+    $effect(() => {
         dragging = dragging;
     });
 
     let dialog: UploadReplaceConfirmDialog = $state();
 
     let imagesToUpload: ImagesToUpload[] = $state([]);
-    run(() => {
+    $effect(() => {
         imagesToUpload = imagesToUpload;
     });
 

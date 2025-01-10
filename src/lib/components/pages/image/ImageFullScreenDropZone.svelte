@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
     import FullScreenDropZone from '$lib/components/site/admin/FullScreenDropZone.svelte';
     import { isAdmin } from '$lib/stores/SessionStore';
     import { getDroppedImages, uploadSingleImage } from '$lib/stores/admin/UploadStoreLogic';
@@ -15,7 +13,7 @@
     let { imagePath, allowDrop = true }: Props = $props();
 
     let dragging = $state(false);
-    run(() => {
+    $effect(() => {
         dragging = dragging;
     });
 
