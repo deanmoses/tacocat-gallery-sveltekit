@@ -52,7 +52,7 @@
         dialog.close();
     }
 
-    async function onKeyPress(event: KeyboardEvent): Promise<void> {
+    async function onkeydown(event: KeyboardEvent): Promise<void> {
         switch (event.key) {
             case 'Enter':
                 event.preventDefault();
@@ -61,7 +61,7 @@
     }
 </script>
 
-<Dialog bind:this={dialog} on:keydown={onKeyPress}>
+<Dialog bind:this={dialog} {onkeydown}>
     {#snippet content()}
         <label>
             <div class="label">{label}</div>

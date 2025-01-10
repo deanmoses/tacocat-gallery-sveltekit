@@ -4,16 +4,15 @@
   Base dialog component that other components extend
 -->
 <script lang="ts">
-    import { createBubbler } from 'svelte/legacy';
     import type { Snippet } from 'svelte';
 
-    const bubble = createBubbler();
     interface Props {
         content?: Snippet;
         buttons?: Snippet;
+        onkeydown?: (e: KeyboardEvent) => void;
     }
 
-    let { content, buttons }: Props = $props();
+    let { content, buttons, onkeydown }: Props = $props();
     let dialog: HTMLDialogElement = $state();
 
     export function show(): void {
@@ -39,7 +38,7 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <dialog bind:this={dialog} onclick={onClick}>
-    <form method="dialog" onkeydown={bubble('keydown')}>
+    <form method="dialog" {onkeydown}>
         <p>
             {@render content?.()}
         </p>

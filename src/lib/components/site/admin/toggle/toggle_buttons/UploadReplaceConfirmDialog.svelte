@@ -1,8 +1,10 @@
 <!--
-  @component Dialog to confirm overwriting files
+  @component 
+  
+  Dialog to confirm overwriting files
 -->
 <script lang="ts">
-    import { run, preventDefault } from 'svelte/legacy';
+    import { preventDefault } from 'svelte/legacy';
 
     import { createEventDispatcher } from 'svelte';
     import Dialog from '../../Dialog.svelte';
@@ -13,7 +15,7 @@
 
     let dialog: Dialog = $state();
     let filesAlreadyInAlbum: string[] = $state([]);
-    run(() => {
+    $effect(() => {
         filesAlreadyInAlbum = filesAlreadyInAlbum;
     });
     let filez = $derived(filesAlreadyInAlbum.join(', '));
@@ -36,7 +38,7 @@
         filesAlreadyInAlbum = [];
     }
 
-    async function onKeyPress(event: KeyboardEvent): Promise<void> {
+    async function onkeydown(event: KeyboardEvent): Promise<void> {
         switch (event.key) {
             case 'Enter':
                 event.preventDefault();
@@ -45,7 +47,7 @@
     }
 </script>
 
-<Dialog bind:this={dialog} on:keydown={onKeyPress}>
+<Dialog bind:this={dialog} {onkeydown}>
     {#snippet content()}
         Already in album: {filez}
     {/snippet}

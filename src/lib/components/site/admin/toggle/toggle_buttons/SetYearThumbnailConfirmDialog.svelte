@@ -30,7 +30,7 @@
         dialog.close();
     }
 
-    function onKeyPress(event: KeyboardEvent): void {
+    function onkeydown(event: KeyboardEvent): void {
         switch (event.key) {
             case 'Enter':
                 event.preventDefault();
@@ -39,7 +39,7 @@
     }
 </script>
 
-<Dialog bind:this={dialog} on:keydown={onKeyPress}>
+<Dialog bind:this={dialog} {onkeydown}>
     {#snippet content()}
         Set as thumbnail for year?
     {/snippet}
