@@ -1,5 +1,7 @@
 <!--
-  @component Page to crop an image thumbnail
+  @component 
+  
+  Page to crop an image thumbnail
 -->
 <script lang="ts">
     import ImagePageLayout from './layouts/ImagePageLayout.svelte';
@@ -19,13 +21,17 @@
     }
 
     let { image }: Props = $props();
-    let cropper: CropImage = $state();
+    let cropper: CropImage | undefined = $state();
 
     function onCancel() {
         goto(image.path);
     }
 
     async function onSave() {
+        if (!cropper) {
+            console.error('No cropper instance');
+            return;
+        }
         const imagePath = image.path;
         const crop = cropper.getCrop();
         console.log(`Saving crop of image [${imagePath}]`, crop);

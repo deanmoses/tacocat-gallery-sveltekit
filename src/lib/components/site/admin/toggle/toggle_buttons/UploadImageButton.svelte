@@ -1,5 +1,7 @@
 <!--
-  @component Button to upload a single image to replace existing image
+  @component 
+  
+  Button to upload a single image to replace existing image
 -->
 <script lang="ts">
     import { page } from '$app/state';
@@ -11,13 +13,15 @@
     let imagePath = $derived(page.url.pathname);
     let show = $derived(isValidImagePath(page.url.pathname)); // Show this button only on image pages
 
-    let fileInput: HTMLInputElement = $state();
+    let fileInput: HTMLInputElement | undefined = $state();
 
     async function onUploadButtonClick() {
-        fileInput.click();
+        fileInput?.click();
     }
 
     async function onFileSelected() {
+        if (!fileInput) return;
+
         const files = fileInput.files;
         if (!files || !files.length) return;
         // this error should never happen

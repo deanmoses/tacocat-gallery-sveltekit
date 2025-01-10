@@ -1,8 +1,10 @@
 <!--
-  @component WYSIWYG editor for HTML content
+  @component 
+  
+  WYSIWYG editor for HTML content
 -->
 <script lang="ts">
-    import { onMount, createEventDispatcher } from 'svelte';
+    import { createEventDispatcher } from 'svelte';
     import Quill from 'quill';
 
     const dispatch = createEventDispatcher<{ change: { html: string } }>();
@@ -17,7 +19,7 @@
     let { htmlContent = '' }: Props = $props();
 
     // Instance of the Quill rich text editor
-    let quill: Quill = $state();
+    let quill: Quill | undefined = $state();
 
     // Load the Quill.js WYSIWYG editor when the component is mounted,
     // so as to be able to pass the DOM node into Quill's constructor
@@ -36,7 +38,6 @@
         }
         Quill.register(MyLink);
 
-        let editor: HTMLDivElement;
         quill = new Quill(editorElement, {
             // This theme pops up the toolbar when text is selected, rather than displaying it permanently
             theme: 'bubble',
@@ -49,9 +50,11 @@
         });
 
         quill.on('text-change', () => {
-            dispatch('change', {
-                html: quill.getSemanticHTML(),
-            });
+            if (quill) {
+                dispatch('change', {
+                    html: quill.getSemanticHTML(),
+                });
+            }
         });
     }
 
