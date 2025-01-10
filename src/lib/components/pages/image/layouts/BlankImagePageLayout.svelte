@@ -25,7 +25,7 @@
         <NextButton />
     {/snippet}
 
-    {#snippet image()}
+    {#snippet imageHtml()}
         <FullPageMessage>
             {@render children?.()}
         </FullPageMessage>

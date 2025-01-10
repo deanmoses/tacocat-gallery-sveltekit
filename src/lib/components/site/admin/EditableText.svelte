@@ -1,5 +1,7 @@
 <!--
-  @component Make the passed-in plain text (not HTML) editable
+  @component 
+  
+  Make the passed-in plain text (not HTML) editable
 -->
 <script lang="ts">
     import DraftStore from '$lib/stores/DraftStore';
@@ -11,9 +13,10 @@
 
     let { textContent = '' }: Props = $props();
 
-    let div: HTMLElement = $state();
+    let div: HTMLElement | undefined = $state();
 
     function onInput() {
+        if (!div) return;
         let editedText = div.innerText;
         // I'm having a problem with a /n being added at some point where I'm
         // then not able to remove it.  This is a blunt intstrument, but maybe

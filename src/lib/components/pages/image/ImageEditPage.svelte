@@ -23,17 +23,17 @@
     }
 
     let { album, image }: Props = $props();
-
+    let imageTitle = $derived(image.title);
     let okToNavigate = DraftStore.getOkToNavigate();
 </script>
 
-<ImagePageLayout title={image.title}>
+<ImagePageLayout title={imageTitle}>
     {#snippet editControls()}
         <BaseEditControls />
     {/snippet}
 
     {#snippet titleEditor()}
-        <EditableText textContent={image.title} />
+        <EditableText textContent={imageTitle} />
     {/snippet}
 
     {#snippet caption()}
@@ -52,7 +52,7 @@
         {/if}
     {/snippet}
 
-    {#snippet image()}
+    {#snippet imageHtml()}
         <!-- #key ensures image changes when navigating prev/next -->
         {#key image.path}
             <BigImage {image} />

@@ -19,9 +19,10 @@
     }
 
     let { album, image }: Props = $props();
+    let imageTitle = $derived(image.title);
 </script>
 
-<ImagePageLayout title={image.title}>
+<ImagePageLayout title={imageTitle}>
     {#snippet editControls()}
         <AdminToggle />
     {/snippet}
@@ -36,7 +37,7 @@
         <NextButton href={image.nextHref} />
     {/snippet}
 
-    {#snippet image()}
+    {#snippet imageHtml()}
         <!-- #key ensures image changes when navigating prev/next -->
         {#key image.path}
             <BigImage {image} />

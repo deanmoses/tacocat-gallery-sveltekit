@@ -21,6 +21,7 @@
     }
 
     let { image }: Props = $props();
+    let imageTitle = $derived(image.title);
     let cropper: CropImage | undefined = $state();
 
     function onCancel() {
@@ -80,13 +81,13 @@
     }
 </script>
 
-<ImagePageLayout title={image.title}>
+<ImagePageLayout title={imageTitle}>
     {#snippet caption()}
         <button onclick={onCancel}><CancelIcon /> Cancel</button>
         <button onclick={onSave}><SaveIcon /> Save</button>
     {/snippet}
 
-    {#snippet image()}
+    {#snippet imageHtml()}
         <CropImage bind:this={cropper} {image} />
     {/snippet}
 </ImagePageLayout>

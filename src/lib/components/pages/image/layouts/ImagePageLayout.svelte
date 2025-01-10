@@ -14,12 +14,12 @@
         title: string;
         titleEditor?: Snippet;
         caption?: Snippet;
-        image?: Snippet;
+        imageHtml?: Snippet;
         nav?: Snippet;
         editControls?: Snippet;
     }
 
-    let { title, titleEditor, caption, image, nav, editControls }: Props = $props();
+    let { title, titleEditor, caption, imageHtml, nav, editControls }: Props = $props();
 </script>
 
 <svelte:head>
@@ -53,7 +53,7 @@
                 {/if}
                 <section>
                     <h2 style="display:none">Photo</h2>
-                    {@render image?.()}
+                    {@render imageHtml?.()}
                 </section>
             </div>
         </div>
