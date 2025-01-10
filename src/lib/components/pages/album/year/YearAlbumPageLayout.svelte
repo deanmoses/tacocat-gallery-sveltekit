@@ -10,7 +10,7 @@
     import PageContent from '$lib/components/site/PageContent.svelte';
     import Sidebar from '$lib/components/site/Sidebar.svelte';
     import MainContent from '$lib/components/site/MainContent.svelte';
-    import { getYear } from '$lib/stores/YearStore';
+    import { page } from '$app/state';
     import type { Snippet } from 'svelte';
 
     interface Props {
@@ -22,13 +22,13 @@
 
     let { editControls, nav, caption, thumbnails }: Props = $props();
 
-    let year = $derived(getYear());
+    let year = $derived(page.params.year || '');
 
     const editControls_render = $derived(editControls);
 </script>
 
 <svelte:head>
-    <title>{$year}</title>
+    <title>{year}</title>
 </svelte:head>
 
 <SiteLayout>
@@ -36,7 +36,7 @@
         {@render editControls_render?.()}
     {/snippet}
     <Header hideBottomBorder>
-        {$year}
+        {year}
     </Header>
     <Nav>
         {@render nav?.()}

@@ -4,7 +4,7 @@
     Lays out the shell of the app 
 -->
 <script lang="ts">
-    import { getYear } from '$lib/stores/YearStore';
+    import { page } from '$app/state';
     import Footer from './Footer.svelte';
     import type { Snippet } from 'svelte';
 
@@ -15,12 +15,12 @@
     }
 
     let { hideFooter = false, editControls, children }: Props = $props();
-    let year = $derived(getYear());
+    let year = $derived(page.params.year || '');
 </script>
 
 {@render editControls?.()}
 
-<div class="site-container" data-year={$year || null}>
+<div class="site-container" data-year={year || null}>
     <div class="page-container">
         {@render children?.()}
     </div>
