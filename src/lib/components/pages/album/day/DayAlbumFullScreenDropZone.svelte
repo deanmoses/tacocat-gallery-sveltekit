@@ -1,3 +1,8 @@
+<!--
+  @component 
+  
+  Paints a full screen drag/drop zone over the day album page.
+-->
 <script lang="ts">
     import FullScreenDropZone from '$lib/components/site/admin/FullScreenDropZone.svelte';
     import UploadReplaceConfirmDialog from '$lib/components/site/admin/toggle/toggle_buttons/UploadReplaceConfirmDialog.svelte';

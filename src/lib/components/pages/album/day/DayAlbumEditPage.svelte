@@ -1,5 +1,7 @@
 <!--
-  @component Page to edit a day album
+  @component 
+  
+  Page to edit a day album
 -->
 <script lang="ts">
     import DayAlbumPageLayout from './DayAlbumPageLayout.svelte';
