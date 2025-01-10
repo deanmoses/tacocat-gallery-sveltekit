@@ -1,5 +1,7 @@
 <!--
-  @component Fetches and displays a thumbnail of the latest album
+  @component 
+  
+  Fetches and displays a thumbnail of the latest album
 -->
 <script lang="ts">
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
@@ -8,10 +10,8 @@
     import { latestAlbumThumbnailEntry } from '$lib/stores/LatestAlbumStore';
 
     let status: AlbumLoadStatus = $derived($latestAlbumThumbnailEntry.status);
-    
 
     let thumb: Thumbable | undefined = $derived($latestAlbumThumbnailEntry.thumbnail);
-    
 </script>
 
 {#if AlbumLoadStatus.NOT_LOADED == status}

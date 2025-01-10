@@ -2,7 +2,7 @@
   @component Dialog to confirm setting year thumbnail
 -->
 <script lang="ts">
-  import { preventDefault } from 'svelte/legacy';
+    import { preventDefault } from 'svelte/legacy';
 
     import { createEventDispatcher } from 'svelte';
     import Dialog from '../../Dialog.svelte';
@@ -39,12 +39,10 @@
 
 <Dialog bind:this={dialog} on:keydown={onKeyPress}>
     {#snippet content()}
-    Set as thumbnail for year?
-  {/snippet}
+        Set as thumbnail for year?
+    {/snippet}
     {#snippet buttons()}
-  
-          <button onclick={onCancelButtonClick}><CancelIcon /> Cancel</button>
-          <button onclick={preventDefault(onSubmit)}><StarIcon /> Set Year Thumb</button>
-      
-  {/snippet}
+        <button onclick={onCancelButtonClick}><CancelIcon /> Cancel</button>
+        <button onclick={preventDefault(onSubmit)}><StarIcon /> Set Year Thumb</button>
+    {/snippet}
 </Dialog>

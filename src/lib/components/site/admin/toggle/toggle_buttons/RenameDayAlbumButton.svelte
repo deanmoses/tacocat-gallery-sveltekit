@@ -2,7 +2,7 @@
   @component Button to rename a day album
 -->
 <script lang="ts">
-  import { run } from 'svelte/legacy';
+    import { run } from 'svelte/legacy';
 
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
@@ -20,13 +20,12 @@
     import TextDialog from './TextDialog.svelte';
 
     let albumPath: string = $derived($page.url.pathname + '/');
-    
 
     // Show this button only on day albums
     let show: boolean = $state(false);
     run(() => {
-    show = isValidDayAlbumPath(albumPath);
-  });
+        show = isValidDayAlbumPath(albumPath);
+    });
 
     let dialog: TextDialog = $state();
 

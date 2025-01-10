@@ -1,5 +1,7 @@
 <!--
-  @component Flip through different statuses of a year album
+  @component 
+  
+  Flip through different statuses of a year album
 -->
 <script lang="ts">
     import YearAlbumLoadingPage from '$lib/components/pages/album/year/YearAlbumLoadingPage.svelte';
@@ -7,13 +9,13 @@
     import { AlbumLoadStatus, type DeleteEntry } from '$lib/models/album';
     import AlbumProcessingPage from '../AlbumProcessingPage.svelte';
 
-  interface Props {
-    loadStatus: AlbumLoadStatus;
-    deleteEntry?: DeleteEntry | undefined;
-    loaded?: import('svelte').Snippet;
-  }
+    interface Props {
+        loadStatus: AlbumLoadStatus;
+        deleteEntry?: DeleteEntry | undefined;
+        loaded?: import('svelte').Snippet;
+    }
 
-  let { loadStatus, deleteEntry = undefined, loaded }: Props = $props();
+    let { loadStatus, deleteEntry = undefined, loaded }: Props = $props();
 </script>
 
 {#if deleteEntry}

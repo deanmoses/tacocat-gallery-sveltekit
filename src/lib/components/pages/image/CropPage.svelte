@@ -14,11 +14,11 @@
     import { recropThumbnailUrl } from '$lib/utils/config';
     import { toast } from '@zerodevx/svelte-toast';
 
-  interface Props {
-    image: Image;
-  }
+    interface Props {
+        image: Image;
+    }
 
-  let { image }: Props = $props();
+    let { image }: Props = $props();
     let cropper: CropImage = $state();
 
     function onCancel() {
@@ -76,16 +76,12 @@
 
 <ImagePageLayout title={image.title}>
     <!-- @migration-task: migrate this slot by hand, `title` would shadow a prop on the parent component -->
-  <svelte:fragment slot="title">Thumbnail</svelte:fragment>
+    <svelte:fragment slot="title">Thumbnail</svelte:fragment>
     {#snippet caption()}
-  
-          <button onclick={onCancel}><CancelIcon /> Cancel</button>
-          <button onclick={onSave}><SaveIcon /> Save</button>
-      
-  {/snippet}
+        <button onclick={onCancel}><CancelIcon /> Cancel</button>
+        <button onclick={onSave}><SaveIcon /> Save</button>
+    {/snippet}
     {#snippet image()}
-  
-          <CropImage bind:this={cropper} {image} />
-      
-  {/snippet}
+        <CropImage bind:this={cropper} {image} />
+    {/snippet}
 </ImagePageLayout>

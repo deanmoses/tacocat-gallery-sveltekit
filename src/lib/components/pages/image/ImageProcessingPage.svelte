@@ -5,11 +5,11 @@
     import BlankImagePageLayout from './layouts/BlankImagePageLayout.svelte';
     import WaitingSpinner from '$lib/components/site/WaitingSpinner.svelte';
 
-  interface Props {
-    title: string;
-  }
+    interface Props {
+        title: string;
+    }
 
-  let { title }: Props = $props();
+    let { title }: Props = $props();
 </script>
 
 <BlankImagePageLayout {title}>

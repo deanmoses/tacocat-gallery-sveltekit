@@ -1,5 +1,7 @@
 <!--
-  @component Page to edit an image
+  @component 
+  
+  Page to edit an image
 -->
 <script lang="ts">
     import ImagePageLayout from './layouts/ImagePageLayout.svelte';
@@ -15,25 +17,23 @@
     import type { Album, Image } from '$lib/models/GalleryItemInterfaces';
     import ImageFullScreenDropZone from './ImageFullScreenDropZone.svelte';
 
-  interface Props {
-    album: Album;
-    image: Image;
-  }
+    interface Props {
+        album: Album;
+        image: Image;
+    }
 
-  let { album, image }: Props = $props();
+    let { album, image }: Props = $props();
 
     let okToNavigate = DraftStore.getOkToNavigate();
 </script>
 
 <ImagePageLayout title={image.title}>
     {#snippet editControls()}
-  
-          <BaseEditControls />
-      
-  {/snippet}
+        <BaseEditControls />
+    {/snippet}
 
     <!-- @migration-task: migrate this slot by hand, `title` would shadow a prop on the parent component -->
-  <svelte:fragment slot="title">
+    <svelte:fragment slot="title">
         <!-- The #key block is an attempt to prevent the lagging title problem. Have not yet tested it out.  -->
         {#key image.path}
             <EditableText textContent={image.title} />
@@ -41,29 +41,23 @@
     </svelte:fragment>
 
     {#snippet caption()}
-  
-          <EditableHtml htmlContent={image.description} />
-      
-  {/snippet}
+        <EditableHtml htmlContent={image.description} />
+    {/snippet}
 
     {#snippet nav()}
-  
-          {#if $okToNavigate}
-              <PrevButton href={editUrl(image.prevHref)} />
-              <UpButton href={editUrl(album.href)} title={album.title} />
-              <NextButton href={editUrl(image.nextHref)} />
-          {:else}
-              <PrevButton />
-              <UpButton title={album.title} />
-              <NextButton />
-          {/if}
-      
-  {/snippet}
+        {#if $okToNavigate}
+            <PrevButton href={editUrl(image.prevHref)} />
+            <UpButton href={editUrl(album.href)} title={album.title} />
+            <NextButton href={editUrl(image.nextHref)} />
+        {:else}
+            <PrevButton />
+            <UpButton title={album.title} />
+            <NextButton />
+        {/if}
+    {/snippet}
 
     {#snippet image()}
-  
-          <BigImage {image} />
-      
-  {/snippet}
+        <BigImage {image} />
+    {/snippet}
 </ImagePageLayout>
 <ImageFullScreenDropZone imagePath={image.path} allowDrop={$okToNavigate} />

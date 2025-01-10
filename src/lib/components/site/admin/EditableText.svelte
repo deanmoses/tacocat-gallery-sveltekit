@@ -4,13 +4,12 @@
 <script lang="ts">
     import DraftStore from '$lib/stores/DraftStore';
 
-    
-  interface Props {
-    /** The text content to be made editable */
-    textContent?: string;
-  }
+    interface Props {
+        /** The text content to be made editable */
+        textContent?: string;
+    }
 
-  let { textContent = '' }: Props = $props();
+    let { textContent = '' }: Props = $props();
 
     let div: HTMLElement = $state();
 

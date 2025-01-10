@@ -10,12 +10,12 @@
     import { AlbumLoadStatus } from '$lib/models/album';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
 
-  interface Props {
-    status: AlbumLoadStatus;
-    album: Album | undefined;
-  }
+    interface Props {
+        status: AlbumLoadStatus;
+        album: Album | undefined;
+    }
 
-  let { status, album }: Props = $props();
+    let { status, album }: Props = $props();
 </script>
 
 {#if AlbumLoadStatus.NOT_LOADED === status}

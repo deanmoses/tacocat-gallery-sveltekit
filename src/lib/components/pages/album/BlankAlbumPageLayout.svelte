@@ -11,13 +11,13 @@
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
     import FullPageMessage from '$lib/components/site/FullPageMessage.svelte';
 
-  interface Props {
-    title: string;
-    hideFooter?: boolean;
-    children?: import('svelte').Snippet;
-  }
+    interface Props {
+        title: string;
+        hideFooter?: boolean;
+        children?: import('svelte').Snippet;
+    }
 
-  let { title, hideFooter = false, children }: Props = $props();
+    let { title, hideFooter = false, children }: Props = $props();
 </script>
 
 <svelte:head>

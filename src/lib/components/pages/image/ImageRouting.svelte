@@ -15,23 +15,23 @@
     import ImageProcessingPage from './ImageProcessingPage.svelte';
     import AlbumErrorPage from '../album/AlbumErrorPage.svelte';
 
-  interface Props {
-    image: Image | undefined;
-    albumLoadStatus: AlbumLoadStatus | undefined;
-    uploadEntry?: UploadEntry | undefined;
-    renameEntry?: RenameEntry | undefined;
-    deleteEntry?: DeleteEntry | undefined;
-    loaded?: import('svelte').Snippet;
-  }
+    interface Props {
+        image: Image | undefined;
+        albumLoadStatus: AlbumLoadStatus | undefined;
+        uploadEntry?: UploadEntry | undefined;
+        renameEntry?: RenameEntry | undefined;
+        deleteEntry?: DeleteEntry | undefined;
+        loaded?: import('svelte').Snippet;
+    }
 
-  let {
-    image,
-    albumLoadStatus,
-    uploadEntry = undefined,
-    renameEntry = undefined,
-    deleteEntry = undefined,
-    loaded
-  }: Props = $props();
+    let {
+        image,
+        albumLoadStatus,
+        uploadEntry = undefined,
+        renameEntry = undefined,
+        deleteEntry = undefined,
+        loaded,
+    }: Props = $props();
 </script>
 
 {#if uploadEntry}

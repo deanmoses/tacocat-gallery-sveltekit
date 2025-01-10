@@ -2,22 +2,21 @@
   @component WYSIWYG editor for HTML content
 -->
 <script lang="ts">
-  import { run } from 'svelte/legacy';
+    import { run } from 'svelte/legacy';
 
     import { onMount, createEventDispatcher } from 'svelte';
     import Quill from 'quill';
 
     const dispatch = createEventDispatcher<{ change: { html: string } }>();
 
-    
-  interface Props {
-    /**
-     * The HTML content to be made editable
-     */
-    htmlContent?: string;
-  }
+    interface Props {
+        /**
+         * The HTML content to be made editable
+         */
+        htmlContent?: string;
+    }
 
-  let { htmlContent = '' }: Props = $props();
+    let { htmlContent = '' }: Props = $props();
 
     // Instance of the Quill rich text editor
     let quill: Quill = $state();
@@ -67,7 +66,7 @@
     run(() => {
         if (quill) {
             quill.setContents(
-                quill.clipboard.convert({html: htmlContent ?? ''}),
+                quill.clipboard.convert({ html: htmlContent ?? '' }),
                 'silent' /* Don't trigger a text-change event */,
             );
         }

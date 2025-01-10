@@ -1,5 +1,7 @@
 <!--
-  @component Route to the different loading / error / display statuses of a day album
+  @component 
+  
+  Route to the different loading / error / display statuses of a day album
 -->
 <script lang="ts">
     import AlbumLoadingPage from '$lib/components/pages/album/AlbumLoadingPage.svelte';
@@ -8,19 +10,14 @@
     import HomeIcon from '$lib/components/site/icons/HomeIcon.svelte';
     import AlbumProcessingPage from '../AlbumProcessingPage.svelte';
 
-  interface Props {
-    loadStatus: AlbumLoadStatus;
-    deleteEntry?: DeleteEntry | undefined;
-    renameEntry?: RenameEntry | undefined;
-    loaded?: import('svelte').Snippet;
-  }
+    interface Props {
+        loadStatus: AlbumLoadStatus;
+        deleteEntry?: DeleteEntry | undefined;
+        renameEntry?: RenameEntry | undefined;
+        loaded?: import('svelte').Snippet;
+    }
 
-  let {
-    loadStatus,
-    deleteEntry = undefined,
-    renameEntry = undefined,
-    loaded
-  }: Props = $props();
+    let { loadStatus, deleteEntry = undefined, renameEntry = undefined, loaded }: Props = $props();
 </script>
 
 {#if deleteEntry}

@@ -2,17 +2,14 @@
   @component Displays different title-length text based on responsive breakpoints
 -->
 <script lang="ts">
-    
+    interface Props {
+        /** Normal length title */
+        title: string;
+        /** Short title */
+        shortTitle: string;
+    }
 
-    
-  interface Props {
-    /** Normal length title */
-    title: string;
-    /** Short title */
-    shortTitle: string;
-  }
-
-  let { title, shortTitle }: Props = $props();
+    let { title, shortTitle }: Props = $props();
 </script>
 
 {#if title && shortTitle}

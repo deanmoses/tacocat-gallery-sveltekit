@@ -4,12 +4,12 @@
 <script lang="ts">
     import BlankImagePageLayout from './layouts/BlankImagePageLayout.svelte';
 
-  interface Props {
-    title?: string;
-    children?: import('svelte').Snippet;
-  }
+    interface Props {
+        title?: string;
+        children?: import('svelte').Snippet;
+    }
 
-  let { title = 'Error', children }: Props = $props();
+    let { title = 'Error', children }: Props = $props();
 </script>
 
 <BlankImagePageLayout {title}>

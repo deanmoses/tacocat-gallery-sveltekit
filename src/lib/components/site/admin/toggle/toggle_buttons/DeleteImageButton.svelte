@@ -2,7 +2,7 @@
   @component Button to delete image
 -->
 <script lang="ts">
-  import { run } from 'svelte/legacy';
+    import { run } from 'svelte/legacy';
 
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
@@ -15,8 +15,8 @@
 
     let show: boolean = $state(false);
     run(() => {
-    show = isValidImagePath(imagePath);
-  }); // Show this button only on image pages
+        show = isValidImagePath(imagePath);
+    }); // Show this button only on image pages
 
     async function onDeleteButtonClick() {
         await deleteImage(imagePath);

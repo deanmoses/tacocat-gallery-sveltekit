@@ -9,19 +9,14 @@
     import FullPageMessage from '$lib/components/site/FullPageMessage.svelte';
     import { searchStore } from '$lib/stores/SearchStore';
 
-  interface Props {
-    returnPath: string | undefined;
-    query: SearchQuery;
-    status: SearchLoadStatus;
-    results: SearchResults | undefined;
-  }
+    interface Props {
+        returnPath: string | undefined;
+        query: SearchQuery;
+        status: SearchLoadStatus;
+        results: SearchResults | undefined;
+    }
 
-  let {
-    returnPath,
-    query,
-    status,
-    results
-  }: Props = $props();
+    let { returnPath, query, status, results }: Props = $props();
 
     let searchTerms = $derived(query.terms);
     let oldestYear = $derived(query.oldestYear);

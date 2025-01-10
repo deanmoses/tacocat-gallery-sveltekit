@@ -2,7 +2,7 @@
   @component Button to go into edit mode for an album or image
 -->
 <script lang="ts">
-  import { run } from 'svelte/legacy';
+    import { run } from 'svelte/legacy';
 
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
@@ -11,12 +11,11 @@
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
     let path: string = $derived($page.url.pathname);
-    
 
     let show: boolean = $state(false);
     run(() => {
-    show = path !== '/';
-  }); // Show this button everywhere but root
+        show = path !== '/';
+    }); // Show this button everywhere but root
 
     /**
      * The Edit button was clicked.

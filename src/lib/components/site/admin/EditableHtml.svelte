@@ -5,15 +5,14 @@
     import HtmlEditor from './HtmlEditor.svelte';
     import DraftStore from '$lib/stores/DraftStore';
 
-    
-  interface Props {
-    /**
-     * The HTML content to be made editable
-     */
-    htmlContent?: string;
-  }
+    interface Props {
+        /**
+         * The HTML content to be made editable
+         */
+        htmlContent?: string;
+    }
 
-  let { htmlContent = '' }: Props = $props();
+    let { htmlContent = '' }: Props = $props();
 
     function handleChange(event: CustomEvent<{ html: string }>) {
         if (event.detail.html == null) {

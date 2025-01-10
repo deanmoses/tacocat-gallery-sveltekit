@@ -4,23 +4,16 @@
 <script lang="ts">
     import UnpublishedIcon from './icons/UnpublishedIcon.svelte';
 
-  interface Props {
-    src?: string;
-    href?: string;
-    title?: string;
-    summary?: string;
-    published?: boolean;
-    selectionControls?: import('svelte').Snippet;
-  }
+    interface Props {
+        src?: string;
+        href?: string;
+        title?: string;
+        summary?: string;
+        published?: boolean;
+        selectionControls?: import('svelte').Snippet;
+    }
 
-  let {
-    src = '',
-    href = '',
-    title = '',
-    summary = '',
-    published = true,
-    selectionControls
-  }: Props = $props();
+    let { src = '', href = '', title = '', summary = '', published = true, selectionControls }: Props = $props();
     let unpublished = $derived(!published);
 </script>
 

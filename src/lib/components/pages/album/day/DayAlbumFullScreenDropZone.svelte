@@ -12,8 +12,6 @@
         type ImagesToUpload,
     } from '$lib/stores/admin/UploadStoreLogic';
 
-
-    
     interface Props {
         albumPath: string;
         /** So that the edit page can tell me whether it allows dropping */

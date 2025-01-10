@@ -17,11 +17,11 @@
     import { siteShortTitle, siteTitle } from '$lib/utils/config';
     import AdminToggle from '$lib/components/site/admin/toggle/AdminToggle.svelte';
 
-  interface Props {
-    album: Album;
-  }
+    interface Props {
+        album: Album;
+    }
 
-  let { album }: Props = $props();
+    let { album }: Props = $props();
 
     let sortedAlbums = $derived(album.albums ? album.albums.sort((a, b) => b.path.localeCompare(a.path)) : []);
 </script>

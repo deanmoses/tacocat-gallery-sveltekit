@@ -50,10 +50,8 @@
 
 <ImageRouting {image} {albumLoadStatus} {uploadEntry} {renameEntry} {deleteEntry}>
     {#snippet loaded()}
-    
-            {#if image && album}
-                <ImageEditPage {image} {album} />
-            {/if}
-        
+        {#if image && album}
+            <ImageEditPage {image} {album} />
+        {/if}
     {/snippet}
 </ImageRouting>

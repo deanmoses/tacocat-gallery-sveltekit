@@ -2,7 +2,7 @@
   @component Button to create new album
 -->
 <script lang="ts">
-  import { run } from 'svelte/legacy';
+    import { run } from 'svelte/legacy';
 
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
@@ -14,12 +14,11 @@
     import TextDialog from './TextDialog.svelte';
 
     let albumPath: string = $derived($page.url.pathname + '/');
-    
 
     let show: boolean = $state(false);
     run(() => {
-    show = isValidYearAlbumPath(albumPath);
-  }); // Show this button only on year albums
+        show = isValidYearAlbumPath(albumPath);
+    }); // Show this button only on year albums
 
     let dialog: TextDialog = $state();
 

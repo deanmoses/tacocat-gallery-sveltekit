@@ -2,26 +2,21 @@
   @component Page that displays blank search input
 -->
 <script lang="ts">
-  import { preventDefault } from 'svelte/legacy';
+    import { preventDefault } from 'svelte/legacy';
 
     import { goto } from '$app/navigation';
     import SiteLayout from '$lib/components/site/SiteLayout.svelte';
     import ReturnIcon from '$lib/components/site/icons/ReturnIcon.svelte';
     import { localSearchUrl } from '$lib/utils/config';
 
-  interface Props {
-    searchTerms?: string;
-    returnPath?: string;
-    title?: string;
-    children?: import('svelte').Snippet;
-  }
+    interface Props {
+        searchTerms?: string;
+        returnPath?: string;
+        title?: string;
+        children?: import('svelte').Snippet;
+    }
 
-  let {
-    searchTerms = $bindable(''),
-    returnPath = '',
-    title = '',
-    children
-  }: Props = $props();
+    let { searchTerms = $bindable(''), returnPath = '', title = '', children }: Props = $props();
 
     let searchInput: HTMLInputElement = $state();
 

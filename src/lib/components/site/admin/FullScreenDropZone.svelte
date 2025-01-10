@@ -2,20 +2,20 @@
   @component Full screen zone for dropping images into an album or replacing a single image
 -->
 <script lang="ts">
-  import { run, preventDefault } from 'svelte/legacy';
+    import { run, preventDefault } from 'svelte/legacy';
 
-  interface Props {
-    isDropAllowed: (e: DragEvent) => boolean;
-    onDrop: (e: DragEvent) => Promise<void>;
-    children?: import('svelte').Snippet;
-  }
+    interface Props {
+        isDropAllowed: (e: DragEvent) => boolean;
+        onDrop: (e: DragEvent) => Promise<void>;
+        children?: import('svelte').Snippet;
+    }
 
-  let { isDropAllowed, onDrop, children }: Props = $props();
+    let { isDropAllowed, onDrop, children }: Props = $props();
 
     let dragging = $state(false);
     run(() => {
-    dragging = dragging;
-  });
+        dragging = dragging;
+    });
 
     function dragEnter(e: DragEvent) {
         if (!isDropAllowed(e)) return;

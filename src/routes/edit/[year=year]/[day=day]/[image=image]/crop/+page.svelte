@@ -18,10 +18,8 @@
 
 <ImageRouting {albumLoadStatus} {image}>
     {#snippet loaded()}
-    
-            {#if image}
-                <CropPage {image} />
-            {/if}
-        
+        {#if image}
+            <CropPage {image} />
+        {/if}
     {/snippet}
 </ImageRouting>

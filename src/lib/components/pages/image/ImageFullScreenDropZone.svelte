@@ -6,8 +6,6 @@
     import { getDroppedImages, uploadSingleImage } from '$lib/stores/admin/UploadStoreLogic';
     import { toast } from '@zerodevx/svelte-toast';
 
-
-    
     interface Props {
         imagePath: string;
         /** So that the edit page can tell me whether it allows dropping */

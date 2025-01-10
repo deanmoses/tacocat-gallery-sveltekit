@@ -1,5 +1,7 @@
 <!--
-  @component  A year album's thumbnails by month
+  @component  
+  
+  A year album's thumbnails by month
 -->
 <script lang="ts">
     import Thumbnails from '$lib/components/site/Thumbnails.svelte';
@@ -8,21 +10,22 @@
     import { albumPathToDate } from '$lib/utils/galleryPathUtils';
     import type { Album, Thumbable } from '$lib/models/GalleryItemInterfaces';
 
+    interface Props {
+        album: Album;
+        /**
+         * Function to create URL to child album.
+         * Needed to handle edit URLs.
+         * If not passed in, uses default non-edit URL behavior
+         */
+        albumUrlCreator?: (path: string | undefined) => string | undefined;
+    }
 
-    
-  interface Props {
-    album: Album;
-    /**
-     * Function to create URL to child album.
-     * Needed to handle edit URLs.
-     * If not passed in, uses default non-edit URL behavior
-     */
-    albumUrlCreator?: (path: string | undefined) => string | undefined;
-  }
-
-  let { album, albumUrlCreator = (path) => {
-        return path;
-    } }: Props = $props();
+    let {
+        album,
+        albumUrlCreator = (path) => {
+            return path;
+        },
+    }: Props = $props();
 
     type AlbumsByMonth = Array<{
         monthName: string;

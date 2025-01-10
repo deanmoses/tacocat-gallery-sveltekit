@@ -4,11 +4,11 @@
 <script lang="ts">
     import type { Image } from '$lib/models/GalleryItemInterfaces';
 
-  interface Props {
-    image: Image;
-  }
+    interface Props {
+        image: Image;
+    }
 
-  let { image }: Props = $props();
+    let { image }: Props = $props();
 </script>
 
 <!-- 

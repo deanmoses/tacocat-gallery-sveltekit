@@ -29,10 +29,8 @@
 
 <YearAlbumRouting {loadStatus} {deleteEntry}>
     {#snippet loaded()}
-    
-            {#if album}
-                <YearAlbumPage {album} />
-            {/if}
-        
+        {#if album}
+            <YearAlbumPage {album} />
+        {/if}
     {/snippet}
 </YearAlbumRouting>

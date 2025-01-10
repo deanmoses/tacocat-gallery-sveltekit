@@ -16,10 +16,8 @@
 
 <YearAlbumRouting loadStatus={status}>
     {#snippet loaded()}
-    
-            {#if album}
-                <YearAlbumEditPage {album} />
-            {/if}
-        
+        {#if album}
+            <YearAlbumEditPage {album} />
+        {/if}
     {/snippet}
 </YearAlbumRouting>

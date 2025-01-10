@@ -2,7 +2,7 @@
   @component Dialog to confirm overwriting files
 -->
 <script lang="ts">
-  import { run, preventDefault } from 'svelte/legacy';
+    import { run, preventDefault } from 'svelte/legacy';
 
     import { createEventDispatcher } from 'svelte';
     import Dialog from '../../Dialog.svelte';
@@ -14,8 +14,8 @@
     let dialog: Dialog = $state();
     let filesAlreadyInAlbum: string[] = $state([]);
     run(() => {
-    filesAlreadyInAlbum = filesAlreadyInAlbum;
-  });
+        filesAlreadyInAlbum = filesAlreadyInAlbum;
+    });
     let filez = $derived(filesAlreadyInAlbum.join(', '));
 
     export function show(f: string[]): void {
@@ -47,12 +47,10 @@
 
 <Dialog bind:this={dialog} on:keydown={onKeyPress}>
     {#snippet content()}
-    Already in album: {filez}
-  {/snippet}
+        Already in album: {filez}
+    {/snippet}
     {#snippet buttons()}
-  
-          <button onclick={onCancelButtonClick}><CancelIcon /> Cancel</button>
-          <button onclick={preventDefault(onSubmit)}><UploadIcon /> Overwrite</button>
-      
-  {/snippet}
+        <button onclick={onCancelButtonClick}><CancelIcon /> Cancel</button>
+        <button onclick={preventDefault(onSubmit)}><UploadIcon /> Overwrite</button>
+    {/snippet}
 </Dialog>

@@ -1,5 +1,7 @@
 <!--
-  @component Layout for year album pages
+  @component 
+  
+  Layout for year album pages
 -->
 <script lang="ts">
     import SiteLayout from '$lib/components/site/SiteLayout.svelte';
@@ -9,23 +11,18 @@
     import Sidebar from '$lib/components/site/Sidebar.svelte';
     import MainContent from '$lib/components/site/MainContent.svelte';
     import { getYear } from '$lib/stores/YearStore';
-  interface Props {
-    editControls?: import('svelte').Snippet;
-    nav?: import('svelte').Snippet;
-    caption?: import('svelte').Snippet;
-    thumbnails?: import('svelte').Snippet;
-  }
+    interface Props {
+        editControls?: import('svelte').Snippet;
+        nav?: import('svelte').Snippet;
+        caption?: import('svelte').Snippet;
+        thumbnails?: import('svelte').Snippet;
+    }
 
-  let {
-    editControls,
-    nav,
-    caption,
-    thumbnails
-  }: Props = $props();
+    let { editControls, nav, caption, thumbnails }: Props = $props();
 
     let year = $derived(getYear());
 
-  const editControls_render = $derived(editControls);
+    const editControls_render = $derived(editControls);
 </script>
 
 <svelte:head>
@@ -34,8 +31,8 @@
 
 <SiteLayout>
     {#snippet editControls()}
-    {@render editControls_render?.()}
-  {/snippet}
+        {@render editControls_render?.()}
+    {/snippet}
     <Header hideBottomBorder>
         {$year}
     </Header>

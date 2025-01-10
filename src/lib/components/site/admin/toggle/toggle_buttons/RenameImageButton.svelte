@@ -2,7 +2,7 @@
   @component Button to rename an image
 -->
 <script lang="ts">
-  import { run } from 'svelte/legacy';
+    import { run } from 'svelte/legacy';
 
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
@@ -21,13 +21,12 @@
     import TextDialog from './TextDialog.svelte';
 
     let imagePath: string = $derived($page.url.pathname);
-    
 
     // Show this button only on images
     let show: boolean = $state(false);
     run(() => {
-    show = isValidImagePath(imagePath);
-  });
+        show = isValidImagePath(imagePath);
+    });
 
     let dialog: TextDialog = $state();
 

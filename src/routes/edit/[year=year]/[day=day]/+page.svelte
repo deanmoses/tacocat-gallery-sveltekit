@@ -48,10 +48,8 @@
 
 <DayAlbumRouting {loadStatus} {deleteEntry} {renameEntry}>
     {#snippet loaded()}
-    
-            {#if album}
-                <DayAlbumEditPage {album} {uploads} />
-            {/if}
-        
+        {#if album}
+            <DayAlbumEditPage {album} {uploads} />
+        {/if}
     {/snippet}
 </DayAlbumRouting>

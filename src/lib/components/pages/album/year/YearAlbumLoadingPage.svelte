@@ -15,18 +15,14 @@
 
 <YearAlbumPageLayout>
     {#snippet nav()}
-  
-          <PrevButton />
-          <UpButton />
-          <NextButton />
-      
-  {/snippet}
+        <PrevButton />
+        <UpButton />
+        <NextButton />
+    {/snippet}
 
     {#snippet thumbnails()}
-  
-          <FullPageMessage>
-              <WaitingSpinner />
-          </FullPageMessage>
-      
-  {/snippet}
+        <FullPageMessage>
+            <WaitingSpinner />
+        </FullPageMessage>
+    {/snippet}
 </YearAlbumPageLayout>
