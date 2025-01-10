@@ -32,13 +32,9 @@
         <BaseEditControls />
     {/snippet}
 
-    <!-- @migration-task: migrate this slot by hand, `title` would shadow a prop on the parent component -->
-    <svelte:fragment slot="title">
-        <!-- The #key block is an attempt to prevent the lagging title problem. Have not yet tested it out.  -->
-        {#key image.path}
-            <EditableText textContent={image.title} />
-        {/key}
-    </svelte:fragment>
+    {#snippet titleEditor()}
+        <EditableText textContent={image.title} />
+    {/snippet}
 
     {#snippet caption()}
         <EditableHtml htmlContent={image.description} />

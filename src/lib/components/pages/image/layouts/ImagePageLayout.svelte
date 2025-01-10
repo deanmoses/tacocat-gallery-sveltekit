@@ -12,13 +12,14 @@
 
     interface Props {
         title: string;
+        titleEditor?: Snippet;
         caption?: Snippet;
         image?: Snippet;
         nav?: Snippet;
         editControls?: Snippet;
     }
 
-    let { title, caption, image, nav, editControls }: Props = $props();
+    let { title, titleEditor, caption, image, nav, editControls }: Props = $props();
 </script>
 
 <svelte:head>
@@ -27,7 +28,11 @@
 
 <SiteLayout>
     {@render editControls?.()}
-    {#if title}
+    {#if titleEditor}
+        <Header hideSiteTitle hideSearch hideWhenSmall>
+            {@render titleEditor?.()}
+        </Header>
+    {:else if title}
         <Header hideSiteTitle hideSearch hideWhenSmall>
             {title}
         </Header>
