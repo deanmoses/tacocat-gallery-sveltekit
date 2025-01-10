@@ -58,8 +58,8 @@ export async function uploadSanitizedImages(imagesToUpload: ImagesToUpload[], al
 }
 
 export function getSanitizedFiles(files: FileList | File[], albumPath: string): ImagesToUpload[] {
-    let imagesToUpload: ImagesToUpload[] = [];
-    for (let file of files) {
+    const imagesToUpload: ImagesToUpload[] = [];
+    for (const file of files) {
         if (!hasValidExtension(file.name)) {
             const msg = `Skipping invalid type of image [${file.name}]`;
             toast.push(msg);
@@ -74,10 +74,10 @@ export function getSanitizedFiles(files: FileList | File[], albumPath: string): 
 }
 
 export function getFilesAlreadyInAlbum(files: ImagesToUpload[], albumPath: string): string[] {
-    let imageNames: string[] = [];
+    const imageNames: string[] = [];
     const albumEntry = albumStore.getFromInMemory(albumPath);
     if (!albumEntry || !albumEntry.album || !albumEntry.album?.images?.length) return imageNames;
-    for (let file of files) {
+    for (const file of files) {
         const image = albumEntry.album?.getImage(file.imagePath);
         if (image) {
             console.log(`File [${file.imagePath}] is already in album [${albumPath}]`);
@@ -95,11 +95,11 @@ export type ImagesToUpload = {
 async function uploadImages(imagesToUpload: ImagesToUpload[]): Promise<void> {
     try {
         const presignedUrls = await getPresignedUploadUrls(imagesToUpload);
-        for (let imageToUpload of imagesToUpload) {
+        for (const imageToUpload of imagesToUpload) {
             addUpload(imageToUpload.file, imageToUpload.imagePath);
         }
         const imageUploads: Promise<void>[] = [];
-        for (let imageToUpload of imagesToUpload) {
+        for (const imageToUpload of imagesToUpload) {
             const presignedUrl = presignedUrls[imageToUpload.imagePath];
             if (!presignedUrl) throw new Error(`No presigned URL for image [${imageToUpload.imagePath}]`);
             imageUploads.push(uploadImageViaPresignedUrl(imageToUpload, presignedUrl));
@@ -204,7 +204,7 @@ async function areImagesProcessed(albumPath: string): Promise<boolean> {
     if (!uploads || uploads.length === 0) return true;
     try {
         const album = await albumStore.fetchFromServerAsync(albumPath);
-        for (let upload of uploads) {
+        for (const upload of uploads) {
             // Skip checking uploads that are not yet in the processing state,
             // which means they have not yet been uploaded to S3, which means
             // they don't yet have a version (the versionId check is redundant)
@@ -278,7 +278,7 @@ export async function getDroppedImages(e: DragEvent): Promise<File[]> {
  * Get all the File objects in a directory
  */
 async function getFilesInDirectory(directory: FileSystemDirectoryEntry): Promise<File[]> {
-    let files: File[] = [];
+    const files: File[] = [];
     const entries = await readAllDirectoryEntries(directory);
     for (const entry of entries) {
         if (entry.isFile) {
@@ -303,7 +303,7 @@ const readAllDirectoryEntries = async (directory: FileSystemDirectoryEntry): Pro
     // To read all files in a directory, readEntries needs to be called
     // repeatedly until it returns an empty array.  Chromium-based
     // browsers will only return a max of 100 entries per call
-    let entries = [];
+    const entries = [];
     let readEntries = await readEntriesPromise(directoryReader);
     while (readEntries.length > 0) {
         entries.push(...readEntries);
