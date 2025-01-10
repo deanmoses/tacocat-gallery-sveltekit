@@ -38,11 +38,6 @@
         <AlbumEditControls showSummary summary={album.summary} published={album.published} />
     {/snippet}
 
-    <!-- @migration-task: migrate this slot by hand, `title` would shadow a prop on the parent component -->
-    <svelte:fragment slot="title">
-        {album.title}
-    </svelte:fragment>
-
     {#snippet nav()}
         <PrevButton href={$okToNavigate ? editUrl(album.nextHref) : undefined} title={album.nextTitle} />
         <UpButton href={$okToNavigate ? editUrl(album.parentHref) : undefined} title={album.parentTitle} />
