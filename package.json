@@ -29,14 +29,14 @@
         "deploy-prod": "./deploy_prod.sh"
     },
     "devDependencies": {
-        "@eslint/js": "^9.17.0",
+        "@eslint/js": "^9.18.0",
         "@playwright/test": "1.49.1",
         "@sveltejs/adapter-static": "^3.0.8",
         "@sveltejs/kit": "^2.15.2",
         "@typescript-eslint/eslint-plugin": "^8.19.1",
         "@typescript-eslint/parser": "^8.19.1",
         "@zerodevx/svelte-toast": "^0.9.6",
-        "eslint": "^9.17.0",
+        "eslint": "^9.18.0",
         "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-prettier": "^5.2.1",
         "eslint-plugin-svelte": "^2.46.1",
