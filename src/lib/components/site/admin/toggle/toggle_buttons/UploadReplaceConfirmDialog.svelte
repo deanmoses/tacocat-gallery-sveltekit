@@ -4,12 +4,16 @@
   Dialog to confirm overwriting files
 -->
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
     import Dialog from '../../Dialog.svelte';
     import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
     import UploadIcon from '$lib/components/site/icons/UploadIcon.svelte';
 
-    const dispatch = createEventDispatcher();
+    interface Props {
+        /** Async callback to be called when the user confirms */
+        onConfirm?: () => Promise<void>;
+    }
+
+    let { onConfirm }: Props = $props();
 
     let dialog: Dialog | undefined = $state();
     let filesAlreadyInAlbum: string[] = $state([]);
@@ -28,9 +32,9 @@
         e?.preventDefault();
         dialog?.close();
         filesAlreadyInAlbum = [];
-        dispatch('confirm', {
-            value: true,
-        });
+        if (onConfirm) {
+            await onConfirm();
+        }
     }
 
     function onCancelButtonClick(): void {

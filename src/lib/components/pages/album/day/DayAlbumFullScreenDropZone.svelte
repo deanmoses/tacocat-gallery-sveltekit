@@ -43,10 +43,10 @@
         }
     }
 
-    async function onConfirmUploadReplace(): Promise<void> {
+    async function onConfirm(): Promise<void> {
         await uploadSanitizedImages(imagesToUpload, albumPath);
     }
 </script>
 
 <FullScreenDropZone {isDropAllowed} {onDrop}>Drop images or a 📁</FullScreenDropZone>
-<UploadReplaceConfirmDialog bind:this={dialog} on:confirm={onConfirmUploadReplace} />
+<UploadReplaceConfirmDialog bind:this={dialog} {onConfirm} />

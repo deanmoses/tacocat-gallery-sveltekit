@@ -9,7 +9,7 @@
     import StarIcon from '$lib/components/site/icons/StarIcon.svelte';
 
     interface Props {
-        /** Async callback to be called when the user confirms closure of dialog */
+        /** Async callback to be called when the user confirms */
         onConfirm?: () => Promise<void>;
     }
 
