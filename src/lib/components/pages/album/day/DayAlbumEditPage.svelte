@@ -29,8 +29,8 @@
 
     let okToNavigate = DraftStore.getOkToNavigate();
 
-    async function albumThumbnailSelected(e: CustomEvent<{ path: string }>) {
-        const imagePath = e.detail.path;
+    async function albumThumbnailSelected(path: string) {
+        const imagePath = path;
         await setAlbumThumbnail(album.path, imagePath);
     }
 </script>
@@ -64,7 +64,7 @@
                             <SelectableStar
                                 albumThumbPath={album.thumbnailPath}
                                 path={image.path}
-                                on:selected={albumThumbnailSelected}
+                                onSelected={albumThumbnailSelected}
                             />
                         {/snippet}
                     </Thumbnail>

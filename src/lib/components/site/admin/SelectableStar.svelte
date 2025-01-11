@@ -7,14 +7,14 @@
     import EmptyStarIcon from '../icons/EmptyStarIcon.svelte';
     import FilledStarIcon from '../icons/FilledStarIcon.svelte';
     import TransitionStarIcon from '../icons/TransitionStarIcon.svelte';
-    import { createEventDispatcher } from 'svelte';
 
     interface Props {
         path: string;
         albumThumbPath: string | undefined;
+        onSelected?: (path: string) => void;
     }
 
-    let { path, albumThumbPath }: Props = $props();
+    let { path, albumThumbPath, onSelected }: Props = $props();
 
     let selected: boolean = $derived(path === albumThumbPath);
 
@@ -24,11 +24,11 @@
         selecting = false;
     });
 
-    const dispatch = createEventDispatcher<{ selected: { path: string } }>();
-
     function onEmptyStarClick() {
         selecting = true;
-        dispatch('selected', { path });
+        if (onSelected) {
+            onSelected(path);
+        }
     }
 </script>
 
