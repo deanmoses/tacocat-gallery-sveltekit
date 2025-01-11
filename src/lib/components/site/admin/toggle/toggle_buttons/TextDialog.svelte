@@ -4,12 +4,9 @@
   Dialog to get a text input from user, such as a new album name 
 -->
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
     import Dialog from '../../Dialog.svelte';
     import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
     import SaveIcon from '$lib/components/site/icons/SaveIcon.svelte';
-
-    const dispatch = createEventDispatcher();
 
     interface Props {
         label: string;
@@ -17,9 +14,10 @@
         extension?: string;
         sanitizor: (n: string) => string;
         validator: (n: string) => Promise<string | undefined>;
+        onNewValue: (n: string) => void;
     }
 
-    let { label, initialValue, extension = '', sanitizor, validator }: Props = $props();
+    let { label, initialValue, extension = '', sanitizor, validator, onNewValue }: Props = $props();
     let dialog: Dialog | undefined = $state();
     let textfield: HTMLInputElement | undefined = $state();
     let errorMsg: string | undefined = $state();
@@ -46,9 +44,7 @@
                 errorMsg = validationErrorMsg;
             } else {
                 dialog?.close();
-                dispatch('newValue', {
-                    value: textfield.value,
-                });
+                onNewValue(textfield.value);
             }
         }
     }

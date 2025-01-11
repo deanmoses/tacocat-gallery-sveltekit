@@ -25,8 +25,8 @@
         dialog?.show();
     }
 
-    async function onNewAlbumName(e: CustomEvent<{ value: string }>) {
-        const newAlbumPath = '/' + e.detail.value + '/';
+    async function onNewAlbumName(newAlbumName: string) {
+        const newAlbumPath = '/' + newAlbumName + '/';
         await createAlbum(newAlbumPath);
         goto(newAlbumPath);
     }
@@ -43,7 +43,7 @@
     <TextDialog
         label="New Year!"
         bind:this={dialog}
-        on:newValue={onNewAlbumName}
+        onNewValue={onNewAlbumName}
         sanitizor={sanitizeDayAlbumName}
         validator={validateYearAlbumName}
         initialValue={yearAlbumName()}

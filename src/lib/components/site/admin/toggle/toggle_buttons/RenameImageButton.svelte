@@ -42,8 +42,8 @@
         dialog?.show();
     }
 
-    async function onNewImageName(e: CustomEvent<{ value: string }>) {
-        const newImagePath = imageNameWithoutExtensionToPath(e.detail.value);
+    async function onNewImageName(newImageName: string) {
+        const newImagePath = imageNameWithoutExtensionToPath(newImageName);
         try {
             await renameImage(imagePath, newImagePath);
             goto(newImagePath);
@@ -73,7 +73,7 @@
     <TextDialog
         label="New Image Name"
         bind:this={dialog}
-        on:newValue={onNewImageName}
+        onNewValue={onNewImageName}
         sanitizor={sanitizeImageNameWithoutExtension}
         validator={validateImageName}
         initialValue={originalImageName()}

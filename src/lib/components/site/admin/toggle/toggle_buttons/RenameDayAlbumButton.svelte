@@ -33,8 +33,8 @@
         dialog?.show();
     }
 
-    async function onNewAlbumName(e: CustomEvent<{ value: string }>) {
-        const newAlbumPath = albumNameToPath(e.detail.value);
+    async function onNewAlbumName(newAlbumName: string) {
+        const newAlbumPath = albumNameToPath(newAlbumName);
         try {
             await renameDayAlbum(albumPath, newAlbumPath);
             goto(newAlbumPath);
@@ -59,7 +59,7 @@
     <TextDialog
         label="New Album Name"
         bind:this={dialog}
-        on:newValue={onNewAlbumName}
+        onNewValue={onNewAlbumName}
         sanitizor={sanitizeDayAlbumName}
         validator={validateDayAlbumName}
         initialValue={originalName()}
