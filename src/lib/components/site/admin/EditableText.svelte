@@ -13,10 +13,9 @@
 
     let { textContent = '' }: Props = $props();
 
-    let div: HTMLElement | undefined = $state();
+    let div = $state() as HTMLElement;
 
     function onInput() {
-        if (!div) return;
         let editedText = div.innerText;
         // I'm having a problem with a /n being added at some point where I'm
         // then not able to remove it.  This is a blunt intstrument, but maybe

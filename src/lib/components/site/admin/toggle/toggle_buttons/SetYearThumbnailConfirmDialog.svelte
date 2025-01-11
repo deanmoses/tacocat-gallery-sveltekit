@@ -15,22 +15,22 @@
 
     let { onConfirm }: Props = $props();
 
-    let dialog: Dialog | undefined = $state();
+    let dialog = $state() as Dialog;
 
     export function show() {
-        dialog?.show();
+        dialog.show();
     }
 
     async function onSubmit(e?: Event): Promise<void> {
         e?.preventDefault();
-        dialog?.close();
+        dialog.close();
         if (onConfirm) {
             await onConfirm();
         }
     }
 
     function onCancelButtonClick(): void {
-        dialog?.close();
+        dialog.close();
     }
 
     function onkeydown(event: KeyboardEvent): void {

@@ -14,10 +14,10 @@
 
     let imagePath: string = $derived(page.url.pathname);
     let show: boolean = $derived(isValidImagePath(imagePath)); // Show this button only on image pages
-    let dialog: SetYearThumbnailConfirmDialog | undefined = $state();
+    let dialog = $state() as SetYearThumbnailConfirmDialog;
 
     function onclick(): void {
-        dialog?.show();
+        dialog.show();
     }
 
     async function onConfirm(): Promise<void> {

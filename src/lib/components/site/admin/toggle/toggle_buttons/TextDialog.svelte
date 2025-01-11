@@ -18,16 +18,16 @@
     }
 
     let { label, initialValue, extension = '', sanitizor, validator, onNewValue }: Props = $props();
-    let dialog: Dialog | undefined = $state();
-    let textfield: HTMLInputElement | undefined = $state();
+    let dialog = $state() as Dialog;
+    let textfield = $state() as HTMLInputElement;
     let errorMsg: string | undefined = $state();
 
     export function show(): void {
-        dialog?.show();
+        dialog.show();
     }
 
     function onTextChange(): void {
-        if (textfield?.value) {
+        if (textfield.value) {
             textfield.value = sanitizor(textfield.value);
         }
     }
@@ -38,19 +38,19 @@
             console.log(`No validator function`);
             return;
         }
-        if (textfield?.value) {
+        if (textfield.value) {
             const validationErrorMsg = await validator(textfield.value);
             if (validationErrorMsg) {
                 errorMsg = validationErrorMsg;
             } else {
-                dialog?.close();
+                dialog.close();
                 onNewValue(textfield.value);
             }
         }
     }
 
     function onCancelButtonClick(): void {
-        dialog?.close();
+        dialog.close();
     }
 
     async function onkeydown(event: KeyboardEvent): Promise<void> {

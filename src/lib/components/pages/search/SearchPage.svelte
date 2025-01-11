@@ -19,7 +19,7 @@
 
     let { searchTerms = $bindable(''), returnPath = '', title = '', children }: Props = $props();
 
-    let searchInput: HTMLInputElement | undefined = $state();
+    let searchInput = $state() as HTMLInputElement;
 
     let pageTitle = $derived(searchTerms ? `Search for ${searchTerms}` : title || 'Search The Moses Family');
     let disabled = $derived(3 > searchTerms.length);
@@ -29,12 +29,12 @@
     }
 
     function onInput() {
-        searchTerms = searchInput?.value || '';
+        searchTerms = searchInput.value || '';
     }
 
     function onSubmit(e: Event) {
         e.preventDefault();
-        const terms = searchInput?.value;
+        const terms = searchInput.value;
         if (terms) {
             const oldestYear = toInt((document.getElementById('oldestYear') as HTMLInputElement)?.value);
             const newestYear = toInt((document.getElementById('newestYear') as HTMLInputElement)?.value);

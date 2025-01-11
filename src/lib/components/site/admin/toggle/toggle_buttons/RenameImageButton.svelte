@@ -22,7 +22,7 @@
 
     let imagePath: string = $derived(page.url.pathname);
     let show: boolean = $derived(isValidImagePath(imagePath)); // Show this button only on images
-    let dialog: TextDialog | undefined = $state();
+    let dialog = $state() as TextDialog;
 
     function originalImageName(): string {
         const imageName = getNameFromPath(imagePath);
@@ -39,7 +39,7 @@
     }
 
     function onButtonClick() {
-        dialog?.show();
+        dialog.show();
     }
 
     async function onNewImageName(newImageName: string) {

@@ -21,7 +21,7 @@
 
     let albumPath: string = $derived(page.url.pathname + '/');
     let show: boolean = $derived(isValidDayAlbumPath(albumPath)); // Show this button only on day albums
-    let dialog: TextDialog | undefined = $state();
+    let dialog = $state() as TextDialog;
 
     function originalName(): string {
         const albumName = getNameFromPath(albumPath);
@@ -30,7 +30,7 @@
     }
 
     function onButtonClick() {
-        dialog?.show();
+        dialog.show();
     }
 
     async function onNewAlbumName(newAlbumName: string) {

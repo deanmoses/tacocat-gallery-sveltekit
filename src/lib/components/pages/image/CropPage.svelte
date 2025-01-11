@@ -22,17 +22,13 @@
 
     let { image }: Props = $props();
     let imageTitle = $derived(image.title);
-    let cropper: CropImage | undefined = $state();
+    let cropper = $state() as CropImage;
 
     function onCancel() {
         goto(image.path);
     }
 
     async function onSave() {
-        if (!cropper) {
-            console.error('No cropper instance');
-            return;
-        }
         const imagePath = image.path;
         const crop = cropper.getCrop();
         console.log(`Saving crop of image [${imagePath}]`, crop);

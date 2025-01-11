@@ -13,16 +13,14 @@
     let albumPath = $derived(page.url.pathname + '/');
     let show = $derived(isValidDayAlbumPath(albumPath)); // Show this button only on day ablums
 
-    let fileInput: HTMLInputElement | undefined = $state();
+    let fileInput = $state() as HTMLInputElement;
 
     async function onUploadButtonClick() {
-        fileInput?.click();
+        fileInput.click();
     }
 
     async function onFilesSelected() {
-        if (fileInput) {
-            upload(fileInput.files, albumPath);
-        }
+        upload(fileInput.files, albumPath);
     }
 </script>
 

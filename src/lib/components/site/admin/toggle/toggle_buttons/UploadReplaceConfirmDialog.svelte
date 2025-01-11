@@ -15,12 +15,8 @@
 
     let { onConfirm }: Props = $props();
 
-    let dialog: Dialog | undefined = $state();
+    let dialog = $state() as Dialog;
     let filesAlreadyInAlbum: string[] = $state([]);
-    // TODO delete below once I verify that the migrated code above works
-    // $effect(() => {
-    //     filesAlreadyInAlbum = filesAlreadyInAlbum;
-    // });
     let filez = $derived(filesAlreadyInAlbum.join(', '));
 
     export function show(f: string[]): void {
@@ -30,7 +26,7 @@
 
     async function onSubmit(e?: Event): Promise<void> {
         e?.preventDefault();
-        dialog?.close();
+        dialog.close();
         filesAlreadyInAlbum = [];
         if (onConfirm) {
             await onConfirm();
@@ -38,7 +34,7 @@
     }
 
     function onCancelButtonClick(): void {
-        dialog?.close();
+        dialog.close();
         filesAlreadyInAlbum = [];
     }
 

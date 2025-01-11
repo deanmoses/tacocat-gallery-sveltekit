@@ -13,15 +13,13 @@
     let imagePath = $derived(page.url.pathname);
     let show = $derived(isValidImagePath(page.url.pathname)); // Show this button only on image pages
 
-    let fileInput: HTMLInputElement | undefined = $state();
+    let fileInput = $state() as HTMLInputElement;
 
     async function onUploadButtonClick() {
-        fileInput?.click();
+        fileInput.click();
     }
 
     async function onFileSelected() {
-        if (!fileInput) return;
-
         const files = fileInput.files;
         if (!files || !files.length) return;
         // this error should never happen

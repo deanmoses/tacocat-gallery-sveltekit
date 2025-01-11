@@ -16,7 +16,7 @@
     let albumPath: string = $derived(page.url.pathname + '/');
     let show: boolean = $derived(isValidYearAlbumPath(albumPath)); // Show this button only on year albums
 
-    let dialog: TextDialog | undefined = $state();
+    let dialog = $state() as TextDialog;
 
     function todayAlbumName(): string {
         const d = new Date();
@@ -27,7 +27,7 @@
     }
 
     function onButtonClick() {
-        dialog?.show();
+        dialog.show();
     }
 
     async function onNewAlbumName(newAlbumName: string) {

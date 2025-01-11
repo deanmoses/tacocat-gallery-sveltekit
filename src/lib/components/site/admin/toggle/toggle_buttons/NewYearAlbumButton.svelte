@@ -14,7 +14,7 @@
     import TextDialog from './TextDialog.svelte';
 
     let show: boolean = $derived(page.url.pathname === '/'); // Show this button only on root album
-    let dialog: TextDialog | undefined = $state();
+    let dialog = $state() as TextDialog;
 
     function yearAlbumName(): string {
         const d = new Date();
@@ -22,7 +22,7 @@
     }
 
     function onButtonClick() {
-        dialog?.show();
+        dialog.show();
     }
 
     async function onNewAlbumName(newAlbumName: string) {

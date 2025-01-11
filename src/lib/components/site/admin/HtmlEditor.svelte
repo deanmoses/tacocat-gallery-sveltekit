@@ -51,12 +51,10 @@
     // editor component, but instead re-uses the existing one, which
     // contains the caption from the previous photo.
     $effect(() => {
-        if (quill) {
-            quill.setContents(
-                quill.clipboard.convert({ html: htmlContent ?? '' }),
-                'silent' /* Don't trigger a text-change event */,
-            );
-        }
+        quill?.setContents(
+            quill.clipboard.convert({ html: htmlContent ?? '' }),
+            'silent' /* Don't trigger a text-change event */,
+        );
     });
 </script>
 

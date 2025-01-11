@@ -23,7 +23,7 @@
 
     let { albumPath, allowDrop = true }: Props = $props();
 
-    let dialog: UploadReplaceConfirmDialog | undefined = $state();
+    let dialog = $state() as UploadReplaceConfirmDialog;
 
     let imagesToUpload: ImagesToUpload[] = $state([]);
 
@@ -37,7 +37,7 @@
         if (!imagesToUpload || !imagesToUpload.length) return;
         const filesAlreadyInAlbum = getFilesAlreadyInAlbum(imagesToUpload, albumPath);
         if (filesAlreadyInAlbum.length > 0) {
-            dialog?.show(filesAlreadyInAlbum);
+            dialog.show(filesAlreadyInAlbum);
         } else {
             await uploadSanitizedImages(imagesToUpload, albumPath);
         }
