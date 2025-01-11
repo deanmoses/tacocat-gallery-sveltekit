@@ -15,24 +15,10 @@
     let uploadingCount: number = $derived(
         uploads ? uploads.reduce((acc, upload) => acc + (upload.status === UploadState.UPLOADING ? 1 : 0), 0) : 0,
     );
-    // TODO delete below once I verify that the migrated code above works
-    //let uploadingCount: number = $state(0);
-    // $effect(() => {
-    //     uploadingCount = uploads
-    //         ? uploads.reduce((acc, upload) => acc + (upload.status === UploadState.UPLOADING ? 1 : 0), 0)
-    //         : 0;
-    // });
 
     let processingCount: number = $derived(
         uploads ? uploads.reduce((acc, upload) => acc + (upload.status === UploadState.PROCESSING ? 1 : 0), 0) : 0,
     );
-    // TODO delete below once I verify that the migrated code above works
-    // let processingCount: number = $state(0);
-    // $effect(() => {
-    //     processingCount = uploads
-    //         ? uploads.reduce((acc, upload) => acc + (upload.status === UploadState.PROCESSING ? 1 : 0), 0)
-    //         : 0;
-    // });
 </script>
 
 {#if uploadingCount}{uploadingCount} uploading <span>📤</span>{#if processingCount},{/if}{/if}
