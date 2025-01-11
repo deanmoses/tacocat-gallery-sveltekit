@@ -4,25 +4,23 @@
   WYSIWYG editor for HTML content
 -->
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
     import Quill from 'quill';
     import { QuillLink } from './QuillLink';
 
-    const dispatch = createEventDispatcher<{ change: { html: string } }>();
-
     interface Props {
-        /**
-         * The HTML content to be made editable
-         */
+        /** The HTML content to be made editable */
         htmlContent?: string;
+
+        /** Callback to be called every time the content chagnes */
+        onChange?: (newHtml: string) => void;
     }
 
-    let { htmlContent = '' }: Props = $props();
+    let { htmlContent = '', onChange }: Props = $props();
 
-    // Instance of the Quill rich text editor
+    // Instance of the Quill.js WYSIWYG rich text editor
     let quill: Quill | undefined = $state();
 
-    // Load the Quill.js WYSIWYG editor when the component is mounted,
+    // Load the Quill editor when the component is mounted,
     // so as to be able to pass the DOM node into Quill's constructor
     function createEditorOnMount(editorElement: HTMLDivElement /* The DOM node on which to mount the Quill editor */) {
         // Prevent Quill from adding target="_blank" and rel="noopener noreferrer" to links
@@ -40,10 +38,8 @@
         });
 
         quill.on('text-change', () => {
-            if (quill) {
-                dispatch('change', {
-                    html: quill.getSemanticHTML(),
-                });
+            if (quill && onChange) {
+                onChange(quill.getSemanticHTML());
             }
         });
     }
