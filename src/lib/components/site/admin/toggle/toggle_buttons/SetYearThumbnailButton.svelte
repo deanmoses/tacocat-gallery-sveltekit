@@ -31,5 +31,5 @@
 
 {#if show}
     <ControlStripButton title="Set thumbnail for year" {onclick}><StarIcon />Year</ControlStripButton>
-    <SetYearThumbnailConfirmDialog bind:this={dialog} on:confirm={onConfirm} />
+    <SetYearThumbnailConfirmDialog bind:this={dialog} {onConfirm} />
 {/if}

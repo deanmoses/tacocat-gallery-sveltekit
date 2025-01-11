@@ -4,12 +4,16 @@
   Dialog to confirm setting year thumbnail
 -->
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
     import Dialog from '../../Dialog.svelte';
     import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
     import StarIcon from '$lib/components/site/icons/StarIcon.svelte';
 
-    const dispatch = createEventDispatcher();
+    interface Props {
+        /** Async callback to be called when the user confirms closure of dialog */
+        onConfirm?: () => Promise<void>;
+    }
+
+    let { onConfirm }: Props = $props();
 
     let dialog: Dialog | undefined = $state();
 
@@ -17,12 +21,12 @@
         dialog?.show();
     }
 
-    function onSubmit(e?: Event): void {
+    async function onSubmit(e?: Event): Promise<void> {
         e?.preventDefault();
         dialog?.close();
-        dispatch('confirm', {
-            value: true,
-        });
+        if (onConfirm) {
+            await onConfirm();
+        }
     }
 
     function onCancelButtonClick(): void {
