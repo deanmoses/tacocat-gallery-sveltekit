@@ -20,7 +20,7 @@
     /**
      * Handle keyboard navigation
      */
-    function onKeyPress(event: KeyboardEvent): void {
+    function onkeydown(event: KeyboardEvent): void {
         if (event.defaultPrevented) {
             return;
         }
@@ -56,4 +56,4 @@
         <SvelteToast />
     {/await}
 {/if}
-<svelte:window onkeydown={onKeyPress} />
+<svelte:window {onkeydown} />
