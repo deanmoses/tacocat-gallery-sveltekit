@@ -1,11 +1,12 @@
 <!--
-  @component 
+  @component
   
   WYSIWYG editor for HTML content
 -->
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
     import Quill from 'quill';
+    import { QuillLink } from './QuillLink';
 
     const dispatch = createEventDispatcher<{ change: { html: string } }>();
 
@@ -25,18 +26,7 @@
     // so as to be able to pass the DOM node into Quill's constructor
     function createEditorOnMount(editorElement: HTMLDivElement /* The DOM node on which to mount the Quill editor */) {
         // Prevent Quill from adding target="_blank" and rel="noopener noreferrer" to links
-        const Link = Quill.import('formats/link');
-        class MyLink extends Link {
-            static create(value) {
-                let node = super.create(value);
-                value = this.sanitize(value);
-                node.setAttribute('href', value);
-                node.removeAttribute('target');
-                node.removeAttribute('rel');
-                return node;
-            }
-        }
-        Quill.register(MyLink);
+        Quill.register(QuillLink);
 
         quill = new Quill(editorElement, {
             // This theme pops up the toolbar when text is selected, rather than displaying it permanently
