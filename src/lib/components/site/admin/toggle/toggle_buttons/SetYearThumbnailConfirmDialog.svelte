@@ -4,8 +4,6 @@
   Dialog to confirm setting year thumbnail
 -->
 <script lang="ts">
-    import { preventDefault } from 'svelte/legacy';
-
     import { createEventDispatcher } from 'svelte';
     import Dialog from '../../Dialog.svelte';
     import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
@@ -19,7 +17,8 @@
         dialog?.show();
     }
 
-    function onSubmit(): void {
+    function onSubmit(e?: Event): void {
+        e?.preventDefault();
         dialog?.close();
         dispatch('confirm', {
             value: true,
@@ -45,6 +44,6 @@
     {/snippet}
     {#snippet buttons()}
         <button onclick={onCancelButtonClick}><CancelIcon /> Cancel</button>
-        <button onclick={preventDefault(onSubmit)}><StarIcon /> Set Year Thumb</button>
+        <button onclick={onSubmit}><StarIcon /> Set Year Thumb</button>
     {/snippet}
 </Dialog>

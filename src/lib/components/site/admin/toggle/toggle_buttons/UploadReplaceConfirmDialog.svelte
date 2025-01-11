@@ -24,8 +24,8 @@
         dialog?.show();
     }
 
-    async function onSubmit(e: Event): Promise<void> {
-        e.preventDefault();
+    async function onSubmit(e?: Event): Promise<void> {
+        e?.preventDefault();
         dialog?.close();
         filesAlreadyInAlbum = [];
         dispatch('confirm', {
@@ -42,7 +42,7 @@
         switch (event.key) {
             case 'Enter':
                 event.preventDefault();
-                await onSubmit(event);
+                await onSubmit();
         }
     }
 </script>
