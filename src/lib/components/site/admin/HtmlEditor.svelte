@@ -11,7 +11,7 @@
         /** The HTML content to be made editable */
         htmlContent?: string;
 
-        /** Callback to be called every time the content chagnes */
+        /** Callback to be called every time the content changes */
         onChange?: (newHtml: string) => void;
     }
 
