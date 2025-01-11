@@ -20,7 +20,8 @@
 
     let selecting: boolean = $state(false);
     $effect(() => {
-        console.log('selected: ', selected); // this is needed so that $effect changes every time selected changes.  Grr.
+        // Reference 'selected' so that $effect is triggered every time it changes
+        selected;
         selecting = false;
     });
 
