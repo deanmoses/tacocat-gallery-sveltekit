@@ -3,7 +3,6 @@
 
   The layout for the image and album editing controls
 -->
-
 <script lang="ts">
     import type { Snippet } from 'svelte';
 

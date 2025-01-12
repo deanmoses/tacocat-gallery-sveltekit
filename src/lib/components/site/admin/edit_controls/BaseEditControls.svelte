@@ -3,7 +3,6 @@
 
   The base editing controls shared by both images and albums
 -->
-
 <script lang="ts">
     import type { Snippet } from 'svelte';
     import EditControlsLayout from './EditControlsLayout.svelte';

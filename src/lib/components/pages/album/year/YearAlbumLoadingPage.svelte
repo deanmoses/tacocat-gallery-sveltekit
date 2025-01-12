@@ -3,7 +3,6 @@
 
   A "Year album is Loading" stencil page to show while waiting for an album to load
 -->
-
 <script lang="ts">
     import YearAlbumPageLayout from './YearAlbumPageLayout.svelte';
     import PrevButton from '$lib/components/site/nav/PrevButton.svelte';
