@@ -1,6 +1,8 @@
 <!--
-  @component Layout of an album page for displaying waiting or error.
-	         For use when you don't actually have an image to display.
+    @component
+  
+    Layout of an album page for displaying waiting or error.
+    For use when you don't actually have an image to display.
 -->
 <script lang="ts">
     import SiteLayout from '$lib/components/site/SiteLayout.svelte';

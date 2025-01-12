@@ -1,5 +1,7 @@
 <!--
-  @component A "Searching..." page
+  @component 
+  
+  A "Searching..." page
 -->
 <script lang="ts">
     import WaitingSpinner from '$lib/components/site/WaitingSpinner.svelte';

@@ -1,5 +1,7 @@
 <!--
-  @component Route to the different loading / error / display statuses of a photo
+  @component
+  
+  Route to the different loading / error / display statuses of a photo
 -->
 <script lang="ts">
     import {

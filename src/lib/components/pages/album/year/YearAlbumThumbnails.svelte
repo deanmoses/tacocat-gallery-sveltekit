@@ -1,6 +1,6 @@
 <!--
-  @component  
-  
+  @component
+
   A year album's thumbnails by month
 -->
 <script lang="ts">

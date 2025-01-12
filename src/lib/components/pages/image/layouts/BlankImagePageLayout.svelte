@@ -1,6 +1,8 @@
 <!--
-  @component Layout of an image page for displaying waiting or error.
-	         For use when you don't actually have an image to display.
+    @component 
+  
+    Layout of an image page for displaying waiting or error.
+    For use when you don't actually have an image to display.
 -->
 <script lang="ts">
     import ImagePageLayout from './ImagePageLayout.svelte';

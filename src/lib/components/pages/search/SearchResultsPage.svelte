@@ -1,5 +1,7 @@
 <!--
-  @component Page that displays search results
+  @component
+  
+  Page that displays search results
 -->
 <script lang="ts">
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';

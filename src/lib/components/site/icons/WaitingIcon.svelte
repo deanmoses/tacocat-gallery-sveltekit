@@ -1,5 +1,7 @@
 <!--
-  @component An icon representing the concept of "wait"
+  @component
+  
+  An icon representing the concept of "wait"
 -->
 <script lang="ts">
     import Icon from './Icon.svelte';

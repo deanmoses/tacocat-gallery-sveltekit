@@ -1,5 +1,7 @@
 <!--
-  @component Page that displays a loading indicator instead of an image
+  @component
+  
+  Page that displays a loading indicator instead of an image
 -->
 <script lang="ts">
     import BlankImagePageLayout from './layouts/BlankImagePageLayout.svelte';

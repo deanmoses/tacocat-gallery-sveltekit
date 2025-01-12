@@ -1,5 +1,7 @@
 <!--
-  @component On hover, display buttons to get into edit mode, delete, etc 
+  @component
+  
+  On hover, display buttons to get into edit mode, delete, etc 
 -->
 <script lang="ts">
     import EditButton from './toggle_buttons/EditButton.svelte';

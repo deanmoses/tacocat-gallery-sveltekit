@@ -1,5 +1,7 @@
 <!--
-  @component An image cropper
+    @component 
+
+    An image cropper
 -->
 <script lang="ts">
     import Cropper from 'svelte-easy-crop';

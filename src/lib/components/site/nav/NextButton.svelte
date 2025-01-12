@@ -1,5 +1,7 @@
 <!--
-  @component Button that navigates to the next item
+  @component
+  
+  Button that navigates to the next item
 -->
 <script lang="ts">
     import Button from './Button.svelte';

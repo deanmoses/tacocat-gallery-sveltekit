@@ -1,5 +1,7 @@
 <!--
-  @component On hover, display edit buttons if user is an admin
+  @component
+  
+  On hover, display edit buttons if user is an admin
 -->
 <script lang="ts">
     import { isAdmin } from '$lib/stores/SessionStore';
