@@ -3,7 +3,6 @@
   
   Site's footer
 -->
-
 <footer class="hidden-sm">
     <picture>
         <source srcset="/images/tacocat-logo.webp" />
