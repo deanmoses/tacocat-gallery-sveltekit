@@ -27,3 +27,9 @@
 </script>
 
 <div contenteditable bind:this={div} oninput={onInput}>{textContent}</div>
+
+<style>
+    div[contenteditable] {
+        min-width: 10em; /* make edit surface visible even when there's no text in it */
+    }
+</style>
