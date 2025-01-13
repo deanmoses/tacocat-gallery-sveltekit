@@ -1,6 +1,6 @@
 {
     "name": "tacocat-gallery-sveltekit",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "private": true,
     "description": "Javascript front end for the tacocat.com photo gallery, built with Sveltekit",
     "keywords": [
