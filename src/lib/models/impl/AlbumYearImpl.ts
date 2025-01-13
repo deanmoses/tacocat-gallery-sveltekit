@@ -13,15 +13,15 @@ export class AlbumYearImpl extends AlbumBaseImpl implements Album {
     }
 
     get nextTitle(): string {
-        return this.albumTitle(this.next);
+        return this.#albumTitle(this.next);
     }
 
     get prevTitle(): string {
-        return this.albumTitle(this.prev);
+        return this.#albumTitle(this.prev);
     }
 
     /**  Get title of a prev/next album */
-    private albumTitle(albumPath?: string): string {
+    #albumTitle(albumPath?: string): string {
         return !!albumPath ? albumPathToDate(albumPath).getFullYear().toString() : '';
     }
 }

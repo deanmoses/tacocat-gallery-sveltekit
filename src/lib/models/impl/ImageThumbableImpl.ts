@@ -7,7 +7,7 @@ import { toTitleFromFilename } from '$lib/utils/titleUtils';
 export class ImageThumbableImpl extends ThumbableBaseImpl implements Thumbable {
     protected override readonly json: ImageRecord;
 
-    private _summary: string | undefined;
+    #summary: string | undefined;
 
     constructor(json: ImageRecord) {
         super(json);
@@ -23,11 +23,11 @@ export class ImageThumbableImpl extends ThumbableBaseImpl implements Thumbable {
     }
 
     get summary() {
-        return this._summary ?? '';
+        return this.#summary ?? '';
     }
 
     set summary(summary: string) {
-        this._summary = summary;
+        this.#summary = summary;
     }
 
     get href(): string {

@@ -5,12 +5,12 @@ import { detailImageUrl, originalImageUrl } from '$lib/utils/config';
 
 export class ImageImpl extends ImageThumbableImpl implements Image {
     protected override readonly json: ImageRecord;
-    private readonly album: Album;
+    readonly #album: Album;
 
     constructor(json: ImageRecord, album: Album) {
         super(json);
         this.json = json;
-        this.album = album;
+        this.#album = album;
     }
 
     get originalUrl(): string {
@@ -67,28 +67,28 @@ export class ImageImpl extends ImageThumbableImpl implements Image {
     }
 
     get parentTitle(): string {
-        return this.album.title;
+        return this.#album.title;
     }
 
     get nextHref(): string | undefined {
-        return this.next?.path;
+        return this.#next?.path;
     }
 
     get prevHref(): string | undefined {
-        return this.prev?.path;
+        return this.#prev?.path;
     }
 
     get nextTitle(): string | undefined {
-        return this.next?.title;
+        return this.#next?.title;
     }
 
     get prevTitle(): string | undefined {
-        return this.prev?.title;
+        return this.#prev?.title;
     }
 
-    private get next(): Thumbable | undefined {
+    get #next(): Thumbable | undefined {
         let foundMyself = false;
-        return this.album.images?.find((img) => {
+        return this.#album.images?.find((img) => {
             if (foundMyself) {
                 // First find myself then find the next image
                 return true; // stop iterating on the image AFTER me
@@ -100,9 +100,9 @@ export class ImageImpl extends ImageThumbableImpl implements Image {
         });
     }
 
-    private get prev(): ImageRecord | undefined {
+    get #prev(): ImageRecord | undefined {
         let prev; // image I will be returning
-        this.album.images?.find((img) => {
+        this.#album.images?.find((img) => {
             // Once I find myself, I will have already found my prev in the previous iteration
             if (img.path === this.path) {
                 return true; // stop iterating once I've found myself

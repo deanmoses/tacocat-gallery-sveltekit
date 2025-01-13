@@ -19,17 +19,14 @@ class AlbumStore {
     /**
      * A set of Svelte stores holding the albums
      */
-    private albums: Map<string, Writable<AlbumEntry>> = new Map<string, Writable<AlbumEntry>>();
+    #albums: Map<string, Writable<AlbumEntry>> = new Map<string, Writable<AlbumEntry>>();
 
     /**
      * A set of Svelte stores holding the album update state.
      *
      * Update status is different than load status: updates are AFTER the album has loaded initially.
      */
-    private albumUpdateStatuses: Map<string, Writable<AlbumUpdateStatus>> = new Map<
-        string,
-        Writable<AlbumUpdateStatus>
-    >();
+    #albumUpdateStatuses: Map<string, Writable<AlbumUpdateStatus>> = new Map<string, Writable<AlbumUpdateStatus>>();
 
     /**
      * Return true if album exists
@@ -48,7 +45,7 @@ class AlbumStore {
 
         // Then check disk cache
         console.log(`Checking if album [${path}] exists on disk`);
-        const albumRecord = await this.fetchFromDisk(path);
+        const albumRecord = await this.#fetchFromDisk(path);
         if (albumRecord) {
             return true;
         }
@@ -56,7 +53,7 @@ class AlbumStore {
         // Then check server
         console.log(`Checking if album [${path}] exists on server`);
         const url = albumUrl(path);
-        const requestConfig = this.buildFetchConfig();
+        const requestConfig = this.#buildFetchConfig();
         requestConfig.method = 'HEAD';
         const response = await fetch(url, requestConfig);
         if (response.status === 404) return false;
@@ -85,19 +82,19 @@ class AlbumStore {
         if (!isValidAlbumPath(path)) throw new Error(`Invalid album path [${path}]`);
 
         // Get or create the writable version of the album
-        const albumEntry = this.getOrCreateWritableStore(path);
+        const albumEntry = this.#getOrCreateWritableStore(path);
 
         const status = get(albumEntry).loadStatus;
 
         // I don't have a copy in memory.  Go get it
         if (AlbumLoadStatus.NOT_LOADED === status) {
-            this.setLoadStatus(path, AlbumLoadStatus.LOADING);
-            this.fetchFromDiskThenServer(path);
+            this.#setLoadStatus(path, AlbumLoadStatus.LOADING);
+            this.#fetchFromDiskThenServer(path);
         }
         // I have a copy in memory, but the caller has asked to re-fetch
         else if (refetch && AlbumLoadStatus.LOADING !== status) {
             this.setUpdateStatus(path, AlbumUpdateStatus.UPDATING);
-            this.fetchFromServer(path);
+            this.#fetchFromServer(path);
         }
 
         // Derive a read-only Svelte store over the album
@@ -111,7 +108,7 @@ class AlbumStore {
      * @returns null if album not found
      */
     getFromInMemory(path: string): AlbumEntry | null {
-        const albumEntry = this.albums.get(path);
+        const albumEntry = this.#albums.get(path);
         return albumEntry ? get(albumEntry) : null;
     }
 
@@ -121,10 +118,10 @@ class AlbumStore {
     updateAlbumEntry(albumEntry: AlbumEntry): void {
         if (!albumEntry) throw 'Album entry is null';
         if (!albumEntry.album) throw 'Album is null';
-        const albumEntryStore = this.albums.get(albumEntry.album.path);
+        const albumEntryStore = this.#albums.get(albumEntry.album.path);
         if (!albumEntryStore) throw 'albumEntryStore is null';
         albumEntryStore.set(albumEntry); // Put album in Svelte store
-        this.writeToDisk(albumEntry.album.path, albumEntry.album.json); // Put album in browser's local disk cache
+        this.#writeToDisk(albumEntry.album.path, albumEntry.album.json); // Put album in browser's local disk cache
     }
 
     /**
@@ -133,15 +130,15 @@ class AlbumStore {
      *
      * @param path path of the album
      */
-    private fetchFromDiskThenServer(path: string): void {
-        const idbKey = this.idbKey(path);
+    #fetchFromDiskThenServer(path: string): void {
+        const idbKey = this.#idbKey(path);
         getFromIdb(idbKey)
             .then((albumObject) => {
                 if (albumObject) {
                     console.log(`Album [${path}] found in idb`);
 
                     // Put album in Svelte store
-                    this.setAlbum(path, albumObject);
+                    this.#setAlbum(path, albumObject);
                 } else {
                     console.log(`Album [${path}] not found in idb`);
                 }
@@ -151,12 +148,12 @@ class AlbumStore {
             })
             // Fetch from server regardless of whether it was found on disk
             .finally(() => {
-                this.fetchFromServer(path);
+                this.#fetchFromServer(path);
             });
     }
 
-    private async fetchFromDisk(path: string): Promise<AlbumRecord | undefined> {
-        const idbKey = this.idbKey(path);
+    async #fetchFromDisk(path: string): Promise<AlbumRecord | undefined> {
+        const idbKey = this.#idbKey(path);
         return await getFromIdb(idbKey);
     }
 
@@ -166,24 +163,24 @@ class AlbumStore {
      *
      * @param path path of the album
      */
-    private fetchFromServer(path: string): void {
-        fetch(albumUrl(path), this.buildFetchConfig())
+    #fetchFromServer(path: string): void {
+        fetch(albumUrl(path), this.#buildFetchConfig())
             .then((response: Response) => {
                 if (response.status == 404) {
                     console.warn(`Album not found on server: [${path}]`);
-                    this.setLoadStatus(path, AlbumLoadStatus.DOES_NOT_EXIST);
-                    this.albums.delete(path); // Delete album from Svelte store
-                    this.removeFromDisk(path); // Delete album from browser's local disk cache
+                    this.#setLoadStatus(path, AlbumLoadStatus.DOES_NOT_EXIST);
+                    this.#albums.delete(path); // Delete album from Svelte store
+                    this.#removeFromDisk(path); // Delete album from browser's local disk cache
                 } else if (!response.ok) throw new Error(response.statusText);
                 return response.json();
             })
             .then((json: AlbumRecord) => {
                 console.log(`Album [${path}] fetched from server`, json);
-                this.setAlbum(path, json); // Put album in Svelte store
-                this.writeToDisk(path, json); // Put album in browser's local disk cache
+                this.#setAlbum(path, json); // Put album in Svelte store
+                this.#writeToDisk(path, json); // Put album in browser's local disk cache
             })
             .catch((error) => {
-                this.handleFetchError(path, error);
+                this.#handleFetchError(path, error);
             });
     }
 
@@ -194,20 +191,20 @@ class AlbumStore {
      * @param path path of the album
      */
     public async fetchFromServerAsync(path: string): Promise<Album> {
-        const response = await fetch(albumUrl(path), this.buildFetchConfig());
+        const response = await fetch(albumUrl(path), this.#buildFetchConfig());
         if (response.status === 404) throw 404; // TODO delete from memory & disk
         if (!response.ok) throw new Error(response.statusText);
         const json = await response.json();
         console.log(`Album [${path}] fetched from server`, json);
-        const album = this.setAlbum(path, json); // Put album in Svelte store
-        this.writeToDisk(path, json); // Put album in browser's local disk cache
+        const album = this.#setAlbum(path, json); // Put album in Svelte store
+        this.#writeToDisk(path, json); // Put album in browser's local disk cache
         return album;
     }
 
     /**
      * Build the configuration for the HTTP fetch
      */
-    private buildFetchConfig(): RequestInit {
+    #buildFetchConfig(): RequestInit {
         const requestConfig: RequestInit = {};
 
         // no-store: bypass the HTTP cache completely.
@@ -228,15 +225,15 @@ class AlbumStore {
         return requestConfig;
     }
 
-    private handleFetchError(path: string, error: string): void {
+    #handleFetchError(path: string, error: string): void {
         console.error(`Album [${path}] error fetching from server: `, error);
 
-        const status = this.getLoadStatus(path);
+        const status = this.#getLoadStatus(path);
         switch (status) {
             case AlbumLoadStatus.LOADING:
             case AlbumLoadStatus.NOT_LOADED:
             case AlbumLoadStatus.DOES_NOT_EXIST:
-                this.setLoadStatus(path, AlbumLoadStatus.ERROR_LOADING);
+                this.#setLoadStatus(path, AlbumLoadStatus.ERROR_LOADING);
                 break;
             case AlbumLoadStatus.LOADED:
                 this.setUpdateStatus(path, AlbumUpdateStatus.ERROR_UPDATING);
@@ -255,9 +252,9 @@ class AlbumStore {
      * @param path path of the album
      * @param jsonAlbum JSON of the album
      */
-    private setAlbum(path: string, jsonAlbum: AlbumRecord): Album {
+    #setAlbum(path: string, jsonAlbum: AlbumRecord): Album {
         const album = toAlbum(jsonAlbum);
-        const albumEntry = this.getOrCreateWritableStore(path);
+        const albumEntry = this.#getOrCreateWritableStore(path);
         const newState = produce(get(albumEntry), (draftState: AlbumEntry) => {
             draftState.loadStatus = AlbumLoadStatus.LOADED;
             draftState.album = album;
@@ -273,8 +270,8 @@ class AlbumStore {
      *
      * @param path path of the album
      */
-    private writeToDisk(path: string, album: AlbumRecord): void {
-        const idbKey = this.idbKey(path);
+    #writeToDisk(path: string, album: AlbumRecord): void {
+        const idbKey = this.#idbKey(path);
         // TODO: maybe don't write it if the value is unchanged?
         // Or maybe refresh some sort of last_fetched timestamp?
         setToIdb(idbKey, album)
@@ -285,8 +282,8 @@ class AlbumStore {
     /**
      * Remove album from the browser's local disk storage
      */
-    private removeFromDisk(path: string): void {
-        const idbKey = this.idbKey(path);
+    #removeFromDisk(path: string): void {
+        const idbKey = this.#idbKey(path);
         delFromIdb(idbKey)
             .then(() => console.log(`Album [${path}] removed from idb`))
             .catch((e) => console.error(`Album [${path}] error removing from idb`, e));
@@ -295,7 +292,7 @@ class AlbumStore {
     /**
      * @returns key of the album in IndexedDB
      */
-    private idbKey(path: string): string {
+    #idbKey(path: string): string {
         return `${path}`;
     }
 
@@ -305,49 +302,49 @@ class AlbumStore {
      * @param path path of the album
      * @param loadStatus
      */
-    private setLoadStatus(path: string, loadStatus: AlbumLoadStatus): void {
-        const albumEntry = this.getOrCreateWritableStore(path);
+    #setLoadStatus(path: string, loadStatus: AlbumLoadStatus): void {
+        const albumEntry = this.#getOrCreateWritableStore(path);
         const newState = produce(get(albumEntry), (draftState: AlbumEntry) => {
             draftState.loadStatus = loadStatus;
         });
         albumEntry.set(newState);
     }
 
-    private getLoadStatus(path: string): AlbumLoadStatus {
-        const album = this.albums.get(path);
+    #getLoadStatus(path: string): AlbumLoadStatus {
+        const album = this.#albums.get(path);
         if (!album) throw new Error(`Album not found [${path}]`);
         return get(album).loadStatus;
     }
 
     setUpdateStatus(path: string, status: AlbumUpdateStatus): void {
-        const updateStatusStore = this.getOrCreateUpdateStatusStore(path);
+        const updateStatusStore = this.#getOrCreateUpdateStatusStore(path);
         updateStatusStore.set(status);
     }
 
     /**
-     * Get the private read-write Svelte store containing the album's update status,
+     * Get the read-write Svelte store containing the album's update status,
      * creating it if it doesn't exist
      *
      * @param path path of the album
      */
-    private getOrCreateUpdateStatusStore(path: string): Writable<AlbumUpdateStatus> {
-        let entryStore = this.albumUpdateStatuses.get(path);
+    #getOrCreateUpdateStatusStore(path: string): Writable<AlbumUpdateStatus> {
+        let entryStore = this.#albumUpdateStatuses.get(path);
         if (!entryStore) {
             const newEntry: AlbumUpdateStatus = AlbumUpdateStatus.NOT_UPDATING;
             entryStore = writable(newEntry);
         }
-        this.albumUpdateStatuses.set(path, entryStore);
+        this.#albumUpdateStatuses.set(path, entryStore);
         return entryStore;
     }
 
     /**
-     * Get the private read-write version of the album,
+     * Get the read-write version of the album,
      * creating a stand-in if it doesn't exist.
      *
      * @param path path of the album
      */
-    private getOrCreateWritableStore(path: string): Writable<AlbumEntry> {
-        let albumEntry = this.albums.get(path);
+    #getOrCreateWritableStore(path: string): Writable<AlbumEntry> {
+        let albumEntry = this.#albums.get(path);
 
         // If the album wasn't found in memory
         if (!albumEntry) {
@@ -357,7 +354,7 @@ class AlbumStore {
             albumEntry = writable({
                 loadStatus: AlbumLoadStatus.NOT_LOADED,
             });
-            this.albums.set(path, albumEntry);
+            this.#albums.set(path, albumEntry);
         }
 
         return albumEntry;
@@ -371,12 +368,12 @@ class AlbumStore {
         if (!isValidAlbumPath(albumPath)) throw new Error(`Invalid album path [${albumPath}]`);
 
         // Delete from disk
-        const idbKey = this.idbKey(albumPath);
+        const idbKey = this.#idbKey(albumPath);
         await delFromIdb(idbKey);
         console.log(`Album [${albumPath}] removed from disk`);
 
         // Delete from memory
-        this.albums.delete(albumPath);
+        this.#albums.delete(albumPath);
         console.log(`Album [${albumPath}] removed from memory`);
     }
 }

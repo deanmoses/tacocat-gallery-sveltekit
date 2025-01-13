@@ -14,15 +14,15 @@ const FAKE_ADMIN_ON_DEV = true;
  */
 class SessionStore {
     /**
-     * A private writable Svelte store holding whether the user is an admin
+     * A writable Svelte store holding whether the user is an admin
      */
-    private _isAdmin: Writable<boolean> = writable(false);
+    #isAdmin: Writable<boolean> = writable(false);
 
     /**
      * @returns a read-only Svelte store that says whether the current user is an admin
      */
     isAdmin(): Readable<boolean> {
-        return derived(this._isAdmin, ($isAdmin) => $isAdmin);
+        return derived(this.#isAdmin, ($isAdmin) => $isAdmin);
     }
 
     /**
@@ -32,7 +32,7 @@ class SessionStore {
         const fakeAdmin: boolean = FAKE_ADMIN_ON_DEV && dev;
         if (fakeAdmin) {
             console.warn('FAKE: setting user to be an admin');
-            this._isAdmin.set(true);
+            this.#isAdmin.set(true);
         } else {
             const response = await fetch(checkAuthenticationUrl(), {
                 // no-store: the browser fetches from the remote server without first looking in the cache,
@@ -43,15 +43,15 @@ class SessionStore {
             if (401 === response.status) {
                 return;
             }
-            this.handleErrors(response);
+            this.#handleErrors(response);
             const json = await response.json();
             const isAdmin = !!json.user;
             if (isAdmin) console.log('User is an admin');
-            this._isAdmin.set(isAdmin);
+            this.#isAdmin.set(isAdmin);
         }
     }
 
-    private handleErrors(response: Response): void {
+    #handleErrors(response: Response): void {
         if (!response.ok) {
             const msg = `Response not OK fetching authentication status: ${response.statusText}`;
             throw Error(msg);

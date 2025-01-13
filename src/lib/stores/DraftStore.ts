@@ -29,9 +29,9 @@ const initialState: Draft = {
  */
 class DraftStore {
     /**
-     * A private writable Svelte store holding the draft
+     * A writable Svelte store holding the draft
      */
-    private _draft: Writable<Draft> = writable(initialState);
+    #draft: Writable<Draft> = writable(initialState);
 
     /**
      * Initialize or reset the draft state with the given path
@@ -43,14 +43,14 @@ class DraftStore {
         const state = produce(initialState, (newState) => {
             newState.path = path;
         });
-        this._draft.set(state);
+        this.#draft.set(state);
     }
 
     /**
      * @returns the status of the draft
      */
     getStatus(): Readable<DraftStatus | undefined> {
-        return derived(this._draft, ($draft) => {
+        return derived(this.#draft, ($draft) => {
             return $draft.status;
         });
     }
@@ -59,7 +59,7 @@ class DraftStore {
      * @returns whether there are unsaved changes that should block navigation away from the page
      */
     getOkToNavigate(): Readable<boolean> {
-        return derived(this._draft, ($draft) => {
+        return derived(this.#draft, ($draft) => {
             const status = $draft.status;
             return status !== DraftStatus.UNSAVED_CHANGES && status != DraftStatus.SAVING;
         });
@@ -69,49 +69,49 @@ class DraftStore {
      * Set the title of the current draft
      */
     setTitle(title: string): void {
-        this.updateContent((content) => (content.title = title));
+        this.#updateContent((content) => (content.title = title));
     }
 
     /**
      * Set the description of the current draft
      */
     setDescription(description: string): void {
-        this.updateContent((content) => (content.description = description));
+        this.#updateContent((content) => (content.description = description));
     }
 
     /**
      * Set the album summary of the current draft
      */
     setSummary(summary: string): void {
-        this.updateContent((content) => (content.summary = summary));
+        this.#updateContent((content) => (content.summary = summary));
     }
 
     /**
      * Set the published status of the current draft
      */
     setPublished(published: boolean): void {
-        this.updateContent((content) => (content.published = published));
+        this.#updateContent((content) => (content.published = published));
     }
 
     /**
      * Throw away all draft edits; reset the store
      */
     cancel(): void {
-        console.log('canceling draft: ', get(this._draft));
-        this._draft.set(initialState);
+        console.log('canceling draft: ', get(this.#draft));
+        this.#draft.set(initialState);
     }
 
     /**
      * Save the current draft to the server
      */
     async save(): Promise<void> {
-        const draft: Draft = get(this._draft);
+        const draft: Draft = get(this.#draft);
         if (!draft || !draft.path || !draft.content) {
             console.error(`Error saving [${draft.path}]: nothing to save!`);
-            this.setStatus(DraftStatus.ERRORED);
+            this.#setStatus(DraftStatus.ERRORED);
         } else {
             console.log(`Saving draft [${draft.path}]: `, draft.content);
-            this.setStatus(DraftStatus.SAVING);
+            this.#setStatus(DraftStatus.SAVING);
             try {
                 const response = await fetch(updateUrl(draft.path), {
                     method: 'PATCH',
@@ -125,11 +125,11 @@ class DraftStore {
                 });
                 const json = await response.json();
                 if (!response.ok) throw Error(json?.errorMessage || response.statusText);
-                this.updateClientStateAfterSave(draft);
+                this.#updateClientStateAfterSave(draft);
             } catch (e) {
                 console.error(`Error saving [${draft.path}]: ${e}`);
                 toast.push(e instanceof Error ? e.message : 'Error saving');
-                this.setStatus(DraftStatus.ERRORED);
+                this.#setStatus(DraftStatus.ERRORED);
             }
         }
     }
@@ -138,7 +138,7 @@ class DraftStore {
      * Draft was successfully saved on the server.  Update the client state.
      * Updates both the album in memory and on the browser's local filesystem.
      */
-    private updateClientStateAfterSave(draft: Draft): void {
+    #updateClientStateAfterSave(draft: Draft): void {
         const path = draft.path;
 
         // If it was an image that was saved...
@@ -185,7 +185,7 @@ class DraftStore {
             albumStore.updateAlbumEntry(updatedAlbumEntry);
         }
 
-        this.setStatus(DraftStatus.SAVED);
+        this.#setStatus(DraftStatus.SAVED);
 
         console.log('DraftStore: before save clear timeout');
 
@@ -193,9 +193,9 @@ class DraftStore {
         setTimeout(() => {
             console.log('DraftStore: save clear timed out');
             // Only clear saved status if the status is actually still saved
-            if (get(this._draft).status == DraftStatus.SAVED) {
+            if (get(this.#draft).status == DraftStatus.SAVED) {
                 console.log('DraftStore: in timeout, setting draft status to NO_CHANGES');
-                this.setStatus(DraftStatus.NO_CHANGES);
+                this.#setStatus(DraftStatus.NO_CHANGES);
             } else {
                 console.log('Draft status was not still SAVED');
             }
@@ -205,24 +205,24 @@ class DraftStore {
     /**
      * Change the status of the draft
      */
-    private setStatus(newStatus: DraftStatus): void {
-        const state = produce(get(this._draft), (newState) => {
+    #setStatus(newStatus: DraftStatus): void {
+        const state = produce(get(this.#draft), (newState) => {
             newState.status = newStatus;
         });
-        this._draft.set(state);
+        this.#draft.set(state);
     }
 
     /**
      * Update the content of the draft
      */
-    private updateContent(applyChangesToDraftContent: (draftContent: DraftContent) => void): void {
-        const newState: Draft = produce(get(this._draft), (originalState) => {
+    #updateContent(applyChangesToDraftContent: (draftContent: DraftContent) => void): void {
+        const newState: Draft = produce(get(this.#draft), (originalState) => {
             originalState.status = DraftStatus.UNSAVED_CHANGES;
             if (originalState.content === undefined) throw 'originalState.content is undefined';
             applyChangesToDraftContent(originalState.content);
         });
         console.log(`Update draft [${newState.path}]: `, newState.content);
-        this._draft.set(newState);
+        this.#draft.set(newState);
     }
 }
 
