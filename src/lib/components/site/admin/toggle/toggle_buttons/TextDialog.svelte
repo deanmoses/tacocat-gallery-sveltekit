@@ -58,6 +58,12 @@
             case 'Enter':
                 event.preventDefault();
                 await onSubmit(event);
+                break;
+            // Prevent arrow keys from navigating to the prev/next photo or parent album
+            case 'ArrowLeft':
+            case 'ArrowRight':
+            case 'ArrowUp':
+                event.stopPropagation();
         }
     }
 </script>
