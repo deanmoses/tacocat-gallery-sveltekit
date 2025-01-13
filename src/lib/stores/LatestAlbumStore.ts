@@ -30,7 +30,7 @@ class LatestAlbumThumbnailStore {
     /**
      * A Svelte store holding the latest album thumbnail
      */
-    private latestAlbumThumbnailStore: Writable<LatestAlbumThumbnailEntry> = writable(initialStoreState);
+    #latestAlbumThumbnailStore: Writable<LatestAlbumThumbnailEntry> = writable(initialStoreState);
 
     /**
      * Get the latest thumbnail.
@@ -40,20 +40,20 @@ class LatestAlbumThumbnailStore {
      * @returns Svelte store with latest thumbnail
      */
     get(): Readable<LatestAlbumThumbnailEntry> {
-        const status = get(this.latestAlbumThumbnailStore).status;
+        const status = get(this.#latestAlbumThumbnailStore).status;
 
         // I don't have a copy in memory.  Go get it
         if (AlbumLoadStatus.NOT_LOADED === status) {
-            this.setLoadStatus(AlbumLoadStatus.LOADING);
-            this.fetchFromDiskThenServer();
+            this.#setLoadStatus(AlbumLoadStatus.LOADING);
+            this.#fetchFromDiskThenServer();
         }
         // I have a copy in memory.  Refetch it if I'm not already fetching it
         else if (AlbumLoadStatus.LOADING !== status) {
-            this.fetchFromServer();
+            this.#fetchFromServer();
         }
 
         // Return a derived read-only Svelte store
-        return derived(this.latestAlbumThumbnailStore, ($store) => $store);
+        return derived(this.#latestAlbumThumbnailStore, ($store) => $store);
     }
 
     /**
@@ -61,12 +61,12 @@ class LatestAlbumThumbnailStore {
      * from browser's local disk,
      * then fetch from server
      */
-    private fetchFromDiskThenServer(): void {
+    #fetchFromDiskThenServer(): void {
         getFromIdb(idbThumbnailKey)
             .then((jsonThumbnail) => {
                 if (jsonThumbnail) {
                     console.log(`Latest album thumbnail found in idb`);
-                    this.setLatestAlbumThumbnail(jsonThumbnail); // Put album in Svelte store
+                    this.#setLatestAlbumThumbnail(jsonThumbnail); // Put album in Svelte store
                 } else {
                     console.log(`Latest album thumbnail not found in idb`);
                 }
@@ -77,14 +77,14 @@ class LatestAlbumThumbnailStore {
             // Always fetch from server regardless of whether it was found on
             // disk or not
             .finally(() => {
-                this.fetchFromServer();
+                this.#fetchFromServer();
             });
     }
 
     /**
      * Fetch latest album thumbnail from server
      */
-    private fetchFromServer(): void {
+    #fetchFromServer(): void {
         fetch(latestAlbumUrl())
             .then((response: Response) => {
                 if (!response.ok) throw new Error(response.statusText);
@@ -92,36 +92,36 @@ class LatestAlbumThumbnailStore {
             })
             .then((json) => {
                 if (json.error) {
-                    this.handleFetchError(json.error);
+                    this.#handleFetchError(json.error);
                 } else {
                     if (!json || !json.path) {
                         console.warn(`Latest album thumbnail not found on server.  JSON: `, json);
-                        this.removeFromMemory();
-                        this.removeFromDisk();
+                        this.#removeFromMemory();
+                        this.#removeFromDisk();
                     } else {
                         console.log(`Latest album thumbnail fetched from server`, json);
-                        this.setLatestAlbumThumbnail(json); // Put thumbnail in Svelte store
-                        this.writeToDisk(json); // Put thumbnail in browser's local disk cache
+                        this.#setLatestAlbumThumbnail(json); // Put thumbnail in Svelte store
+                        this.#writeToDisk(json); // Put thumbnail in browser's local disk cache
                     }
                 }
             })
             .catch((error) => {
-                this.handleFetchError(error);
+                this.#handleFetchError(error);
             });
     }
 
     /**
      *
      */
-    private handleFetchError(error: string): void {
+    #handleFetchError(error: string): void {
         console.error(`Latest album thumbnail error fetching from server: `, error);
 
-        const status = this.getLoadStatus();
+        const status = this.#getLoadStatus();
         switch (status) {
             case AlbumLoadStatus.LOADING:
             case AlbumLoadStatus.NOT_LOADED:
             case AlbumLoadStatus.DOES_NOT_EXIST:
-                this.setLoadStatus(AlbumLoadStatus.ERROR_LOADING);
+                this.#setLoadStatus(AlbumLoadStatus.ERROR_LOADING);
                 break;
             case AlbumLoadStatus.LOADED:
                 break;
@@ -136,31 +136,31 @@ class LatestAlbumThumbnailStore {
     /**
      *
      */
-    private getLoadStatus(): AlbumLoadStatus {
-        return get(this.latestAlbumThumbnailStore).status;
+    #getLoadStatus(): AlbumLoadStatus {
+        return get(this.#latestAlbumThumbnailStore).status;
     }
 
     /**
      *
      */
-    private setLoadStatus(loadStatus: AlbumLoadStatus): void {
-        const newState = produce(get(this.latestAlbumThumbnailStore), (draftState: LatestAlbumThumbnailEntry) => {
+    #setLoadStatus(loadStatus: AlbumLoadStatus): void {
+        const newState = produce(get(this.#latestAlbumThumbnailStore), (draftState: LatestAlbumThumbnailEntry) => {
             draftState.status = loadStatus;
         });
-        this.latestAlbumThumbnailStore.set(newState);
+        this.#latestAlbumThumbnailStore.set(newState);
     }
 
     /**
      * Store the latest album thumbnail in my Svelte store
      */
-    private setLatestAlbumThumbnail(json: unknown): void {
+    #setLatestAlbumThumbnail(json: unknown): void {
         const albumThumb: Thumbable = toAlbum(json as AlbumRecord);
 
-        const newState = produce(get(this.latestAlbumThumbnailStore), (draftState: LatestAlbumThumbnailEntry) => {
+        const newState = produce(get(this.#latestAlbumThumbnailStore), (draftState: LatestAlbumThumbnailEntry) => {
             draftState.status = AlbumLoadStatus.LOADED;
             draftState.thumbnail = albumThumb;
         });
-        this.latestAlbumThumbnailStore.set(newState);
+        this.#latestAlbumThumbnailStore.set(newState);
     }
 
     /**
@@ -169,7 +169,7 @@ class LatestAlbumThumbnailStore {
      * @param path path of the album
      * @param thumbnailJson JSON of the latestAlbumThumbnail
      */
-    private writeToDisk(thumbnailJson: JSON): void {
+    #writeToDisk(thumbnailJson: JSON): void {
         // TODO: maybe don't write it if the value is unchanged?
         // Or maybe refresh some sort of last_fetched timestamp?
         setToIdb(idbThumbnailKey, thumbnailJson)
@@ -180,14 +180,14 @@ class LatestAlbumThumbnailStore {
     /**
      * Remove the latest album thumbnail from memory
      */
-    private removeFromMemory(): void {
-        this.latestAlbumThumbnailStore.update(() => initialStoreState);
+    #removeFromMemory(): void {
+        this.#latestAlbumThumbnailStore.update(() => initialStoreState);
     }
 
     /**
      * Remove the latest album thumbnail from the browser's local disk storage
      */
-    private removeFromDisk(): void {
+    #removeFromDisk(): void {
         del(idbThumbnailKey);
     }
 }

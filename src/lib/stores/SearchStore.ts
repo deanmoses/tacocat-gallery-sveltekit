@@ -21,7 +21,7 @@ class SearchStore {
     /**
      * A set of Svelte stores holding search results
      */
-    private searches: Map<SearchQuery, Writable<Search>> = new Map<SearchQuery, Writable<Search>>();
+    #searches: Map<SearchQuery, Writable<Search>> = new Map<SearchQuery, Writable<Search>>();
 
     /**
      * Get search results.
@@ -43,12 +43,12 @@ class SearchStore {
             if (query[k] === undefined) delete query[k];
         }
         // Get or create the writable version of the search
-        const searchEntry = this.getOrCreateWritableStore(query);
+        const searchEntry = this.#getOrCreateWritableStore(query);
         const status = get(searchEntry).status;
         // I don't have a copy in memory.  Go get it
         if (SearchLoadStatus.NOT_LOADED === status) {
-            this.setLoadStatus(query, SearchLoadStatus.LOADING);
-            this.fetchFromServer(query);
+            this.#setLoadStatus(query, SearchLoadStatus.LOADING);
+            this.#fetchFromServer(query);
         }
         // Derive a read-only Svelte store over the search
         return derived(searchEntry, ($store) => $store);
@@ -66,9 +66,9 @@ class SearchStore {
             if (query[k] === undefined) delete query[k];
         }
         console.log(`Getting more results...`, query, startAt);
-        this.getOrCreateWritableStore(query);
-        this.setLoadStatus(query, SearchLoadStatus.LOADING_MORE_RESULTS);
-        this.fetchFromServer(query, startAt);
+        this.#getOrCreateWritableStore(query);
+        this.#setLoadStatus(query, SearchLoadStatus.LOADING_MORE_RESULTS);
+        this.#fetchFromServer(query, startAt);
     }
 
     /**
@@ -76,7 +76,7 @@ class SearchStore {
      *
      * @param startAt The number result from which to start fetching
      */
-    private fetchFromServer(query: SearchQuery, startAt: number = 0): void {
+    #fetchFromServer(query: SearchQuery, startAt: number = 0): void {
         const pageSize = 30;
         fetch(searchUrl(query, startAt, pageSize))
             .then((response: Response) => {
@@ -87,10 +87,10 @@ class SearchStore {
             })
             .then((json) => {
                 console.log(`Search`, query, `fetched from server`, json);
-                const searchResults = this.toSearchResults(json);
+                const searchResults = this.#toSearchResults(json);
                 console.log(`Transformed search results `, searchResults);
                 if (startAt > 0) {
-                    const read = this.searches.get(query);
+                    const read = this.#searches.get(query);
                     if (read) {
                         const prev = get(read);
                         if (prev.results?.items && searchResults.items) {
@@ -101,24 +101,24 @@ class SearchStore {
                         }
                     }
                 }
-                this.setSearch(query, searchResults); // Put search results in Svelte store
+                this.#setSearch(query, searchResults); // Put search results in Svelte store
             })
             .catch((error) => {
-                this.handleFetchError(query, error);
+                this.#handleFetchError(query, error);
             });
     }
 
-    private handleFetchError(query: SearchQuery, error: string): void {
+    #handleFetchError(query: SearchQuery, error: string): void {
         console.error(`Search error fetching from server: `, query, error);
-        const status = this.getLoadStatus(query);
+        const status = this.#getLoadStatus(query);
         switch (status) {
             case SearchLoadStatus.LOADING:
             case SearchLoadStatus.NOT_LOADED:
-                this.setLoadStatus(query, SearchLoadStatus.ERROR_LOADING);
+                this.#setLoadStatus(query, SearchLoadStatus.ERROR_LOADING);
                 break;
             case SearchLoadStatus.LOADING_MORE_RESULTS:
             case SearchLoadStatus.LOADED:
-                this.setLoadStatus(query, SearchLoadStatus.ERROR_LOADING_MORE_RESULTS);
+                this.#setLoadStatus(query, SearchLoadStatus.ERROR_LOADING_MORE_RESULTS);
                 break;
             case SearchLoadStatus.ERROR_LOADING:
                 // already in correct state
@@ -131,8 +131,8 @@ class SearchStore {
     /**
      * Store search results in Svelte store
      */
-    private setSearch(query: SearchQuery, searchResults: SearchResults): void {
-        const searchEntry = this.getOrCreateWritableStore(query);
+    #setSearch(query: SearchQuery, searchResults: SearchResults): void {
+        const searchEntry = this.#getOrCreateWritableStore(query);
         const newState = produce(get(searchEntry), (draftState: Search) => {
             draftState.status = SearchLoadStatus.LOADED;
             draftState.results = searchResults;
@@ -143,27 +143,27 @@ class SearchStore {
     /**
      * Set the load status of the search
      */
-    private setLoadStatus(query: SearchQuery, loadStatus: SearchLoadStatus): void {
-        const searchEntry = this.getOrCreateWritableStore(query);
+    #setLoadStatus(query: SearchQuery, loadStatus: SearchLoadStatus): void {
+        const searchEntry = this.#getOrCreateWritableStore(query);
         const newState = produce(get(searchEntry), (draftState: Search) => {
             draftState.status = loadStatus;
         });
         searchEntry.set(newState);
     }
 
-    private getLoadStatus(query: SearchQuery): SearchLoadStatus {
-        const search = this.searches.get(query);
+    #getLoadStatus(query: SearchQuery): SearchLoadStatus {
+        const search = this.#searches.get(query);
         return !!search ? get(search).status : SearchLoadStatus.NOT_LOADED;
     }
 
     /**
-     * Get the private read-write version of the search,
+     * Get the #read-write version of the search,
      * creating a stand-in if it doesn't exist.
      *
      * @param query the search terms
      */
-    private getOrCreateWritableStore(query: SearchQuery): Writable<Search> {
-        let searchEntry = this.searches.get(query);
+    #getOrCreateWritableStore(query: SearchQuery): Writable<Search> {
+        let searchEntry = this.#searches.get(query);
 
         // If the search wasn't found in memory
         if (!searchEntry) {
@@ -173,7 +173,7 @@ class SearchStore {
             searchEntry = writable({
                 status: SearchLoadStatus.NOT_LOADED,
             });
-            this.searches.set(query, searchEntry);
+            this.#searches.set(query, searchEntry);
         }
 
         return searchEntry;
@@ -184,27 +184,27 @@ class SearchStore {
      *
      * @param json JSON object coming from server
      */
-    private toSearchResults(json: ServerSearchResults): SearchResults {
+    #toSearchResults(json: ServerSearchResults): SearchResults {
         const items: GalleryRecord[] = json.items;
         return {
             total: json.total,
-            items: items.map((i) => this.toThumbable(i)),
+            items: items.map((i) => this.#toThumbable(i)),
         };
     }
 
-    private toThumbable(json: GalleryRecord): Thumbable {
+    #toThumbable(json: GalleryRecord): Thumbable {
         switch (json.itemType) {
             case 'album':
                 return toAlbum(json as AlbumRecord);
             case 'image':
-                return this.toImage(json as ImageRecord);
+                return this.#toImage(json as ImageRecord);
             default:
                 throw new Error(`Unknown item type: ${json.itemType}`);
         }
     }
 
-    private toImage(json: ImageRecord): ImageThumbableImpl {
-        const image = new ImageThumbableImpl(json as any);
+    #toImage(json: ImageRecord): ImageThumbableImpl {
+        const image = new ImageThumbableImpl(json);
         image.summary = longDate(albumPathToDate(getParentFromPath(image.path)));
         return image;
     }
