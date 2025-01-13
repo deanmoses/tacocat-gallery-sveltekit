@@ -4,7 +4,7 @@
     An image cropper
 -->
 <script lang="ts">
-    import Cropper from 'svelte-easy-crop';
+    import Cropper, { type OnCropCompleteEvent } from 'svelte-easy-crop';
     import type { Image } from '$lib/models/GalleryItemInterfaces';
 
     type Crop = { x: number; y: number; height: number; width: number };
@@ -19,14 +19,14 @@
 
     let newCrop: Crop;
 
-    function onCropChange(e: CustomEvent<any>) {
-        console.log('onCropChange', e.detail.percent);
-        newCrop = e.detail.percent;
+    function onCropChange(e: OnCropCompleteEvent) {
+        console.log('onCropChange', e.percent);
+        newCrop = e.percent;
     }
 </script>
 
 <div class="cropContainer">
-    <Cropper image={image.detailUrl} aspect={1} showGrid={false} on:cropcomplete={onCropChange} />
+    <Cropper image={image.detailUrl} aspect={1} showGrid={false} oncropcomplete={onCropChange} />
 </div>
 
 <style>
