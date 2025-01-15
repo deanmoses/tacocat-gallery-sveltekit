@@ -242,7 +242,7 @@ class AlbumStore {
                 // already in correct state
                 break;
             default:
-                console.error('Unexepected load status:', status);
+                console.error('Unexpected load status:', status);
         }
     }
 
