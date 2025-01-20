@@ -33,7 +33,10 @@
     {/snippet}
 
     {#snippet titleEditor()}
-        <EditableText textContent={imageTitle} />
+        <!-- #key ensures title changes when navigating prev/next -->
+        {#key image.path}
+            <EditableText textContent={imageTitle} />
+        {/key}
     {/snippet}
 
     {#snippet caption()}
