@@ -1,15 +1,11 @@
 <script lang="ts">
+    import type { PageProps } from './$types';
     import AdminPage from '$lib/components/pages/admin/AdminPage.svelte';
     import AdminPageLayout from '$lib/components/pages/admin/AdminPageLayout.svelte';
     import LoginIcon from '$lib/components/site/icons/LoginIcon.svelte';
     import { getLoginUrl } from '$lib/utils/config';
-    import type { PageData } from './$types';
 
-    interface Props {
-        data: PageData;
-    }
-
-    let { data }: Props = $props();
+    let { data }: PageProps = $props();
     let isAdmin = $derived(data.isAdmin);
 </script>
 

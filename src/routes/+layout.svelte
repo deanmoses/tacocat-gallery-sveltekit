@@ -3,19 +3,15 @@
     import '$lib/styles/global.css';
     import '$lib/styles/years.css';
 
+    import type { LayoutProps } from './$types';
     import { handleKeyboardNavigation } from '$lib/utils/keyboard-navigation';
     import { page } from '$app/state';
     import { goto } from '$app/navigation';
     import { albumStore } from '$lib/stores/AlbumStore';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import { isAdmin } from '$lib/stores/SessionStore';
-    import type { Snippet } from 'svelte';
 
-    interface Props {
-        children?: Snippet;
-    }
-
-    let { children }: Props = $props();
+    let { children }: LayoutProps = $props();
 
     /**
      * Handle keyboard navigation

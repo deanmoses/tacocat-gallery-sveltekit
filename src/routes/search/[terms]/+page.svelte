@@ -1,16 +1,11 @@
 <script lang="ts">
+    import type { PageProps } from './$types';
     import BlankSearchPageLayout from '$lib/components/pages/search/BlankSearchPageLayout.svelte';
     import SearchLoadingPage from '$lib/components/pages/search/SearchLoadingPage.svelte';
     import SearchResultsPage from '$lib/components/pages/search/SearchResultsPage.svelte';
     import { SearchLoadStatus } from '$lib/models/search';
-    import type { PageData } from './$types';
 
-    interface Props {
-        data: PageData;
-    }
-
-    let { data }: Props = $props();
-
+    let { data }: PageProps = $props();
     let returnPath = $derived(data.returnPath);
     let query = $derived(data.query);
     let searchTerms = $derived(data.query.terms);

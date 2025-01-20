@@ -1,16 +1,11 @@
 <script lang="ts">
-    import type { PageData } from './$types';
+    import type { PageProps } from './$types';
     import { isAdmin } from '$lib/stores/SessionStore';
     import type { UploadEntry, RenameEntry, DeleteEntry } from '$lib/models/album';
     import DayAlbumRouting from '$lib/components/pages/album/day/DayAlbumRouting.svelte';
     import DayAlbumPage from '$lib/components/pages/album/day/DayAlbumPage.svelte';
 
-    interface Props {
-        data: PageData;
-    }
-
-    let { data }: Props = $props();
-
+    let { data }: PageProps = $props();
     let albumEntry = $derived(data.albumEntry);
     let album = $derived($albumEntry.album);
     let loadStatus = $derived($albumEntry.loadStatus);

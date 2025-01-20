@@ -1,17 +1,12 @@
 <script lang="ts">
-    import type { PageData } from './$types';
+    import type { PageProps } from './$types';
     import { isAdmin } from '$lib/stores/SessionStore';
     import { get } from 'svelte/store';
     import type { DeleteEntry } from '$lib/models/album';
     import YearAlbumRouting from '$lib/components/pages/album/year/YearAlbumRouting.svelte';
     import YearAlbumPage from '$lib/components/pages/album/year/YearAlbumPage.svelte';
 
-    interface Props {
-        data: PageData;
-    }
-
-    let { data }: Props = $props();
-
+    let { data }: PageProps = $props();
     let albumEntry = $derived(data.albumEntry);
     let album = $derived($albumEntry.album);
     let loadStatus = $derived($albumEntry.loadStatus);

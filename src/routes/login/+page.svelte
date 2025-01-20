@@ -1,15 +1,11 @@
 <script lang="ts">
-    import type { PageData } from './$types';
+    import type { PageProps } from './$types';
     import BlankSearchPageLayout from '$lib/components/pages/search/BlankSearchPageLayout.svelte';
     import LoginIcon from '$lib/components/site/icons/LoginIcon.svelte';
     import LogoutIcon from '$lib/components/site/icons/LogoutIcon.svelte';
     import { getLoginUrl, getLogoutUrl } from '$lib/utils/config';
 
-    interface Props {
-        data: PageData;
-    }
-
-    let { data }: Props = $props();
+    let { data }: PageProps = $props();
     let isAdmin = $derived(data.isAdmin);
 </script>
 

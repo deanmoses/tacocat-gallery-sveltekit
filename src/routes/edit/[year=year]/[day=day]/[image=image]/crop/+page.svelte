@@ -1,14 +1,9 @@
 <script lang="ts">
+    import type { PageProps } from './$types';
     import CropPage from '$lib/components/pages/image/CropPage.svelte';
     import ImageRouting from '$lib/components/pages/image/ImageRouting.svelte';
-    import type { PageData } from './$types';
 
-    interface Props {
-        data: PageData;
-    }
-
-    let { data }: Props = $props();
-
+    let { data }: PageProps = $props();
     let albumEntry = $derived(data.albumEntry);
     let album = $derived($albumEntry.album);
     let albumLoadStatus = $derived($albumEntry.loadStatus);
