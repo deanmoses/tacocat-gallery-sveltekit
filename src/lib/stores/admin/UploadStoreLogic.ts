@@ -1,6 +1,5 @@
-import { get } from 'svelte/store';
 import { toast } from '@zerodevx/svelte-toast';
-import { albumStore } from '$lib/stores/AlbumStore';
+import { albumStore } from '$lib/stores/AlbumStore.svelte';
 import {
     getParentFromPath,
     hasValidExtension,
@@ -8,7 +7,7 @@ import {
     isValidImagePath,
     sanitizeImageName,
 } from '$lib/utils/galleryPathUtils';
-import { page } from '$app/stores';
+import { page } from '$app/state';
 import { UploadState } from '$lib/models/album';
 import { uploadStore } from '../UploadStore.svelte';
 import { getPresignedUploadUrlGenerationUrl } from '$lib/utils/config';
@@ -74,7 +73,7 @@ export function getSanitizedFiles(files: FileList | File[], albumPath: string): 
 
 export function getFilesAlreadyInAlbum(files: ImagesToUpload[], albumPath: string): string[] {
     const imageNames: string[] = [];
-    const albumEntry = albumStore.getFromInMemory(albumPath);
+    const albumEntry = albumStore.albums.get(albumPath);
     if (!albumEntry || !albumEntry.album || !albumEntry.album?.images?.length) return imageNames;
     for (const file of files) {
         const image = albumEntry.album?.getImage(file.imagePath);
@@ -223,7 +222,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function dropImages(e: DragEvent) {
     const files = await getDroppedImages(e);
-    const albumPath = get(page).url.pathname + '/';
+    const albumPath = page.url.pathname + '/';
     await upload(files, albumPath);
 }
 

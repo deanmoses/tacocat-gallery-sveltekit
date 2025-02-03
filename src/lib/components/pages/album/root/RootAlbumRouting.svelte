@@ -11,14 +11,15 @@
     import type { Album } from '$lib/models/GalleryItemInterfaces';
 
     interface Props {
-        status: AlbumLoadStatus;
+        status: AlbumLoadStatus | undefined;
         album: Album | undefined;
     }
-
     let { status, album }: Props = $props();
 </script>
 
-{#if AlbumLoadStatus.NOT_LOADED === status}
+{#if !status}
+    <AlbumLoadingPage />
+{:else if AlbumLoadStatus.NOT_LOADED === status}
     <AlbumLoadingPage />
 {:else if AlbumLoadStatus.LOADING === status}
     <AlbumLoadingPage />

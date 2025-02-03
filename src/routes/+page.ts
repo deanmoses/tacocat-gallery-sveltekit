@@ -1,9 +1,8 @@
 import type { PageLoad } from './$types';
-import { albumStore } from '$lib/stores/AlbumStore';
+import { albumStore } from '$lib/stores/AlbumStore.svelte';
 
 export const load: PageLoad = () => {
     const pathToRootAlbum = '/';
-    return {
-        albumEntry: albumStore.get(pathToRootAlbum),
-    };
+    albumStore.fetch(pathToRootAlbum);
+    return { pathToRootAlbum };
 };

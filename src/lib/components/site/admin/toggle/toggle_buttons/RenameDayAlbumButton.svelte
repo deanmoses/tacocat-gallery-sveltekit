@@ -7,7 +7,7 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import RenameIcon from '$lib/components/site/icons/RenameIcon.svelte';
-    import { albumStore } from '$lib/stores/AlbumStore';
+    import { albumStore } from '$lib/stores/AlbumStore.svelte';
     import { renameDayAlbum } from '$lib/stores/admin/AlbumRenameStoreLogic';
     import {
         getNameFromPath,

@@ -6,7 +6,7 @@
     import { handleKeyboardNavigation } from '$lib/utils/keyboard-navigation';
     import { page } from '$app/state';
     import { goto } from '$app/navigation';
-    import { albumStore } from '$lib/stores/AlbumStore';
+    import { albumStore } from '$lib/stores/AlbumStore.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import { sessionStore } from '$lib/stores/SessionStore.svelte';
 
@@ -35,7 +35,7 @@
      * @param path path to album
      */
     function getAlbum(path: string): Album | undefined {
-        return albumStore.getFromInMemory(path)?.album ?? undefined;
+        return albumStore.albums.get(path)?.album;
     }
 </script>
 

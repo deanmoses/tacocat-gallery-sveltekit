@@ -7,7 +7,7 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import RenameIcon from '$lib/components/site/icons/RenameIcon.svelte';
-    import { albumStore } from '$lib/stores/AlbumStore';
+    import { albumStore } from '$lib/stores/AlbumStore.svelte';
     import { renameImage } from '$lib/stores/admin/ImageRenameStoreLogic';
     import {
         getNameFromPath,
@@ -56,7 +56,7 @@
         if (!isValidImageNameWithoutExtensionStrict(newImageName)) return 'invalid image name';
         const newImagePath = imageNameWithoutExtensionToPath(newImageName);
         const albumPath = getParentFromPath(newImagePath);
-        const album = albumStore.getFromInMemory(albumPath);
+        const album = albumStore.albums.get(albumPath);
         if (!album || !album.album) return;
         const image = album.album.getImage(newImagePath);
         if (image) return 'image already exists';

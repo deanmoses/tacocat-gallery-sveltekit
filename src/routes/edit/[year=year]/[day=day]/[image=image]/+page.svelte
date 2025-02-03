@@ -4,11 +4,13 @@
     import ImageRouting from '$lib/components/pages/image/ImageRouting.svelte';
     import ImageEditPage from '$lib/components/pages/image/ImageEditPage.svelte';
     import { sessionStore } from '$lib/stores/SessionStore.svelte';
+    import { albumStore } from '$lib/stores/AlbumStore.svelte';
 
     let { data }: PageProps = $props();
-    let albumEntry = $derived(data.albumEntry);
-    let album = $derived($albumEntry.album);
-    let albumLoadStatus = $derived($albumEntry.loadStatus);
+    let albumPath = $derived(data.albumPath);
+    let albumEntry = $derived(albumStore.albums.get(albumPath));
+    let album = $derived(albumEntry?.album);
+    let albumLoadStatus = $derived(albumEntry?.loadStatus);
     let imagePath = $derived(data.imagePath);
     let image = $derived(album?.getImage(imagePath));
     let isAdmin = $derived(sessionStore.isAdmin);
@@ -24,11 +26,11 @@
     });
 
     let deleteEntry: DeleteEntry | undefined = $derived.by(() => {
-        album; // triggers re-executing this derivation
+        imagePath; // triggers re-executing this derivation
         if (isAdmin)
             // Lazy load to encourage code bundler to put it into separate bundle that non-admins don't upload
             import('$lib/stores/ImageDeleteStore.svelte').then(({ imageDeleteStore }) => {
-                if (album?.path) return imageDeleteStore.deletes.get(album.path);
+                if (imagePath) return imageDeleteStore.deletes.get(imagePath);
             });
         return undefined;
     });

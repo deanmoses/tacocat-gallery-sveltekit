@@ -8,19 +8,19 @@
     import { page } from '$app/state';
     import DeleteIcon from '$lib/components/site/icons/DeleteIcon.svelte';
     import type { AlbumEntry } from '$lib/models/album';
-    import { albumStore } from '$lib/stores/AlbumStore';
+    import { albumStore } from '$lib/stores/AlbumStore.svelte';
     import { deleteAlbum } from '$lib/stores/admin/AlbumDeleteStoreLogic';
     import { getParentFromPath, isValidDayAlbumPath, isValidYearAlbumPath } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
     let albumPath = $derived(page.url.pathname + '/');
     let isValidPath = $derived(isValidDayAlbumPath(albumPath) || isValidYearAlbumPath(albumPath));
-    let album = $derived(isValidPath ? albumStore.get(albumPath, false /*don't trigger fetch*/) : undefined);
+    let albumEntry = $derived(albumStore.albums.get(albumPath));
     // Show this button on year and day albums but not root albums, and only if they don't have children
-    let show: boolean = $derived(isValidPath && !hasChildren($album));
+    let show: boolean = $derived(isValidPath && !hasChildren(albumEntry));
 
-    export function hasChildren(album: AlbumEntry | undefined): boolean {
-        return !!album?.album?.albums?.length || !!album?.album?.images?.length;
+    function hasChildren(albumEntry: AlbumEntry | undefined): boolean {
+        return !!albumEntry?.album?.albums?.length || !!albumEntry?.album?.images?.length;
     }
 
     async function onDeleteButtonClick() {

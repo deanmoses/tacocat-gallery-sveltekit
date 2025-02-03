@@ -4,11 +4,13 @@
     import ImageRouting from '$lib/components/pages/image/ImageRouting.svelte';
     import ImagePage from '$lib/components/pages/image/ImagePage.svelte';
     import { sessionStore } from '$lib/stores/SessionStore.svelte';
+    import { albumStore } from '$lib/stores/AlbumStore.svelte';
 
     let { data }: PageProps = $props();
-    let albumEntry = $derived(data.albumEntry);
-    let album = $derived($albumEntry.album);
-    let albumLoadStatus = $derived($albumEntry.loadStatus);
+    let albumPath = $derived(data.albumPath);
+    let albumEntry = $derived(albumStore.albums.get(albumPath));
+    let album = $derived(albumEntry?.album);
+    let albumLoadStatus = $derived(albumEntry?.loadStatus);
     let imagePath = $derived(data.imagePath);
     let image = $derived(album?.getImage(imagePath));
     let isAdmin = $derived(sessionStore.isAdmin);

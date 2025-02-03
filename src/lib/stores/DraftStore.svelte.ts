@@ -1,11 +1,10 @@
 import type { Draft, DraftContent } from '$lib/models/draft';
 import { DraftStatus } from '$lib/models/draft';
 import { produce } from 'immer';
-import { albumStore } from './AlbumStore';
+import { albumStore } from './AlbumStore.svelte';
 import { getParentFromPath, isValidImagePath, isValidPath } from '$lib/utils/galleryPathUtils';
 import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
 import { updateUrl } from '$lib/utils/config';
-import type { AlbumEntry } from '$lib/models/album';
 import { toast } from '@zerodevx/svelte-toast';
 
 const initialState: Draft = {
@@ -136,7 +135,7 @@ class DraftStore {
             // Get the album in which the image resides
             const albumPath = getParentFromPath(path);
             console.log(`Image save: parent album: [${albumPath}]`);
-            const albumEntry: AlbumEntry | null = albumStore.getFromInMemory(albumPath);
+            const albumEntry = albumStore.albums.get(albumPath);
             if (!albumEntry) throw new Error(`Did not find album entry [${albumPath}] in memory`);
             if (!albumEntry.album)
                 throw new Error(`Did not find album [${albumPath}] in memory: entry exists but it has no album`);
@@ -158,7 +157,7 @@ class DraftStore {
         }
         // Else it was an album that was saved...
         else {
-            const albumEntry: AlbumEntry | null = albumStore.getFromInMemory(path);
+            const albumEntry = albumStore.albums.get(path);
             if (!albumEntry) throw new Error(`Did not find album entry [${path}] in memory`);
             if (!albumEntry.album)
                 throw new Error(`Did not find album [${path}] in memory: entry exists but it has no album`);

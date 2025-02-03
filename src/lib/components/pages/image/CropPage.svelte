@@ -10,7 +10,7 @@
     import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
     import SaveIcon from '$lib/components/site/icons/SaveIcon.svelte';
     import { goto } from '$app/navigation';
-    import { albumStore } from '$lib/stores/AlbumStore';
+    import { albumStore } from '$lib/stores/AlbumStore.svelte';
     import { AlbumUpdateStatus } from '$lib/models/album';
     import { getParentFromPath } from '$lib/utils/galleryPathUtils';
     import { recropThumbnailUrl } from '$lib/utils/config';

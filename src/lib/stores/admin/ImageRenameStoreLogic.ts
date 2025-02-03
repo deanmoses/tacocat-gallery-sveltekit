@@ -1,5 +1,4 @@
-import { get } from 'svelte/store';
-import { albumStore } from '../AlbumStore';
+import { albumStore } from '../AlbumStore.svelte';
 import { getNameFromPath, getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
 import { renameImageUrl } from '$lib/utils/config';
 import { imageRenameStore } from '../ImageRenameStore.svelte';
@@ -11,7 +10,7 @@ export async function renameImage(oldImagePath: string, newImagePath: string) {
     if (!isValidImagePath(oldImagePath)) throw new Error(`Invalid image path [${oldImagePath}]`);
     if (!isValidImagePath(newImagePath)) throw new Error(`Invalid image path [${newImagePath}]`);
     const albumPath = getParentFromPath(newImagePath);
-    const album = get(albumStore.get(albumPath))?.album;
+    const album = albumStore.albums.get(albumPath)?.album;
     if (!album) throw new Error(`Album [${albumPath}] not loaded`);
     const newName = getNameFromPath(newImagePath);
     console.log(`Renaming image [${oldImagePath}] to [${newName}]...`);

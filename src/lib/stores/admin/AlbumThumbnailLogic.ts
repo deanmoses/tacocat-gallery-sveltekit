@@ -1,5 +1,5 @@
 import { AlbumUpdateStatus } from '$lib/models/album';
-import { albumStore } from '$lib/stores/AlbumStore';
+import { albumStore } from '$lib/stores/AlbumStore.svelte';
 import { setThumbnailUrl } from '$lib/utils/config';
 import { getParentFromPath } from '$lib/utils/galleryPathUtils';
 import { toast } from '@zerodevx/svelte-toast';

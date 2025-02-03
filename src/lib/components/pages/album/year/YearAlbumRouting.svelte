@@ -11,15 +11,16 @@
     import type { Snippet } from 'svelte';
 
     interface Props {
-        loadStatus: AlbumLoadStatus;
+        loadStatus: AlbumLoadStatus | undefined;
         deleteEntry?: DeleteEntry | undefined;
         loaded?: Snippet;
     }
-
     let { loadStatus, deleteEntry = undefined, loaded }: Props = $props();
 </script>
 
-{#if deleteEntry}
+{#if !loadStatus}
+    <YearAlbumLoadingPage />
+{:else if deleteEntry}
     <AlbumProcessingPage title="Delete in progress" />
 {:else if AlbumLoadStatus.NOT_LOADED === loadStatus}
     <YearAlbumLoadingPage />

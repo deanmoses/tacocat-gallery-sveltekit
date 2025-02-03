@@ -2,11 +2,11 @@ import { DeleteState, type DeleteEntry } from '$lib/models/album';
 import { SvelteMap } from 'svelte/reactivity';
 
 /**
- * Store of album delete states.
+ * Store of album delete states
  */
 class AlbumDeleteStore {
     /**
-     * Private writable store.
+     * Private writable store
      */
     #deletes = new SvelteMap<string, DeleteEntry>();
 

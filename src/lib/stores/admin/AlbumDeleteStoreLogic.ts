@@ -1,5 +1,5 @@
 import { toast } from '@zerodevx/svelte-toast';
-import { albumStore } from '../AlbumStore';
+import { albumStore } from '../AlbumStore.svelte';
 import { isValidAlbumPath } from '$lib/utils/galleryPathUtils';
 import { deleteUrl } from '$lib/utils/config';
 import { albumDeleteStore } from '../AlbumDeleteStore.svelte';

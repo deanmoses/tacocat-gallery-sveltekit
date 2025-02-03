@@ -1,8 +1,3 @@
-/**
- * Svelte stores of photo albums
- */
-
-import { writable, type Writable, derived, type Readable, get } from 'svelte/store';
 import { produce } from 'immer';
 import { get as getFromIdb, set as setToIdb, del as delFromIdb } from 'idb-keyval';
 import { AlbumLoadStatus, AlbumUpdateStatus, type AlbumEntry } from '$lib/models/album';
@@ -11,83 +6,52 @@ import { isValidAlbumPath } from '$lib/utils/galleryPathUtils';
 import type { Album } from '$lib/models/GalleryItemInterfaces';
 import type { AlbumRecord } from '$lib/models/impl/server';
 import { albumUrl } from '$lib/utils/config';
+import { SvelteMap } from 'svelte/reactivity';
 
 /**
- * Manages the Svelte stores of photo albums
+ * Store of albums
  */
 class AlbumStore {
     /**
-     * A set of Svelte stores holding the albums
+     * Private writable store
      */
-    #albums: Map<string, Writable<AlbumEntry>> = new Map<string, Writable<AlbumEntry>>();
+    #albums: Map<string, AlbumEntry> = new SvelteMap<string, AlbumEntry>();
 
     /**
-     * A set of Svelte stores holding the album update state.
+     * Public read-only version of store
+     */
+    readonly albums: ReadonlyMap<string, AlbumEntry> = $derived(this.#albums);
+
+    /**
+     * Private writable store holding album update statuses.
      *
      * Update status is different than load status: updates are AFTER the album has loaded initially.
      */
-    #albumUpdateStatuses: Map<string, Writable<AlbumUpdateStatus>> = new Map<string, Writable<AlbumUpdateStatus>>();
+    #albumUpdateStatuses: Map<string, AlbumUpdateStatus> = new SvelteMap<string, AlbumUpdateStatus>();
 
     /**
-     * Return true if album exists
+     * Public read-only version of album update statuses
      */
-    async albumExists(path: string): Promise<boolean> {
-        if (!isValidAlbumPath(path)) throw new Error(`Invalid album path [${path}]`);
-
-        // First check in memory
-        console.log(`Checking if album [${path}] exists in memory`);
-        const albumEntry = this.getFromInMemory(path);
-        if (albumEntry?.loadStatus === AlbumLoadStatus.LOADED || albumEntry?.loadStatus === AlbumLoadStatus.LOADING) {
-            return true;
-        } else if (albumEntry?.loadStatus === AlbumLoadStatus.DOES_NOT_EXIST) {
-            return false;
-        }
-
-        // Then check disk cache
-        console.log(`Checking if album [${path}] exists on disk`);
-        const albumRecord = await this.#fetchFromDisk(path);
-        if (albumRecord) {
-            return true;
-        }
-
-        // Then check server
-        console.log(`Checking if album [${path}] exists on server`);
-        const url = albumUrl(path);
-        const requestConfig = this.#buildFetchConfig();
-        requestConfig.method = 'HEAD';
-        const response = await fetch(url, requestConfig);
-        if (response.status === 404) return false;
-        if (response.ok) return true;
-        throw new Error(`Unexpected response [${response.status}] fetching album [${path}]`);
-    }
+    readonly albumUpdateStatuses: ReadonlyMap<string, AlbumUpdateStatus> = $derived(this.#albumUpdateStatuses);
 
     /**
-     * Get an album.
+     * Fetch an album.
      *
      * This will:
-     *
-     * 1) Immediately return a Svelte store containing an AlbumEntry.
-     * It will only have an album in it if was already requested
-     * since the last page refresh.
-     *
-     * 2) It'll then asynchronously look for a version cached on the
-     * browser's local disk.
-     *
-     * 3) And then it will async fetch a live version over the network.
+     * 1) First async look for a version cached on the browser's local disk.
+     * 2) The async fetch a live version over the network.
      *
      * @param path path of the album
-     * @returns a Svelte store containing an AlbumEntry
+     * @param refetch refetch from server even if it already exists on disk
      */
-    get(path: string, refetch = true): Readable<AlbumEntry> {
+    fetch(path: string, refetch = true): void {
         if (!isValidAlbumPath(path)) throw new Error(`Invalid album path [${path}]`);
 
-        // Get or create the writable version of the album
-        const albumEntry = this.#getOrCreateWritableStore(path);
-
-        const status = get(albumEntry).loadStatus;
+        const albumEntry = this.#albums.get(path);
+        const status = albumEntry?.loadStatus;
 
         // I don't have a copy in memory.  Go get it
-        if (AlbumLoadStatus.NOT_LOADED === status) {
+        if (!status || AlbumLoadStatus.NOT_LOADED === status) {
             this.#setLoadStatus(path, AlbumLoadStatus.LOADING);
             this.#fetchFromDiskThenServer(path);
         }
@@ -96,20 +60,6 @@ class AlbumStore {
             this.setUpdateStatus(path, AlbumUpdateStatus.UPDATING);
             this.#fetchFromServer(path);
         }
-
-        // Derive a read-only Svelte store over the album
-        return derived(albumEntry, ($store) => $store);
-    }
-
-    /**
-     * Get an album from in memory only; do not fetch from local storage or network
-     *
-     * @param path path of the album
-     * @returns null if album not found
-     */
-    getFromInMemory(path: string): AlbumEntry | null {
-        const albumEntry = this.#albums.get(path);
-        return albumEntry ? get(albumEntry) : null;
     }
 
     /**
@@ -118,9 +68,9 @@ class AlbumStore {
     updateAlbumEntry(albumEntry: AlbumEntry): void {
         if (!albumEntry) throw 'Album entry is null';
         if (!albumEntry.album) throw 'Album is null';
-        const albumEntryStore = this.#albums.get(albumEntry.album.path);
-        if (!albumEntryStore) throw 'albumEntryStore is null';
-        albumEntryStore.set(albumEntry); // Put album in Svelte store
+        const oldAlbumEntry = this.#albums.get(albumEntry.album.path);
+        if (!oldAlbumEntry) throw 'albumEntryStore is null';
+        this.#albums.set(albumEntry.album.path, albumEntry);
         this.#writeToDisk(albumEntry.album.path, albumEntry.album.json); // Put album in browser's local disk cache
     }
 
@@ -152,11 +102,6 @@ class AlbumStore {
             });
     }
 
-    async #fetchFromDisk(path: string): Promise<AlbumRecord | undefined> {
-        const idbKey = this.#idbKey(path);
-        return await getFromIdb(idbKey);
-    }
-
     /**
      * Fetch album from server
      * TODO: get rid of this, only have the async version @see fetchFromServerAsync()
@@ -185,12 +130,50 @@ class AlbumStore {
     }
 
     /**
+     * Return true if album exists
+     */
+    async albumExists(path: string): Promise<boolean> {
+        if (!isValidAlbumPath(path)) throw new Error(`Invalid album path [${path}]`);
+
+        // First check in memory
+        console.log(`Checking if album [${path}] exists in memory`);
+        const albumEntry = this.#albums.get(path);
+        if (albumEntry?.loadStatus === AlbumLoadStatus.LOADED || albumEntry?.loadStatus === AlbumLoadStatus.LOADING) {
+            return true;
+        } else if (albumEntry?.loadStatus === AlbumLoadStatus.DOES_NOT_EXIST) {
+            return false;
+        }
+
+        // Then check disk cache
+        console.log(`Checking if album [${path}] exists on disk`);
+        const albumRecord = await this.#fetchFromDisk(path);
+        if (albumRecord) {
+            return true;
+        }
+
+        // Then check server
+        console.log(`Checking if album [${path}] exists on server`);
+        const url = albumUrl(path);
+        const requestConfig = this.#buildFetchConfig();
+        requestConfig.method = 'HEAD';
+        const response = await fetch(url, requestConfig);
+        if (response.status === 404) return false;
+        if (response.ok) return true;
+        throw new Error(`Unexpected response [${response.status}] fetching album [${path}]`);
+    }
+
+    async #fetchFromDisk(path: string): Promise<AlbumRecord | undefined> {
+        const idbKey = this.#idbKey(path);
+        return await getFromIdb(idbKey);
+    }
+
+    /**
      * Async version of fetchFromServer()
      * TODO: get rid of the non-async version - @see fetchFromServer()
      *
      * @param path path of the album
      */
-    public async fetchFromServerAsync(path: string): Promise<Album> {
+    async fetchFromServerAsync(path: string): Promise<Album> {
         const response = await fetch(albumUrl(path), this.#buildFetchConfig());
         if (response.status === 404) throw 404; // TODO delete from memory & disk
         if (!response.ok) throw new Error(response.statusText);
@@ -218,6 +201,7 @@ class AlbumStore {
         // This helps with testing in development.
         // The production build process replaces the text 'process.env.NODE_ENV'
         // with the literal string 'production'
+        // @ts-expect-error: process.env.NODE_ENV is illegal, replaced by Svelte processor
         if ('production' === process.env.NODE_ENV) {
             requestConfig.credentials = 'include';
         }
@@ -255,12 +239,11 @@ class AlbumStore {
     #setAlbum(path: string, jsonAlbum: AlbumRecord): Album {
         const album = toAlbum(jsonAlbum);
         const albumEntry = this.#getOrCreateWritableStore(path);
-        const newState = produce(get(albumEntry), (draftState: AlbumEntry) => {
+        const newAlbumEntry = produce(albumEntry, (draftState: AlbumEntry) => {
             draftState.loadStatus = AlbumLoadStatus.LOADED;
             draftState.album = album;
         });
-        albumEntry.set(newState);
-
+        this.#albums.set(path, newAlbumEntry);
         this.setUpdateStatus(path, AlbumUpdateStatus.NOT_UPDATING);
         return album;
     }
@@ -304,37 +287,20 @@ class AlbumStore {
      */
     #setLoadStatus(path: string, loadStatus: AlbumLoadStatus): void {
         const albumEntry = this.#getOrCreateWritableStore(path);
-        const newState = produce(get(albumEntry), (draftState: AlbumEntry) => {
+        const newAlbumEntry = produce(albumEntry, (draftState: AlbumEntry) => {
             draftState.loadStatus = loadStatus;
         });
-        albumEntry.set(newState);
+        this.#albums.set(path, newAlbumEntry);
     }
 
     #getLoadStatus(path: string): AlbumLoadStatus {
         const album = this.#albums.get(path);
         if (!album) throw new Error(`Album not found [${path}]`);
-        return get(album).loadStatus;
+        return album.loadStatus;
     }
 
     setUpdateStatus(path: string, status: AlbumUpdateStatus): void {
-        const updateStatusStore = this.#getOrCreateUpdateStatusStore(path);
-        updateStatusStore.set(status);
-    }
-
-    /**
-     * Get the read-write Svelte store containing the album's update status,
-     * creating it if it doesn't exist
-     *
-     * @param path path of the album
-     */
-    #getOrCreateUpdateStatusStore(path: string): Writable<AlbumUpdateStatus> {
-        let entryStore = this.#albumUpdateStatuses.get(path);
-        if (!entryStore) {
-            const newEntry: AlbumUpdateStatus = AlbumUpdateStatus.NOT_UPDATING;
-            entryStore = writable(newEntry);
-        }
-        this.#albumUpdateStatuses.set(path, entryStore);
-        return entryStore;
+        this.#albumUpdateStatuses.set(path, status);
     }
 
     /**
@@ -343,7 +309,7 @@ class AlbumStore {
      *
      * @param path path of the album
      */
-    #getOrCreateWritableStore(path: string): Writable<AlbumEntry> {
+    #getOrCreateWritableStore(path: string): AlbumEntry {
         let albumEntry = this.#albums.get(path);
 
         // If the album wasn't found in memory
@@ -351,10 +317,9 @@ class AlbumStore {
             console.log(`Album [${path}] not found in memory`);
             // Create blank entry so that consumers have some object
             // to which they can subscribe to changes
-            albumEntry = writable({
+            albumEntry = {
                 loadStatus: AlbumLoadStatus.NOT_LOADED,
-            });
-            this.#albums.set(path, albumEntry);
+            };
         }
 
         return albumEntry;
@@ -377,5 +342,4 @@ class AlbumStore {
         console.log(`Album [${albumPath}] removed from memory`);
     }
 }
-
-export const albumStore: AlbumStore = new AlbumStore();
+export const albumStore = new AlbumStore();
