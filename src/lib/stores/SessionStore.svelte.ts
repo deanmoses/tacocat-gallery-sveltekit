@@ -2,7 +2,6 @@
  * A Svelte store representing the current user / session
  */
 
-import { writable, type Writable, derived, type Readable } from 'svelte/store';
 import { dev } from '$app/environment';
 import { checkAuthenticationUrl } from '$lib/utils/config';
 
@@ -14,16 +13,14 @@ const FAKE_ADMIN_ON_DEV = true;
  */
 class SessionStore {
     /**
-     * A writable Svelte store holding whether the user is an admin
+     * A private writable store holding whether the user is an admin
      */
-    #isAdmin: Writable<boolean> = writable(false);
+    #isAdmin: boolean = $state(false);
 
     /**
-     * @returns a read-only Svelte store that says whether the current user is an admin
+     * Public read-only store that says whether the current user is an admin
      */
-    isAdmin(): Readable<boolean> {
-        return derived(this.#isAdmin, ($isAdmin) => $isAdmin);
-    }
+    isAdmin: boolean = $derived(this.#isAdmin);
 
     /**
      * Fetch current user's status from server
@@ -32,7 +29,7 @@ class SessionStore {
         const fakeAdmin: boolean = FAKE_ADMIN_ON_DEV && dev;
         if (fakeAdmin) {
             console.warn('FAKE: setting user to be an admin');
-            this.#isAdmin.set(true);
+            this.#isAdmin = true;
         } else {
             const response = await fetch(checkAuthenticationUrl(), {
                 // no-store: the browser fetches from the remote server without first looking in the cache,
@@ -47,7 +44,7 @@ class SessionStore {
             const json = await response.json();
             const isAdmin = !!json.user;
             if (isAdmin) console.log('User is an admin');
-            this.#isAdmin.set(isAdmin);
+            this.#isAdmin = isAdmin;
         }
     }
 
@@ -69,6 +66,5 @@ class SessionStore {
     }
 }
 
-const store = new SessionStore();
-store.fetchUserStatus();
-export const isAdmin = store.isAdmin();
+export const sessionStore = new SessionStore();
+sessionStore.fetchUserStatus();

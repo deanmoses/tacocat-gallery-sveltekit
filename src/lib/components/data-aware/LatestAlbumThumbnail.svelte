@@ -7,11 +7,15 @@
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import { AlbumLoadStatus } from '$lib/models/album';
     import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
-    import { latestAlbumThumbnailEntry } from '$lib/stores/LatestAlbumStore';
+    import { latestAlbumThumbnailStore } from '$lib/stores/LatestAlbumStore.svelte';
+    import { onMount } from 'svelte';
 
-    let status: AlbumLoadStatus = $derived($latestAlbumThumbnailEntry.status);
+    let status: AlbumLoadStatus = $derived(latestAlbumThumbnailStore.entry.status);
+    let thumb: Thumbable | undefined = $derived(latestAlbumThumbnailStore.entry.thumbnail);
 
-    let thumb: Thumbable | undefined = $derived($latestAlbumThumbnailEntry.thumbnail);
+    onMount(() => {
+        latestAlbumThumbnailStore.fetch();
+    });
 </script>
 
 {#if AlbumLoadStatus.NOT_LOADED == status}

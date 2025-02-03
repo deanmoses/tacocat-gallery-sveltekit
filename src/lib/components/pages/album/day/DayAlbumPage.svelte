@@ -12,7 +12,7 @@
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import type { UploadEntry } from '$lib/models/album';
-    import { isAdmin } from '$lib/stores/SessionStore';
+    import { sessionStore } from '$lib/stores/SessionStore.svelte';
 
     interface Props {
         album: Album;
@@ -66,7 +66,7 @@
     {/snippet}
 </DayAlbumPageLayout>
 
-{#if $isAdmin}
+{#if sessionStore.isAdmin}
     <!-- 
         Lazy / async / dynamic load the component
         It's a hint to the bundling system that it can be put into a separate bundle, 

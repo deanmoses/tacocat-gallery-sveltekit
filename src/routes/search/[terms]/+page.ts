@@ -1,5 +1,5 @@
 import type { PageLoad } from './$types';
-import { searchStore } from '$lib/stores/SearchStore';
+import { searchStore } from '$lib/stores/SearchStore.svelte';
 import type { SearchQuery } from '$lib/models/search';
 
 export const load: PageLoad = ({ params, url }) => {

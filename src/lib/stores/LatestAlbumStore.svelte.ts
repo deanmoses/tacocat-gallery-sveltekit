@@ -1,8 +1,3 @@
-/**
- * A Svelte store representing the thumbnail of the latest album
- */
-
-import { writable, type Writable, derived, type Readable, get } from 'svelte/store';
 import { del, get as getFromIdb, set as setToIdb } from 'idb-keyval';
 import { produce } from 'immer';
 import { AlbumLoadStatus } from '$lib/models/album';
@@ -24,13 +19,18 @@ const initialStoreState = {
 const idbThumbnailKey = 'latest';
 
 /**
- * Manages the Svelte store containing the thumbnail of the latest album
+ * Store of the latest album's thumbnail
  */
 class LatestAlbumThumbnailStore {
     /**
-     * A Svelte store holding the latest album thumbnail
+     * Private writable store holding latest album thumbnail
      */
-    #latestAlbumThumbnailStore: Writable<LatestAlbumThumbnailEntry> = writable(initialStoreState);
+    #entry: LatestAlbumThumbnailEntry = $state(initialStoreState);
+
+    /**
+     * Public read-only store holding latest album thumbnail
+     */
+    readonly entry: LatestAlbumThumbnailEntry = $derived(this.#entry);
 
     /**
      * Get the latest thumbnail.
@@ -39,21 +39,16 @@ class LatestAlbumThumbnailStore {
      *
      * @returns Svelte store with latest thumbnail
      */
-    get(): Readable<LatestAlbumThumbnailEntry> {
-        const status = get(this.#latestAlbumThumbnailStore).status;
-
-        // I don't have a copy in memory.  Go get it
-        if (AlbumLoadStatus.NOT_LOADED === status) {
+    async fetch(): Promise<void> {
+        // I don't have a copy in memory.  Go fetch it.
+        if (AlbumLoadStatus.NOT_LOADED === this.#entry.status) {
             this.#setLoadStatus(AlbumLoadStatus.LOADING);
             this.#fetchFromDiskThenServer();
         }
-        // I have a copy in memory.  Refetch it if I'm not already fetching it
-        else if (AlbumLoadStatus.LOADING !== status) {
+        // Else I already have a copy in memory.  Refetch if I'm not already fetching
+        else if (AlbumLoadStatus.LOADING !== this.#entry.status) {
             this.#fetchFromServer();
         }
-
-        // Return a derived read-only Svelte store
-        return derived(this.#latestAlbumThumbnailStore, ($store) => $store);
     }
 
     /**
@@ -116,7 +111,7 @@ class LatestAlbumThumbnailStore {
     #handleFetchError(error: string): void {
         console.error(`Latest album thumbnail error fetching from server: `, error);
 
-        const status = this.#getLoadStatus();
+        const status = this.#entry.status;
         switch (status) {
             case AlbumLoadStatus.LOADING:
             case AlbumLoadStatus.NOT_LOADED:
@@ -136,18 +131,11 @@ class LatestAlbumThumbnailStore {
     /**
      *
      */
-    #getLoadStatus(): AlbumLoadStatus {
-        return get(this.#latestAlbumThumbnailStore).status;
-    }
-
-    /**
-     *
-     */
     #setLoadStatus(loadStatus: AlbumLoadStatus): void {
-        const newState = produce(get(this.#latestAlbumThumbnailStore), (draftState: LatestAlbumThumbnailEntry) => {
+        const newState = produce(this.#entry, (draftState: LatestAlbumThumbnailEntry) => {
             draftState.status = loadStatus;
         });
-        this.#latestAlbumThumbnailStore.set(newState);
+        this.#entry = newState;
     }
 
     /**
@@ -155,12 +143,11 @@ class LatestAlbumThumbnailStore {
      */
     #setLatestAlbumThumbnail(json: unknown): void {
         const albumThumb: Thumbable = toAlbum(json as AlbumRecord);
-
-        const newState = produce(get(this.#latestAlbumThumbnailStore), (draftState: LatestAlbumThumbnailEntry) => {
+        const newState = produce(this.#entry, (draftState: LatestAlbumThumbnailEntry) => {
             draftState.status = AlbumLoadStatus.LOADED;
             draftState.thumbnail = albumThumb;
         });
-        this.#latestAlbumThumbnailStore.set(newState);
+        this.#entry = newState;
     }
 
     /**
@@ -181,7 +168,7 @@ class LatestAlbumThumbnailStore {
      * Remove the latest album thumbnail from memory
      */
     #removeFromMemory(): void {
-        this.#latestAlbumThumbnailStore.update(() => initialStoreState);
+        this.#entry = initialStoreState;
     }
 
     /**
@@ -191,5 +178,4 @@ class LatestAlbumThumbnailStore {
         del(idbThumbnailKey);
     }
 }
-
-export const latestAlbumThumbnailEntry: Readable<LatestAlbumThumbnailEntry> = new LatestAlbumThumbnailStore().get();
+export const latestAlbumThumbnailStore = new LatestAlbumThumbnailStore();

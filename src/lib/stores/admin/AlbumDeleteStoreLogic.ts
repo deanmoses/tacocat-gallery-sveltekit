@@ -1,10 +1,8 @@
-import { produce } from 'immer';
 import { toast } from '@zerodevx/svelte-toast';
 import { albumStore } from '../AlbumStore';
 import { isValidAlbumPath } from '$lib/utils/galleryPathUtils';
 import { deleteUrl } from '$lib/utils/config';
-import { deleteStore, type AlbumDeleteStore } from '../AlbumDeleteStore';
-import { DeleteState, type DeleteEntry } from '$lib/models/album';
+import { albumDeleteStore } from '../AlbumDeleteStore.svelte';
 
 /**
  * Delete specified album
@@ -12,7 +10,7 @@ import { DeleteState, type DeleteEntry } from '$lib/models/album';
  */
 export async function deleteAlbum(albumPath: string): Promise<void> {
     if (!isValidAlbumPath(albumPath)) throw new Error(`Invalid album path [${albumPath}]`);
-    addDeleteEntry(albumPath);
+    albumDeleteStore.add(albumPath);
     const response = await fetch(deleteUrl(albumPath), {
         method: 'DELETE',
         credentials: 'include',
@@ -21,7 +19,7 @@ export async function deleteAlbum(albumPath: string): Promise<void> {
             'Content-Type': 'application/json',
         },
     });
-    removeDeleteEntry(albumPath);
+    albumDeleteStore.remove(albumPath);
     if (!response.ok) {
         const msg = (await response.json()).errorMessage || response.statusText;
         toast.push(`Error deleting: ${msg}`);
@@ -33,29 +31,4 @@ export async function deleteAlbum(albumPath: string): Promise<void> {
     // so that the UI can move off this album's page before
     // the delete happens
     albumStore.removeFromMemoryAndDisk(albumPath);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Svelte store mutators
-///////////////////////////////////////////////////////////////////////////////
-
-function addDeleteEntry(albumPath: string): void {
-    const deleteEntry: DeleteEntry = {
-        status: DeleteState.IN_PROGRESS,
-    };
-    deleteStore.update((oldState: AlbumDeleteStore) =>
-        produce(oldState, (draftState: AlbumDeleteStore) => {
-            draftState.set(albumPath, deleteEntry);
-            return draftState;
-        }),
-    );
-}
-
-function removeDeleteEntry(albumPath: string): void {
-    deleteStore.update((oldState: AlbumDeleteStore) =>
-        produce(oldState, (draftState: AlbumDeleteStore) => {
-            draftState.delete(albumPath);
-            return draftState;
-        }),
-    );
 }

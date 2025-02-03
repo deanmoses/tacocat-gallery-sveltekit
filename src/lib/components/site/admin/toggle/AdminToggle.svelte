@@ -4,10 +4,10 @@
   On hover, display edit buttons if user is an admin
 -->
 <script lang="ts">
-    import { isAdmin } from '$lib/stores/SessionStore';
+    import { sessionStore } from '$lib/stores/SessionStore.svelte';
 </script>
 
-{#if $isAdmin}
+{#if sessionStore.isAdmin}
     <!-- 
 		Lazy / async / dynamic load this component.
 		It's a hint to the bundling system that this code 

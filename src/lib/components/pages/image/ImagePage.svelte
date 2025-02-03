@@ -11,7 +11,7 @@
     import BigImage from './BigImage.svelte';
     import AdminToggle from '$lib/components/site/admin/toggle/AdminToggle.svelte';
     import type { Album, Image } from '$lib/models/GalleryItemInterfaces';
-    import { isAdmin } from '$lib/stores/SessionStore';
+    import { sessionStore } from '$lib/stores/SessionStore.svelte';
 
     interface Props {
         album: Album;
@@ -45,7 +45,7 @@
     {/snippet}
 </ImagePageLayout>
 
-{#if $isAdmin}
+{#if sessionStore.isAdmin}
     {#await import('./ImageFullScreenDropZone.svelte') then { default: ImageFullScreenDropZone }}
         <ImageFullScreenDropZone imagePath={image.path} />
     {/await}

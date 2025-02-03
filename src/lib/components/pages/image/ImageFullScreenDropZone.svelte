@@ -5,8 +5,8 @@
 -->
 <script lang="ts">
     import FullScreenDropZone from '$lib/components/site/admin/FullScreenDropZone.svelte';
-    import { isAdmin } from '$lib/stores/SessionStore';
     import { getDroppedImages, uploadSingleImage } from '$lib/stores/admin/UploadStoreLogic';
+    import { sessionStore } from '$lib/stores/SessionStore.svelte';
     import { toast } from '@zerodevx/svelte-toast';
 
     interface Props {
@@ -18,7 +18,7 @@
     let { imagePath, allowDrop = true }: Props = $props();
 
     function isDropAllowed(e: DragEvent): boolean {
-        return allowDrop && $isAdmin && !!e.dataTransfer?.types.includes('Files');
+        return allowDrop && sessionStore.isAdmin && !!e.dataTransfer?.types.includes('Files');
     }
 
     async function onDrop(e: DragEvent): Promise<void> {

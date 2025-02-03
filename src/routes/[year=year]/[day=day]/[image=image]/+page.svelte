@@ -1,9 +1,9 @@
 <script lang="ts">
     import type { PageProps } from './$types';
-    import { isAdmin } from '$lib/stores/SessionStore';
     import type { UploadEntry, RenameEntry, DeleteEntry } from '$lib/models/album';
     import ImageRouting from '$lib/components/pages/image/ImageRouting.svelte';
     import ImagePage from '$lib/components/pages/image/ImagePage.svelte';
+    import { sessionStore } from '$lib/stores/SessionStore.svelte';
 
     let { data }: PageProps = $props();
     let albumEntry = $derived(data.albumEntry);
@@ -11,33 +11,36 @@
     let albumLoadStatus = $derived($albumEntry.loadStatus);
     let imagePath = $derived(data.imagePath);
     let image = $derived(album?.getImage(imagePath));
+    let isAdmin = $derived(sessionStore.isAdmin);
 
-    // Lazy load these to encourage the code bundler to put them
-    // into separate bundles that non-admins don't upload
-    let uploadEntry: UploadEntry | undefined = $state();
-    let renameEntry: RenameEntry | undefined = $state();
-    let deleteEntry: DeleteEntry | undefined = $state();
-    $effect(() => {
-        if ($isAdmin) {
-            import('$lib/stores/UploadStore').then(({ getUpload }) => {
-                if (!imagePath) return;
-                getUpload(imagePath).subscribe((entry) => {
-                    uploadEntry = entry;
-                });
+    let uploadEntry: ReadonlyArray<UploadEntry> | undefined = $derived.by(() => {
+        imagePath; // triggers re-executing this derivation
+        if (isAdmin)
+            // Lazy load to encourage code bundler to put it into separate bundle that non-admins don't upload
+            import('$lib/stores/UploadStore.svelte').then(({ uploadStore }) => {
+                if (imagePath) return uploadStore.getUpload(imagePath);
             });
-            import('$lib/stores/ImageRenameStore').then(({ getImageRenameEntry }) => {
-                if (!imagePath) return;
-                getImageRenameEntry(imagePath).subscribe((entry) => {
-                    renameEntry = entry;
-                });
+        return undefined;
+    });
+
+    let deleteEntry: DeleteEntry | undefined = $derived.by(() => {
+        imagePath; // triggers re-executing this derivation
+        if (isAdmin)
+            // Lazy load to encourage code bundler to put it into separate bundle that non-admins don't upload
+            import('$lib/stores/ImageDeleteStore.svelte').then(({ imageDeleteStore }) => {
+                if (imagePath) return imageDeleteStore.deletes.get(imagePath);
             });
-            import('$lib/stores/ImageDeleteStore').then(({ getImageDeleteEntry }) => {
-                if (!imagePath) return;
-                getImageDeleteEntry(imagePath).subscribe((entry) => {
-                    deleteEntry = entry;
-                });
+        return undefined;
+    });
+
+    let renameEntry: RenameEntry | undefined = $derived.by(() => {
+        imagePath; // triggers re-executing this derivation
+        if (isAdmin)
+            // Lazy load to encourage code bundler to put it into separate bundle that non-admins don't upload
+            import('$lib/stores/ImageRenameStore.svelte').then(({ imageRenameStore }) => {
+                if (imagePath) return imageRenameStore.renames.get(imagePath);
             });
-        }
+        return undefined;
     });
 </script>
 

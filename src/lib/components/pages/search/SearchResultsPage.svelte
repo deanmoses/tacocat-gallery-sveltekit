@@ -9,7 +9,7 @@
     import SearchPage from '$lib/components/pages/search/SearchPage.svelte';
     import { SearchLoadStatus, type SearchQuery, type SearchResults } from '$lib/models/search';
     import FullPageMessage from '$lib/components/site/FullPageMessage.svelte';
-    import { searchStore } from '$lib/stores/SearchStore';
+    import { searchStore } from '$lib/stores/SearchStore.svelte';
 
     interface Props {
         returnPath: string | undefined;

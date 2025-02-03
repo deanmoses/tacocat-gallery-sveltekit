@@ -1,5 +1,4 @@
 import { get } from 'svelte/store';
-import { produce } from 'immer';
 import { toast } from '@zerodevx/svelte-toast';
 import { albumStore } from '$lib/stores/AlbumStore';
 import {
@@ -10,8 +9,8 @@ import {
     sanitizeImageName,
 } from '$lib/utils/galleryPathUtils';
 import { page } from '$app/stores';
-import { UploadState, type UploadEntry } from '$lib/models/album';
-import { getUploads, mock, uploadStore, type UploadStore } from '../UploadStore';
+import { UploadState } from '$lib/models/album';
+import { uploadStore } from '../UploadStore.svelte';
 import { getPresignedUploadUrlGenerationUrl } from '$lib/utils/config';
 
 /**
@@ -30,7 +29,7 @@ export async function uploadSingleImage(file: File, imagePath: string): Promise<
         return;
     }
     console.log(`Replacing [${imagePath}] with [${file.name}]`);
-    addUpload(file, imagePath);
+    uploadStore.addUpload(file, imagePath);
     const imagesToUpload: ImagesToUpload[] = [{ file, imagePath }];
     await uploadImages(imagesToUpload);
     const albumPath = getParentFromPath(imagePath);
@@ -96,7 +95,7 @@ async function uploadImages(imagesToUpload: ImagesToUpload[]): Promise<void> {
     try {
         const presignedUrls = await getPresignedUploadUrls(imagesToUpload);
         for (const imageToUpload of imagesToUpload) {
-            addUpload(imageToUpload.file, imageToUpload.imagePath);
+            uploadStore.addUpload(imageToUpload.file, imageToUpload.imagePath);
         }
         const imageUploads: Promise<void>[] = [];
         for (const imageToUpload of imagesToUpload) {
@@ -137,16 +136,13 @@ async function getPresignedUploadUrls(imagesToUpload: ImagesToUpload[]): Promise
 }
 
 async function uploadImageViaPresignedUrl(imageToUpload: ImagesToUpload, presignedUrl: string): Promise<void> {
-    updateUploadState(imageToUpload.imagePath, UploadState.UPLOADING);
+    uploadStore.updateUploadState(imageToUpload.imagePath, UploadState.UPLOADING);
     try {
-        if (mock) await sleep(2000);
-        else {
-            const versionId = await uploadViaPresignedUrl(imageToUpload, presignedUrl);
-            markUploadAsProcessing(imageToUpload.imagePath, versionId);
-        }
+        const versionId = await uploadViaPresignedUrl(imageToUpload, presignedUrl);
+        uploadStore.markUploadAsProcessing(imageToUpload.imagePath, versionId);
     } catch (e) {
         console.error(`Error uploading [${imageToUpload.imagePath}]`, e);
-        removeUpload(imageToUpload.imagePath);
+        uploadStore.removeUpload(imageToUpload.imagePath);
         toast.push(`Error uploading [${imageToUpload.imagePath}]`);
     }
 }
@@ -184,23 +180,14 @@ async function pollForProcessedImages(albumPath: string): Promise<void> {
     let count = 0;
     do {
         await sleep(1500);
-        processingComplete = mock ? await areMockImagesProcessed(albumPath) : await areImagesProcessed(albumPath);
+        processingComplete = await areImagesProcessed(albumPath);
         count++;
     } while (!processingComplete && count <= 5);
     console.log(`Images have been processed.  Loop count: [${count}]`);
 }
 
-async function areMockImagesProcessed(albumPath: string): Promise<boolean> {
-    const uploads = get(getUploads(albumPath));
-    if (!uploads || uploads.length === 0) return true;
-    sleep(400);
-    const upload = uploads[0];
-    removeUpload(upload.imagePath);
-    return false;
-}
-
 async function areImagesProcessed(albumPath: string): Promise<boolean> {
-    const uploads = get(getUploads(albumPath));
+    const uploads = uploadStore.getUploadsForAlbum(albumPath);
     if (!uploads || uploads.length === 0) return true;
     try {
         const album = await albumStore.fetchFromServerAsync(albumPath);
@@ -212,7 +199,7 @@ async function areImagesProcessed(albumPath: string): Promise<boolean> {
             const image = album.getImage(upload.imagePath);
             if (image && image.versionId == upload.versionId) {
                 // Found image. Remove it from list of images being processed
-                removeUpload(upload.imagePath);
+                uploadStore.removeUpload(upload.imagePath);
             } else {
                 console.log(
                     `Did not find file [${upload.imagePath}] version [${upload.versionId}] in the album, it must still be processing`,
@@ -329,50 +316,3 @@ const readEntryContentAsync = async (entry: FileSystemFileEntry): Promise<File> 
         entry.file(resolve, reject);
     });
 };
-
-///////////////////////////////////////////////////////////////////////////////
-// Svelte store mutators
-///////////////////////////////////////////////////////////////////////////////
-
-function addUpload(file: File, imagePath: string): void {
-    const upload: UploadEntry = {
-        file,
-        imagePath,
-        status: UploadState.UPLOAD_NOT_STARTED,
-    };
-    uploadStore.update((oldValue: UploadStore) =>
-        produce(oldValue, (draftState: UploadStore) => {
-            draftState.push(upload);
-            return draftState;
-        }),
-    );
-}
-
-function updateUploadState(imagePath: string, status: UploadState): void {
-    uploadStore.update((oldValue: UploadStore) =>
-        produce(oldValue, (draftState: UploadStore) => {
-            const upload = draftState.find((upload) => upload.imagePath === imagePath);
-            if (upload) upload.status = status;
-            return draftState;
-        }),
-    );
-}
-
-function markUploadAsProcessing(imagePath: string, versionId: string): void {
-    uploadStore.update((oldValue: UploadStore) =>
-        produce(oldValue, (draftState: UploadStore) => {
-            const upload = draftState.find((upload) => upload.imagePath === imagePath);
-            if (upload) {
-                upload.status = UploadState.PROCESSING;
-                upload.versionId = versionId;
-            }
-            return draftState;
-        }),
-    );
-}
-
-function removeUpload(imagePath: string): void {
-    uploadStore.update((oldValue: UploadStore) =>
-        produce(oldValue, (draftState: UploadStore) => draftState.filter((upload) => upload.imagePath !== imagePath)),
-    );
-}

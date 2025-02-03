@@ -2,14 +2,13 @@
     import '$lib/styles/reset.css';
     import '$lib/styles/global.css';
     import '$lib/styles/years.css';
-
     import type { LayoutProps } from './$types';
     import { handleKeyboardNavigation } from '$lib/utils/keyboard-navigation';
     import { page } from '$app/state';
     import { goto } from '$app/navigation';
     import { albumStore } from '$lib/stores/AlbumStore';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
-    import { isAdmin } from '$lib/stores/SessionStore';
+    import { sessionStore } from '$lib/stores/SessionStore.svelte';
 
     let { children }: LayoutProps = $props();
 
@@ -41,7 +40,7 @@
 </script>
 
 {@render children?.()}
-{#if $isAdmin}
+{#if sessionStore.isAdmin}
     <!-- 
 		Lazy / async / dynamic load this component.
 		It's a hint to the bundling system that this code 

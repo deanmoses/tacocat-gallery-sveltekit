@@ -1,11 +1,10 @@
 import type { LayoutLoad } from './$types';
 import { unEditUrl } from '$lib/utils/path-utils';
-import { isAdmin } from '$lib/stores/SessionStore';
-import { get } from 'svelte/store';
+import { sessionStore } from '$lib/stores/SessionStore.svelte';
 
 export const load: LayoutLoad = ({ url }) => {
     // if user isn't authenticated
-    if (!get(isAdmin)) {
+    if (!sessionStore.isAdmin) {
         // redirect them to the non-edit version of this page
         return {
             status: 302,

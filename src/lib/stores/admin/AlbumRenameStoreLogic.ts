@@ -1,10 +1,8 @@
 import { get } from 'svelte/store';
-import { produce } from 'immer';
 import { albumStore } from '../AlbumStore';
 import { getNameFromPath, getParentFromPath, isValidDayAlbumPath } from '$lib/utils/galleryPathUtils';
 import { renameAlbumUrl } from '$lib/utils/config';
-import { type AlbumRenameStore, renameStore } from '../AlbumRenameStore';
-import { RenameState, type RenameEntry } from '$lib/models/album';
+import { albumRenameStore } from '../AlbumRenameStore.svelte';
 
 /**
  * Rename specified album
@@ -17,7 +15,7 @@ export async function renameDayAlbum(oldAlbumPath: string, newAlbumPath: string)
     const newName = getNameFromPath(newAlbumPath);
     console.log(`Renaming album [${oldAlbumPath}] to [${newName}]...`);
     try {
-        addRenameEntry(oldAlbumPath, newAlbumPath);
+        albumRenameStore.add(oldAlbumPath, newAlbumPath);
         const response = await fetch(renameAlbumUrl(oldAlbumPath), {
             method: 'POST',
             credentials: 'include',
@@ -40,33 +38,6 @@ export async function renameDayAlbum(oldAlbumPath: string, newAlbumPath: string)
         // because we want the UI to move away from the old album first
         albumStore.removeFromMemoryAndDisk(oldAlbumPath);
     } finally {
-        removeRenameEntry(oldAlbumPath);
+        albumRenameStore.remove(oldAlbumPath);
     }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Svelte store mutators
-///////////////////////////////////////////////////////////////////////////////
-
-function addRenameEntry(oldPath: string, newPath: string): void {
-    const rename: RenameEntry = {
-        oldPath: oldPath,
-        newPath: newPath,
-        status: RenameState.IN_PROGRESS,
-    };
-    renameStore.update((oldValue: AlbumRenameStore) =>
-        produce(oldValue, (draftState: AlbumRenameStore) => {
-            draftState.set(oldPath, rename);
-            return draftState;
-        }),
-    );
-}
-
-function removeRenameEntry(oldPath: string): void {
-    renameStore.update((oldValue: AlbumRenameStore) =>
-        produce(oldValue, (draftState: AlbumRenameStore) => {
-            draftState.delete(oldPath);
-            return draftState;
-        }),
-    );
 }

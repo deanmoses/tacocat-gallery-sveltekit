@@ -1,7 +1,3 @@
-/**
- * A Svelte store representing the draft changes to an album or a image
- */
-
 import { writable, type Writable, derived, type Readable, get } from 'svelte/store';
 import type { Draft, DraftContent } from '$lib/models/draft';
 import { DraftStatus } from '$lib/models/draft';
@@ -20,7 +16,7 @@ const initialState: Draft = {
 };
 
 /**
- * Manages the store of the draft changes to an album or a image
+ * Store of the draft changes to an album or a image
  *
  * Unlike the Redux version, which holds a draft per album, this
  * only holds the one single draft that's currently being edited.

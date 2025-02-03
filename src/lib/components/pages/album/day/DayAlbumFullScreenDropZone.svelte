@@ -6,7 +6,6 @@
 <script lang="ts">
     import FullScreenDropZone from '$lib/components/site/admin/FullScreenDropZone.svelte';
     import UploadReplaceConfirmDialog from '$lib/components/site/admin/toggle/toggle_buttons/UploadReplaceConfirmDialog.svelte';
-    import { isAdmin } from '$lib/stores/SessionStore';
     import {
         getDroppedImages,
         getFilesAlreadyInAlbum,
@@ -14,6 +13,7 @@
         uploadSanitizedImages,
         type ImagesToUpload,
     } from '$lib/stores/admin/UploadStoreLogic';
+    import { sessionStore } from '$lib/stores/SessionStore.svelte';
 
     interface Props {
         albumPath: string;
@@ -28,7 +28,7 @@
     let imagesToUpload: ImagesToUpload[] = $state([]);
 
     function isDropAllowed(e: DragEvent): boolean {
-        return allowDrop && $isAdmin && !!e.dataTransfer?.types.includes('Files');
+        return allowDrop && sessionStore.isAdmin && !!e.dataTransfer?.types.includes('Files');
     }
 
     async function onDrop(e: DragEvent): Promise<void> {
