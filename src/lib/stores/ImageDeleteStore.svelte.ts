@@ -1,17 +1,12 @@
-/**
- * Svelte store of image delete state.
- * This store will be empty unless there's an image delete in progress.
- */
-
 import { DeleteState, type DeleteEntry } from '$lib/models/album';
 import { SvelteMap } from 'svelte/reactivity';
 
 /**
- * Store of image delete states.
+ * Store of image delete states
  */
 class ImageDeleteStore {
     /**
-     * Private writable store.
+     * Private writable store
      */
     #deletes = new SvelteMap<string, DeleteEntry>();
 

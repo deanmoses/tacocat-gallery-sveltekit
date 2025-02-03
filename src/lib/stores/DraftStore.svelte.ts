@@ -16,7 +16,7 @@ const initialState: Draft = {
 /**
  * Store of the draft changes to an album or a image
  *
- * Unlike the Redux version, which holds a draft per album, this
+ * Unlike the Redux version, which held a draft per album, this
  * only holds the one single draft that's currently being edited.
  * The Redux version was over-engineered; I'm not getting into
  * offline editing and bulk saving drafts when the user goes back online.

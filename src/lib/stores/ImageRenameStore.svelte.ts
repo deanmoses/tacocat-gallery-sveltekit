@@ -6,7 +6,7 @@ import { SvelteMap } from 'svelte/reactivity';
  */
 class ImageRenameStore {
     /**
-     * Private writable store.
+     * Private writable store
      */
     #renames = new SvelteMap<string, RenameEntry>();
 

@@ -1,7 +1,3 @@
-/**
- * A Svelte store representing the current user / session
- */
-
 import { dev } from '$app/environment';
 import { checkAuthenticationUrl } from '$lib/utils/config';
 
@@ -9,7 +5,7 @@ import { checkAuthenticationUrl } from '$lib/utils/config';
 const FAKE_ADMIN_ON_DEV = true;
 
 /**
- * Manages the Svelte stores about a user session
+ * Store of the current user / session
  */
 class SessionStore {
     /**

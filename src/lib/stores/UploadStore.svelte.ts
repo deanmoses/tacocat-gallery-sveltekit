@@ -1,8 +1,3 @@
-/**
- * Svelte store of photos being uploaded.
- * This store will be empty unless there's an image upload in progress.
- */
-
 import { UploadState, type UploadEntry } from '$lib/models/album';
 
 /**
