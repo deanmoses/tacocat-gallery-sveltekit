@@ -21,10 +21,9 @@
         album: Album;
         image: Image;
     }
-
     let { album, image }: Props = $props();
     let imageTitle = $derived(image.title);
-    let okToNavigate = draftStore.okToNavigate;
+    let okToNavigate = $derived(draftStore.okToNavigate);
 </script>
 
 <ImagePageLayout title={imageTitle}>

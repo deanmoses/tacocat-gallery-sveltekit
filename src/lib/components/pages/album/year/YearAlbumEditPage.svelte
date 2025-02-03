@@ -18,10 +18,8 @@
     interface Props {
         album: Album;
     }
-
     let { album }: Props = $props();
-
-    let okToNavigate = draftStore.okToNavigate;
+    let okToNavigate = $derived(draftStore.okToNavigate);
 </script>
 
 <YearAlbumPageLayout>

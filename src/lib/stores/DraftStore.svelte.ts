@@ -86,7 +86,7 @@ class DraftStore {
      * Throw away all draft edits; reset the store
      */
     cancel(): void {
-        console.log('canceling draft: ', this.#draft);
+        console.log('canceling draft: ', $state.snapshot(this.#draft));
         this.#draft = initialState;
     }
 

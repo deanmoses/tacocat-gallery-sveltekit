@@ -24,10 +24,8 @@
         album: Album;
         uploads?: UploadEntry[] | undefined;
     }
-
     let { album, uploads = undefined }: Props = $props();
-
-    let okToNavigate = draftStore.okToNavigate;
+    let okToNavigate = $derived(draftStore.okToNavigate);
 
     async function albumThumbnailSelected(path: string) {
         const imagePath = path;
