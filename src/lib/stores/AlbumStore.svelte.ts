@@ -39,7 +39,7 @@ class AlbumStore {
      *
      * This will:
      * 1) First async look for a version cached on the browser's local disk.
-     * 2) The async fetch a live version over the network.
+     * 2) Then async fetch a live version over the network.
      *
      * @param path path of the album
      * @param refetch refetch from server even if it already exists on disk
@@ -104,7 +104,7 @@ class AlbumStore {
 
     /**
      * Fetch album from server
-     * TODO: get rid of this, only have the async version @see fetchFromServerAsync()
+     * TODO: rationalize this with the async version @see fetchFromServerAsync()
      *
      * @param path path of the album
      */
@@ -169,7 +169,7 @@ class AlbumStore {
 
     /**
      * Async version of fetchFromServer()
-     * TODO: get rid of the non-async version - @see fetchFromServer()
+     * TODO: rationalize this with the non-async version - @see #fetchFromServer
      *
      * @param path path of the album
      */
