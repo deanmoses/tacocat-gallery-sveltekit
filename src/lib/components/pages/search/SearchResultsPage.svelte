@@ -17,7 +17,6 @@
         status: SearchLoadStatus;
         results: SearchResults | undefined;
     }
-
     let { returnPath, query, status, results }: Props = $props();
 
     let searchTerms = $derived(query.terms);

@@ -1,8 +1,3 @@
-/**
- * Svelte stores of search results
- */
-
-import { writable, type Writable, derived, type Readable, get } from 'svelte/store';
 import { produce } from 'immer';
 import type { Search, SearchQuery, SearchResults } from '$lib/models/search';
 import { SearchLoadStatus } from '$lib/models/search';
@@ -13,30 +8,26 @@ import { longDate } from '$lib/utils/date-utils';
 import { albumPathToDate, getParentFromPath } from '$lib/utils/galleryPathUtils';
 import type { AlbumRecord, GalleryRecord, ImageRecord } from '$lib/models/impl/server';
 import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
+import { SvelteMap } from 'svelte/reactivity';
 
 /**
- * Manages the Svelte stores of search results
+ * Store of search results
  */
 class SearchStore {
     /**
-     * A set of Svelte stores holding search results
+     * Private writable store of search results
      */
-    #searches: Map<SearchQuery, Writable<Search>> = new Map<SearchQuery, Writable<Search>>();
+    #searches = new SvelteMap<SearchQuery, Search>();
 
     /**
-     * Get search results.
-     *
-     * This will:
-     *
-     * 1) Immediately return a Svelte store.
-     * It will only have search results in it if was already requested
-     * since the last page refresh.
-     *
-     * 2) And then it will async fetch a live version over the network.
-     *
-     * @returns a Svelte store
+     * Public read-only version of store
      */
-    get(query: SearchQuery): Readable<Search> {
+    readonly searches: ReadonlyMap<SearchQuery, Search> = $derived(this.#searches);
+
+    /**
+     * Do the search
+     */
+    search(query: SearchQuery): void {
         // Remove any undefined keys, simply to make logging cleaner
         for (const key in query) {
             const k = key as keyof SearchQuery;
@@ -44,18 +35,15 @@ class SearchStore {
         }
         // Get or create the writable version of the search
         const searchEntry = this.#getOrCreateWritableStore(query);
-        const status = get(searchEntry).status;
         // I don't have a copy in memory.  Go get it
-        if (SearchLoadStatus.NOT_LOADED === status) {
+        if (SearchLoadStatus.NOT_LOADED === searchEntry.status) {
             this.#setLoadStatus(query, SearchLoadStatus.LOADING);
             this.#fetchFromServer(query);
         }
-        // Derive a read-only Svelte store over the search
-        return derived(searchEntry, ($store) => $store);
     }
 
     /**
-     * Get more results for an existing search
+     * Fetch more results for an existing search
      *
      * @param startAt The number result from which to start fetching
      */
@@ -92,7 +80,7 @@ class SearchStore {
                 if (startAt > 0) {
                     const read = this.#searches.get(query);
                     if (read) {
-                        const prev = get(read);
+                        const prev = read;
                         if (prev.results?.items && searchResults.items) {
                             console.log(
                                 `Adding ${searchResults.items.length} new results to ${prev.results.items.length} existing results`,
@@ -133,11 +121,11 @@ class SearchStore {
      */
     #setSearch(query: SearchQuery, searchResults: SearchResults): void {
         const searchEntry = this.#getOrCreateWritableStore(query);
-        const newState = produce(get(searchEntry), (draftState: Search) => {
+        const newState = produce(searchEntry, (draftState: Search) => {
             draftState.status = SearchLoadStatus.LOADED;
             draftState.results = searchResults;
         });
-        searchEntry.set(newState);
+        this.#searches.set(query, newState);
     }
 
     /**
@@ -145,15 +133,16 @@ class SearchStore {
      */
     #setLoadStatus(query: SearchQuery, loadStatus: SearchLoadStatus): void {
         const searchEntry = this.#getOrCreateWritableStore(query);
-        const newState = produce(get(searchEntry), (draftState: Search) => {
+        const newState = produce(searchEntry, (draftState: Search) => {
             draftState.status = loadStatus;
         });
-        searchEntry.set(newState);
+        this.#searches.set(query, newState);
     }
 
     #getLoadStatus(query: SearchQuery): SearchLoadStatus {
         const search = this.#searches.get(query);
-        return !!search ? get(search).status : SearchLoadStatus.NOT_LOADED;
+        // eslint-disable-next-line no-extra-boolean-cast
+        return !!search ? search.status : SearchLoadStatus.NOT_LOADED;
     }
 
     /**
@@ -162,7 +151,7 @@ class SearchStore {
      *
      * @param query the search terms
      */
-    #getOrCreateWritableStore(query: SearchQuery): Writable<Search> {
+    #getOrCreateWritableStore(query: SearchQuery): Search {
         let searchEntry = this.#searches.get(query);
 
         // If the search wasn't found in memory
@@ -170,9 +159,9 @@ class SearchStore {
             console.log(`Search not found in memory `, query);
             // Create blank entry so that consumers have some object
             // to which they can subscribe to changes
-            searchEntry = writable({
+            searchEntry = {
                 status: SearchLoadStatus.NOT_LOADED,
-            });
+            };
             this.#searches.set(query, searchEntry);
         }
 
@@ -209,7 +198,6 @@ class SearchStore {
         return image;
     }
 }
-
 export const searchStore: SearchStore = new SearchStore();
 
 type ServerSearchResults = {

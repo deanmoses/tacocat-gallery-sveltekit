@@ -9,10 +9,10 @@ export const load: PageLoad = ({ params, url }) => {
         newestYear: toInt(url.searchParams.get('newest')),
         oldestFirst: toBool(url.searchParams.get('oldestFirst')),
     };
+    searchStore.search(query);
     return {
         returnPath: url.searchParams.get('returnPath') ?? undefined,
         query,
-        search: searchStore.get(query),
     };
 };
 
