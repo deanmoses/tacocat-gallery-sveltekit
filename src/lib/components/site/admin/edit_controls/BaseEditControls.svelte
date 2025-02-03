@@ -9,24 +9,23 @@
     import CancelButton from './buttons/CancelButton.svelte';
     import SaveButton from './buttons/SaveButton.svelte';
     import StatusMessage from './buttons/StatusMessage.svelte';
-    import draftStore from '$lib/stores/DraftStore';
     import { DraftStatus } from '$lib/models/draft';
     import { page } from '$app/state';
     import { goto } from '$app/navigation';
     import { unEditUrl } from '$lib/utils/path-utils';
     import { isValidImagePath } from '$lib/utils/galleryPathUtils';
+    import { draftStore } from '$lib/stores/DraftStore.svelte';
 
     interface Props {
         rightControls?: Snippet;
     }
-
     let { rightControls }: Props = $props();
 
     let path: string | undefined = $derived(unEditUrl(page.url.pathname));
-
-    let draftStoreStatus = draftStore.getStatus();
-    let status: DraftStatus | undefined = $derived($draftStoreStatus);
-    let hasUnsavedChanges: boolean = $derived(status == DraftStatus.UNSAVED_CHANGES);
+    let status: DraftStatus | undefined = $derived(draftStore.status);
+    let hasUnsavedChanges: boolean = $derived(
+        draftStore.status == DraftStatus.UNSAVED_CHANGES || draftStore.status == DraftStatus.ERRORED,
+    );
 
     // Navigate to new path whenever it changes
     $effect(() => {

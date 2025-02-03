@@ -13,12 +13,12 @@
     import AlbumEditControls from '$lib/components/site/admin/edit_controls/AlbumEditControls.svelte';
     import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
     import { editUrl } from '$lib/utils/path-utils';
-    import DraftStore from '$lib/stores/DraftStore';
     import { setAlbumThumbnail } from '$lib/stores/admin/AlbumThumbnailLogic';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import DayAlbumFullScreenDropZone from './DayAlbumFullScreenDropZone.svelte';
     import type { UploadEntry } from '$lib/models/album';
     import UploadThumbnail from '$lib/components/site/admin/UploadThumbnail.svelte';
+    import { draftStore } from '$lib/stores/DraftStore.svelte';
 
     interface Props {
         album: Album;
@@ -27,7 +27,7 @@
 
     let { album, uploads = undefined }: Props = $props();
 
-    let okToNavigate = DraftStore.getOkToNavigate();
+    let okToNavigate = draftStore.okToNavigate;
 
     async function albumThumbnailSelected(path: string) {
         const imagePath = path;
@@ -41,9 +41,9 @@
     {/snippet}
 
     {#snippet nav()}
-        <PrevButton href={$okToNavigate ? editUrl(album.nextHref) : undefined} title={album.nextTitle} />
-        <UpButton href={$okToNavigate ? editUrl(album.parentHref) : undefined} title={album.parentTitle} />
-        <NextButton href={$okToNavigate ? editUrl(album.prevHref) : undefined} title={album.prevTitle} />
+        <PrevButton href={okToNavigate ? editUrl(album.nextHref) : undefined} title={album.nextTitle} />
+        <UpButton href={okToNavigate ? editUrl(album.parentHref) : undefined} title={album.parentTitle} />
+        <NextButton href={okToNavigate ? editUrl(album.prevHref) : undefined} title={album.prevTitle} />
     {/snippet}
 
     {#snippet caption()}
@@ -53,7 +53,7 @@
     {#snippet thumbnails()}
         {#if album.images?.length}
             {#each album.images as image (image.path)}
-                {#if $okToNavigate}
+                {#if okToNavigate}
                     <Thumbnail
                         title={image.title}
                         summary={image.summary}
@@ -74,7 +74,7 @@
                     </div>
                 {/if}
             {/each}
-        {:else if !album.published && !uploads?.length && $okToNavigate}
+        {:else if !album.published && !uploads?.length && okToNavigate}
             <p>Drop images or a 📁</p>
         {/if}
         {#if uploads?.length}
@@ -89,7 +89,7 @@
         {/if}
     {/snippet}
 </DayAlbumPageLayout>
-<DayAlbumFullScreenDropZone albumPath={album.path} allowDrop={$okToNavigate} />
+<DayAlbumFullScreenDropZone albumPath={album.path} allowDrop={okToNavigate} />
 
 <style>
     div {

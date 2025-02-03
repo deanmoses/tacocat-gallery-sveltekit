@@ -12,8 +12,8 @@
     import AlbumEditControls from '$lib/components/site/admin/edit_controls/AlbumEditControls.svelte';
     import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
     import { editUrl } from '$lib/utils/path-utils';
-    import DraftStore from '$lib/stores/DraftStore';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
+    import { draftStore } from '$lib/stores/DraftStore.svelte';
 
     interface Props {
         album: Album;
@@ -21,7 +21,7 @@
 
     let { album }: Props = $props();
 
-    let okToNavigate = DraftStore.getOkToNavigate();
+    let okToNavigate = draftStore.okToNavigate;
 </script>
 
 <YearAlbumPageLayout>
@@ -30,9 +30,9 @@
     {/snippet}
 
     {#snippet nav()}
-        <PrevButton href={$okToNavigate ? editUrl(album.nextHref) : undefined} title={album.nextTitle} />
-        <UpButton href={$okToNavigate ? '../' : undefined} title="All Years" />
-        <NextButton href={$okToNavigate ? editUrl(album.prevHref) : undefined} title={album.prevTitle} />
+        <PrevButton href={okToNavigate ? editUrl(album.nextHref) : undefined} title={album.nextTitle} />
+        <UpButton href={okToNavigate ? '../' : undefined} title="All Years" />
+        <NextButton href={okToNavigate ? editUrl(album.prevHref) : undefined} title={album.prevTitle} />
     {/snippet}
 
     {#snippet caption()}

@@ -4,7 +4,7 @@
   Make the passed-in plain text (not HTML) editable
 -->
 <script lang="ts">
-    import DraftStore from '$lib/stores/DraftStore';
+    import { draftStore } from '$lib/stores/DraftStore.svelte';
 
     interface Props {
         /** The text content to be made editable */
@@ -22,7 +22,7 @@
         // converting any whitespace to a regular space and then trimming it all.
         editedText = editedText.replace(/\s/g, ' ');
         editedText = editedText.trim();
-        DraftStore.setTitle(editedText);
+        draftStore.setTitle(editedText);
     }
 </script>
 

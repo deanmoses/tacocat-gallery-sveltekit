@@ -1,4 +1,3 @@
-import { writable, type Writable, derived, type Readable, get } from 'svelte/store';
 import type { Draft, DraftContent } from '$lib/models/draft';
 import { DraftStatus } from '$lib/models/draft';
 import { produce } from 'immer';
@@ -25,9 +24,23 @@ const initialState: Draft = {
  */
 class DraftStore {
     /**
-     * A writable Svelte store holding the draft
+     * Private writable store holding the draft
      */
-    #draft: Writable<Draft> = writable(initialState);
+    #draft: Draft = $state(initialState);
+
+    /**
+     * Public read-only store of the draft
+     */
+    readonly draft: Draft = $derived(this.#draft);
+
+    /**
+     * Public read-only copy of draft status
+     */
+    readonly status: DraftStatus | undefined = $derived(this.#draft.status);
+
+    readonly okToNavigate: boolean = $derived(
+        this.#draft.status !== DraftStatus.UNSAVED_CHANGES && this.#draft.status != DraftStatus.SAVING,
+    );
 
     /**
      * Initialize or reset the draft state with the given path
@@ -39,26 +52,7 @@ class DraftStore {
         const state = produce(initialState, (newState) => {
             newState.path = path;
         });
-        this.#draft.set(state);
-    }
-
-    /**
-     * @returns the status of the draft
-     */
-    getStatus(): Readable<DraftStatus | undefined> {
-        return derived(this.#draft, ($draft) => {
-            return $draft.status;
-        });
-    }
-
-    /**
-     * @returns whether there are unsaved changes that should block navigation away from the page
-     */
-    getOkToNavigate(): Readable<boolean> {
-        return derived(this.#draft, ($draft) => {
-            const status = $draft.status;
-            return status !== DraftStatus.UNSAVED_CHANGES && status != DraftStatus.SAVING;
-        });
+        this.#draft = state;
     }
 
     /**
@@ -93,15 +87,15 @@ class DraftStore {
      * Throw away all draft edits; reset the store
      */
     cancel(): void {
-        console.log('canceling draft: ', get(this.#draft));
-        this.#draft.set(initialState);
+        console.log('canceling draft: ', this.#draft);
+        this.#draft = initialState;
     }
 
     /**
      * Save the current draft to the server
      */
     async save(): Promise<void> {
-        const draft: Draft = get(this.#draft);
+        const draft: Draft = this.#draft;
         if (!draft || !draft.path || !draft.content) {
             console.error(`Error saving [${draft.path}]: nothing to save!`);
             this.#setStatus(DraftStatus.ERRORED);
@@ -189,7 +183,7 @@ class DraftStore {
         setTimeout(() => {
             console.log('DraftStore: save clear timed out');
             // Only clear saved status if the status is actually still saved
-            if (get(this.#draft).status == DraftStatus.SAVED) {
+            if (this.#draft.status == DraftStatus.SAVED) {
                 console.log('DraftStore: in timeout, setting draft status to NO_CHANGES');
                 this.#setStatus(DraftStatus.NO_CHANGES);
             } else {
@@ -202,24 +196,23 @@ class DraftStore {
      * Change the status of the draft
      */
     #setStatus(newStatus: DraftStatus): void {
-        const state = produce(get(this.#draft), (newState) => {
+        const state = produce(this.#draft, (newState) => {
             newState.status = newStatus;
         });
-        this.#draft.set(state);
+        this.#draft = state;
     }
 
     /**
      * Update the content of the draft
      */
     #updateContent(applyChangesToDraftContent: (draftContent: DraftContent) => void): void {
-        const newState: Draft = produce(get(this.#draft), (originalState) => {
+        const newState: Draft = produce(this.#draft, (originalState) => {
             originalState.status = DraftStatus.UNSAVED_CHANGES;
             if (originalState.content === undefined) throw 'originalState.content is undefined';
             applyChangesToDraftContent(originalState.content);
         });
         console.log(`Update draft [${newState.path}]: `, newState.content);
-        this.#draft.set(newState);
+        this.#draft = newState;
     }
 }
-
-export default new DraftStore();
+export const draftStore = new DraftStore();

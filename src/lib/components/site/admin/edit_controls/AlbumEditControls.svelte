@@ -4,8 +4,8 @@
   Controls for editing albums
 -->
 <script lang="ts">
+    import { draftStore } from '$lib/stores/DraftStore.svelte';
     import BaseEditControls from './BaseEditControls.svelte';
-    import draftStore from '$lib/stores/DraftStore';
 
     interface Props {
         /** Whether album is published or not */

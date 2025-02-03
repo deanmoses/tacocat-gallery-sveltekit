@@ -13,9 +13,9 @@
     import EditableText from '$lib/components/site/admin/EditableText.svelte';
     import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
     import { editUrl } from '$lib/utils/path-utils';
-    import DraftStore from '$lib/stores/DraftStore';
     import type { Album, Image } from '$lib/models/GalleryItemInterfaces';
     import ImageFullScreenDropZone from './ImageFullScreenDropZone.svelte';
+    import { draftStore } from '$lib/stores/DraftStore.svelte';
 
     interface Props {
         album: Album;
@@ -24,7 +24,7 @@
 
     let { album, image }: Props = $props();
     let imageTitle = $derived(image.title);
-    let okToNavigate = DraftStore.getOkToNavigate();
+    let okToNavigate = draftStore.okToNavigate;
 </script>
 
 <ImagePageLayout title={imageTitle}>
@@ -44,7 +44,7 @@
     {/snippet}
 
     {#snippet nav()}
-        {#if $okToNavigate}
+        {#if okToNavigate}
             <PrevButton href={editUrl(image.prevHref)} />
             <UpButton href={editUrl(album.href)} title={album.title} />
             <NextButton href={editUrl(image.nextHref)} />
@@ -62,4 +62,4 @@
         {/key}
     {/snippet}
 </ImagePageLayout>
-<ImageFullScreenDropZone imagePath={image.path} allowDrop={$okToNavigate} />
+<ImageFullScreenDropZone imagePath={image.path} allowDrop={okToNavigate} />
