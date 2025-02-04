@@ -35,98 +35,86 @@ class AlbumStore {
     readonly albumUpdateStatuses: ReadonlyMap<string, AlbumUpdateStatus> = $derived(this.#albumUpdateStatuses);
 
     /**
-     * Fetch an album.
+     * Trigger fetching an album.
      *
      * This will:
-     * 1) First async look for a version cached on the browser's local disk.
-     * 2) Then async fetch a live version over the network.
+     * 1) Fetch album from browser's local disk
+     * 2) If not on disk, fetch over network
+     *
+     * You can either await this or not.  If you don't await,
+     * it loads in the background.
      *
      * @param path path of the album
-     * @param refetch refetch from server even if it already exists on disk
+     * @param refetch refetch from server even if it's already on disk
      */
-    fetch(path: string, refetch = true): void {
+    async fetch(path: string, refetch = true): Promise<void> {
         if (!isValidAlbumPath(path)) throw new Error(`Invalid album path [${path}]`);
 
-        const albumEntry = this.#albums.get(path);
-        const status = albumEntry?.loadStatus;
+        const status: AlbumLoadStatus = this.#albums.get(path)?.loadStatus ?? AlbumLoadStatus.NOT_LOADED;
 
-        // I don't have a copy in memory.  Go get it
-        if (!status || AlbumLoadStatus.NOT_LOADED === status) {
+        // Do nothing if the album is already being loaded
+        if (AlbumLoadStatus.LOADING === status) return;
+
+        // I don't have album in memory
+        if (AlbumLoadStatus.LOADED !== status) {
             this.#setLoadStatus(path, AlbumLoadStatus.LOADING);
-            this.#fetchFromDiskThenServer(path);
+            await this.#fetchFromDisk(path);
+            await this.fetchFromServer(path);
         }
         // I have a copy in memory, but the caller has asked to re-fetch
-        else if (refetch && AlbumLoadStatus.LOADING !== status) {
+        else if (refetch) {
             this.setUpdateStatus(path, AlbumUpdateStatus.UPDATING);
-            this.#fetchFromServer(path);
+            await this.fetchFromServer(path);
         }
     }
 
     /**
-     * Update the album in the Svelte store and on the browser's local disk cache
-     */
-    updateAlbumEntry(albumEntry: AlbumEntry): void {
-        if (!albumEntry) throw 'Album entry is null';
-        if (!albumEntry.album) throw 'Album is null';
-        const oldAlbumEntry = this.#albums.get(albumEntry.album.path);
-        if (!oldAlbumEntry) throw 'albumEntryStore is null';
-        this.#albums.set(albumEntry.album.path, albumEntry);
-        this.#writeToDisk(albumEntry.album.path, albumEntry.album.json); // Put album in browser's local disk cache
-    }
-
-    /**
-     * Fetch album from browser's local disk,
-     * then fetch from server
+     * Trigger fetching album from browser's local disk
      *
      * @param path path of the album
      */
-    #fetchFromDiskThenServer(path: string): void {
-        const idbKey = this.#idbKey(path);
-        getFromIdb(idbKey)
-            .then((albumObject) => {
-                if (albumObject) {
-                    console.log(`Album [${path}] found in idb`);
-
-                    // Put album in Svelte store
-                    this.#setAlbum(path, albumObject);
-                } else {
-                    console.log(`Album [${path}] not found in idb`);
-                }
-            })
-            .catch((error) => {
-                console.error(`Album [${path}] error fetching from disk`, error);
-            })
-            // Fetch from server regardless of whether it was found on disk
-            .finally(() => {
-                this.#fetchFromServer(path);
-            });
+    async #fetchFromDisk(path: string): Promise<void> {
+        try {
+            const idbKey = this.#idbKey(path);
+            const albumObject: AlbumRecord | undefined = await getFromIdb(idbKey);
+            if (albumObject) {
+                console.log(`Album [${path}] found in idb`);
+                this.#setAlbum(path, albumObject); // Set album in-memory
+            } else {
+                console.log(`Album [${path}] not found in idb`);
+            }
+        } catch (error) {
+            console.error(`Album [${path}] error fetching from disk`, error);
+        }
     }
 
     /**
-     * Fetch album from server
-     * TODO: rationalize this with the async version @see fetchFromServerAsync()
+     * Trigger fetching album from server.  Does not look in-memory or on-disk.
+     *
+     * You can either await this or not.  If you don't await, it loads in the background.
      *
      * @param path path of the album
      */
-    #fetchFromServer(path: string): void {
-        fetch(albumUrl(path), this.#buildFetchConfig())
-            .then((response: Response) => {
-                if (response.status == 404) {
-                    console.warn(`Album not found on server: [${path}]`);
-                    this.#setLoadStatus(path, AlbumLoadStatus.DOES_NOT_EXIST);
-                    this.#albums.delete(path); // Delete album from Svelte store
-                    this.#removeFromDisk(path); // Delete album from browser's local disk cache
-                } else if (!response.ok) throw new Error(response.statusText);
-                return response.json();
-            })
-            .then((json: AlbumRecord) => {
-                console.log(`Album [${path}] fetched from server`, json);
-                this.#setAlbum(path, json); // Put album in Svelte store
-                this.#writeToDisk(path, json); // Put album in browser's local disk cache
-            })
-            .catch((error) => {
-                this.#handleFetchError(path, error);
-            });
+    async fetchFromServer(path: string): Promise<void> {
+        try {
+            const response = await fetch(albumUrl(path), this.#buildFetchConfig());
+            if (response.status === 404) throw 404;
+            if (!response.ok) throw new Error(response.statusText);
+            const json = await response.json();
+            console.log(`Album [${path}] fetched from server`, json);
+            this.#setAlbum(path, json); // Put album in memory
+            this.#writeToDisk(path, json); // Put album on local disk
+        } catch (error) {
+            if (error === 404) {
+                console.warn(`Album not found on server: [${path}]`);
+                this.#setLoadStatus(path, AlbumLoadStatus.DOES_NOT_EXIST);
+                this.#albums.delete(path); // Delete album from in memory
+                this.#removeFromDisk(path); // Delete album from local disk
+            } else {
+                const message = error instanceof Error ? error.message : String(error);
+                this.#handleFetchError(path, message);
+            }
+        }
     }
 
     /**
@@ -137,17 +125,18 @@ class AlbumStore {
 
         // First check in memory
         console.log(`Checking if album [${path}] exists in memory`);
-        const albumEntry = this.#albums.get(path);
-        if (albumEntry?.loadStatus === AlbumLoadStatus.LOADED || albumEntry?.loadStatus === AlbumLoadStatus.LOADING) {
+        const status = this.#albums.get(path)?.loadStatus ?? AlbumLoadStatus.NOT_LOADED;
+        if (AlbumLoadStatus.LOADED === status || AlbumLoadStatus.LOADING === status) {
             return true;
-        } else if (albumEntry?.loadStatus === AlbumLoadStatus.DOES_NOT_EXIST) {
+        } else if (AlbumLoadStatus.DOES_NOT_EXIST === status) {
             return false;
         }
 
         // Then check disk cache
         console.log(`Checking if album [${path}] exists on disk`);
-        const albumRecord = await this.#fetchFromDisk(path);
-        if (albumRecord) {
+        const idbKey = this.#idbKey(path);
+        const albumObject: AlbumRecord | undefined = await getFromIdb(idbKey);
+        if (albumObject) {
             return true;
         }
 
@@ -160,28 +149,6 @@ class AlbumStore {
         if (response.status === 404) return false;
         if (response.ok) return true;
         throw new Error(`Unexpected response [${response.status}] fetching album [${path}]`);
-    }
-
-    async #fetchFromDisk(path: string): Promise<AlbumRecord | undefined> {
-        const idbKey = this.#idbKey(path);
-        return await getFromIdb(idbKey);
-    }
-
-    /**
-     * Async version of fetchFromServer()
-     * TODO: rationalize this with the non-async version - @see #fetchFromServer
-     *
-     * @param path path of the album
-     */
-    async fetchFromServerAsync(path: string): Promise<Album> {
-        const response = await fetch(albumUrl(path), this.#buildFetchConfig());
-        if (response.status === 404) throw 404; // TODO delete from memory & disk
-        if (!response.ok) throw new Error(response.statusText);
-        const json = await response.json();
-        console.log(`Album [${path}] fetched from server`, json);
-        const album = this.#setAlbum(path, json); // Put album in Svelte store
-        this.#writeToDisk(path, json); // Put album in browser's local disk cache
-        return album;
     }
 
     /**
@@ -228,6 +195,18 @@ class AlbumStore {
             default:
                 console.error('Unexpected load status:', status);
         }
+    }
+
+    /**
+     * Update the album in the Svelte store and on the browser's local disk cache
+     */
+    updateAlbumEntry(albumEntry: AlbumEntry): void {
+        if (!albumEntry) throw 'Album entry is null';
+        if (!albumEntry.album) throw 'Album is null';
+        const oldAlbumEntry = this.#albums.get(albumEntry.album.path);
+        if (!oldAlbumEntry) throw 'albumEntryStore is null';
+        this.#albums.set(albumEntry.album.path, albumEntry);
+        this.#writeToDisk(albumEntry.album.path, albumEntry.album.json); // Put album in browser's local disk cache
     }
 
     /**

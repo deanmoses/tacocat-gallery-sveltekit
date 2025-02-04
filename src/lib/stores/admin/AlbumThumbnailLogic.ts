@@ -35,9 +35,9 @@ export async function setAlbumThumbnail(albumPath: string, imagePath: string): P
         }
         console.log(`Set thumbnail of album [${albumPath}] to [${imagePath}]`);
         console.log(`Reloading album [${albumPath}] from server`);
-        await albumStore.fetchFromServerAsync(albumPath); // force reload from server
+        await albumStore.fetchFromServer(albumPath); // force reload from server
         console.log(`Reloading parent album [${getParentFromPath(albumPath)}] from server`);
-        await albumStore.fetchFromServerAsync(getParentFromPath(albumPath)); // force reload from server
+        await albumStore.fetchFromServer(getParentFromPath(albumPath)); // force reload from server
     } finally {
         // Reset store state
         albumStore.setUpdateStatus(albumPath, AlbumUpdateStatus.NOT_UPDATING);

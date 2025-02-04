@@ -189,7 +189,9 @@ async function areImagesProcessed(albumPath: string): Promise<boolean> {
     const uploads = uploadStore.getUploadsForAlbum(albumPath);
     if (!uploads || uploads.length === 0) return true;
     try {
-        const album = await albumStore.fetchFromServerAsync(albumPath);
+        await albumStore.fetchFromServer(albumPath);
+        const album = albumStore.albums.get(albumPath)?.album;
+        if (!album) throw 'album not loaded';
         for (const upload of uploads) {
             // Skip checking uploads that are not yet in the processing state,
             // which means they have not yet been uploaded to S3, which means

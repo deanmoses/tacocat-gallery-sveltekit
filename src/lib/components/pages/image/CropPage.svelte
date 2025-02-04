@@ -61,12 +61,12 @@
             //  1) get the image's new thumbnail
             //  2) this image may be the album's thumb
             console.log(`Reloading album [${albumPath}] from server`);
-            await albumStore.fetchFromServerAsync(albumPath); // force reload from server
+            await albumStore.fetchFromServer(albumPath); // force reload from server
 
             // Reload year album because this image may be the year's thumb
             // TODO: not doing yet because back end isn't setting year's thumb yet
             // console.log(`Reloading parent album [${getParentFromPath(albumPath)}] from server`);
-            // await albumStore.fetchFromServerAsync(getParentFromPath(albumPath)); // force reload from server
+            // await albumStore.fetchFromServer(getParentFromPath(albumPath)); // force reload from server
 
             toast.push(`Thumbnail cropped`);
             goto(imagePath);

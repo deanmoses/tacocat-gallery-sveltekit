@@ -32,7 +32,7 @@ export async function renameDayAlbum(oldAlbumPath: string, newAlbumPath: string)
         // Do NOT async await because we want the UI to move to
         // the new album now
         const parentAlbumPath = getParentFromPath(oldAlbumPath);
-        albumStore.fetchFromServerAsync(parentAlbumPath);
+        albumStore.fetchFromServer(parentAlbumPath);
         // Remove old album from album store, but do NOT async await
         // because we want the UI to move away from the old album first
         albumStore.removeFromMemoryAndDisk(oldAlbumPath);

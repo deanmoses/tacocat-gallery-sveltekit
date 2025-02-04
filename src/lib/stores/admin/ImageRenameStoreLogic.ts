@@ -29,7 +29,7 @@ export async function renameImage(oldImagePath: string, newImagePath: string) {
             const msg = (await response.json()).errorMessage || response.statusText;
             throw msg;
         }
-        await albumStore.fetchFromServerAsync(albumPath); // this will update the album store
+        await albumStore.fetchFromServer(albumPath); // this will update the album store
     } finally {
         imageRenameStore.removeRenameEntry(oldImagePath);
     }
