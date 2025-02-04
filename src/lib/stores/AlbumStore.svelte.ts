@@ -3,7 +3,6 @@ import { get as getFromIdb, set as setToIdb, del as delFromIdb } from 'idb-keyva
 import { AlbumLoadStatus, AlbumUpdateStatus, type AlbumEntry } from '$lib/models/album';
 import toAlbum from '$lib/models/impl/AlbumCreator';
 import { isValidAlbumPath } from '$lib/utils/galleryPathUtils';
-import type { Album } from '$lib/models/GalleryItemInterfaces';
 import type { AlbumRecord } from '$lib/models/impl/server';
 import { albumUrl } from '$lib/utils/config';
 import { SvelteMap } from 'svelte/reactivity';
@@ -34,6 +33,22 @@ class AlbumStore {
      */
     readonly albumUpdateStatuses: ReadonlyMap<string, AlbumUpdateStatus> = $derived(this.#albumUpdateStatuses);
 
+    //
+    // STATE TRANSITION METHODS
+    // These mutate the store's state.
+    //
+    // Characteristics:
+    //  - These are the ONLY way to update this store's state.
+    //    These should be the only public methods on this store.
+    //  - These ONLY update state.
+    //    If they have to do any work, like making a server call, they invoke it in an
+    //    event-like fire-and-forget fashion, meaning invoke async methods *without* await.
+    //  - These are synchronous.
+    //    They expectation is that they return near-instantly.
+    //  - These return void.
+    //    To read this store's state, use one of the public $derived() fields
+    //
+
     /**
      * Trigger fetching an album.
      *
@@ -47,7 +62,7 @@ class AlbumStore {
      * @param path path of the album
      * @param refetch refetch from server even if it's already on disk
      */
-    async fetch(path: string, refetch = true): Promise<void> {
+    fetch(path: string, refetch = true): void {
         if (!isValidAlbumPath(path)) throw new Error(`Invalid album path [${path}]`);
 
         const status: AlbumLoadStatus = this.#albums.get(path)?.loadStatus ?? AlbumLoadStatus.NOT_LOADED;
@@ -58,33 +73,104 @@ class AlbumStore {
         // I don't have album in memory
         if (AlbumLoadStatus.LOADED !== status) {
             this.#setLoadStatus(path, AlbumLoadStatus.LOADING);
-            await this.#fetchFromDisk(path);
-            await this.fetchFromServer(path);
+            this.#fetchFromDiskAndServer(path); // fire and forget, don't await
         }
         // I have a copy in memory, but the caller has asked to re-fetch
         else if (refetch) {
             this.setUpdateStatus(path, AlbumUpdateStatus.UPDATING);
-            await this.fetchFromServer(path);
+            this.fetchFromServer(path); // fire and forget, don't await
         }
     }
 
     /**
-     * Trigger fetching album from browser's local disk
+     * Album was fetched (from disk or server) and found
+     *
+     * @param path path of the album
+     * @param jsonAlbum JSON of the album
+     */
+    #found(path: string, jsonAlbum: AlbumRecord): void {
+        const album = toAlbum(jsonAlbum);
+        const albumEntry = this.#getOrCreateWritableStore(path);
+        const newAlbumEntry = produce(albumEntry, (draftState: AlbumEntry) => {
+            draftState.loadStatus = AlbumLoadStatus.LOADED;
+            draftState.album = album;
+        });
+        this.#albums.set(path, newAlbumEntry);
+        this.setUpdateStatus(path, AlbumUpdateStatus.NOT_UPDATING);
+    }
+
+    /**
+     * Album was fetched from server but not found
      *
      * @param path path of the album
      */
-    async #fetchFromDisk(path: string): Promise<void> {
+    #notFound(path: string) {
+        console.warn(`Album [${path}] not found on server`);
+        const albumEntry = this.#getOrCreateWritableStore(path);
+        const newAlbumEntry = produce(albumEntry, (draftState: AlbumEntry) => {
+            draftState.loadStatus = AlbumLoadStatus.DOES_NOT_EXIST;
+            draftState.album = undefined;
+        });
+        this.#albums.set(path, newAlbumEntry);
+        this.setUpdateStatus(path, AlbumUpdateStatus.NOT_UPDATING);
+    }
+
+    /**
+     * Error happened fetching album from server
+     *
+     * @param path path of the album
+     * @param message error message
+     */
+    #erroredFetching(path: string, message: string): void {
+        console.error(`Album [${path}] error fetching from server: `, message);
+        const status = this.#getLoadStatus(path);
+        switch (status) {
+            case AlbumLoadStatus.LOADING:
+            case AlbumLoadStatus.NOT_LOADED:
+            case AlbumLoadStatus.DOES_NOT_EXIST:
+                this.#setLoadStatus(path, AlbumLoadStatus.ERROR_LOADING);
+                break;
+            case AlbumLoadStatus.LOADED:
+                this.setUpdateStatus(path, AlbumUpdateStatus.ERROR_UPDATING);
+                break;
+            case AlbumLoadStatus.ERROR_LOADING:
+                // already in correct state
+                break;
+            default:
+                console.error('Unexpected load status:', status);
+        }
+    }
+
+    //
+    // SERVICE METHODS
+    // These 'do work', like making a server call.
+    //
+    // Characteristics:
+    //  - These are private, meant to only be called by STATE TRANSITION METHODS
+    //  - These don't mutate state directly; rather, they call STATE TRANSITION METHODS to do it
+    //  - These are generally async.
+    //  - These don't return values; they return void or Promise<void>
+    //
+
+    /**
+     * Fetch album from browser's local disk, then also fetch from server.
+     *
+     * @param path path of the album
+     */
+    async #fetchFromDiskAndServer(path: string): Promise<void> {
         try {
             const idbKey = this.#idbKey(path);
             const albumObject: AlbumRecord | undefined = await getFromIdb(idbKey);
             if (albumObject) {
                 console.log(`Album [${path}] found in idb`);
-                this.#setAlbum(path, albumObject); // Set album in-memory
+                this.#found(path, albumObject);
             } else {
                 console.log(`Album [${path}] not found in idb`);
             }
         } catch (error) {
             console.error(`Album [${path}] error fetching from disk`, error);
+        } finally {
+            await this.fetchFromServer(path);
         }
     }
 
@@ -98,24 +184,29 @@ class AlbumStore {
     async fetchFromServer(path: string): Promise<void> {
         try {
             const response = await fetch(albumUrl(path), this.#buildFetchConfig());
-            if (response.status === 404) throw 404;
-            if (!response.ok) throw new Error(response.statusText);
-            const json = await response.json();
-            console.log(`Album [${path}] fetched from server`, json);
-            this.#setAlbum(path, json); // Put album in memory
-            this.#writeToDisk(path, json); // Put album on local disk
-        } catch (error) {
-            if (error === 404) {
-                console.warn(`Album not found on server: [${path}]`);
-                this.#setLoadStatus(path, AlbumLoadStatus.DOES_NOT_EXIST);
-                this.#albums.delete(path); // Delete album from in memory
+            if (response.status === 404) {
+                this.#notFound(path);
                 this.#removeFromDisk(path); // Delete album from local disk
+            } else if (!response.ok) {
+                throw new Error(response.statusText);
             } else {
-                const message = error instanceof Error ? error.message : String(error);
-                this.#handleFetchError(path, message);
+                const json = await response.json();
+                console.log(`Album [${path}] fetched from server`, json);
+                this.#found(path, json); // Put album in memory
+                this.#writeToDisk(path, json); // Put album on local disk
             }
+        } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            this.#erroredFetching(path, message);
         }
     }
+
+    //
+    // OTHER METHODS
+    //
+    // Because this class was not originally designed as STATE TRANSITION METHODS + SERVICE FUNCTIONS,
+    // it has a grab bag of stuff.  TODO: rationalize
+    //
 
     /**
      * Return true if album exists
@@ -176,27 +267,6 @@ class AlbumStore {
         return requestConfig;
     }
 
-    #handleFetchError(path: string, error: string): void {
-        console.error(`Album [${path}] error fetching from server: `, error);
-
-        const status = this.#getLoadStatus(path);
-        switch (status) {
-            case AlbumLoadStatus.LOADING:
-            case AlbumLoadStatus.NOT_LOADED:
-            case AlbumLoadStatus.DOES_NOT_EXIST:
-                this.#setLoadStatus(path, AlbumLoadStatus.ERROR_LOADING);
-                break;
-            case AlbumLoadStatus.LOADED:
-                this.setUpdateStatus(path, AlbumUpdateStatus.ERROR_UPDATING);
-                break;
-            case AlbumLoadStatus.ERROR_LOADING:
-                // already in correct state
-                break;
-            default:
-                console.error('Unexpected load status:', status);
-        }
-    }
-
     /**
      * Update the album in the Svelte store and on the browser's local disk cache
      */
@@ -207,24 +277,6 @@ class AlbumStore {
         if (!oldAlbumEntry) throw 'albumEntryStore is null';
         this.#albums.set(albumEntry.album.path, albumEntry);
         this.#writeToDisk(albumEntry.album.path, albumEntry.album.json); // Put album in browser's local disk cache
-    }
-
-    /**
-     * Store the album in Svelte store
-     *
-     * @param path path of the album
-     * @param jsonAlbum JSON of the album
-     */
-    #setAlbum(path: string, jsonAlbum: AlbumRecord): Album {
-        const album = toAlbum(jsonAlbum);
-        const albumEntry = this.#getOrCreateWritableStore(path);
-        const newAlbumEntry = produce(albumEntry, (draftState: AlbumEntry) => {
-            draftState.loadStatus = AlbumLoadStatus.LOADED;
-            draftState.album = album;
-        });
-        this.#albums.set(path, newAlbumEntry);
-        this.setUpdateStatus(path, AlbumUpdateStatus.NOT_UPDATING);
-        return album;
     }
 
     /**
