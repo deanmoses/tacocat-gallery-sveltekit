@@ -13,12 +13,12 @@
     import AlbumEditControls from '$lib/components/site/admin/edit_controls/AlbumEditControls.svelte';
     import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
     import { editUrl } from '$lib/utils/path-utils';
-    import { setAlbumThumbnail } from '$lib/stores/admin/AlbumThumbnailLogic';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import DayAlbumFullScreenDropZone from './DayAlbumFullScreenDropZone.svelte';
     import type { UploadEntry } from '$lib/models/album';
     import UploadThumbnail from '$lib/components/site/admin/UploadThumbnail.svelte';
     import { draftStore } from '$lib/stores/DraftStore.svelte';
+    import { albumThumbnailSetStore } from '$lib/stores/AlbumThumbnailSetStore.svelte';
 
     interface Props {
         album: Album;
@@ -27,9 +27,8 @@
     let { album, uploads = undefined }: Props = $props();
     let okToNavigate = $derived(draftStore.okToNavigate);
 
-    async function albumThumbnailSelected(path: string) {
-        const imagePath = path;
-        await setAlbumThumbnail(album.path, imagePath);
+    async function albumThumbnailSelected(newThumbnailImagePath: string) {
+        albumThumbnailSetStore.setAlbumThumbnail(album.path, newThumbnailImagePath);
     }
 </script>
 
