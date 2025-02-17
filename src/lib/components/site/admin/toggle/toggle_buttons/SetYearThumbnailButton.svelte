@@ -19,7 +19,7 @@
         dialog.show();
     }
 
-    async function onConfirm(): Promise<void> {
+    function onConfirm(): void {
         const dayAlbumPath = getParentFromPath(imagePath);
         const yearAlbumPath = getParentFromPath(dayAlbumPath);
         albumThumbnailSetMachine.setAlbumThumbnail(yearAlbumPath, imagePath);

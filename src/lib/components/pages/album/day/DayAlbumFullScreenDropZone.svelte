@@ -54,7 +54,7 @@
         return imageNames;
     }
 
-    async function onConfirm(): Promise<void> {
+    function onConfirm(): void {
         uploadMachine.uploadImages(albumPath, imagesToUpload);
     }
 </script>

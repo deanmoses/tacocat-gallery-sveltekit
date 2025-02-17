@@ -9,8 +9,8 @@
     import UploadIcon from '$lib/components/site/icons/UploadIcon.svelte';
 
     interface Props {
-        /** Async callback to be called when the user confirms */
-        onConfirm?: () => Promise<void>;
+        /** Callback to be called when the user confirms */
+        onConfirm?: () => void;
     }
 
     let { onConfirm }: Props = $props();
@@ -24,13 +24,11 @@
         dialog?.show();
     }
 
-    async function onSubmit(e?: Event): Promise<void> {
+    function onSubmit(e?: Event): void {
         e?.preventDefault();
         dialog.close();
         filesAlreadyInAlbum = [];
-        if (onConfirm) {
-            await onConfirm();
-        }
+        if (onConfirm) onConfirm();
     }
 
     function onCancelButtonClick(): void {
@@ -38,11 +36,11 @@
         filesAlreadyInAlbum = [];
     }
 
-    async function onkeydown(event: KeyboardEvent): Promise<void> {
+    function onkeydown(event: KeyboardEvent): void {
         switch (event.key) {
             case 'Enter':
                 event.preventDefault();
-                await onSubmit();
+                onSubmit();
         }
     }
 </script>

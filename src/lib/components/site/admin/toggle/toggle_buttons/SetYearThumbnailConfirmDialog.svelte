@@ -9,8 +9,8 @@
     import StarIcon from '$lib/components/site/icons/StarIcon.svelte';
 
     interface Props {
-        /** Async callback to be called when the user confirms */
-        onConfirm?: () => Promise<void>;
+        /** Callback to be called when the user confirms */
+        onConfirm?: () => void;
     }
 
     let { onConfirm }: Props = $props();
@@ -21,12 +21,10 @@
         dialog.show();
     }
 
-    async function onSubmit(e?: Event): Promise<void> {
+    function onSubmit(e?: Event): void {
         e?.preventDefault();
         dialog.close();
-        if (onConfirm) {
-            await onConfirm();
-        }
+        if (onConfirm) onConfirm();
     }
 
     function onCancelButtonClick(): void {
