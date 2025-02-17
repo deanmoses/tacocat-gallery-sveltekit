@@ -12,7 +12,6 @@
     import SelectableStar from '$lib/components/site/admin/SelectableStar.svelte';
     import AlbumEditControls from '$lib/components/site/admin/edit_controls/AlbumEditControls.svelte';
     import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
-    import { editUrl } from '$lib/utils/path-utils';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import DayAlbumFullScreenDropZone from './DayAlbumFullScreenDropZone.svelte';
     import type { UploadEntry } from '$lib/models/album';
@@ -39,9 +38,9 @@
     {/snippet}
 
     {#snippet nav()}
-        <PrevButton href={okToNavigate ? editUrl(album.nextHref) : undefined} title={album.nextTitle} />
-        <UpButton href={okToNavigate ? editUrl(album.parentHref) : undefined} title={album.parentTitle} />
-        <NextButton href={okToNavigate ? editUrl(album.prevHref) : undefined} title={album.prevTitle} />
+        <PrevButton href={okToNavigate ? album.nextHref : undefined} title={album.nextTitle} />
+        <UpButton href={okToNavigate ? album.parentHref : undefined} title={album.parentTitle} />
+        <NextButton href={okToNavigate ? album.prevHref : undefined} title={album.prevTitle} />
     {/snippet}
 
     {#snippet caption()}
@@ -56,7 +55,7 @@
                         path={image.path}
                         title={image.title}
                         summary={image.summary}
-                        href={editUrl(`${image.path}`)}
+                        href={image.path}
                         src={image.thumbnailUrl}
                     >
                         {#snippet selectionControls()}

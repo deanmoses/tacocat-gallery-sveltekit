@@ -12,20 +12,8 @@
 
     interface Props {
         album: Album;
-        /**
-         * Function to create URL to child album.
-         * Needed to handle edit URLs.
-         * If not passed in, uses default non-edit URL behavior
-         */
-        albumUrlCreator?: (path: string | undefined) => string | undefined;
     }
-
-    let {
-        album,
-        albumUrlCreator = (path) => {
-            return path;
-        },
-    }: Props = $props();
+    let { album }: Props = $props();
 
     type AlbumsByMonth = Array<{
         monthName: string;
@@ -77,7 +65,7 @@
                 <Thumbnail
                     title={getTitle(childAlbum.path)}
                     summary={childAlbum.summary}
-                    href={albumUrlCreator(childAlbum.path)}
+                    href={childAlbum.path}
                     src={childAlbum.thumbnailUrl}
                     published={childAlbum.published}
                 />

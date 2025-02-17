@@ -14,7 +14,13 @@
 <ImageRouting {albumPath} {imagePath} {image}>
     {#snippet loaded()}
         {#if image && album}
-            <ImagePage {image} {album} />
+            {#if albumState.editMode}
+                {#await import('$lib/components/pages/image/ImageEditPage.svelte') then { default: ImageEditPage }}
+                    <ImageEditPage {image} {album} />
+                {/await}
+            {:else}
+                <ImagePage {image} {album} />
+            {/if}
         {/if}
     {/snippet}
 </ImageRouting>

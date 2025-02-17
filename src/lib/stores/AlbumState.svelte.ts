@@ -13,6 +13,7 @@ import { SvelteMap } from 'svelte/reactivity';
  * The state of all albums and images
  */
 class AlbumState {
+    editMode = $state(false);
     albums = new SvelteMap<string, AlbumEntry>();
     albumUpdates = new SvelteMap<string, ReloadStatus>();
     albumCreates = new SvelteMap<string, CreateEntry>();

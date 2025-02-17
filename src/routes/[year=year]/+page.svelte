@@ -12,7 +12,13 @@
 <YearAlbumRouting {albumPath}>
     {#snippet loaded()}
         {#if album}
-            <YearAlbumPage {album} />
+            {#if albumState.editMode}
+                {#await import('$lib/components/pages/album/year/YearAlbumEditPage.svelte') then { default: YearAlbumEditPage }}
+                    <YearAlbumEditPage {album} />
+                {/await}
+            {:else}
+                <YearAlbumPage {album} />
+            {/if}
         {/if}
     {/snippet}
 </YearAlbumRouting>

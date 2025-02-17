@@ -12,7 +12,13 @@
 <DayAlbumRouting {albumPath}>
     {#snippet loaded()}
         {#if album}
-            <DayAlbumPage {album} />
+            {#if albumState.editMode}
+                {#await import('$lib/components/pages/album/day/DayAlbumEditPage.svelte') then { default: DayAlbumEditPage }}
+                    <DayAlbumEditPage {album} />
+                {/await}
+            {:else}
+                <DayAlbumPage {album} />
+            {/if}
         {/if}
     {/snippet}
 </DayAlbumRouting>

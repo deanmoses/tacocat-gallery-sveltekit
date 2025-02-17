@@ -12,7 +12,6 @@
     import BaseEditControls from '$lib/components/site/admin/edit_controls/BaseEditControls.svelte';
     import EditableText from '$lib/components/site/admin/EditableText.svelte';
     import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
-    import { editUrl } from '$lib/utils/path-utils';
     import type { Album, Image } from '$lib/models/GalleryItemInterfaces';
     import ImageFullScreenDropZone from './ImageFullScreenDropZone.svelte';
     import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
@@ -44,9 +43,9 @@
 
     {#snippet nav()}
         {#if okToNavigate}
-            <PrevButton href={editUrl(image.prevHref)} />
-            <UpButton href={editUrl(album.href)} title={album.title} />
-            <NextButton href={editUrl(image.nextHref)} />
+            <PrevButton href={image.prevHref} />
+            <UpButton href={album.href} title={album.title} />
+            <NextButton href={image.nextHref} />
         {:else}
             <PrevButton />
             <UpButton title={album.title} />

@@ -17,7 +17,6 @@
         album: Album;
         image: Image;
     }
-
     let { album, image }: Props = $props();
     let imageTitle = $derived(image.title);
 </script>

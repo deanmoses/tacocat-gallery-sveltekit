@@ -11,17 +11,16 @@
     import StatusMessage from './buttons/StatusMessage.svelte';
     import { DraftStatus } from '$lib/models/draft';
     import { page } from '$app/state';
-    import { goto } from '$app/navigation';
-    import { unEditUrl } from '$lib/utils/path-utils';
     import { isValidImagePath } from '$lib/utils/galleryPathUtils';
     import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
+    import { editModeMachine } from '$lib/stores/admin/EditModeMachine.svete';
 
     interface Props {
         rightControls?: Snippet;
     }
     let { rightControls }: Props = $props();
 
-    let path: string | undefined = $derived(unEditUrl(page.url.pathname));
+    let path: string | undefined = $derived(page.url.pathname);
     let status: DraftStatus | undefined = $derived(draftMachine.status);
     let hasUnsavedChanges: boolean = $derived(
         draftMachine.status == DraftStatus.UNSAVED_CHANGES || draftMachine.status == DraftStatus.ERRORED,
@@ -46,9 +45,8 @@
     }
 
     function onCancelButtonClick() {
+        editModeMachine.turnOffEditMode();
         draftMachine.cancel();
-        if (path === undefined) throw new Error(`path is undefined`);
-        goto(path);
     }
 
     function onSaveButtonClick() {

@@ -12,21 +12,3 @@ export function getAlbumType(path: string): AlbumType {
     else if (isValidImagePath(path)) throw Error(`Image not album path [${path}]`);
     else throw Error(`Invalid album path [${path}]`);
 }
-
-/**
- * @param path path not in edit mode, like /2001/12-31
- * @returns the edit version of the URL, like /edit/2001/12-31
- */
-export function editUrl(path: string | undefined): string | undefined {
-    return path ? `/edit${path}` : undefined;
-}
-
-/**
- * Generate the non-Edit Mode URL from the Edit Mode URL
- *
- * @param path path in edit mode, like /edit/2001/12-31
- * @returns the non-edit version of the URL, like /2001/12-31
- */
-export function unEditUrl(path: string | undefined): string | undefined {
-    return path?.replace(/^\/edit/, '') ?? undefined;
-}

@@ -15,7 +15,6 @@
     interface Props {
         album: Album;
     }
-
     let { album }: Props = $props();
 </script>
 

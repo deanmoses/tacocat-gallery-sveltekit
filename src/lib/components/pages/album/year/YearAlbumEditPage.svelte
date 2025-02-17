@@ -11,7 +11,6 @@
     import YearAlbumThumbnails from './YearAlbumThumbnails.svelte';
     import AlbumEditControls from '$lib/components/site/admin/edit_controls/AlbumEditControls.svelte';
     import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
-    import { editUrl } from '$lib/utils/path-utils';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
 
@@ -28,9 +27,9 @@
     {/snippet}
 
     {#snippet nav()}
-        <PrevButton href={okToNavigate ? editUrl(album.nextHref) : undefined} title={album.nextTitle} />
+        <PrevButton href={okToNavigate ? album.nextHref : undefined} title={album.nextTitle} />
         <UpButton href={okToNavigate ? '../' : undefined} title="All Years" />
-        <NextButton href={okToNavigate ? editUrl(album.prevHref) : undefined} title={album.prevTitle} />
+        <NextButton href={okToNavigate ? album.prevHref : undefined} title={album.prevTitle} />
     {/snippet}
 
     {#snippet caption()}
@@ -38,6 +37,6 @@
     {/snippet}
 
     {#snippet thumbnails()}
-        <YearAlbumThumbnails {album} albumUrlCreator={editUrl} />
+        <YearAlbumThumbnails {album} />
     {/snippet}
 </YearAlbumPageLayout>
