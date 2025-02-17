@@ -1,38 +1,16 @@
 import { produce } from 'immer';
 import { get as getFromIdb, set as setToIdb, del as delFromIdb } from 'idb-keyval';
-import { AlbumLoadStatus, AlbumUpdateStatus, type AlbumEntry } from '$lib/models/album';
+import { AlbumLoadStatus, ReloadStatus, type AlbumEntry } from '$lib/models/album';
 import toAlbum from '$lib/models/impl/AlbumCreator';
 import { isValidAlbumPath } from '$lib/utils/galleryPathUtils';
 import type { AlbumRecord } from '$lib/models/impl/server';
 import { albumUrl } from '$lib/utils/config';
-import { SvelteMap } from 'svelte/reactivity';
+import { albumState } from './AlbumState.svelte';
 
 /**
- * Store of albums
+ * Album loading state machine
  */
-class AlbumStore {
-    /**
-     * Private writable store
-     */
-    #albums: Map<string, AlbumEntry> = new SvelteMap<string, AlbumEntry>();
-
-    /**
-     * Public read-only version of store
-     */
-    readonly albums: ReadonlyMap<string, AlbumEntry> = $derived(this.#albums);
-
-    /**
-     * Private writable store holding album update statuses.
-     *
-     * Update status is different than load status: updates are AFTER the album has loaded initially.
-     */
-    #albumUpdateStatuses: Map<string, AlbumUpdateStatus> = new SvelteMap<string, AlbumUpdateStatus>();
-
-    /**
-     * Public read-only version of album update statuses
-     */
-    readonly albumUpdateStatuses: ReadonlyMap<string, AlbumUpdateStatus> = $derived(this.#albumUpdateStatuses);
-
+class AlbumLoadMachine {
     //
     // STATE TRANSITION METHODS
     // These mutate the store's state.
@@ -65,7 +43,7 @@ class AlbumStore {
     fetch(path: string, refetch = true): void {
         if (!isValidAlbumPath(path)) throw new Error(`Invalid album path [${path}]`);
 
-        const status: AlbumLoadStatus = this.#albums.get(path)?.loadStatus ?? AlbumLoadStatus.NOT_LOADED;
+        const status: AlbumLoadStatus = albumState.albums.get(path)?.loadStatus ?? AlbumLoadStatus.NOT_LOADED;
 
         // Do nothing if the album is already being loaded
         if (AlbumLoadStatus.LOADING === status) return;
@@ -77,7 +55,7 @@ class AlbumStore {
         }
         // I have a copy in memory, but the caller has asked to re-fetch
         else if (refetch) {
-            this.setUpdateStatus(path, AlbumUpdateStatus.UPDATING);
+            this.setUpdateStatus(path, ReloadStatus.RELOADING);
             this.fetchFromServer(path); // fire and forget, don't await
         }
     }
@@ -95,8 +73,8 @@ class AlbumStore {
             draftState.loadStatus = AlbumLoadStatus.LOADED;
             draftState.album = album;
         });
-        this.#albums.set(path, newAlbumEntry);
-        this.setUpdateStatus(path, AlbumUpdateStatus.NOT_UPDATING);
+        albumState.albums.set(path, newAlbumEntry);
+        this.setUpdateStatus(path, ReloadStatus.NOT_RELOADING);
     }
 
     /**
@@ -111,8 +89,8 @@ class AlbumStore {
             draftState.loadStatus = AlbumLoadStatus.DOES_NOT_EXIST;
             draftState.album = undefined;
         });
-        this.#albums.set(path, newAlbumEntry);
-        this.setUpdateStatus(path, AlbumUpdateStatus.NOT_UPDATING);
+        albumState.albums.set(path, newAlbumEntry);
+        this.setUpdateStatus(path, ReloadStatus.NOT_RELOADING);
     }
 
     /**
@@ -131,7 +109,7 @@ class AlbumStore {
                 this.#setLoadStatus(path, AlbumLoadStatus.ERROR_LOADING);
                 break;
             case AlbumLoadStatus.LOADED:
-                this.setUpdateStatus(path, AlbumUpdateStatus.ERROR_UPDATING);
+                this.setUpdateStatus(path, ReloadStatus.ERROR_RELOADING);
                 break;
             case AlbumLoadStatus.ERROR_LOADING:
                 // already in correct state
@@ -216,7 +194,7 @@ class AlbumStore {
 
         // First check in memory
         console.log(`Checking if album [${path}] exists in memory`);
-        const status = this.#albums.get(path)?.loadStatus ?? AlbumLoadStatus.NOT_LOADED;
+        const status = albumState.albums.get(path)?.loadStatus ?? AlbumLoadStatus.NOT_LOADED;
         if (AlbumLoadStatus.LOADED === status || AlbumLoadStatus.LOADING === status) {
             return true;
         } else if (AlbumLoadStatus.DOES_NOT_EXIST === status) {
@@ -273,9 +251,9 @@ class AlbumStore {
     updateAlbumEntry(albumEntry: AlbumEntry): void {
         if (!albumEntry) throw 'Album entry is null';
         if (!albumEntry.album) throw 'Album is null';
-        const oldAlbumEntry = this.#albums.get(albumEntry.album.path);
+        const oldAlbumEntry = albumState.albums.get(albumEntry.album.path);
         if (!oldAlbumEntry) throw 'albumEntryStore is null';
-        this.#albums.set(albumEntry.album.path, albumEntry);
+        albumState.albums.set(albumEntry.album.path, albumEntry);
         this.#writeToDisk(albumEntry.album.path, albumEntry.album.json); // Put album in browser's local disk cache
     }
 
@@ -321,17 +299,17 @@ class AlbumStore {
         const newAlbumEntry = produce(albumEntry, (draftState: AlbumEntry) => {
             draftState.loadStatus = loadStatus;
         });
-        this.#albums.set(path, newAlbumEntry);
+        albumState.albums.set(path, newAlbumEntry);
     }
 
     #getLoadStatus(path: string): AlbumLoadStatus {
-        const album = this.#albums.get(path);
+        const album = albumState.albums.get(path);
         if (!album) throw new Error(`Album not found [${path}]`);
         return album.loadStatus;
     }
 
-    setUpdateStatus(path: string, status: AlbumUpdateStatus): void {
-        this.#albumUpdateStatuses.set(path, status);
+    setUpdateStatus(path: string, status: ReloadStatus): void {
+        albumState.albumUpdates.set(path, status);
     }
 
     /**
@@ -341,7 +319,7 @@ class AlbumStore {
      * @param path path of the album
      */
     #getOrCreateWritableStore(path: string): AlbumEntry {
-        let albumEntry = this.#albums.get(path);
+        let albumEntry = albumState.albums.get(path);
 
         // If the album wasn't found in memory
         if (!albumEntry) {
@@ -369,8 +347,8 @@ class AlbumStore {
         console.log(`Album [${albumPath}] removed from disk`);
 
         // Delete from memory
-        this.#albums.delete(albumPath);
+        albumState.albums.delete(albumPath);
         console.log(`Album [${albumPath}] removed from memory`);
     }
 }
-export const albumStore = new AlbumStore();
+export const albumLoadMachine = new AlbumLoadMachine();

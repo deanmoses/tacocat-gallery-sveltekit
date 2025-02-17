@@ -13,13 +13,13 @@
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import type { UploadEntry } from '$lib/models/album';
     import { sessionStore } from '$lib/stores/SessionStore.svelte';
-    import { globalStore } from '$lib/stores/GlobalStore.svelte';
+    import { getUploadsForAlbum } from '$lib/stores/AlbumState.svelte';
 
     interface Props {
         album: Album;
     }
     let { album }: Props = $props();
-    let uploads: UploadEntry[] | undefined = $derived(globalStore.getUploadsForAlbum(album.path));
+    let uploads: UploadEntry[] | undefined = $derived(getUploadsForAlbum(album.path));
 </script>
 
 <DayAlbumPageLayout title={album.title} published={album.published}>

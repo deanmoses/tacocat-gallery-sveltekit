@@ -1,20 +1,15 @@
 <script lang="ts">
     import type { PageProps } from './$types';
-    import type { DeleteEntry } from '$lib/models/album';
     import YearAlbumRouting from '$lib/components/pages/album/year/YearAlbumRouting.svelte';
     import YearAlbumPage from '$lib/components/pages/album/year/YearAlbumPage.svelte';
-    import { albumStore } from '$lib/stores/AlbumStore.svelte';
-    import { globalStore } from '$lib/stores/GlobalStore.svelte';
+    import { albumState } from '$lib/stores/AlbumState.svelte';
 
     let { data }: PageProps = $props();
-    let path = $derived(data.albumPath);
-    let albumEntry = $derived(albumStore.albums.get(path));
-    let album = $derived(albumEntry?.album);
-    let loadStatus = $derived(albumEntry?.loadStatus);
-    let deleteEntry: DeleteEntry | undefined = $derived(globalStore.albumDeletes.get(path));
+    let albumPath = $derived(data.albumPath);
+    let album = $derived(albumState.albums.get(albumPath)?.album);
 </script>
 
-<YearAlbumRouting {loadStatus} {deleteEntry}>
+<YearAlbumRouting {albumPath}>
     {#snippet loaded()}
         {#if album}
             <YearAlbumPage {album} />

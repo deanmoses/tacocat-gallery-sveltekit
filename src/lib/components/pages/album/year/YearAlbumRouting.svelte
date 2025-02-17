@@ -6,21 +6,26 @@
 <script lang="ts">
     import YearAlbumLoadingPage from '$lib/components/pages/album/year/YearAlbumLoadingPage.svelte';
     import AlbumErrorPage from '$lib/components/pages/album/AlbumErrorPage.svelte';
-    import { AlbumLoadStatus, type DeleteEntry } from '$lib/models/album';
+    import { AlbumLoadStatus, CreateStatus, DeleteStatus } from '$lib/models/album';
     import AlbumProcessingPage from '../AlbumProcessingPage.svelte';
     import type { Snippet } from 'svelte';
+    import { albumState } from '$lib/stores/AlbumState.svelte';
 
     interface Props {
-        loadStatus: AlbumLoadStatus | undefined;
-        deleteEntry?: DeleteEntry | undefined;
+        albumPath: string;
         loaded?: Snippet;
     }
-    let { loadStatus, deleteEntry = undefined, loaded }: Props = $props();
+    let { albumPath, loaded }: Props = $props();
+    let loadStatus = $derived(albumState.albums.get(albumPath)?.loadStatus);
+    let createStatus = $derived(albumState.albumCreates.get(albumPath)?.status);
+    let deleteStatus = $derived(albumState.albumDeletes.get(albumPath)?.status);
 </script>
 
-{#if !loadStatus}
+{#if CreateStatus.IN_PROGRESS === createStatus}
+    <AlbumErrorPage>Creating...</AlbumErrorPage>
+{:else if !loadStatus}
     <YearAlbumLoadingPage />
-{:else if deleteEntry}
+{:else if DeleteStatus.IN_PROGRESS === deleteStatus}
     <AlbumProcessingPage title="Delete in progress" />
 {:else if AlbumLoadStatus.NOT_LOADED === loadStatus}
     <YearAlbumLoadingPage />
@@ -36,5 +41,5 @@
         <p><a href="/">Go back home?</a></p>
     </AlbumErrorPage>
 {:else}
-    Unknown album status: {loadStatus}
+    <AlbumErrorPage>Unknown album status: {loadStatus}</AlbumErrorPage>
 {/if}

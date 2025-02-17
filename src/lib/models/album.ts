@@ -35,28 +35,25 @@ export enum AlbumLoadStatus {
 }
 
 /**
- * Status of subsequent updates to the album
+ * Status of subsequent reload to the album
  *
- * Update status is different than load status: updates are AFTER the
- * initial album has loaded.  You are refreshing the existing album.
+ * Reload status is different than load status:
+ * reloads are AFTER the initial album has loaded.
  */
-export enum AlbumUpdateStatus {
-    NOT_UPDATING = 'NOT_UPDATING',
-    UPDATING = 'UPDATING',
-    ERROR_UPDATING = 'ERROR_UPDATING',
+export enum ReloadStatus {
+    NOT_RELOADING = 'NOT_RELOADING',
+    RELOADING = 'RELOADING',
+    ERROR_RELOADING = 'ERROR_RELOADING',
 }
 
 /**
- * Represents a single album being created
+ * Represents an album being created
  */
-export type AlbumCreateEntry = {
-    status: AlbumCreateState;
+export type CreateEntry = {
+    status: CreateStatus;
 };
 
-/**
- * Status of the create of a single album
- */
-export enum AlbumCreateState {
+export enum CreateStatus {
     IN_PROGRESS = 'In Progress',
 }
 

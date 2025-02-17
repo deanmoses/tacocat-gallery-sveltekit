@@ -2,8 +2,8 @@ import { RenameStatus } from '$lib/models/album';
 import { renameImageUrl } from '$lib/utils/config';
 import { getNameFromPath, getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
 import { toast } from '@zerodevx/svelte-toast';
-import { albumStore } from '../AlbumStore.svelte';
-import { globalStore } from '../GlobalStore.svelte';
+import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
+import { albumState } from '../AlbumState.svelte';
 
 /**
  * Image rename state machine
@@ -30,7 +30,7 @@ class ImageRenameMachine {
     }
 
     #renameStarted(oldPath: string, newPath: string): void {
-        globalStore.imageRenames.set(oldPath, {
+        albumState.imageRenames.set(oldPath, {
             oldPath,
             newPath,
             status: RenameStatus.IN_PROGRESS,
@@ -38,12 +38,12 @@ class ImageRenameMachine {
     }
 
     #success(oldImagePath: string): void {
-        globalStore.imageRenames.delete(oldImagePath);
+        albumState.imageRenames.delete(oldImagePath);
     }
 
     #error(oldImagePath: string, newImagePath: string, errorMessage: string): void {
         console.error(`Error renaming ${oldImagePath} to ${newImagePath}: ${errorMessage}`);
-        globalStore.imageRenames.delete(oldImagePath);
+        albumState.imageRenames.delete(oldImagePath);
         toast.push(`Error renaming image: ${errorMessage}`);
     }
 
@@ -63,7 +63,7 @@ class ImageRenameMachine {
             if (!isValidImagePath(oldImagePath)) throw new Error(`Invalid image path [${oldImagePath}]`);
             if (!isValidImagePath(newImagePath)) throw new Error(`Invalid image path [${newImagePath}]`);
             const albumPath = getParentFromPath(newImagePath);
-            const album = albumStore.albums.get(albumPath)?.album;
+            const album = albumState.albums.get(albumPath)?.album;
             if (!album) throw new Error(`Album [${albumPath}] not loaded`);
             const newName = getNameFromPath(newImagePath);
             console.log(`Renaming image [${oldImagePath}] to [${newName}]...`);
@@ -81,7 +81,7 @@ class ImageRenameMachine {
                 const msg = (await response.json()).errorMessage || response.statusText;
                 throw msg;
             }
-            await albumStore.fetchFromServer(albumPath); // update the album
+            await albumLoadMachine.fetchFromServer(albumPath); // update the album
             this.#success(oldImagePath);
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);

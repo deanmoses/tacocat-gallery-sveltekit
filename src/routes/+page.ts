@@ -1,8 +1,8 @@
 import type { PageLoad } from './$types';
-import { albumStore } from '$lib/stores/AlbumStore.svelte';
+import { albumLoadMachine } from '$lib/stores/AlbumLoadMachine.svelte';
 
 export const load: PageLoad = () => {
     const pathToRootAlbum = '/';
-    albumStore.fetch(pathToRootAlbum);
+    albumLoadMachine.fetch(pathToRootAlbum);
     return { pathToRootAlbum };
 };

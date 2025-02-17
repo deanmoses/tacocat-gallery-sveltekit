@@ -6,28 +6,30 @@
 <script lang="ts">
     import AlbumLoadingPage from '$lib/components/pages/album/AlbumLoadingPage.svelte';
     import AlbumErrorPage from '$lib/components/pages/album/AlbumErrorPage.svelte';
-    import { AlbumLoadStatus, type DeleteEntry, type RenameEntry } from '$lib/models/album';
+    import { AlbumLoadStatus, CreateStatus, DeleteStatus, RenameStatus } from '$lib/models/album';
     import HomeIcon from '$lib/components/site/icons/HomeIcon.svelte';
     import AlbumProcessingPage from '../AlbumProcessingPage.svelte';
     import type { Snippet } from 'svelte';
-    import { globalStore } from '$lib/stores/GlobalStore.svelte';
+    import { albumState } from '$lib/stores/AlbumState.svelte';
 
     interface Props {
-        path: string;
-        loadStatus: AlbumLoadStatus | undefined;
+        albumPath: string;
         loaded?: Snippet;
     }
-    let { path, loadStatus, loaded }: Props = $props();
-
-    let renameEntry: RenameEntry | undefined = $derived(globalStore.albumRenames.get(path));
-    let deleteEntry: DeleteEntry | undefined = $derived(globalStore.albumDeletes.get(path));
+    let { albumPath, loaded }: Props = $props();
+    let loadStatus = $derived(albumState.albums.get(albumPath)?.loadStatus);
+    let createStatus = $derived(albumState.albumCreates.get(albumPath)?.status);
+    let renameStatus = $derived(albumState.albumRenames.get(albumPath)?.status);
+    let deleteStatus = $derived(albumState.albumDeletes.get(albumPath)?.status);
 </script>
 
-{#if !loadStatus}
+{#if CreateStatus.IN_PROGRESS === createStatus}
+    <AlbumErrorPage>Creating...</AlbumErrorPage>
+{:else if !loadStatus}
     <AlbumLoadingPage />
-{:else if deleteEntry}
+{:else if DeleteStatus.IN_PROGRESS === deleteStatus}
     <AlbumProcessingPage title="Delete in progress" />
-{:else if renameEntry}
+{:else if RenameStatus.IN_PROGRESS === renameStatus}
     <AlbumProcessingPage title="Rename in progress" />
 {:else if AlbumLoadStatus.NOT_LOADED === loadStatus}
     <AlbumLoadingPage />

@@ -19,14 +19,14 @@
     import UploadThumbnail from '$lib/components/site/admin/UploadThumbnail.svelte';
     import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
     import { albumThumbnailSetMachine } from '$lib/stores/admin/AlbumThumbnailSetMachine.svelte';
-    import { globalStore } from '$lib/stores/GlobalStore.svelte';
+    import { getUploadsForAlbum } from '$lib/stores/AlbumState.svelte';
 
     interface Props {
         album: Album;
     }
     let { album }: Props = $props();
     let okToNavigate = $derived(draftMachine.okToNavigate);
-    let uploads: UploadEntry[] | undefined = $derived(globalStore.getUploadsForAlbum(album.path));
+    let uploads: UploadEntry[] | undefined = $derived(getUploadsForAlbum(album.path));
 
     function albumThumbnailSelected(newThumbnailImagePath: string) {
         albumThumbnailSetMachine.setAlbumThumbnail(album.path, newThumbnailImagePath);

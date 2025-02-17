@@ -7,7 +7,6 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import RenameIcon from '$lib/components/site/icons/RenameIcon.svelte';
-    import { albumStore } from '$lib/stores/AlbumStore.svelte';
     import {
         getNameFromPath,
         getParentFromPath,
@@ -18,6 +17,7 @@
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import TextDialog from './TextDialog.svelte';
     import { imageRenameMachine } from '$lib/stores/admin/ImageRenameMachine.svelte';
+    import { albumState } from '$lib/stores/AlbumState.svelte';
 
     let imagePath: string = $derived(page.url.pathname);
     let show: boolean = $derived(isValidImagePath(imagePath)); // Show this button only on images
@@ -52,7 +52,7 @@
         if (!isValidImageNameWithoutExtensionStrict(newImageName)) return 'invalid image name';
         const newImagePath = imageNameWithoutExtensionToPath(newImageName);
         const albumPath = getParentFromPath(newImagePath);
-        const album = albumStore.albums.get(albumPath);
+        const album = albumState.albums.get(albumPath);
         if (!album || !album.album) return;
         const image = album.album.getImage(newImagePath);
         if (image) return 'image already exists';

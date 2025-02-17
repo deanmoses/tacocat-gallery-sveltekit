@@ -2,16 +2,14 @@
     import type { PageProps } from './$types';
     import DayAlbumRouting from '$lib/components/pages/album/day/DayAlbumRouting.svelte';
     import DayAlbumPage from '$lib/components/pages/album/day/DayAlbumPage.svelte';
-    import { albumStore } from '$lib/stores/AlbumStore.svelte';
+    import { albumState } from '$lib/stores/AlbumState.svelte';
 
     let { data }: PageProps = $props();
-    let path = $derived(data.albumPath);
-    let albumEntry = $derived(albumStore.albums.get(path));
-    let album = $derived(albumEntry?.album);
-    let loadStatus = $derived(albumEntry?.loadStatus);
+    let albumPath = $derived(data.albumPath);
+    let album = $derived(albumState.albums.get(albumPath)?.album);
 </script>
 
-<DayAlbumRouting {path} {loadStatus}>
+<DayAlbumRouting {albumPath}>
     {#snippet loaded()}
         {#if album}
             <DayAlbumPage {album} />

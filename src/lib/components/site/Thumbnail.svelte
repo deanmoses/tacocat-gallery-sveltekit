@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
     import { DeleteStatus, CropStatus, RenameStatus } from '$lib/models/album';
-    import { globalStore } from '$lib/stores/GlobalStore.svelte';
+    import { albumState } from '$lib/stores/AlbumState.svelte';
     import CropIcon from './icons/CropIcon.svelte';
     import DeleteIcon from './icons/DeleteIcon.svelte';
     import RenameIcon from './icons/RenameIcon.svelte';
@@ -32,9 +32,9 @@
     }: Props = $props();
 
     let unpublished: boolean = $derived(!published);
-    let isDeleting: boolean = $derived(globalStore.imageDeletes.get(path)?.status === DeleteStatus.IN_PROGRESS);
-    let isRenaming: boolean = $derived(globalStore.imageRenames.get(path)?.status === RenameStatus.IN_PROGRESS);
-    let isCropping: boolean = $derived(globalStore.crops.get(path)?.status === CropStatus.IN_PROGRESS);
+    let isDeleting: boolean = $derived(albumState.imageDeletes.get(path)?.status === DeleteStatus.IN_PROGRESS);
+    let isRenaming: boolean = $derived(albumState.imageRenames.get(path)?.status === RenameStatus.IN_PROGRESS);
+    let isCropping: boolean = $derived(albumState.crops.get(path)?.status === CropStatus.IN_PROGRESS);
 </script>
 
 <div class="thumbnail">

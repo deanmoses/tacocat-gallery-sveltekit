@@ -7,7 +7,7 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import RenameIcon from '$lib/components/site/icons/RenameIcon.svelte';
-    import { albumStore } from '$lib/stores/AlbumStore.svelte';
+    import { albumLoadMachine } from '$lib/stores/AlbumLoadMachine.svelte';
     import {
         getNameFromPath,
         getParentFromPath,
@@ -41,7 +41,7 @@
     async function validateDayAlbumName(albumName: string): Promise<string | undefined> {
         const newAlbumPath = albumNameToPath(albumName);
         if (!isValidDayAlbumPath(newAlbumPath)) return 'invalid album name';
-        if (await albumStore.albumExists(newAlbumPath)) return 'already exists';
+        if (await albumLoadMachine.albumExists(newAlbumPath)) return 'already exists';
     }
 
     function albumNameToPath(albumName: string): string {

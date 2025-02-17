@@ -7,8 +7,8 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import CreateIcon from '$lib/components/site/icons/CreateIcon.svelte';
-    import { albumStore } from '$lib/stores/AlbumStore.svelte';
-    import { createAlbum } from '$lib/stores/admin/AlbumCreateStoreLogic';
+    import { albumCreateMachine } from '$lib/stores/admin/AlbumCreateMachine.svelte';
+    import { albumLoadMachine } from '$lib/stores/AlbumLoadMachine.svelte';
     import { isValidYearAlbumPath, sanitizeDayAlbumName } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import TextDialog from './TextDialog.svelte';
@@ -25,16 +25,16 @@
         dialog.show();
     }
 
-    async function onNewAlbumName(newAlbumName: string) {
+    function onNewAlbumName(newAlbumName: string) {
         const newAlbumPath = '/' + newAlbumName + '/';
-        await createAlbum(newAlbumPath);
+        albumCreateMachine.createAlbum(newAlbumPath);
         goto(newAlbumPath);
     }
 
     async function validateYearAlbumName(albumName: string): Promise<string | undefined> {
         const newAlbumPath = '/' + albumName + '/';
         if (!isValidYearAlbumPath(newAlbumPath)) return 'not a year, bruh';
-        if (await albumStore.albumExists(newAlbumPath)) return 'already exists';
+        if (await albumLoadMachine.albumExists(newAlbumPath)) return 'already exists';
     }
 </script>
 

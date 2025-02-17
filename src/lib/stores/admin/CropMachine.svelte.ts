@@ -1,8 +1,8 @@
-import { albumStore } from '../AlbumStore.svelte';
+import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
 import { recropThumbnailUrl } from '$lib/utils/config';
 import { toast } from '@zerodevx/svelte-toast';
 import { getParentFromPath } from '$lib/utils/galleryPathUtils';
-import { globalStore } from '../GlobalStore.svelte';
+import { albumState } from '../AlbumState.svelte';
 import { CropStatus, type Crop } from '$lib/models/album';
 
 /**
@@ -30,7 +30,7 @@ class CropMachine {
      */
     crop(imagePath: string, crop: Crop): void {
         console.log(`Saving crop of image [${imagePath}]`, crop);
-        globalStore.crops.set(imagePath, {
+        albumState.crops.set(imagePath, {
             imagePath,
             crop,
             status: CropStatus.IN_PROGRESS,
@@ -39,14 +39,14 @@ class CropMachine {
     }
 
     #success(imagePath: string) {
-        globalStore.crops.delete(imagePath);
+        albumState.crops.delete(imagePath);
         toast.push(`Thumbnail cropped`);
         // goto(imagePath); TODO: goto isn't appropriate here
     }
 
     #error(imagePath: string, errorMessage: string) {
         console.log(`Error cropping thumbnail for [${imagePath}]: ${errorMessage}`);
-        globalStore.crops.delete(imagePath);
+        albumState.crops.delete(imagePath);
         toast.push(`Error cropping thumbnail: ${errorMessage}`);
     }
 
@@ -87,7 +87,7 @@ class CropMachine {
             //  2) this image may be the album's thumb
             const albumPath = getParentFromPath(imagePath);
             console.log(`Reloading album [${albumPath}] from server`);
-            await albumStore.fetchFromServer(albumPath); // force reload from server
+            await albumLoadMachine.fetchFromServer(albumPath); // force reload from server
 
             // Reload year album because this image may be the year's thumb
             // TODO: not doing yet because back end isn't setting year's thumb yet

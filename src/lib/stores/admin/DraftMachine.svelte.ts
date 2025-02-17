@@ -1,11 +1,12 @@
 import type { Draft, DraftContent } from '$lib/models/draft';
 import { DraftStatus } from '$lib/models/draft';
 import { produce } from 'immer';
-import { albumStore } from '../AlbumStore.svelte';
+import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
 import { getParentFromPath, isValidImagePath, isValidPath } from '$lib/utils/galleryPathUtils';
 import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
 import { updateUrl } from '$lib/utils/config';
 import { toast } from '@zerodevx/svelte-toast';
+import { albumState } from '../AlbumState.svelte';
 
 const initialState: Draft = {
     status: DraftStatus.NO_CHANGES,
@@ -203,7 +204,7 @@ class DraftMachine {
                 // Get the album in which the image resides
                 const albumPath = getParentFromPath(draft.path);
                 console.log(`Image save: parent album: [${albumPath}]`);
-                const albumEntry = albumStore.albums.get(albumPath);
+                const albumEntry = albumState.albums.get(albumPath);
                 if (!albumEntry) throw new Error(`Did not find album entry [${albumPath}] in memory`);
                 if (!albumEntry.album)
                     throw new Error(`Did not find album [${albumPath}] in memory: entry exists but it has no album`);
@@ -221,11 +222,11 @@ class DraftMachine {
                 // Update album in store
                 // This also writes the album to the browser's local disk cache;
                 // otherwise, the next page load the value will be wrong
-                albumStore.updateAlbumEntry(updatedAlbumEntry);
+                albumLoadMachine.updateAlbumEntry(updatedAlbumEntry);
             }
             // Else it was an album that was saved...
             else {
-                const albumEntry = albumStore.albums.get(draft.path);
+                const albumEntry = albumState.albums.get(draft.path);
                 if (!albumEntry) throw new Error(`Did not find album entry [${draft.path}] in memory`);
                 if (!albumEntry.album)
                     throw new Error(`Did not find album [${draft.path}] in memory: entry exists but it has no album`);
@@ -239,7 +240,7 @@ class DraftMachine {
                 // Update album in store
                 // This also writes the album to the browser's local disk cache;
                 // otherwise, the next page load the value will be wrong
-                albumStore.updateAlbumEntry(updatedAlbumEntry);
+                albumLoadMachine.updateAlbumEntry(updatedAlbumEntry);
             }
 
             this.#saveSuccess();

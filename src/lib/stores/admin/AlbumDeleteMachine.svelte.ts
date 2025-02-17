@@ -2,8 +2,8 @@ import { DeleteStatus } from '$lib/models/album';
 import { deleteUrl } from '$lib/utils/config';
 import { isValidAlbumPath } from '$lib/utils/galleryPathUtils';
 import { toast } from '@zerodevx/svelte-toast';
-import { albumStore } from '../AlbumStore.svelte';
-import { globalStore } from '../GlobalStore.svelte';
+import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
+import { albumState } from '../AlbumState.svelte';
 
 /**
  * Album delete state machine
@@ -30,19 +30,19 @@ class AlbumDeleteMachine {
     }
 
     #deleteStarted(albumPath: string): void {
-        globalStore.albumDeletes.set(albumPath, {
+        albumState.albumDeletes.set(albumPath, {
             status: DeleteStatus.IN_PROGRESS,
         });
     }
 
     #success(albumPath: string): void {
         console.log(`Album [${albumPath}] deleted`);
-        globalStore.albumDeletes.delete(albumPath);
+        albumState.albumDeletes.delete(albumPath);
         toast.push(`Album [${albumPath}] deleted`);
     }
 
     #error(albumPath: string, errorMessage: string): void {
-        globalStore.albumDeletes.delete(albumPath);
+        albumState.albumDeletes.delete(albumPath);
         toast.push(`Error deleting album: ${errorMessage}`);
     }
 
@@ -73,7 +73,7 @@ class AlbumDeleteMachine {
                 const msg = (await response.json()).errorMessage || response.statusText;
                 throw new Error(msg);
             }
-            albumStore.removeFromMemoryAndDisk(albumPath);
+            albumLoadMachine.removeFromMemoryAndDisk(albumPath);
             this.#success(albumPath);
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);

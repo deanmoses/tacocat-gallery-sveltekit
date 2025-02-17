@@ -17,7 +17,7 @@
     import ImageProcessingPage from './ImageProcessingPage.svelte';
     import AlbumErrorPage from '../album/AlbumErrorPage.svelte';
     import type { Snippet } from 'svelte';
-    import { globalStore } from '$lib/stores/GlobalStore.svelte';
+    import { albumState, getUpload } from '$lib/stores/AlbumState.svelte';
 
     interface Props {
         imagePath: string;
@@ -27,9 +27,9 @@
     }
     let { imagePath, image, albumLoadStatus, loaded }: Props = $props();
 
-    let uploadEntry: UploadEntry | undefined = $derived(globalStore.getUpload(imagePath));
-    let renameEntry: RenameEntry | undefined = $derived(globalStore.imageRenames.get(imagePath));
-    let deleteEntry: DeleteEntry | undefined = $derived(globalStore.imageDeletes.get(imagePath));
+    let uploadEntry: UploadEntry | undefined = $derived(getUpload(imagePath));
+    let renameEntry: RenameEntry | undefined = $derived(albumState.imageRenames.get(imagePath));
+    let deleteEntry: DeleteEntry | undefined = $derived(albumState.imageDeletes.get(imagePath));
 </script>
 
 {#if uploadEntry}

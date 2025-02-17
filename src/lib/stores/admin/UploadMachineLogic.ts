@@ -1,5 +1,5 @@
 import { toast } from '@zerodevx/svelte-toast';
-import { albumStore } from '$lib/stores/AlbumStore.svelte';
+import { albumLoadMachine } from '$lib/stores/AlbumLoadMachine.svelte';
 import {
     getParentFromPath,
     hasValidExtension,
@@ -11,7 +11,7 @@ import { page } from '$app/state';
 import { UploadState } from '$lib/models/album';
 import { uploadMachine } from './UploadMachine.svelte';
 import { getPresignedUploadUrlGenerationUrl } from '$lib/utils/config';
-import { globalStore } from '../GlobalStore.svelte';
+import { albumState, getUploadsForAlbum } from '../AlbumState.svelte';
 
 /**
  * Upload the specified single image file to overwrite the image at the specified path
@@ -74,7 +74,7 @@ export function getSanitizedFiles(files: FileList | File[], albumPath: string): 
 
 export function getFilesAlreadyInAlbum(files: ImagesToUpload[], albumPath: string): string[] {
     const imageNames: string[] = [];
-    const albumEntry = albumStore.albums.get(albumPath);
+    const albumEntry = albumState.albums.get(albumPath);
     if (!albumEntry || !albumEntry.album || !albumEntry.album?.images?.length) return imageNames;
     for (const file of files) {
         const image = albumEntry.album?.getImage(file.imagePath);
@@ -186,11 +186,11 @@ async function pollForProcessedImages(albumPath: string): Promise<void> {
 }
 
 async function areImagesProcessed(albumPath: string): Promise<boolean> {
-    const uploads = globalStore.getUploadsForAlbum(albumPath);
+    const uploads = getUploadsForAlbum(albumPath);
     if (!uploads || uploads.length === 0) return true;
     try {
-        await albumStore.fetchFromServer(albumPath);
-        const album = albumStore.albums.get(albumPath)?.album;
+        await albumLoadMachine.fetchFromServer(albumPath);
+        const album = albumState.albums.get(albumPath)?.album;
         if (!album) throw 'album not loaded';
         for (const upload of uploads) {
             // Skip checking uploads that are not yet in the processing state,

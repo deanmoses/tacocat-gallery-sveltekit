@@ -11,7 +11,7 @@
     import SaveIcon from '$lib/components/site/icons/SaveIcon.svelte';
     import { goto } from '$app/navigation';
     import { cropMachine } from '$lib/stores/admin/CropMachine.svelte';
-    import { globalStore } from '$lib/stores/GlobalStore.svelte';
+    import { albumState } from '$lib/stores/AlbumState.svelte';
     import { CropStatus } from '$lib/models/album';
 
     interface Props {
@@ -20,7 +20,7 @@
 
     let { image }: Props = $props();
     let imageTitle: string = $derived(image.title);
-    let cropStatus: string = $derived(globalStore.crops.get(image.path)?.status ?? 'NOT_CROPPING');
+    let cropStatus: string = $derived(albumState.crops.get(image.path)?.status ?? 'NOT_CROPPING');
     let disableButtons: boolean = $derived(cropStatus == CropStatus.IN_PROGRESS);
     let cropper = $state() as CropImage;
 

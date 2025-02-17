@@ -1,13 +1,13 @@
-import { DeleteStatus } from '$lib/models/album';
-import { deleteUrl } from '$lib/utils/config';
-import { isValidImagePath } from '$lib/utils/galleryPathUtils';
 import { toast } from '@zerodevx/svelte-toast';
+import { isValidAlbumPath } from '$lib/utils/galleryPathUtils';
+import { createUrl } from '$lib/utils/config';
 import { albumState } from '../AlbumState.svelte';
+import { CreateStatus } from '$lib/models/album';
 
 /**
- * Image delete state machine
+ * Album create state machine
  */
-class ImageDeleteMachine {
+class AlbumCreateMachine {
     //
     // STATE TRANSITION METHODS
     // These mutate the store's state.
@@ -24,23 +24,26 @@ class ImageDeleteMachine {
     //    To read this store's state, use one of the public $derived() fields
     //
 
-    delete(imagePath: string): void {
-        this.#deleteImage(imagePath); // call async logic in a fire-and-forget manner
+    createAlbum(albumPath: string): void {
+        this.#createAlbum(albumPath); // call async logic in a fire-and-forget manner
     }
 
-    #deleteStarted(imagePath: string): void {
-        albumState.imageDeletes.set(imagePath, {
-            status: DeleteStatus.IN_PROGRESS,
+    #createStarted(albumPath: string) {
+        albumState.albumCreates.set(albumPath, {
+            status: CreateStatus.IN_PROGRESS,
         });
     }
 
-    #success(imagePath: string): void {
-        albumState.imageDeletes.delete(imagePath);
+    #success(albumPath: string) {
+        console.log(`Album [${albumPath}] created`);
+        albumState.albumCreates.delete(albumPath);
+        toast.push(`Album [${albumPath}] created`);
     }
 
-    #error(imagePath: string, errorMessage: string): void {
-        albumState.imageDeletes.delete(imagePath);
-        toast.push(`Error deleting ${imagePath}: ${errorMessage}`);
+    #error(albumPath: string, errorMessage: string) {
+        console.error(`Error creating album ${albumPath}: ${errorMessage}`);
+        albumState.albumCreates.delete(albumPath);
+        toast.push(`Error creating album: ${errorMessage}`);
     }
 
     //
@@ -54,28 +57,28 @@ class ImageDeleteMachine {
     //  - These don't return values; they return void or Promise<void>
     //
 
-    async #deleteImage(imagePath: string) {
+    async #createAlbum(albumPath: string): Promise<void> {
         try {
-            if (!isValidImagePath(imagePath)) throw new Error(`Invalid image path [${imagePath}]`);
-            this.#deleteStarted(imagePath);
-            const response = await fetch(deleteUrl(imagePath), {
-                method: 'DELETE',
+            if (!isValidAlbumPath(albumPath)) throw new Error(`Invalid album path [${albumPath}]`);
+            this.#createStarted(albumPath);
+            const response = await fetch(createUrl(albumPath), {
+                method: 'PUT',
                 credentials: 'include',
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({}),
             });
             if (!response.ok) {
                 const msg = (await response.json()).errorMessage || response.statusText;
                 throw new Error(msg);
             }
-            console.log(`Image [${imagePath}] deleted`);
-            this.#success(imagePath);
+            this.#success(albumPath);
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
-            this.#error(imagePath, msg);
+            this.#error(albumPath, msg);
         }
     }
 }
-export const imageDeleteMachine = new ImageDeleteMachine();
+export const albumCreateMachine = new AlbumCreateMachine();

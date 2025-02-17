@@ -1,6 +1,6 @@
 import { SvelteMap } from 'svelte/reactivity';
-import { albumStore } from '../AlbumStore.svelte';
-import { AlbumUpdateStatus } from '$lib/models/album';
+import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
+import { ReloadStatus } from '$lib/models/album';
 import { setThumbnailUrl } from '$lib/utils/config';
 import { toast } from '@zerodevx/svelte-toast';
 import { getParentFromPath, isValidYearAlbumPath } from '$lib/utils/galleryPathUtils';
@@ -63,7 +63,7 @@ class AlbumThumbnailSetMachine {
             newThumbnailImagePath,
             status: AlbumThumbnailSetStatus.IN_PROGRESS,
         });
-        albumStore.setUpdateStatus(albumPath, AlbumUpdateStatus.UPDATING);
+        albumLoadMachine.setUpdateStatus(albumPath, ReloadStatus.RELOADING);
 
         // Call the async logic in a fire-and-forget manner
         this.#setAlbumThumbnail(albumPath, newThumbnailImagePath);
@@ -71,7 +71,7 @@ class AlbumThumbnailSetMachine {
 
     #success(albumPath: string) {
         this.#state.delete(albumPath);
-        albumStore.setUpdateStatus(albumPath, AlbumUpdateStatus.NOT_UPDATING);
+        albumLoadMachine.setUpdateStatus(albumPath, ReloadStatus.NOT_RELOADING);
 
         if (isValidYearAlbumPath(albumPath)) {
             const year = albumPath.replaceAll('/', '');
@@ -82,7 +82,7 @@ class AlbumThumbnailSetMachine {
     #error(albumPath: string, errorMessage: string) {
         console.log(`Error saving thumbnail for album [${albumPath}]: ${errorMessage}`);
         this.#state.delete(albumPath);
-        albumStore.setUpdateStatus(albumPath, AlbumUpdateStatus.NOT_UPDATING);
+        albumLoadMachine.setUpdateStatus(albumPath, ReloadStatus.NOT_RELOADING);
         toast.push(`Error saving thumbnail: ${errorMessage}`);
     }
 
@@ -115,9 +115,9 @@ class AlbumThumbnailSetMachine {
             }
             console.log(`Set thumbnail of album [${albumPath}] to [${newThumbnailImagePath}]`);
             console.log(`Reloading album [${albumPath}] from server`);
-            await albumStore.fetchFromServer(albumPath);
+            await albumLoadMachine.fetchFromServer(albumPath);
             console.log(`Reloading parent album [${getParentFromPath(albumPath)}] from server`);
-            await albumStore.fetchFromServer(getParentFromPath(albumPath));
+            await albumLoadMachine.fetchFromServer(getParentFromPath(albumPath));
             this.#success(albumPath);
         } catch (error) {
             const msg = error instanceof Error ? error.message : String(error);

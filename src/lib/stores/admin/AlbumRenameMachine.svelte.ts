@@ -2,8 +2,8 @@ import { RenameStatus } from '$lib/models/album';
 import { renameAlbumUrl } from '$lib/utils/config';
 import { getNameFromPath, getParentFromPath, isValidDayAlbumPath } from '$lib/utils/galleryPathUtils';
 import { toast } from '@zerodevx/svelte-toast';
-import { albumStore } from '../AlbumStore.svelte';
-import { globalStore } from '../GlobalStore.svelte';
+import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
+import { albumState } from '../AlbumState.svelte';
 
 /**
  * Album rename state machine
@@ -30,7 +30,7 @@ class AlbumRenameMachine {
     }
 
     #renameStarted(oldPath: string, newPath: string): void {
-        globalStore.albumRenames.set(oldPath, {
+        albumState.albumRenames.set(oldPath, {
             oldPath: oldPath,
             newPath: newPath,
             status: RenameStatus.IN_PROGRESS,
@@ -38,12 +38,12 @@ class AlbumRenameMachine {
     }
 
     #success(oldAlbumPath: string): void {
-        globalStore.albumRenames.delete(oldAlbumPath);
+        albumState.albumRenames.delete(oldAlbumPath);
     }
 
     #error(oldAlbumPath: string, newAlbumPath: string, errorMessage: string): void {
         console.error(`Error renaming album [${oldAlbumPath}] to [${newAlbumPath}]: ${errorMessage}`);
-        globalStore.albumRenames.delete(oldAlbumPath);
+        albumState.albumRenames.delete(oldAlbumPath);
         toast.push(`Error renaming album: ${errorMessage}`);
     }
 
@@ -62,7 +62,7 @@ class AlbumRenameMachine {
         try {
             if (!isValidDayAlbumPath(oldAlbumPath)) throw new Error(`Invalid old album path [${oldAlbumPath}]`);
             if (!isValidDayAlbumPath(newAlbumPath)) throw new Error(`Invalid new album path [${newAlbumPath}]`);
-            const album = albumStore.albums.get(oldAlbumPath)?.album;
+            const album = albumState.albums.get(oldAlbumPath)?.album;
             if (!album) throw new Error(`Album [${oldAlbumPath}] not loaded`);
             const newName = getNameFromPath(newAlbumPath);
             console.log(`Renaming album [${oldAlbumPath}] to [${newName}]...`);
@@ -84,10 +84,10 @@ class AlbumRenameMachine {
             // Do NOT async await because we want the UI to move to
             // the new album now
             const parentAlbumPath = getParentFromPath(oldAlbumPath);
-            albumStore.fetchFromServer(parentAlbumPath);
+            albumLoadMachine.fetchFromServer(parentAlbumPath);
             // Remove old album from album store, but do NOT async await
             // because we want the UI to move away from the old album first
-            albumStore.removeFromMemoryAndDisk(oldAlbumPath);
+            albumLoadMachine.removeFromMemoryAndDisk(oldAlbumPath);
             this.#success(oldAlbumPath);
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);

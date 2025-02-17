@@ -19,9 +19,9 @@ const initialStoreState = {
 const idbThumbnailKey = 'latest';
 
 /**
- * Store of the latest album's thumbnail
+ * State machine around loading the thumbnail of the latest album
  */
-class LatestAlbumThumbnailStore {
+class LatestAlbumLoadMachine {
     /**
      * Private writable store holding latest album thumbnail
      */
@@ -178,4 +178,4 @@ class LatestAlbumThumbnailStore {
         del(idbThumbnailKey);
     }
 }
-export const latestAlbumThumbnailStore = new LatestAlbumThumbnailStore();
+export const latestAlbumLoadMachine = new LatestAlbumLoadMachine();

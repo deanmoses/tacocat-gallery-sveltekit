@@ -1,6 +1,6 @@
 import { toast } from '@zerodevx/svelte-toast';
 import { UploadState } from '$lib/models/album';
-import { globalStore } from '../GlobalStore.svelte';
+import { albumState } from '../AlbumState.svelte';
 
 /**
  * Image upload state machine
@@ -23,7 +23,7 @@ class UploadMachine {
     //
 
     uploadEnqueued(imagePath: string, file: File): void {
-        globalStore.uploads.push({
+        albumState.uploads.push({
             file,
             imagePath,
             status: UploadState.UPLOAD_NOT_STARTED,
@@ -31,12 +31,12 @@ class UploadMachine {
     }
 
     uploadStarted(imagePath: string): void {
-        const upload = globalStore.uploads.find((upload) => upload.imagePath === imagePath);
+        const upload = albumState.uploads.find((upload) => upload.imagePath === imagePath);
         if (upload) upload.status = UploadState.UPLOADING;
     }
 
     uploadProcessing(imagePath: string, versionId: string): void {
-        const upload = globalStore.uploads.find((upload) => upload.imagePath === imagePath);
+        const upload = albumState.uploads.find((upload) => upload.imagePath === imagePath);
         if (upload) {
             upload.status = UploadState.PROCESSING;
             upload.versionId = versionId;
@@ -61,7 +61,8 @@ class UploadMachine {
     }
 
     uploadComplete(imagePath: string): void {
-        globalStore.uploads.filter((upload) => upload.imagePath !== imagePath);
+        // remove upload from list
+        albumState.uploads = albumState.uploads.filter((upload) => upload.imagePath !== imagePath);
     }
 }
 export const uploadMachine = new UploadMachine();
