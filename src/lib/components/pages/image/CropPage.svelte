@@ -10,7 +10,9 @@
     import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
     import SaveIcon from '$lib/components/site/icons/SaveIcon.svelte';
     import { goto } from '$app/navigation';
-    import { albumThumbnailCropStore, ImageThumbnailCropStatus } from '$lib/stores/ImageThumbnailCropStore.svelte';
+    import { cropMachine } from '$lib/stores/admin/CropMachine.svelte';
+    import { globalStore } from '$lib/stores/GlobalStore.svelte';
+    import { CropStatus } from '$lib/models/album';
 
     interface Props {
         image: Image;
@@ -18,8 +20,8 @@
 
     let { image }: Props = $props();
     let imageTitle: string = $derived(image.title);
-    let cropStatus: string = $derived(albumThumbnailCropStore.state.get(image.path)?.status ?? 'NOT_CROPPING');
-    let disableButtons: boolean = $derived(cropStatus == ImageThumbnailCropStatus.IN_PROGRESS);
+    let cropStatus: string = $derived(globalStore.crops.get(image.path)?.status ?? 'NOT_CROPPING');
+    let disableButtons: boolean = $derived(cropStatus == CropStatus.IN_PROGRESS);
     let cropper = $state() as CropImage;
 
     function onCancel() {
@@ -29,7 +31,7 @@
     function onSave() {
         const imagePath = image.path;
         const crop = cropper.getCrop();
-        albumThumbnailCropStore.crop(imagePath, crop);
+        cropMachine.crop(imagePath, crop);
     }
 </script>
 

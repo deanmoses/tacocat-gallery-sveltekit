@@ -23,9 +23,7 @@
         let currentPath = page.url.pathname;
         if (!currentPath.startsWith('/edit')) {
             const newPath = handleKeyboardNavigation(event.key, currentPath, getAlbum);
-            if (newPath) {
-                goto(newPath);
-            }
+            if (newPath) goto(newPath);
         }
     }
 

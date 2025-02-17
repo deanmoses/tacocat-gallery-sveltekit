@@ -1,12 +1,12 @@
 import { SvelteMap } from 'svelte/reactivity';
-import { albumStore } from './AlbumStore.svelte';
+import { albumStore } from '../AlbumStore.svelte';
 import { AlbumUpdateStatus } from '$lib/models/album';
 import { setThumbnailUrl } from '$lib/utils/config';
 import { toast } from '@zerodevx/svelte-toast';
 import { getParentFromPath, isValidYearAlbumPath } from '$lib/utils/galleryPathUtils';
 
 /**
- * Represents the state of an album's thumbnail being set
+ * Album thumbnail set machine
  */
 export type AlbumThumbnailSetEntry = {
     albumPath: string;
@@ -24,7 +24,7 @@ export enum AlbumThumbnailSetStatus {
 /**
  * Store of album thumbnail set states
  */
-class AlbumThumbnailSetStore {
+class AlbumThumbnailSetMachine {
     /**
      * Private writable store
      */
@@ -125,4 +125,4 @@ class AlbumThumbnailSetStore {
         }
     }
 }
-export const albumThumbnailSetStore = new AlbumThumbnailSetStore();
+export const albumThumbnailSetMachine = new AlbumThumbnailSetMachine();

@@ -1,41 +1,14 @@
-import { SvelteMap } from 'svelte/reactivity';
-import { albumStore } from './AlbumStore.svelte';
+import { albumStore } from '../AlbumStore.svelte';
 import { recropThumbnailUrl } from '$lib/utils/config';
 import { toast } from '@zerodevx/svelte-toast';
 import { getParentFromPath } from '$lib/utils/galleryPathUtils';
+import { globalStore } from '../GlobalStore.svelte';
+import { CropStatus, type Crop } from '$lib/models/album';
 
 /**
- * Represents the state of an image's thumbnail being cropped
+ * Image thumbnail crop state machine
  */
-export type ImageThumbnailCropEntry = {
-    imagePath: string;
-    crop: Crop;
-    status: ImageThumbnailCropStatus;
-};
-
-type Crop = { x: number; y: number; height: number; width: number };
-
-/**
- * Status of cropping the image thumbnail
- */
-export enum ImageThumbnailCropStatus {
-    IN_PROGRESS = 'In Progress',
-}
-
-/**
- * Store of image thumbnail crop states
- */
-class ImageThumbnailCropStore {
-    /**
-     * Private writable store
-     */
-    #state = new SvelteMap<string, ImageThumbnailCropEntry>();
-
-    /**
-     * Public read-only version of store
-     */
-    readonly state: ReadonlyMap<string, ImageThumbnailCropEntry> = $derived(this.#state);
-
+class CropMachine {
     //
     // STATE TRANSITION METHODS
     // These mutate the store's state.
@@ -57,23 +30,23 @@ class ImageThumbnailCropStore {
      */
     crop(imagePath: string, crop: Crop): void {
         console.log(`Saving crop of image [${imagePath}]`, crop);
-        this.#state.set(imagePath, {
+        globalStore.crops.set(imagePath, {
             imagePath,
             crop,
-            status: ImageThumbnailCropStatus.IN_PROGRESS,
+            status: CropStatus.IN_PROGRESS,
         });
         this.#crop(imagePath, crop); // call async logic in a fire-and-forget manner
     }
 
     #success(imagePath: string) {
-        this.#state.delete(imagePath);
+        globalStore.crops.delete(imagePath);
         toast.push(`Thumbnail cropped`);
         // goto(imagePath); TODO: goto isn't appropriate here
     }
 
     #error(imagePath: string, errorMessage: string) {
         console.log(`Error cropping thumbnail for [${imagePath}]: ${errorMessage}`);
-        this.#state.delete(imagePath);
+        globalStore.crops.delete(imagePath);
         toast.push(`Error cropping thumbnail: ${errorMessage}`);
     }
 
@@ -128,4 +101,4 @@ class ImageThumbnailCropStore {
         }
     }
 }
-export const albumThumbnailCropStore = new ImageThumbnailCropStore();
+export const cropMachine = new CropMachine();

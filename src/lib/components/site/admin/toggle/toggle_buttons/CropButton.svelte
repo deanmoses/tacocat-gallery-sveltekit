@@ -13,7 +13,7 @@
     let path: string = $derived(page.url.pathname);
     let show: boolean = $derived(isValidImagePath(path)); // Show this button only on image pages
 
-    async function onCropButtonClick() {
+    function onCropButtonClick() {
         goto(`/edit${path}/crop`);
     }
 </script>

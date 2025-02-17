@@ -10,14 +10,17 @@
     import HomeIcon from '$lib/components/site/icons/HomeIcon.svelte';
     import AlbumProcessingPage from '../AlbumProcessingPage.svelte';
     import type { Snippet } from 'svelte';
+    import { globalStore } from '$lib/stores/GlobalStore.svelte';
 
     interface Props {
+        path: string;
         loadStatus: AlbumLoadStatus | undefined;
-        deleteEntry?: DeleteEntry | undefined;
-        renameEntry?: RenameEntry | undefined;
         loaded?: Snippet;
     }
-    let { loadStatus, deleteEntry = undefined, renameEntry = undefined, loaded }: Props = $props();
+    let { path, loadStatus, loaded }: Props = $props();
+
+    let renameEntry: RenameEntry | undefined = $derived(globalStore.albumRenames.get(path));
+    let deleteEntry: DeleteEntry | undefined = $derived(globalStore.albumDeletes.get(path));
 </script>
 
 {#if !loadStatus}

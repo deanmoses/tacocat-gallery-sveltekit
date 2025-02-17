@@ -47,7 +47,6 @@ export enum AlbumUpdateStatus {
 }
 
 /**
- * An entry in the album create store
  * Represents a single album being created
  */
 export type AlbumCreateEntry = {
@@ -62,7 +61,6 @@ export enum AlbumCreateState {
 }
 
 /**
- * An entry in the image upload store
  * Represents a single image being uploaded
  */
 export type UploadEntry = {
@@ -83,30 +81,40 @@ export enum UploadState {
 }
 
 /**
- * An entry in the image or album rename store
  * Represents a single image or album being renamed
  */
 export type RenameEntry = {
     oldPath: string;
     newPath: string;
-    status: RenameState;
+    status: RenameStatus;
 };
 
-/**
- * Status of the rename of a single image or album
- */
-export enum RenameState {
+export enum RenameStatus {
     IN_PROGRESS = 'In Progress',
 }
 
 /**
- * An entry in the album or image delete store
  * Represents a single album or image being deleted
  */
 export type DeleteEntry = {
-    status: DeleteState;
+    status: DeleteStatus;
 };
 
-export enum DeleteState {
+export enum DeleteStatus {
+    IN_PROGRESS = 'In Progress',
+}
+
+/**
+ * Represents the state of a thumbnail being cropped
+ */
+export type CropEntry = {
+    imagePath: string;
+    crop: Crop;
+    status: CropStatus;
+};
+
+export type Crop = { x: number; y: number; height: number; width: number };
+
+export enum CropStatus {
     IN_PROGRESS = 'In Progress',
 }

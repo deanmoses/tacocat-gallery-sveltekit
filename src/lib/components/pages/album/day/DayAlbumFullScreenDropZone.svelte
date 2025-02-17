@@ -12,7 +12,7 @@
         getSanitizedFiles,
         uploadSanitizedImages,
         type ImagesToUpload,
-    } from '$lib/stores/admin/UploadStoreLogic';
+    } from '$lib/stores/admin/UploadMachineLogic';
     import { sessionStore } from '$lib/stores/SessionStore.svelte';
 
     interface Props {

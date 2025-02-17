@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
     import FullScreenDropZone from '$lib/components/site/admin/FullScreenDropZone.svelte';
-    import { getDroppedImages, uploadSingleImage } from '$lib/stores/admin/UploadStoreLogic';
+    import { getDroppedImages, uploadSingleImage } from '$lib/stores/admin/UploadMachineLogic';
     import { sessionStore } from '$lib/stores/SessionStore.svelte';
     import { toast } from '@zerodevx/svelte-toast';
 

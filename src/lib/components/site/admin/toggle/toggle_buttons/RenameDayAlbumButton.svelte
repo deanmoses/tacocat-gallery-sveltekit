@@ -8,16 +8,15 @@
     import { page } from '$app/state';
     import RenameIcon from '$lib/components/site/icons/RenameIcon.svelte';
     import { albumStore } from '$lib/stores/AlbumStore.svelte';
-    import { renameDayAlbum } from '$lib/stores/admin/AlbumRenameStoreLogic';
     import {
         getNameFromPath,
         getParentFromPath,
         isValidDayAlbumPath,
         sanitizeDayAlbumName,
     } from '$lib/utils/galleryPathUtils';
-    import { toast } from '@zerodevx/svelte-toast';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import TextDialog from './TextDialog.svelte';
+    import { albumRenameMachine } from '$lib/stores/admin/AlbumRenameMachine.svelte';
 
     let albumPath: string = $derived(page.url.pathname + '/');
     let show: boolean = $derived(isValidDayAlbumPath(albumPath)); // Show this button only on day albums
@@ -33,14 +32,10 @@
         dialog.show();
     }
 
-    async function onNewAlbumName(newAlbumName: string) {
+    function onNewAlbumName(newAlbumName: string) {
         const newAlbumPath = albumNameToPath(newAlbumName);
-        try {
-            await renameDayAlbum(albumPath, newAlbumPath);
-            goto(newAlbumPath);
-        } catch (e) {
-            toast.push(`Error renaming album: ${e}`);
-        }
+        albumRenameMachine.renameDayAlbum(albumPath, newAlbumPath);
+        goto(getParentFromPath(newAlbumPath));
     }
 
     async function validateDayAlbumName(albumName: string): Promise<string | undefined> {

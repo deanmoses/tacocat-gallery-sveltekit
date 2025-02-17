@@ -8,8 +8,8 @@
     import { page } from '$app/state';
     import DeleteIcon from '$lib/components/site/icons/DeleteIcon.svelte';
     import type { AlbumEntry } from '$lib/models/album';
+    import { albumDeleteMachine } from '$lib/stores/admin/AlbumDeleteMachine.svelte';
     import { albumStore } from '$lib/stores/AlbumStore.svelte';
-    import { deleteAlbum } from '$lib/stores/admin/AlbumDeleteStoreLogic';
     import { getParentFromPath, isValidDayAlbumPath, isValidYearAlbumPath } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
@@ -23,13 +23,9 @@
         return !!albumEntry?.album?.albums?.length || !!albumEntry?.album?.images?.length;
     }
 
-    async function onDeleteButtonClick() {
-        try {
-            await deleteAlbum(albumPath);
-            goto(getParentFromPath(albumPath));
-        } catch (e) {
-            console.error(e);
-        }
+    function onDeleteButtonClick() {
+        albumDeleteMachine.deleteAlbum(albumPath);
+        goto(getParentFromPath(albumPath));
     }
 </script>
 

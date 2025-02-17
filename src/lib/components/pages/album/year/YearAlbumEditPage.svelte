@@ -13,13 +13,13 @@
     import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
     import { editUrl } from '$lib/utils/path-utils';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
-    import { draftStore } from '$lib/stores/DraftStore.svelte';
+    import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
 
     interface Props {
         album: Album;
     }
     let { album }: Props = $props();
-    let okToNavigate = $derived(draftStore.okToNavigate);
+    let okToNavigate = $derived(draftMachine.okToNavigate);
 </script>
 
 <YearAlbumPageLayout>

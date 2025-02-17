@@ -15,7 +15,7 @@
     import { editUrl } from '$lib/utils/path-utils';
     import type { Album, Image } from '$lib/models/GalleryItemInterfaces';
     import ImageFullScreenDropZone from './ImageFullScreenDropZone.svelte';
-    import { draftStore } from '$lib/stores/DraftStore.svelte';
+    import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
 
     interface Props {
         album: Album;
@@ -23,7 +23,7 @@
     }
     let { album, image }: Props = $props();
     let imageTitle = $derived(image.title);
-    let okToNavigate = $derived(draftStore.okToNavigate);
+    let okToNavigate = $derived(draftMachine.okToNavigate);
 </script>
 
 <ImagePageLayout title={imageTitle}>

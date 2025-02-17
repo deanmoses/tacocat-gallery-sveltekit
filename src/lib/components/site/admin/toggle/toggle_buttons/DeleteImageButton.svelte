@@ -7,15 +7,15 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import DeleteIcon from '$lib/components/site/icons/DeleteIcon.svelte';
-    import { deleteImage } from '$lib/stores/admin/ImageDeleteStoreLogic';
+    import { imageDeleteMachine } from '$lib/stores/admin/ImageDeleteMachine.svelte';
     import { getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
     let imagePath: string = $derived(page.url.pathname);
     let show: boolean = $derived(isValidImagePath(imagePath)); // Show this button only on image pages
 
-    async function onDeleteButtonClick() {
-        await deleteImage(imagePath);
+    function onDeleteButtonClick() {
+        imageDeleteMachine.delete(imagePath);
         goto(getParentFromPath(imagePath));
     }
 </script>

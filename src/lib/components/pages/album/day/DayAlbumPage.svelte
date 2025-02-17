@@ -13,13 +13,13 @@
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import type { UploadEntry } from '$lib/models/album';
     import { sessionStore } from '$lib/stores/SessionStore.svelte';
+    import { globalStore } from '$lib/stores/GlobalStore.svelte';
 
     interface Props {
         album: Album;
-        uploads?: UploadEntry[] | undefined;
     }
-
-    let { album, uploads = undefined }: Props = $props();
+    let { album }: Props = $props();
+    let uploads: UploadEntry[] | undefined = $derived(globalStore.getUploadsForAlbum(album.path));
 </script>
 
 <DayAlbumPageLayout title={album.title} published={album.published}>
@@ -46,7 +46,13 @@
     {#snippet thumbnails()}
         {#if album.images?.length}
             {#each album.images as image (image.path)}
-                <Thumbnail title={image.title} src={image.thumbnailUrl} summary={image.summary} href={image.href} />
+                <Thumbnail
+                    title={image.title}
+                    src={image.thumbnailUrl}
+                    summary={image.summary}
+                    href={image.href}
+                    path={image.path}
+                />
             {/each}
         {:else if !album.published && !uploads?.length}
             <p>Drop images or a 📁</p>

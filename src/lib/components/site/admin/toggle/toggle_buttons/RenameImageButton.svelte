@@ -8,7 +8,6 @@
     import { page } from '$app/state';
     import RenameIcon from '$lib/components/site/icons/RenameIcon.svelte';
     import { albumStore } from '$lib/stores/AlbumStore.svelte';
-    import { renameImage } from '$lib/stores/admin/ImageRenameStoreLogic';
     import {
         getNameFromPath,
         getParentFromPath,
@@ -16,9 +15,9 @@
         isValidImagePath,
         sanitizeImageNameWithoutExtension,
     } from '$lib/utils/galleryPathUtils';
-    import { toast } from '@zerodevx/svelte-toast';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import TextDialog from './TextDialog.svelte';
+    import { imageRenameMachine } from '$lib/stores/admin/ImageRenameMachine.svelte';
 
     let imagePath: string = $derived(page.url.pathname);
     let show: boolean = $derived(isValidImagePath(imagePath)); // Show this button only on images
@@ -42,14 +41,11 @@
         dialog.show();
     }
 
-    async function onNewImageName(newImageName: string) {
+    function onNewImageName(newImageName: string) {
         const newImagePath = imageNameWithoutExtensionToPath(newImageName);
-        try {
-            await renameImage(imagePath, newImagePath);
-            goto(newImagePath);
-        } catch (e) {
-            toast.push(`Error renaming image: ${e}`);
-        }
+        imageRenameMachine.renameImage(imagePath, newImagePath);
+        const albumPath = getParentFromPath(newImagePath);
+        goto(albumPath);
     }
 
     async function validateImageName(newImageName: string): Promise<string | undefined> {

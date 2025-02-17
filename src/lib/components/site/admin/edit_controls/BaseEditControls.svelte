@@ -14,7 +14,7 @@
     import { goto } from '$app/navigation';
     import { unEditUrl } from '$lib/utils/path-utils';
     import { isValidImagePath } from '$lib/utils/galleryPathUtils';
-    import { draftStore } from '$lib/stores/DraftStore.svelte';
+    import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
 
     interface Props {
         rightControls?: Snippet;
@@ -22,9 +22,9 @@
     let { rightControls }: Props = $props();
 
     let path: string | undefined = $derived(unEditUrl(page.url.pathname));
-    let status: DraftStatus | undefined = $derived(draftStore.status);
+    let status: DraftStatus | undefined = $derived(draftMachine.status);
     let hasUnsavedChanges: boolean = $derived(
-        draftStore.status == DraftStatus.UNSAVED_CHANGES || draftStore.status == DraftStatus.ERRORED,
+        draftMachine.status == DraftStatus.UNSAVED_CHANGES || draftMachine.status == DraftStatus.ERRORED,
     );
 
     // Navigate to new path whenever it changes
@@ -42,17 +42,17 @@
         // NOT in edit mode, there's no need to listen to it.
         if (path === undefined) throw new Error(`path is undefined`);
         const backEndPath = isValidImagePath(path) ? path : path + '/';
-        draftStore.init(backEndPath);
+        draftMachine.init(backEndPath);
     }
 
     function onCancelButtonClick() {
-        draftStore.cancel();
+        draftMachine.cancel();
         if (path === undefined) throw new Error(`path is undefined`);
         goto(path);
     }
 
     function onSaveButtonClick() {
-        draftStore.save();
+        draftMachine.save();
     }
 </script>
 

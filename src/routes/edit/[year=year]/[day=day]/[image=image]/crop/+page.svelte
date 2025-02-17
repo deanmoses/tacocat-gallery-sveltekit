@@ -13,7 +13,7 @@
     let image = $derived(album?.getImage(imagePath));
 </script>
 
-<ImageRouting {image} {albumLoadStatus}>
+<ImageRouting {imagePath} {image} {albumLoadStatus}>
     {#snippet loaded()}
         {#if image}
             <CropPage {image} />

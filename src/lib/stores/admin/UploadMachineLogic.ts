@@ -9,8 +9,9 @@ import {
 } from '$lib/utils/galleryPathUtils';
 import { page } from '$app/state';
 import { UploadState } from '$lib/models/album';
-import { uploadStore } from '../UploadStore.svelte';
+import { uploadMachine } from './UploadMachine.svelte';
 import { getPresignedUploadUrlGenerationUrl } from '$lib/utils/config';
+import { globalStore } from '../GlobalStore.svelte';
 
 /**
  * Upload the specified single image file to overwrite the image at the specified path
@@ -28,7 +29,7 @@ export async function uploadSingleImage(file: File, imagePath: string): Promise<
         return;
     }
     console.log(`Replacing [${imagePath}] with [${file.name}]`);
-    uploadStore.addUpload(file, imagePath);
+    uploadMachine.uploadEnqueued(imagePath, file);
     const imagesToUpload: ImagesToUpload[] = [{ file, imagePath }];
     await uploadImages(imagesToUpload);
     const albumPath = getParentFromPath(imagePath);
@@ -94,7 +95,7 @@ async function uploadImages(imagesToUpload: ImagesToUpload[]): Promise<void> {
     try {
         const presignedUrls = await getPresignedUploadUrls(imagesToUpload);
         for (const imageToUpload of imagesToUpload) {
-            uploadStore.addUpload(imageToUpload.file, imageToUpload.imagePath);
+            uploadMachine.uploadEnqueued(imageToUpload.imagePath, imageToUpload.file);
         }
         const imageUploads: Promise<void>[] = [];
         for (const imageToUpload of imagesToUpload) {
@@ -135,14 +136,13 @@ async function getPresignedUploadUrls(imagesToUpload: ImagesToUpload[]): Promise
 }
 
 async function uploadImageViaPresignedUrl(imageToUpload: ImagesToUpload, presignedUrl: string): Promise<void> {
-    uploadStore.updateUploadState(imageToUpload.imagePath, UploadState.UPLOADING);
+    uploadMachine.uploadStarted(imageToUpload.imagePath);
     try {
         const versionId = await uploadViaPresignedUrl(imageToUpload, presignedUrl);
-        uploadStore.markUploadAsProcessing(imageToUpload.imagePath, versionId);
+        uploadMachine.uploadProcessing(imageToUpload.imagePath, versionId);
     } catch (e) {
-        console.error(`Error uploading [${imageToUpload.imagePath}]`, e);
-        uploadStore.removeUpload(imageToUpload.imagePath);
-        toast.push(`Error uploading [${imageToUpload.imagePath}]`);
+        const msg = e instanceof Error ? e.message : String(e);
+        uploadMachine.uploadErrored(imageToUpload.imagePath, msg);
     }
 }
 
@@ -186,7 +186,7 @@ async function pollForProcessedImages(albumPath: string): Promise<void> {
 }
 
 async function areImagesProcessed(albumPath: string): Promise<boolean> {
-    const uploads = uploadStore.getUploadsForAlbum(albumPath);
+    const uploads = globalStore.getUploadsForAlbum(albumPath);
     if (!uploads || uploads.length === 0) return true;
     try {
         await albumStore.fetchFromServer(albumPath);
@@ -200,7 +200,7 @@ async function areImagesProcessed(albumPath: string): Promise<boolean> {
             const image = album.getImage(upload.imagePath);
             if (image && image.versionId == upload.versionId) {
                 // Found image. Remove it from list of images being processed
-                uploadStore.removeUpload(upload.imagePath);
+                uploadMachine.uploadComplete(upload.imagePath);
             } else {
                 console.log(
                     `Did not find file [${upload.imagePath}] version [${upload.versionId}] in the album, it must still be processing`,

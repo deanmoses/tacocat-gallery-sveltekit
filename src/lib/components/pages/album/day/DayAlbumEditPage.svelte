@@ -17,18 +17,19 @@
     import DayAlbumFullScreenDropZone from './DayAlbumFullScreenDropZone.svelte';
     import type { UploadEntry } from '$lib/models/album';
     import UploadThumbnail from '$lib/components/site/admin/UploadThumbnail.svelte';
-    import { draftStore } from '$lib/stores/DraftStore.svelte';
-    import { albumThumbnailSetStore } from '$lib/stores/AlbumThumbnailSetStore.svelte';
+    import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
+    import { albumThumbnailSetMachine } from '$lib/stores/admin/AlbumThumbnailSetMachine.svelte';
+    import { globalStore } from '$lib/stores/GlobalStore.svelte';
 
     interface Props {
         album: Album;
-        uploads?: UploadEntry[] | undefined;
     }
-    let { album, uploads = undefined }: Props = $props();
-    let okToNavigate = $derived(draftStore.okToNavigate);
+    let { album }: Props = $props();
+    let okToNavigate = $derived(draftMachine.okToNavigate);
+    let uploads: UploadEntry[] | undefined = $derived(globalStore.getUploadsForAlbum(album.path));
 
-    async function albumThumbnailSelected(newThumbnailImagePath: string) {
-        albumThumbnailSetStore.setAlbumThumbnail(album.path, newThumbnailImagePath);
+    function albumThumbnailSelected(newThumbnailImagePath: string) {
+        albumThumbnailSetMachine.setAlbumThumbnail(album.path, newThumbnailImagePath);
     }
 </script>
 
@@ -52,6 +53,7 @@
             {#each album.images as image (image.path)}
                 {#if okToNavigate}
                     <Thumbnail
+                        path={image.path}
                         title={image.title}
                         summary={image.summary}
                         href={editUrl(`${image.path}`)}
@@ -67,7 +69,12 @@
                     </Thumbnail>
                 {:else}
                     <div title="💾 Save changes before navigating">
-                        <Thumbnail title={image.title} summary={image.summary} src={image.thumbnailUrl} />
+                        <Thumbnail
+                            path={image.path}
+                            title={image.title}
+                            summary={image.summary}
+                            src={image.thumbnailUrl}
+                        />
                     </div>
                 {/if}
             {/each}
@@ -75,11 +82,6 @@
             <p>Drop images or a 📁</p>
         {/if}
         {#if uploads?.length}
-            <!-- 
-                  Lazy / async / dynamic load the component
-                  It's a hint to the bundling system that it can be put into a separate bundle, 
-                  so that non-admins aren't forced to download the code.
-              -->
             {#each uploads as upload (upload.imagePath)}
                 <UploadThumbnail {upload} />
             {/each}

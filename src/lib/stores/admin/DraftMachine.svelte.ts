@@ -1,7 +1,7 @@
 import type { Draft, DraftContent } from '$lib/models/draft';
 import { DraftStatus } from '$lib/models/draft';
 import { produce } from 'immer';
-import { albumStore } from './AlbumStore.svelte';
+import { albumStore } from '../AlbumStore.svelte';
 import { getParentFromPath, isValidImagePath, isValidPath } from '$lib/utils/galleryPathUtils';
 import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
 import { updateUrl } from '$lib/utils/config';
@@ -21,7 +21,7 @@ const initialState: Draft = {
  * The Redux version was over-engineered; I'm not getting into
  * offline editing and bulk saving drafts when the user goes back online.
  */
-class DraftStore {
+class DraftMachine {
     /**
      * Private writable store holding the draft
      */
@@ -253,4 +253,4 @@ class DraftStore {
         }
     }
 }
-export const draftStore = new DraftStore();
+export const draftMachine = new DraftMachine();

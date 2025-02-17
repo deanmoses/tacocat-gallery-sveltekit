@@ -4,7 +4,7 @@
   Controls for editing albums
 -->
 <script lang="ts">
-    import { draftStore } from '$lib/stores/DraftStore.svelte';
+    import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
     import BaseEditControls from './BaseEditControls.svelte';
 
     interface Props {
@@ -20,11 +20,11 @@
     let { published = false, showSummary = false, summary = '' }: Props = $props();
 
     function onSummaryChange(event: Event & { currentTarget: EventTarget & HTMLInputElement }) {
-        if (event.target) draftStore.setSummary(event.currentTarget.value);
+        if (event.target) draftMachine.setSummary(event.currentTarget.value);
     }
 
     function onPublishedChange(event: Event & { currentTarget: EventTarget & HTMLInputElement }) {
-        if (event.target) draftStore.setPublished(event.currentTarget.checked);
+        if (event.target) draftMachine.setPublished(event.currentTarget.checked);
     }
 </script>
 
