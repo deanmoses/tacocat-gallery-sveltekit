@@ -51,8 +51,8 @@
         goto(path);
     }
 
-    async function onSaveButtonClick() {
-        await draftStore.save();
+    function onSaveButtonClick() {
+        draftStore.save();
     }
 </script>
 
