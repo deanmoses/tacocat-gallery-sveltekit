@@ -6,14 +6,12 @@
 
     let { data }: PageProps = $props();
     let albumPath = $derived(data.albumPath);
-    let albumEntry = $derived(albumState.albums.get(albumPath));
-    let album = $derived(albumEntry?.album);
-    let albumLoadStatus = $derived(albumEntry?.loadStatus);
+    let album = $derived(albumState.albums.get(albumPath)?.album);
     let imagePath = $derived(data.imagePath);
     let image = $derived(album?.getImage(imagePath));
 </script>
 
-<ImageRouting {imagePath} {image} {albumLoadStatus}>
+<ImageRouting {albumPath} {imagePath} {image}>
     {#snippet loaded()}
         {#if image && album}
             <ImageEditPage {image} {album} />

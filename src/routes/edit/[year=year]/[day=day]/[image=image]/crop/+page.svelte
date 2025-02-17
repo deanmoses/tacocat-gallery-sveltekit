@@ -6,14 +6,11 @@
 
     let { data }: PageProps = $props();
     let albumPath = $derived(data.albumPath);
-    let albumEntry = $derived(albumState.albums.get(albumPath));
-    let album = $derived(albumEntry?.album);
-    let albumLoadStatus = $derived(albumEntry?.loadStatus);
     let imagePath = $derived(data.imagePath);
-    let image = $derived(album?.getImage(imagePath));
+    let image = $derived(albumState.albums.get(albumPath)?.album?.getImage(imagePath));
 </script>
 
-<ImageRouting {imagePath} {image} {albumLoadStatus}>
+<ImageRouting {albumPath} {imagePath} {image}>
     {#snippet loaded()}
         {#if image}
             <CropPage {image} />

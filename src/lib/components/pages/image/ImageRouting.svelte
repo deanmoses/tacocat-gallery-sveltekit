@@ -4,13 +4,7 @@
   Route to the different loading / error / display statuses of a photo
 -->
 <script lang="ts">
-    import {
-        AlbumLoadStatus,
-        UploadState,
-        type UploadEntry,
-        type RenameEntry,
-        type DeleteEntry,
-    } from '$lib/models/album';
+    import { AlbumLoadStatus, DeleteStatus, RenameStatus, UploadState } from '$lib/models/album';
     import ImageLoadingPage from '$lib/components/pages/image/ImageLoadingPage.svelte';
     import HomeIcon from '$lib/components/site/icons/HomeIcon.svelte';
     import type { Image } from '$lib/models/GalleryItemInterfaces';
@@ -20,29 +14,30 @@
     import { albumState, getUpload } from '$lib/stores/AlbumState.svelte';
 
     interface Props {
+        albumPath: string;
         imagePath: string;
         image: Image | undefined;
-        albumLoadStatus: AlbumLoadStatus | undefined;
         loaded?: Snippet;
     }
-    let { imagePath, image, albumLoadStatus, loaded }: Props = $props();
+    let { albumPath, imagePath, image, loaded }: Props = $props();
 
-    let uploadEntry: UploadEntry | undefined = $derived(getUpload(imagePath));
-    let renameEntry: RenameEntry | undefined = $derived(albumState.imageRenames.get(imagePath));
-    let deleteEntry: DeleteEntry | undefined = $derived(albumState.imageDeletes.get(imagePath));
+    let albumLoadStatus = $derived(albumState.albums.get(albumPath)?.loadStatus);
+    let uploadStatus = $derived(getUpload(imagePath)?.status);
+    let renameStatus = $derived(albumState.imageRenames.get(imagePath)?.status);
+    let deleteStatus = $derived(albumState.imageDeletes.get(imagePath)?.status);
 </script>
 
-{#if uploadEntry}
-    {#if UploadState.UPLOAD_NOT_STARTED === uploadEntry.status}
+{#if uploadStatus}
+    {#if UploadState.UPLOAD_NOT_STARTED === uploadStatus}
         <ImageProcessingPage title="Upload Not Started" />
-    {:else if UploadState.UPLOADING === uploadEntry.status}
+    {:else if UploadState.UPLOADING === uploadStatus}
         <ImageProcessingPage title="Upload In Progress" />
-    {:else if UploadState.PROCESSING === uploadEntry.status}
+    {:else if UploadState.PROCESSING === uploadStatus}
         <ImageProcessingPage title="Upload Processing" />
     {/if}
-{:else if renameEntry}
+{:else if RenameStatus.IN_PROGRESS === renameStatus}
     <ImageProcessingPage title="Rename In Progress" />
-{:else if deleteEntry}
+{:else if DeleteStatus.IN_PROGRESS === deleteStatus}
     <ImageProcessingPage title="Delete In Progress" />
 {:else if AlbumLoadStatus.NOT_LOADED === albumLoadStatus}
     <ImageLoadingPage />
