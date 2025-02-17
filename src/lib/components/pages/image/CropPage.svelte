@@ -10,77 +10,33 @@
     import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
     import SaveIcon from '$lib/components/site/icons/SaveIcon.svelte';
     import { goto } from '$app/navigation';
-    import { albumStore } from '$lib/stores/AlbumStore.svelte';
-    import { AlbumUpdateStatus } from '$lib/models/album';
-    import { getParentFromPath } from '$lib/utils/galleryPathUtils';
-    import { recropThumbnailUrl } from '$lib/utils/config';
-    import { toast } from '@zerodevx/svelte-toast';
+    import { albumThumbnailCropStore, ImageThumbnailCropStatus } from '$lib/stores/ImageThumbnailCropStore.svelte';
 
     interface Props {
         image: Image;
     }
 
     let { image }: Props = $props();
-    let imageTitle = $derived(image.title);
+    let imageTitle: string = $derived(image.title);
+    let cropStatus: string = $derived(albumThumbnailCropStore.state.get(image.path)?.status ?? 'NOT_CROPPING');
+    let disableButtons: boolean = $derived(cropStatus == ImageThumbnailCropStatus.IN_PROGRESS);
     let cropper = $state() as CropImage;
 
     function onCancel() {
         goto(image.path);
     }
 
-    async function onSave() {
+    function onSave() {
         const imagePath = image.path;
         const crop = cropper.getCrop();
-        console.log(`Saving crop of image [${imagePath}]`, crop);
-
-        // Update album state to "Saving...", not sure this is useful
-        const albumPath = getParentFromPath(imagePath);
-        albumStore.setUpdateStatus(albumPath, AlbumUpdateStatus.UPDATING);
-        try {
-            // Make the save request
-            const response = await fetch(recropThumbnailUrl(imagePath), {
-                method: 'PATCH',
-                credentials: 'include',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(crop),
-            });
-
-            // Check for errors
-            if (!response.ok) {
-                const msg = (await response.json()).errorMessage || response.statusText;
-                toast.push(`Error cropping thumbnail: ${msg}`);
-                throw new Error(`Error cropping thumbnail: ${msg}`);
-            }
-
-            console.log(`Updated thumbnail of [${imagePath}]`);
-
-            // Reload parent album to:
-            //  1) get the image's new thumbnail
-            //  2) this image may be the album's thumb
-            console.log(`Reloading album [${albumPath}] from server`);
-            await albumStore.fetchFromServer(albumPath); // force reload from server
-
-            // Reload year album because this image may be the year's thumb
-            // TODO: not doing yet because back end isn't setting year's thumb yet
-            // console.log(`Reloading parent album [${getParentFromPath(albumPath)}] from server`);
-            // await albumStore.fetchFromServer(getParentFromPath(albumPath)); // force reload from server
-
-            toast.push(`Thumbnail cropped`);
-            goto(imagePath);
-        } finally {
-            // Reset store state
-            albumStore.setUpdateStatus(albumPath, AlbumUpdateStatus.NOT_UPDATING);
-        }
+        albumThumbnailCropStore.crop(imagePath, crop);
     }
 </script>
 
 <ImagePageLayout title={imageTitle}>
     {#snippet caption()}
-        <button onclick={onCancel}><CancelIcon /> Cancel</button>
-        <button onclick={onSave}><SaveIcon /> Save</button>
+        <button onclick={onCancel} disabled={disableButtons}><CancelIcon /> Cancel</button>
+        <button onclick={onSave} disabled={disableButtons}><SaveIcon /> Save</button>
     {/snippet}
 
     {#snippet imageHtml()}
