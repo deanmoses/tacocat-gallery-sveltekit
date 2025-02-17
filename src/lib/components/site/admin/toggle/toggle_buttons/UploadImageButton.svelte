@@ -6,7 +6,7 @@
 <script lang="ts">
     import { page } from '$app/state';
     import UploadIcon from '$lib/components/site/icons/UploadIcon.svelte';
-    import { uploadSingleImage } from '$lib/stores/admin/UploadMachineLogic';
+    import { uploadMachine } from '$lib/stores/admin/UploadMachine.svelte';
     import { isValidImagePath, validExtensionsString } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
@@ -19,12 +19,12 @@
         fileInput.click();
     }
 
-    async function onFileSelected() {
+    function onFileSelected() {
         const files = fileInput.files;
         if (!files || !files.length) return;
         // this error should never happen
         if (files.length > 1) throw new Error('Only one image can be uploaded at a time');
-        await uploadSingleImage(files[0], imagePath);
+        uploadMachine.uploadImage(imagePath, files[0]);
     }
 </script>
 

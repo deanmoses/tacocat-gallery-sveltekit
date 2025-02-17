@@ -5,7 +5,8 @@
 -->
 <script lang="ts">
     import FullScreenDropZone from '$lib/components/site/admin/FullScreenDropZone.svelte';
-    import { getDroppedImages, uploadSingleImage } from '$lib/stores/admin/UploadMachineLogic';
+    import { getDroppedImages } from '$lib/stores/admin/DragDropUtils';
+    import { uploadMachine } from '$lib/stores/admin/UploadMachine.svelte';
     import { sessionStore } from '$lib/stores/SessionStore.svelte';
     import { toast } from '@zerodevx/svelte-toast';
 
@@ -27,7 +28,7 @@
             toast.push('Please drop a single image');
             return;
         }
-        await uploadSingleImage(files[0], imagePath);
+        uploadMachine.uploadImage(imagePath, files[0]);
     }
 </script>
 

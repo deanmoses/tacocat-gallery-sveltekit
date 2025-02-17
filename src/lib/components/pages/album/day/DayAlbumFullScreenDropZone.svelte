@@ -6,14 +6,11 @@
 <script lang="ts">
     import FullScreenDropZone from '$lib/components/site/admin/FullScreenDropZone.svelte';
     import UploadReplaceConfirmDialog from '$lib/components/site/admin/toggle/toggle_buttons/UploadReplaceConfirmDialog.svelte';
-    import {
-        getDroppedImages,
-        getFilesAlreadyInAlbum,
-        getSanitizedFiles,
-        uploadSanitizedImages,
-        type ImagesToUpload,
-    } from '$lib/stores/admin/UploadMachineLogic';
+    import { getDroppedImages } from '$lib/stores/admin/DragDropUtils';
+    import { uploadMachine, type ImagesToUpload } from '$lib/stores/admin/UploadMachine.svelte';
+    import { getSanitizedFiles } from '$lib/stores/admin/UploadMachine.svelte';
     import { sessionStore } from '$lib/stores/SessionStore.svelte';
+    import { albumState } from '$lib/stores/AlbumState.svelte';
 
     interface Props {
         albumPath: string;
@@ -39,12 +36,26 @@
         if (filesAlreadyInAlbum.length > 0) {
             dialog.show(filesAlreadyInAlbum);
         } else {
-            await uploadSanitizedImages(imagesToUpload, albumPath);
+            uploadMachine.uploadImages(albumPath, imagesToUpload);
         }
     }
 
+    function getFilesAlreadyInAlbum(files: ImagesToUpload[], albumPath: string): string[] {
+        const imageNames: string[] = [];
+        const albumEntry = albumState.albums.get(albumPath);
+        if (!albumEntry || !albumEntry.album || !albumEntry.album?.images?.length) return imageNames;
+        for (const file of files) {
+            const image = albumEntry.album?.getImage(file.imagePath);
+            if (image) {
+                console.log(`File [${file.imagePath}] is already in album [${albumPath}]`);
+                imageNames.push(file.file.name);
+            }
+        }
+        return imageNames;
+    }
+
     async function onConfirm(): Promise<void> {
-        await uploadSanitizedImages(imagesToUpload, albumPath);
+        uploadMachine.uploadImages(albumPath, imagesToUpload);
     }
 </script>
 
