@@ -14,7 +14,7 @@
     let show: boolean = $derived(isValidImagePath(path)); // Show this button only on image pages
 
     function onCropButtonClick() {
-        goto(`/edit${path}/crop`);
+        goto(`${path}/crop`);
     }
 </script>
 

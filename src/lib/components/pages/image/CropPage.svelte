@@ -29,9 +29,8 @@
     }
 
     function onSave() {
-        const imagePath = image.path;
-        const crop = cropper.getCrop();
-        cropMachine.crop(imagePath, crop);
+        cropMachine.crop(image.path, cropper.getCrop());
+        goto(image.path);
     }
 </script>
 
