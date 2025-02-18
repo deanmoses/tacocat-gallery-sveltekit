@@ -107,7 +107,7 @@ class AlbumThumbnailSetMachine {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ newThumbnailImagePath }),
+                body: JSON.stringify({ imagePath: newThumbnailImagePath }),
             });
             if (!response.ok) {
                 const msg = (await response.json()).errorMessage || response.statusText;
