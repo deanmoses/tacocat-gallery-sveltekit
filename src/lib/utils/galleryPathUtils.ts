@@ -89,7 +89,7 @@ export function sanitizeImageName(imageName: string): string {
     return (imageName || '')
         .toLowerCase()
         .replace(/\.jpeg$/, '.jpg') // jpeg -> jpg
-        .replace(/[^a-z0-9_\.]+/g, '_') // any invalid chars to _
+        .replace(/[^a-z0-9_.]+/g, '_') // any invalid chars to _
         .replace(/_+/g, '_') // multple underscores to _
         .replace(/^_/g, '') // remove leading underscore
         .replace(/(_)\./g, '.'); // remove trailing underscore
