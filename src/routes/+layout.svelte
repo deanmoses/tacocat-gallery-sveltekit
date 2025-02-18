@@ -16,15 +16,12 @@
      * Handle keyboard navigation
      */
     function onkeydown(event: KeyboardEvent): void {
-        if (event.defaultPrevented) {
-            return;
-        }
+        if (event.defaultPrevented) return;
+        if (albumState.editMode) return; // in edit mode, arrow keys are needed for editing
 
         let currentPath = page.url.pathname;
-        if (!albumState.editMode) {
-            const newPath = handleKeyboardNavigation(event.key, currentPath, getAlbum);
-            if (newPath) goto(newPath);
-        }
+        const newPath = handleKeyboardNavigation(event.key, currentPath, getAlbum);
+        if (newPath) goto(newPath);
     }
 
     /**

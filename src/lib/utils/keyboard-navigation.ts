@@ -18,6 +18,8 @@ export function handleKeyboardNavigation(
     path: string,
     getAlbum: GetAlbumFunction,
 ): string | null {
+    if (isValidAlbumPath(path + '/')) path += '/';
+
     // get URL to navigate to
     let newPath = getUrlToNavigateTo(key, path, getAlbum);
 
