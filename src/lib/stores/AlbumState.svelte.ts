@@ -18,7 +18,7 @@ class AlbumState {
     albumUpdates = new SvelteMap<string, ReloadStatus>();
     albumCreates = new SvelteMap<string, CreateEntry>();
     albumRenames = new SvelteMap<string, RenameEntry>();
-    albumDeletes = new SvelteMap<string, DeleteEntry>();
+    albumDeletes = $state(new SvelteMap<string, DeleteEntry>());
     imageRenames = new SvelteMap<string, RenameEntry>();
     imageDeletes = new SvelteMap<string, DeleteEntry>();
     crops = new SvelteMap<string, CropEntry>();

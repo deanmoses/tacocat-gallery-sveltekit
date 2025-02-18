@@ -1,8 +1,9 @@
 import { DeleteStatus } from '$lib/models/album';
 import { deleteUrl } from '$lib/utils/config';
-import { isValidImagePath } from '$lib/utils/galleryPathUtils';
+import { getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
 import { toast } from '@zerodevx/svelte-toast';
 import { albumState } from '../AlbumState.svelte';
+import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
 
 /**
  * Image delete state machine
@@ -71,6 +72,8 @@ class ImageDeleteMachine {
                 throw new Error(msg);
             }
             console.log(`Image [${imagePath}] deleted`);
+            // reload the album
+            await albumLoadMachine.fetchFromServer(getParentFromPath(imagePath));
             this.#success(imagePath);
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
