@@ -14,7 +14,7 @@ import { SvelteMap } from 'svelte/reactivity';
  */
 class AlbumState {
     editMode = $state(false);
-    albums = new SvelteMap<string, AlbumEntry>();
+    albums = $state(new SvelteMap<string, AlbumEntry>());
     albumUpdates = new SvelteMap<string, ReloadStatus>();
     albumCreates = new SvelteMap<string, CreateEntry>();
     albumRenames = new SvelteMap<string, RenameEntry>();

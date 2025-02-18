@@ -1,6 +1,6 @@
 import { DeleteStatus } from '$lib/models/album';
 import { deleteUrl } from '$lib/utils/config';
-import { isValidAlbumPath } from '$lib/utils/galleryPathUtils';
+import { getParentFromPath, isValidAlbumPath } from '$lib/utils/galleryPathUtils';
 import { toast } from '@zerodevx/svelte-toast';
 import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
 import { albumState } from '../AlbumState.svelte';
@@ -73,7 +73,8 @@ class AlbumDeleteMachine {
                 const msg = (await response.json()).errorMessage || response.statusText;
                 throw new Error(msg);
             }
-            albumLoadMachine.removeFromMemoryAndDisk(albumPath);
+            await albumLoadMachine.removeFromMemoryAndDisk(albumPath);
+            await albumLoadMachine.fetchFromServer(getParentFromPath(albumPath)); // reload parent album
             this.#success(albumPath);
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);

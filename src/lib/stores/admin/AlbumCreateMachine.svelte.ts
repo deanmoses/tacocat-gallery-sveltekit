@@ -1,8 +1,9 @@
 import { toast } from '@zerodevx/svelte-toast';
-import { isValidAlbumPath } from '$lib/utils/galleryPathUtils';
+import { getParentFromPath, isValidAlbumPath } from '$lib/utils/galleryPathUtils';
 import { createUrl } from '$lib/utils/config';
 import { albumState } from '../AlbumState.svelte';
 import { CreateStatus } from '$lib/models/album';
+import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
 
 /**
  * Album create state machine
@@ -74,7 +75,9 @@ class AlbumCreateMachine {
                 const msg = (await response.json()).errorMessage || response.statusText;
                 throw new Error(msg);
             }
+            await albumLoadMachine.fetchFromServer(albumPath); // load newly created album
             this.#success(albumPath);
+            await albumLoadMachine.fetchFromServer(getParentFromPath(albumPath)); // reload parent album
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
             this.#error(albumPath, msg);
