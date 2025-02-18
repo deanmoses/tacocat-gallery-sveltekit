@@ -22,7 +22,7 @@ class AlbumState {
     imageRenames = new SvelteMap<string, RenameEntry>();
     imageDeletes = new SvelteMap<string, DeleteEntry>();
     crops = new SvelteMap<string, CropEntry>();
-    uploads: UploadEntry[] = [];
+    uploads: UploadEntry[] = $state([]);
 }
 export const albumState = new AlbumState();
 
