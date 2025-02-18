@@ -25,12 +25,12 @@
 
 {#if CreateStatus.IN_PROGRESS === createStatus}
     <AlbumErrorPage>Creating...</AlbumErrorPage>
-{:else if !loadStatus}
-    <AlbumLoadingPage />
 {:else if DeleteStatus.IN_PROGRESS === deleteStatus}
     <AlbumProcessingPage title="Delete in progress" />
 {:else if RenameStatus.IN_PROGRESS === renameStatus}
     <AlbumProcessingPage title="Rename in progress" />
+{:else if !loadStatus}
+    <AlbumLoadingPage />
 {:else if AlbumLoadStatus.NOT_LOADED === loadStatus}
     <AlbumLoadingPage />
 {:else if AlbumLoadStatus.LOADING === loadStatus}

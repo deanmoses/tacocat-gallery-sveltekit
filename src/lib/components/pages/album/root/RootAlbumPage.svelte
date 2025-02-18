@@ -11,7 +11,7 @@
     import Sidebar from '$lib/components/site/Sidebar.svelte';
     import MainContent from '$lib/components/site/MainContent.svelte';
     import Thumbnails from '$lib/components/site/Thumbnails.svelte';
-    import Thumbnail from '$lib/components/site/Thumbnail.svelte';
+    import AlbumThumbnail from '$lib/components/site/AlbumThumbnail.svelte';
     import LatestAlbumThumbnail from '$lib/components/data-aware/LatestAlbumThumbnail.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import { siteShortTitle, siteTitle } from '$lib/utils/config';
@@ -42,7 +42,12 @@
         <MainContent>
             <Thumbnails>
                 {#each sortedAlbums as childAlbum (childAlbum.path)}
-                    <Thumbnail title={childAlbum.title} href={childAlbum.path} src={childAlbum.thumbnailUrl} />
+                    <AlbumThumbnail
+                        path={childAlbum.path}
+                        href={childAlbum.path}
+                        src={childAlbum.thumbnailUrl}
+                        title={childAlbum.title}
+                    />
                 {/each}
             </Thumbnails>
         </MainContent>

@@ -4,8 +4,7 @@
   A thumbnail of an album or image
 -->
 <script lang="ts">
-    import { DeleteStatus, CropStatus, RenameStatus } from '$lib/models/album';
-    import { albumState } from '$lib/stores/AlbumState.svelte';
+    import CreateIcon from './icons/CreateIcon.svelte';
     import CropIcon from './icons/CropIcon.svelte';
     import DeleteIcon from './icons/DeleteIcon.svelte';
     import RenameIcon from './icons/RenameIcon.svelte';
@@ -13,37 +12,41 @@
     import type { Snippet } from 'svelte';
 
     interface Props {
-        path?: string;
         src?: string;
         href?: string;
         title?: string;
         summary?: string;
         published?: boolean;
+        creating?: boolean;
+        deleting?: boolean;
+        renaming?: boolean;
+        cropping?: boolean;
         selectionControls?: Snippet;
     }
     let {
-        path = '',
         src = '',
         href = '',
         title = '',
         summary = '',
         published = true,
+        creating = false,
+        deleting = false,
+        renaming = false,
+        cropping = false,
         selectionControls,
     }: Props = $props();
-
     let unpublished: boolean = $derived(!published);
-    let isDeleting: boolean = $derived(albumState.imageDeletes.get(path)?.status === DeleteStatus.IN_PROGRESS);
-    let isRenaming: boolean = $derived(albumState.imageRenames.get(path)?.status === RenameStatus.IN_PROGRESS);
-    let isCropping: boolean = $derived(albumState.crops.get(path)?.status === CropStatus.IN_PROGRESS);
 </script>
 
 <div class="thumbnail">
     <a {href}
-        ><img {src} alt={title} />{#if isDeleting}<div class="icon-overlay">
+        ><img {src} alt={title} />{#if creating}<div class="icon-overlay">
+                <CreateIcon width="10em" height="10em" />
+            </div>{:else if deleting}<div class="icon-overlay">
                 <DeleteIcon width="10em" height="10em" />
-            </div>{:else if isRenaming}<div class="icon-overlay">
+            </div>{:else if renaming}<div class="icon-overlay">
                 <RenameIcon width="7em" height="7em" />
-            </div>{:else if isCropping}<div class="icon-overlay">
+            </div>{:else if cropping}<div class="icon-overlay">
                 <CropIcon width="10em" height="10em" />
             </div>{:else if unpublished}<div class="icon-overlay">
                 <UnpublishedIcon width="3em" height="3em" />

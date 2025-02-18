@@ -9,7 +9,7 @@
     import PrevButton from '$lib/components/site/nav/PrevButton.svelte';
     import UpButton from '$lib/components/site/nav/UpButton.svelte';
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
-    import Thumbnail from '$lib/components/site/Thumbnail.svelte';
+    import ImageThumbnail from '$lib/components/site/ImageThumbnail.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import type { UploadEntry } from '$lib/models/album';
     import { sessionStore } from '$lib/stores/SessionStore.svelte';
@@ -48,7 +48,7 @@
     {#snippet thumbnails()}
         {#if album.images?.length}
             {#each album.images as image (image.path)}
-                <Thumbnail
+                <ImageThumbnail
                     title={image.title}
                     src={image.thumbnailUrl}
                     summary={image.summary}

@@ -8,7 +8,7 @@
     import PrevButton from '$lib/components/site/nav/PrevButton.svelte';
     import UpButton from '$lib/components/site/nav/UpButton.svelte';
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
-    import Thumbnail from '$lib/components/site/Thumbnail.svelte';
+    import ImageThumbnail from '$lib/components/site/ImageThumbnail.svelte';
     import SelectableStar from '$lib/components/site/admin/SelectableStar.svelte';
     import AlbumEditControls from '$lib/components/site/admin/edit_controls/AlbumEditControls.svelte';
     import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
@@ -51,7 +51,7 @@
         {#if album.images?.length}
             {#each album.images as image (image.path)}
                 {#if okToNavigate}
-                    <Thumbnail
+                    <ImageThumbnail
                         path={image.path}
                         title={image.title}
                         summary={image.summary}
@@ -65,10 +65,10 @@
                                 onSelected={albumThumbnailSelected}
                             />
                         {/snippet}
-                    </Thumbnail>
+                    </ImageThumbnail>
                 {:else}
                     <div title="💾 Save changes before navigating">
-                        <Thumbnail
+                        <ImageThumbnail
                             path={image.path}
                             title={image.title}
                             summary={image.summary}

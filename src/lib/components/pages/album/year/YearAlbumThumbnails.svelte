@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
     import Thumbnails from '$lib/components/site/Thumbnails.svelte';
-    import Thumbnail from '$lib/components/site/Thumbnail.svelte';
+    import AlbumThumbnail from '$lib/components/site/AlbumThumbnail.svelte';
     import { shortDate } from '$lib/utils/date-utils';
     import { albumPathToDate } from '$lib/utils/galleryPathUtils';
     import type { Album, Thumbable } from '$lib/models/GalleryItemInterfaces';
@@ -62,11 +62,12 @@
         <h2>{month.monthName}</h2>
         <Thumbnails>
             {#each month.albums as childAlbum (childAlbum.path)}
-                <Thumbnail
-                    title={getTitle(childAlbum.path)}
-                    summary={childAlbum.summary}
+                <AlbumThumbnail
+                    path={childAlbum.path}
                     href={childAlbum.path}
                     src={childAlbum.thumbnailUrl}
+                    title={getTitle(childAlbum.path)}
+                    summary={childAlbum.summary}
                     published={childAlbum.published}
                 />
             {/each}
