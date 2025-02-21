@@ -1,12 +1,4 @@
-import type {
-    DeleteEntry,
-    CropEntry,
-    RenameEntry,
-    UploadEntry,
-    AlbumEntry,
-    ReloadStatus,
-    CreateEntry,
-} from '$lib/models/album';
+import type { DeleteEntry, CropEntry, RenameEntry, UploadEntry, AlbumEntry, ReloadStatus } from '$lib/models/album';
 import { SvelteMap } from 'svelte/reactivity';
 
 /**
@@ -15,10 +7,8 @@ import { SvelteMap } from 'svelte/reactivity';
 class AlbumState {
     editMode = $state(false);
     albums = $state(new SvelteMap<string, AlbumEntry>());
-    albumUpdates = new SvelteMap<string, ReloadStatus>();
-    albumCreates = new SvelteMap<string, CreateEntry>();
+    albumReloads = new SvelteMap<string, ReloadStatus>();
     albumRenames = new SvelteMap<string, RenameEntry>();
-    albumDeletes = $state(new SvelteMap<string, DeleteEntry>());
     imageRenames = new SvelteMap<string, RenameEntry>();
     imageDeletes = new SvelteMap<string, DeleteEntry>();
     crops = new SvelteMap<string, CropEntry>();

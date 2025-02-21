@@ -2,8 +2,8 @@ import { toast } from '@zerodevx/svelte-toast';
 import { getParentFromPath, isValidAlbumPath } from '$lib/utils/galleryPathUtils';
 import { createUrl } from '$lib/utils/config';
 import { albumState } from '../AlbumState.svelte';
-import { CreateStatus } from '$lib/models/album';
 import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
+import { AlbumStatus } from '$lib/models/album';
 
 /**
  * Album create state machine
@@ -26,24 +26,31 @@ class AlbumCreateMachine {
     //
 
     createAlbum(albumPath: string): void {
+        // album must be in a status that starts with NOT_LOADED.IDLE or DOES_NOT_EXIST.IDLE
+        const status = albumState.albums.get(albumPath)?.status;
+        if (!status?.startsWith(AlbumStatus.NOT_LOADED) && !status?.startsWith(AlbumStatus.DOES_NOT_EXIST))
+            throw new Error(`Album already exists`);
         this.#createAlbum(albumPath); // call async logic in a fire-and-forget manner
     }
 
     #createStarted(albumPath: string) {
-        albumState.albumCreates.set(albumPath, {
-            status: CreateStatus.IN_PROGRESS,
+        albumState.albums.set(albumPath, {
+            status: AlbumStatus.CREATING,
         });
     }
 
     #success(albumPath: string) {
         console.log(`Album [${albumPath}] created`);
-        albumState.albumCreates.delete(albumPath);
+        // Do not change state here; it happens by virtue of loading the album from server
         toast.push(`Album [${albumPath}] created`);
     }
 
     #error(albumPath: string, errorMessage: string) {
         console.error(`Error creating album ${albumPath}: ${errorMessage}`);
-        albumState.albumCreates.delete(albumPath);
+        albumState.albums.set(albumPath, {
+            status: AlbumStatus.CREATE_ERRORED,
+            errorMessage,
+        });
         toast.push(`Error creating album: ${errorMessage}`);
     }
 

@@ -1,15 +1,16 @@
 <script lang="ts">
     import type { PageProps } from './$types';
-    import DayAlbumRouting from '$lib/components/pages/album/day/DayAlbumRouting.svelte';
+    import AlbumRouting from '$lib/components/pages/album/AlbumRouting.svelte';
     import DayAlbumPage from '$lib/components/pages/album/day/DayAlbumPage.svelte';
     import { albumState } from '$lib/stores/AlbumState.svelte';
+    import type { Album } from '$lib/models/GalleryItemInterfaces';
 
     let { data }: PageProps = $props();
-    let albumPath = $derived(data.albumPath);
-    let album = $derived(albumState.albums.get(albumPath)?.album);
+    let albumPath: string = $derived(data.albumPath);
+    let album: Album | undefined = $derived(albumState.albums.get(albumPath)?.album);
 </script>
 
-<DayAlbumRouting {albumPath}>
+<AlbumRouting {albumPath}>
     {#snippet loaded()}
         {#if album}
             {#if albumState.editMode}
@@ -21,4 +22,4 @@
             {/if}
         {/if}
     {/snippet}
-</DayAlbumRouting>
+</AlbumRouting>

@@ -1,15 +1,19 @@
 <script lang="ts">
-    import RootAlbumRouting from '$lib/components/pages/album/root/RootAlbumRouting.svelte';
-    import type { AlbumLoadStatus } from '$lib/models/album';
+    import type { PageProps } from './$types';
+    import AlbumRouting from '$lib/components/pages/album/AlbumRouting.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import { albumState } from '$lib/stores/AlbumState.svelte';
-    import type { PageProps } from './$types';
+    import RootAlbumPage from '$lib/components/pages/album/root/RootAlbumPage.svelte';
 
     let { data }: PageProps = $props();
-    let path = $derived(data.pathToRootAlbum);
-    let albumEntry = $derived(albumState.albums.get(path));
-    let album: Album | undefined = $derived(albumEntry?.album);
-    let status: AlbumLoadStatus | undefined = $derived(albumEntry?.loadStatus);
+    let albumPath: string = $derived(data.pathToRootAlbum);
+    let album: Album | undefined = $derived(albumState.albums.get(albumPath)?.album);
 </script>
 
-<RootAlbumRouting {status} {album} />
+<AlbumRouting {albumPath}>
+    {#snippet loaded()}
+        {#if album}
+            <RootAlbumPage {album} />
+        {/if}
+    {/snippet}
+</AlbumRouting>

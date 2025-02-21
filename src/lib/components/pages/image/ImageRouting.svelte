@@ -4,7 +4,7 @@
   Route to the different loading / error / display statuses of a photo
 -->
 <script lang="ts">
-    import { AlbumLoadStatus, DeleteStatus, RenameStatus, UploadState } from '$lib/models/album';
+    import { AlbumStatus, DeleteStatus, RenameStatus, UploadState } from '$lib/models/album';
     import ImageLoadingPage from '$lib/components/pages/image/ImageLoadingPage.svelte';
     import HomeIcon from '$lib/components/site/icons/HomeIcon.svelte';
     import type { Image } from '$lib/models/GalleryItemInterfaces';
@@ -21,7 +21,7 @@
     }
     let { albumPath, imagePath, image, loaded }: Props = $props();
 
-    let albumLoadStatus = $derived(albumState.albums.get(albumPath)?.loadStatus);
+    let albumStatus = $derived(albumState.albums.get(albumPath)?.status);
     let uploadStatus = $derived(getUpload(imagePath)?.status);
     let renameStatus = $derived(albumState.imageRenames.get(imagePath)?.status);
     let deleteStatus = $derived(albumState.imageDeletes.get(imagePath)?.status);
@@ -39,11 +39,11 @@
     <ImageProcessingPage title="Rename In Progress" />
 {:else if DeleteStatus.IN_PROGRESS === deleteStatus}
     <ImageProcessingPage title="Delete In Progress" />
-{:else if AlbumLoadStatus.NOT_LOADED === albumLoadStatus}
+{:else if AlbumStatus.NOT_LOADED === albumStatus}
     <ImageLoadingPage />
-{:else if AlbumLoadStatus.LOADING === albumLoadStatus}
+{:else if AlbumStatus.LOADING === albumStatus}
     <ImageLoadingPage />
-{:else if AlbumLoadStatus.LOADED === albumLoadStatus}
+{:else if AlbumStatus.LOADED === albumStatus}
     {#if image}
         {@render loaded?.()}
     {:else}
@@ -52,16 +52,16 @@
             <p><a href="/">Go back <HomeIcon title="Home" />?</a></p>
         </AlbumErrorPage>
     {/if}
-{:else if AlbumLoadStatus.ERROR_LOADING === albumLoadStatus}
+{:else if AlbumStatus.LOAD_ERRORED === albumStatus}
     <AlbumErrorPage>
         <p>Error retrieving album</p>
         <p><a href="/">Go back <HomeIcon title="Home" />?</a></p>
     </AlbumErrorPage>
-{:else if AlbumLoadStatus.DOES_NOT_EXIST === albumLoadStatus}
+{:else if AlbumStatus.DOES_NOT_EXIST === albumStatus}
     <AlbumErrorPage title="Album Not Found">
         <p>Album not found</p>
         <p><a href="/">Go back <HomeIcon title="Home" />?</a></p>
     </AlbumErrorPage>
 {:else}
-    Unknown status: [{albumLoadStatus}]
+    Unknown status: [{albumStatus}]
 {/if}

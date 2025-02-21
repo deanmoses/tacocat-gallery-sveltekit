@@ -24,7 +24,7 @@
     }
 
     function onDeleteButtonClick() {
-        albumDeleteMachine.deleteAlbum(albumPath);
+        albumDeleteMachine.delete(albumPath);
         goto(getParentFromPath(albumPath));
     }
 </script>

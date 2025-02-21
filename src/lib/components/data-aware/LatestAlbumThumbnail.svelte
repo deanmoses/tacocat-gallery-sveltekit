@@ -5,12 +5,10 @@
 -->
 <script lang="ts">
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
-    import { AlbumLoadStatus } from '$lib/models/album';
     import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
     import { latestAlbumLoadMachine } from '$lib/stores/LatestAlbumLoadMachine.svelte';
     import { onMount } from 'svelte';
 
-    let status: AlbumLoadStatus = $derived(latestAlbumLoadMachine.entry.status);
     let thumb: Thumbable | undefined = $derived(latestAlbumLoadMachine.entry.thumbnail);
 
     onMount(() => {
@@ -18,27 +16,11 @@
     });
 </script>
 
-{#if AlbumLoadStatus.NOT_LOADED == status}
-    <!-- display nothing until it's loaded -->
-{:else if AlbumLoadStatus.LOADING == status}
-    <!-- display nothing until it's loaded -->
-{:else if AlbumLoadStatus.ERROR_LOADING == status}
-    <!-- display nothing if there's an error -->
-{:else if AlbumLoadStatus.LOADED == status && !thumb}
-    <!-- display nothing if album thumb is undefined -->
-{:else if AlbumLoadStatus.LOADED == status && !!thumb}
+{#if thumb}
     <aside>
         <h2>Latest Album</h2>
-        <Thumbnail
-            path={thumb.path}
-            title={thumb.title}
-            summary={thumb.summary}
-            href={thumb.path}
-            src={thumb.thumbnailUrl}
-        />
+        <Thumbnail title={thumb.title} summary={thumb.summary} href={thumb.path} src={thumb.thumbnailUrl} />
     </aside>
-{:else}
-    <!-- display nothing if I don't understand what's going on -->
 {/if}
 
 <style>

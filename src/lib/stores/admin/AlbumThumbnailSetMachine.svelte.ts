@@ -1,6 +1,5 @@
 import { SvelteMap } from 'svelte/reactivity';
 import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
-import { ReloadStatus } from '$lib/models/album';
 import { setThumbnailUrl } from '$lib/utils/config';
 import { toast } from '@zerodevx/svelte-toast';
 import { getParentFromPath, isValidYearAlbumPath } from '$lib/utils/galleryPathUtils';
@@ -11,15 +10,7 @@ import { getParentFromPath, isValidYearAlbumPath } from '$lib/utils/galleryPathU
 export type AlbumThumbnailSetEntry = {
     albumPath: string;
     newThumbnailImagePath: string;
-    status: AlbumThumbnailSetStatus;
 };
-
-/**
- * Status of setting the album's thumbnail
- */
-export enum AlbumThumbnailSetStatus {
-    IN_PROGRESS = 'In Progress',
-}
 
 /**
  * Store of album thumbnail set states
@@ -61,9 +52,7 @@ class AlbumThumbnailSetMachine {
         this.#state.set(albumPath, {
             albumPath,
             newThumbnailImagePath,
-            status: AlbumThumbnailSetStatus.IN_PROGRESS,
         });
-        albumLoadMachine.setUpdateStatus(albumPath, ReloadStatus.RELOADING);
 
         // Call the async logic in a fire-and-forget manner
         this.#setAlbumThumbnail(albumPath, newThumbnailImagePath);
@@ -71,7 +60,6 @@ class AlbumThumbnailSetMachine {
 
     #success(albumPath: string) {
         this.#state.delete(albumPath);
-        albumLoadMachine.setUpdateStatus(albumPath, ReloadStatus.NOT_RELOADING);
 
         if (isValidYearAlbumPath(albumPath)) {
             const year = albumPath.replaceAll('/', '');
@@ -82,7 +70,6 @@ class AlbumThumbnailSetMachine {
     #error(albumPath: string, errorMessage: string) {
         console.log(`Error saving thumbnail for album [${albumPath}]: ${errorMessage}`);
         this.#state.delete(albumPath);
-        albumLoadMachine.setUpdateStatus(albumPath, ReloadStatus.NOT_RELOADING);
         toast.push(`Error saving thumbnail: ${errorMessage}`);
     }
 

@@ -1,4 +1,4 @@
-import { DeleteStatus } from '$lib/models/album';
+import { AlbumStatus } from '$lib/models/album';
 import { deleteUrl } from '$lib/utils/config';
 import { getParentFromPath, isValidAlbumPath } from '$lib/utils/galleryPathUtils';
 import { toast } from '@zerodevx/svelte-toast';
@@ -25,24 +25,37 @@ class AlbumDeleteMachine {
     //    To read this store's state, use one of the public $derived() fields
     //
 
-    deleteAlbum(albumPath: string): void {
-        this.#deleteAlbum(albumPath); // call async logic in a fire-and-forget manner
+    delete(albumPath: string): void {
+        const status = albumState.albums.get(albumPath)?.status;
+        // album must be in a status that starts with LOADED.IDLE
+        if (!status?.startsWith(AlbumStatus.LOADED))
+            throw new Error(`Album [${albumPath}] in invalid status to delete: [${status}]`);
+        this.#delete(albumPath); // call async logic in a fire-and-forget manner
     }
 
     #deleteStarted(albumPath: string): void {
-        albumState.albumDeletes.set(albumPath, {
-            status: DeleteStatus.IN_PROGRESS,
-        });
+        // TODO: use immer to set state immutably
+        const albumEntry = albumState.albums.get(albumPath);
+        if (!albumEntry) throw new Error(`No album at path [${albumPath}]`);
+        albumEntry.status = AlbumStatus.DELETING;
+        albumState.albums.set(albumPath, albumEntry);
     }
 
     #success(albumPath: string): void {
         console.log(`Album [${albumPath}] deleted`);
-        albumState.albumDeletes.delete(albumPath);
-        toast.push(`Album [${albumPath}] deleted`);
+        albumState.albums.set(albumPath, {
+            status: AlbumStatus.DELETED,
+        });
+        toast.push(`Album deleted`);
     }
 
     #error(albumPath: string, errorMessage: string): void {
-        albumState.albumDeletes.delete(albumPath);
+        // TODO: use immer to set state immutably
+        const albumEntry = albumState.albums.get(albumPath);
+        if (!albumEntry) throw new Error(`No album at path [${albumPath}]`);
+        albumEntry.status = AlbumStatus.DELETE_ERRORED;
+        albumEntry.errorMessage = errorMessage;
+        albumState.albums.set(albumPath, albumEntry);
         toast.push(`Error deleting album: ${errorMessage}`);
     }
 
@@ -57,7 +70,7 @@ class AlbumDeleteMachine {
     //  - These don't return values; they return void or Promise<void>
     //
 
-    async #deleteAlbum(albumPath: string): Promise<void> {
+    async #delete(albumPath: string): Promise<void> {
         try {
             if (!isValidAlbumPath(albumPath)) throw new Error(`Invalid album path [${albumPath}]`);
             this.#deleteStarted(albumPath);

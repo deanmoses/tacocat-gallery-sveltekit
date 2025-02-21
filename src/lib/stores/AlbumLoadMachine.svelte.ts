@@ -1,11 +1,11 @@
-import { produce } from 'immer';
 import { get as getFromIdb, set as setToIdb, del as delFromIdb } from 'idb-keyval';
-import { AlbumLoadStatus, ReloadStatus, type AlbumEntry } from '$lib/models/album';
+import { AlbumStatus, ReloadStatus, type AlbumEntry } from '$lib/models/album';
 import toAlbum from '$lib/models/impl/AlbumCreator';
 import { isValidAlbumPath } from '$lib/utils/galleryPathUtils';
 import type { AlbumRecord } from '$lib/models/impl/server';
 import { albumUrl } from '$lib/utils/config';
 import { albumState } from './AlbumState.svelte';
+import type { Album } from '$lib/models/GalleryItemInterfaces';
 
 /**
  * Album loading state machine
@@ -43,21 +43,32 @@ class AlbumLoadMachine {
     fetch(path: string, refetch = true): void {
         if (!isValidAlbumPath(path)) throw new Error(`Invalid album path [${path}]`);
 
-        const status: AlbumLoadStatus = albumState.albums.get(path)?.loadStatus ?? AlbumLoadStatus.NOT_LOADED;
+        const status: AlbumStatus = albumState.albums.get(path)?.status ?? AlbumStatus.NOT_LOADED;
 
-        // Do nothing if the album is already being loaded
-        if (AlbumLoadStatus.LOADING === status) return;
+        // Do nothing if the album is already being loaded or reloaded
+        if (AlbumStatus.LOADING === status) return;
+        if (ReloadStatus.RELOADING == albumState.albumReloads.get(path)) return;
 
-        // I don't have album in memory
-        if (AlbumLoadStatus.LOADED !== status) {
-            this.#setLoadStatus(path, AlbumLoadStatus.LOADING);
+        // If I don't have album in memory
+        if (AlbumStatus.LOADED !== status) {
+            this.#loadingStarted(path);
             this.#fetchFromDiskAndServer(path); // fire and forget, don't await
         }
-        // I have a copy in memory, but the caller has asked to re-fetch
+        // If I have a copy in memory, but the caller has asked to re-fetch
         else if (refetch) {
-            this.setUpdateStatus(path, ReloadStatus.RELOADING);
+            this.#reloadingStarted(path);
             this.fetchFromServer(path); // fire and forget, don't await
         }
+    }
+
+    #loadingStarted(path: string): void {
+        albumState.albums.set(path, {
+            status: AlbumStatus.LOADING,
+        });
+    }
+
+    #reloadingStarted(path: string): void {
+        albumState.albumReloads.set(path, ReloadStatus.RELOADING);
     }
 
     /**
@@ -66,15 +77,12 @@ class AlbumLoadMachine {
      * @param path path of the album
      * @param jsonAlbum JSON of the album
      */
-    #found(path: string, jsonAlbum: AlbumRecord): void {
-        const album = toAlbum(jsonAlbum);
-        const albumEntry = this.#getOrCreateWritableStore(path);
-        const newAlbumEntry = produce(albumEntry, (draftState: AlbumEntry) => {
-            draftState.loadStatus = AlbumLoadStatus.LOADED;
-            draftState.album = album;
+    #found(path: string, album: Album): void {
+        albumState.albums.set(path, {
+            status: AlbumStatus.LOADED,
+            album: album,
         });
-        albumState.albums.set(path, newAlbumEntry);
-        this.setUpdateStatus(path, ReloadStatus.NOT_RELOADING);
+        albumState.albumReloads.delete(path);
     }
 
     /**
@@ -84,13 +92,10 @@ class AlbumLoadMachine {
      */
     #notFound(path: string) {
         console.warn(`Album [${path}] not found on server`);
-        const albumEntry = this.#getOrCreateWritableStore(path);
-        const newAlbumEntry = produce(albumEntry, (draftState: AlbumEntry) => {
-            draftState.loadStatus = AlbumLoadStatus.DOES_NOT_EXIST;
-            draftState.album = undefined;
+        albumState.albums.set(path, {
+            status: AlbumStatus.DOES_NOT_EXIST,
         });
-        albumState.albums.set(path, newAlbumEntry);
-        this.setUpdateStatus(path, ReloadStatus.NOT_RELOADING);
+        albumState.albumReloads.delete(path);
     }
 
     /**
@@ -99,24 +104,25 @@ class AlbumLoadMachine {
      * @param path path of the album
      * @param message error message
      */
-    #erroredFetching(path: string, message: string): void {
+    #fetchingErrored(path: string, message: string): void {
         console.error(`Album [${path}] error fetching from server: `, message);
-        const status = this.#getLoadStatus(path);
-        switch (status) {
-            case AlbumLoadStatus.LOADING:
-            case AlbumLoadStatus.NOT_LOADED:
-            case AlbumLoadStatus.DOES_NOT_EXIST:
-                this.#setLoadStatus(path, AlbumLoadStatus.ERROR_LOADING);
-                break;
-            case AlbumLoadStatus.LOADED:
-                this.setUpdateStatus(path, ReloadStatus.ERROR_RELOADING);
-                break;
-            case AlbumLoadStatus.ERROR_LOADING:
-                // already in correct state
-                break;
-            default:
-                console.error('Unexpected load status:', status);
-        }
+        const status = albumState.albums.get(path)?.status;
+        const reloadStatus = albumState.albumReloads.get(path);
+
+        if (AlbumStatus.LOADING === status) this.#loadingErrored(path, message);
+        else if (ReloadStatus.RELOADING == reloadStatus) this.#reloadingErrored(path);
+        else console.error('Unexpected load status:', status);
+    }
+
+    #loadingErrored(path: string, message: string) {
+        albumState.albums.set(path, {
+            status: AlbumStatus.LOAD_ERRORED,
+            errorMessage: message,
+        });
+    }
+
+    #reloadingErrored(path: string) {
+        albumState.albumReloads.set(path, ReloadStatus.ERROR_RELOADING);
     }
 
     //
@@ -141,7 +147,8 @@ class AlbumLoadMachine {
             const albumObject: AlbumRecord | undefined = await getFromIdb(idbKey);
             if (albumObject) {
                 console.log(`Album [${path}] found in idb`);
-                this.#found(path, albumObject);
+                const album = toAlbum(albumObject);
+                this.#found(path, album);
             } else {
                 console.log(`Album [${path}] not found in idb`);
             }
@@ -170,20 +177,23 @@ class AlbumLoadMachine {
             } else {
                 const json = await response.json();
                 console.log(`Album [${path}] fetched from server`, json);
-                this.#found(path, json); // Put album in memory
+                const album = toAlbum(json);
+                this.#found(path, album); // Put album in memory
                 this.#writeToDisk(path, json); // Put album on local disk
             }
         } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
-            this.#erroredFetching(path, message);
+            this.#fetchingErrored(path, message);
         }
     }
 
     //
     // OTHER METHODS
     //
-    // Because this class was not originally designed as STATE TRANSITION METHODS + SERVICE FUNCTIONS,
-    // it has a grab bag of stuff.  TODO: rationalize
+    // Because this class was not originally designed as
+    // STATE TRANSITION METHODS + SERVICE FUNCTIONS,
+    // it has a grab bag of stuff.
+    // TODO: rationalize.
     //
 
     /**
@@ -194,10 +204,10 @@ class AlbumLoadMachine {
 
         // First check in memory
         console.log(`Checking if album [${path}] exists in memory`);
-        const status = albumState.albums.get(path)?.loadStatus ?? AlbumLoadStatus.NOT_LOADED;
-        if (AlbumLoadStatus.LOADED === status || AlbumLoadStatus.LOADING === status) {
+        const status = albumState.albums.get(path)?.status ?? AlbumStatus.NOT_LOADED;
+        if (AlbumStatus.LOADED === status || AlbumStatus.LOADING === status) {
             return true;
-        } else if (AlbumLoadStatus.DOES_NOT_EXIST === status) {
+        } else if (AlbumStatus.DOES_NOT_EXIST === status) {
             return false;
         }
 
@@ -286,52 +296,6 @@ class AlbumLoadMachine {
      */
     #idbKey(path: string): string {
         return `${path}`;
-    }
-
-    /**
-     * Set the load status of the album
-     *
-     * @param path path of the album
-     * @param loadStatus
-     */
-    #setLoadStatus(path: string, loadStatus: AlbumLoadStatus): void {
-        const albumEntry = this.#getOrCreateWritableStore(path);
-        const newAlbumEntry = produce(albumEntry, (draftState: AlbumEntry) => {
-            draftState.loadStatus = loadStatus;
-        });
-        albumState.albums.set(path, newAlbumEntry);
-    }
-
-    #getLoadStatus(path: string): AlbumLoadStatus {
-        const album = albumState.albums.get(path);
-        if (!album) throw new Error(`Album not found [${path}]`);
-        return album.loadStatus;
-    }
-
-    setUpdateStatus(path: string, status: ReloadStatus): void {
-        albumState.albumUpdates.set(path, status);
-    }
-
-    /**
-     * Get the read-write version of the album,
-     * creating a stand-in if it doesn't exist.
-     *
-     * @param path path of the album
-     */
-    #getOrCreateWritableStore(path: string): AlbumEntry {
-        let albumEntry = albumState.albums.get(path);
-
-        // If the album wasn't found in memory
-        if (!albumEntry) {
-            console.log(`Album [${path}] not found in memory`);
-            // Create blank entry so that consumers have some object
-            // to which they can subscribe to changes
-            albumEntry = {
-                loadStatus: AlbumLoadStatus.NOT_LOADED,
-            };
-        }
-
-        return albumEntry;
     }
 
     /**

@@ -10,28 +10,51 @@ export enum AlbumType {
 }
 
 /**
- * An entry in the album store
+ * The state of an album
  */
 export type AlbumEntry = {
-    loadStatus: AlbumLoadStatus;
-    renameEntry?: RenameEntry;
+    status: AlbumStatus;
+    path?: string;
     album?: Album;
+    /** Album is being renamed, this will be the new path */
+    newPath?: string;
+    errorMessage?: string;
 };
 
 /**
- * Status of the initial load of the album
+ * Album states that are mutually exclusive
  */
-export enum AlbumLoadStatus {
-    /** The album has never been loaded and nobody's asked for it */
-    NOT_LOADED = 'NOT_LOADED',
-    /** The album has never been loaded but it's being retrieved */
-    LOADING = 'LOADING',
-    /** The album has never been loaded because there was an error loading the album. */
-    ERROR_LOADING = 'ERROR_LOADING',
-    /** The album definitely does not exist */
-    DOES_NOT_EXIST = 'DOES_NOT_EXIST',
-    /** The album has been loaded */
-    LOADED = 'LOADED',
+export enum AlbumStatus {
+    /** The album has not been loaded and nobody's asked for it */
+    NOT_LOADED = 'NOT_LOADED.IDLE',
+    /** The album is not loaded because there was an error loading */
+    LOAD_ERRORED = 'NOT_LOADED.IDLE.ERROR.LOADING',
+    /** The album has not been loaded but it's being retrieved */
+    LOADING = 'NOT_LOADED.LOADING',
+    /** The album does not exist, we checked on the server */
+    DOES_NOT_EXIST = 'DOES_NOT_EXIST.IDLE',
+    /** The album does not exist, we tried creating it but there was an error */
+    CREATE_ERRORED = 'DOES_NOT_EXIST.IDLE.ERROR.CREATING',
+    /** The ablum is in the process of being created  */
+    CREATING = 'DOES_NOT_EXIST.CREATING',
+    /** The album does not exist because it was deleted */
+    DELETED = 'DOES_NOT_EXIST.DELETED',
+    /** The album does not exist because it was renamed */
+    RENAMED = 'DOES_NOT_EXIST.RENAMED',
+    /** The album has been loaded and is ready for further interaction */
+    LOADED = 'LOADED.IDLE',
+    /** The album is loaded and ready to interact with.  Last interaction was an error saving. */
+    SAVE_ERRORED = 'LOADED.IDLE.ERROR.SAVING',
+    /** The album is loaded and ready to interact with.  Last interaction was an error renaming. */
+    RENAME_ERRORED = 'LOADED.IDLE.ERROR.RENAMING',
+    /** The album is loaded and ready to interact with.  Last interaction was an error deleting. */
+    DELETE_ERRORED = 'LOADED.IDLE.ERROR.DELETING',
+    /** The album is in the process of being saved */
+    SAVING = 'LOADED.SAVING',
+    /** The album is in the process of being renamed */
+    RENAMING = 'LOADED.RENAMING',
+    /** The album is in the process of being deleted */
+    DELETING = 'LOADED.DELETING',
 }
 
 /**
@@ -44,17 +67,6 @@ export enum ReloadStatus {
     NOT_RELOADING = 'NOT_RELOADING',
     RELOADING = 'RELOADING',
     ERROR_RELOADING = 'ERROR_RELOADING',
-}
-
-/**
- * Represents an album being created
- */
-export type CreateEntry = {
-    status: CreateStatus;
-};
-
-export enum CreateStatus {
-    IN_PROGRESS = 'In Progress',
 }
 
 /**
@@ -78,7 +90,7 @@ export enum UploadState {
 }
 
 /**
- * Represents a single image or album being renamed
+ * Represents a single image being renamed
  */
 export type RenameEntry = {
     oldPath: string;
@@ -91,7 +103,7 @@ export enum RenameStatus {
 }
 
 /**
- * Represents a single album or image being deleted
+ * Represents a single image being deleted
  */
 export type DeleteEntry = {
     status: DeleteStatus;
