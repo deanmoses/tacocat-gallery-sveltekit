@@ -22,6 +22,6 @@ export class AlbumYearImpl extends AlbumBaseImpl implements Album {
 
     /**  Get title of a prev/next album */
     #albumTitle(albumPath?: string): string {
-        return !!albumPath ? albumPathToDate(albumPath).getFullYear().toString() : '';
+        return albumPath ? albumPathToDate(albumPath).getFullYear().toString() : '';
     }
 }

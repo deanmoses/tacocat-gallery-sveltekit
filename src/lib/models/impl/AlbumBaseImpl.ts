@@ -69,6 +69,7 @@ export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
         // TODO: fix TypeScript error - thumbnail.versionId is required
         // The Drafts system should probably not be saving to this object,
         // but instead some intermediate object...
+        // @ts-expect-error TS2739
         this.json.thumbnail = {
             path: imagePath,
         };
@@ -94,6 +95,6 @@ export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
 
     getImage(imagePath: string): Image | undefined {
         const image = this.json?.children?.find((child: GalleryRecord) => child.path === imagePath);
-        return !!image ? new ImageImpl(image as ImageRecord, this) : undefined;
+        return image ? new ImageImpl(image as ImageRecord, this) : undefined;
     }
 }
