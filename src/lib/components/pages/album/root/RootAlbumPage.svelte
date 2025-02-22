@@ -23,7 +23,7 @@
 
     let { album }: Props = $props();
 
-    let sortedAlbums = $derived(album.albums ? album.albums.sort((a, b) => b.path.localeCompare(a.path)) : []);
+    let sortedAlbums = $derived(album.albums.sort((a, b) => b.path.localeCompare(a.path)) ?? []);
 </script>
 
 <svelte:head>
