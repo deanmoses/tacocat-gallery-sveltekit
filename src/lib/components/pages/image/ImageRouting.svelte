@@ -26,20 +26,16 @@
 </script>
 
 {#if ImageStatus.UPLOAD_QUEUED === imageStatus}
-    <ImageProcessingPage title="Upload Not Started" />
+    <ImageProcessingPage title="Upload Queued..." />
 {:else if ImageStatus.UPLOAD_TRANSFERRING === imageStatus}
-    <ImageProcessingPage title="Upload In Progress" />
+    <ImageProcessingPage title="Uploading..." />
 {:else if ImageStatus.UPLOAD_PROCESSING === imageStatus}
-    <ImageProcessingPage title="Upload Processing" />
+    <ImageProcessingPage title="Upload Processing..." />
 {:else if ImageStatus.RENAMING === imageStatus}
-    <ImageProcessingPage title="Rename In Progress" />
+    <ImageProcessingPage title="Rename In Progress..." />
 {:else if ImageStatus.DELETING === imageStatus}
-    <ImageProcessingPage title="Delete In Progress" />
-{:else if AlbumStatus.NOT_LOADED === albumStatus}
-    <ImageLoadingPage />
-{:else if AlbumStatus.LOADING === albumStatus}
-    <ImageLoadingPage />
-{:else if AlbumStatus.LOADED === albumStatus}
+    <ImageProcessingPage title="Delete In Progress..." />
+{:else if albumStatus?.startsWith('LOADED')}
     {#if image}
         {@render loaded?.()}
     {:else}
@@ -53,7 +49,9 @@
         <p>Error retrieving album</p>
         <p><a href="/">Go back <HomeIcon title="Home" />?</a></p>
     </AlbumErrorPage>
-{:else if AlbumStatus.DOES_NOT_EXIST === albumStatus}
+{:else if albumStatus?.startsWith('NOT_LOADED')}
+    <ImageLoadingPage />
+{:else if albumStatus?.startsWith(AlbumStatus.DOES_NOT_EXIST)}
     <AlbumErrorPage title="Album Not Found">
         <p>Album not found</p>
         <p><a href="/">Go back <HomeIcon title="Home" />?</a></p>
