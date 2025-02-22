@@ -4,20 +4,17 @@
   Widget that displays the status of the uploads
 -->
 <script lang="ts">
-    import { UploadState, type UploadEntry } from '$lib/models/album';
+    import { ImageStatus, type ImageEntry } from '$lib/models/album';
 
     interface Props {
-        uploads?: UploadEntry[];
+        uploads?: ImageEntry[];
     }
-
     let { uploads = undefined }: Props = $props();
-
     let uploadingCount: number = $derived(
-        uploads ? uploads.reduce((acc, upload) => acc + (upload.status === UploadState.UPLOADING ? 1 : 0), 0) : 0,
+        uploads?.reduce((acc, upload) => acc + (ImageStatus.UPLOAD_TRANSFERRING === upload.status ? 1 : 0), 0) ?? 0,
     );
-
     let processingCount: number = $derived(
-        uploads ? uploads.reduce((acc, upload) => acc + (upload.status === UploadState.PROCESSING ? 1 : 0), 0) : 0,
+        uploads?.reduce((acc, upload) => acc + (ImageStatus.UPLOAD_PROCESSING === upload.status ? 1 : 0), 0) ?? 0,
     );
 </script>
 

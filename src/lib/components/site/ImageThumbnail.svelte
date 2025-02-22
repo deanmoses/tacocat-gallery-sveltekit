@@ -4,7 +4,7 @@
   A thumbnail of an image
 -->
 <script lang="ts">
-    import { DeleteStatus, CropStatus, RenameStatus } from '$lib/models/album';
+    import { ImageStatus } from '$lib/models/album';
     import { albumState } from '$lib/stores/AlbumState.svelte';
     import type { Snippet } from 'svelte';
     import Thumbnail from './Thumbnail.svelte';
@@ -18,9 +18,10 @@
         selectionControls?: Snippet;
     }
     let { path, href, src, title, summary, selectionControls }: Props = $props();
-    let deleting: boolean = $derived(DeleteStatus.IN_PROGRESS === albumState.imageDeletes.get(path)?.status);
-    let renaming: boolean = $derived(RenameStatus.IN_PROGRESS === albumState.imageRenames.get(path)?.status);
-    let cropping: boolean = $derived(CropStatus.IN_PROGRESS === albumState.crops.get(path)?.status);
+    let status: ImageStatus | undefined = $derived(albumState.images.get(path)?.status);
+    let deleting: boolean = $derived(ImageStatus.DELETING === status);
+    let renaming: boolean = $derived(ImageStatus.RENAMING === status);
+    let cropping: boolean = $derived(ImageStatus.CROPPING === status);
 </script>
 
 <Thumbnail {title} {src} {summary} {href} {deleting} {renaming} {cropping} {selectionControls} />

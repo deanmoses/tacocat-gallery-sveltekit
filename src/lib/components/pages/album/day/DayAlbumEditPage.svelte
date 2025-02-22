@@ -6,26 +6,26 @@
 <script lang="ts">
     import DayAlbumPageLayout from './DayAlbumPageLayout.svelte';
     import PrevButton from '$lib/components/site/nav/PrevButton.svelte';
-    import UpButton from '$lib/components/site/nav/UpButton.svelte';
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
+    import UpButton from '$lib/components/site/nav/UpButton.svelte';
     import ImageThumbnail from '$lib/components/site/ImageThumbnail.svelte';
+    import type { Album } from '$lib/models/GalleryItemInterfaces';
+    import type { ImageEntry } from '$lib/models/album';
+    import { getUploadsForAlbum } from '$lib/stores/AlbumState.svelte';
     import SelectableStar from '$lib/components/site/admin/SelectableStar.svelte';
     import AlbumEditControls from '$lib/components/site/admin/edit_controls/AlbumEditControls.svelte';
     import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
-    import type { Album } from '$lib/models/GalleryItemInterfaces';
-    import DayAlbumFullScreenDropZone from './DayAlbumFullScreenDropZone.svelte';
-    import type { UploadEntry } from '$lib/models/album';
     import UploadThumbnail from '$lib/components/site/admin/UploadThumbnail.svelte';
     import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
     import { albumThumbnailSetMachine } from '$lib/stores/admin/AlbumThumbnailSetMachine.svelte';
-    import { getUploadsForAlbum } from '$lib/stores/AlbumState.svelte';
+    import DayAlbumFullScreenDropZone from './DayAlbumFullScreenDropZone.svelte';
 
     interface Props {
         album: Album;
     }
     let { album }: Props = $props();
+    let uploads: ImageEntry[] = $derived(getUploadsForAlbum(album.path));
     let okToNavigate = $derived(draftMachine.okToNavigate);
-    let uploads: UploadEntry[] | undefined = $derived(getUploadsForAlbum(album.path));
 
     function albumThumbnailSelected(newThumbnailImagePath: string) {
         albumThumbnailSetMachine.setAlbumThumbnail(album.path, newThumbnailImagePath);
@@ -81,8 +81,8 @@
             <p>Drop images or a 📁</p>
         {/if}
         {#if uploads?.length}
-            {#each uploads as upload (upload.imagePath)}
-                <UploadThumbnail {upload} />
+            {#each uploads as imageEntry (imageEntry.upload?.imagePath)}
+                <UploadThumbnail {imageEntry} />
             {/each}
         {/if}
     {/snippet}

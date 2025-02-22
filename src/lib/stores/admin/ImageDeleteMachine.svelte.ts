@@ -1,4 +1,4 @@
-import { DeleteStatus } from '$lib/models/album';
+import { ImageStatus } from '$lib/models/album';
 import { deleteUrl } from '$lib/utils/config';
 import { getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
 import { toast } from '@zerodevx/svelte-toast';
@@ -30,17 +30,17 @@ class ImageDeleteMachine {
     }
 
     #deleteStarted(imagePath: string): void {
-        albumState.imageDeletes.set(imagePath, {
-            status: DeleteStatus.IN_PROGRESS,
+        albumState.images.set(imagePath, {
+            status: ImageStatus.DELETING,
         });
     }
 
     #success(imagePath: string): void {
-        albumState.imageDeletes.delete(imagePath);
+        albumState.images.delete(imagePath);
     }
 
     #error(imagePath: string, errorMessage: string): void {
-        albumState.imageDeletes.delete(imagePath);
+        albumState.images.delete(imagePath);
         toast.push(`Error deleting ${imagePath}: ${errorMessage}`);
     }
 

@@ -70,60 +70,46 @@ export enum ReloadStatus {
 }
 
 /**
+ * The state of an image
+ */
+export type ImageEntry = {
+    status: ImageStatus;
+    upload?: UploadEntry;
+    rename?: RenameEntry;
+    crop?: CropEntry;
+};
+
+export enum ImageStatus {
+    UPLOAD_QUEUED = 'UPLOAD_QUEUED',
+    UPLOAD_TRANSFERRING = 'UPLOAD_TRANSFERRING',
+    UPLOAD_PROCESSING = 'UPLOAD_PROCESSING',
+    CROPPING = 'CROPPING',
+    RENAMING = 'RENAMING',
+    DELETING = 'DELETING',
+}
+
+/**
  * Represents a single image being uploaded
  */
 export type UploadEntry = {
     file: File;
     imagePath: string;
-    status: UploadState;
     /** S3 VersionId of newly uploaded image */
     versionId?: string;
 };
 
 /**
- * Status of of the upload of a single image
- */
-export enum UploadState {
-    UPLOAD_NOT_STARTED = 'Not Started',
-    UPLOADING = 'Uploading',
-    PROCESSING = 'Processing',
-}
-
-/**
  * Represents a single image being renamed
  */
 export type RenameEntry = {
-    oldPath: string;
     newPath: string;
-    status: RenameStatus;
 };
-
-export enum RenameStatus {
-    IN_PROGRESS = 'In Progress',
-}
-
-/**
- * Represents a single image being deleted
- */
-export type DeleteEntry = {
-    status: DeleteStatus;
-};
-
-export enum DeleteStatus {
-    IN_PROGRESS = 'In Progress',
-}
 
 /**
  * Represents the state of a thumbnail being cropped
  */
 export type CropEntry = {
-    imagePath: string;
     crop: Crop;
-    status: CropStatus;
 };
 
 export type Crop = { x: number; y: number; height: number; width: number };
-
-export enum CropStatus {
-    IN_PROGRESS = 'In Progress',
-}

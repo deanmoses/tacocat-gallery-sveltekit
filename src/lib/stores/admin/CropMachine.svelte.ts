@@ -3,7 +3,7 @@ import { recropThumbnailUrl } from '$lib/utils/config';
 import { toast } from '@zerodevx/svelte-toast';
 import { getParentFromPath } from '$lib/utils/galleryPathUtils';
 import { albumState } from '../AlbumState.svelte';
-import { CropStatus, type Crop } from '$lib/models/album';
+import { ImageStatus, type Crop } from '$lib/models/album';
 
 /**
  * Image thumbnail crop state machine
@@ -30,23 +30,23 @@ class CropMachine {
      */
     crop(imagePath: string, crop: Crop): void {
         console.log(`Saving crop of image [${imagePath}]`, crop);
-        albumState.crops.set(imagePath, {
-            imagePath,
-            crop,
-            status: CropStatus.IN_PROGRESS,
+        albumState.images.set(imagePath, {
+            status: ImageStatus.CROPPING,
+            crop: {
+                crop,
+            },
         });
         this.#crop(imagePath, crop); // call async logic in a fire-and-forget manner
     }
 
     #success(imagePath: string) {
-        albumState.crops.delete(imagePath);
+        albumState.images.delete(imagePath);
         toast.push(`Thumbnail cropped`);
-        // goto(imagePath); TODO: goto isn't appropriate here
     }
 
     #error(imagePath: string, errorMessage: string) {
         console.log(`Error cropping thumbnail for [${imagePath}]: ${errorMessage}`);
-        albumState.crops.delete(imagePath);
+        albumState.images.delete(imagePath);
         toast.push(`Error cropping thumbnail: ${errorMessage}`);
     }
 

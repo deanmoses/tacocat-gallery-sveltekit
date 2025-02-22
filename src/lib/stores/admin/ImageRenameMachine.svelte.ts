@@ -1,4 +1,4 @@
-import { RenameStatus } from '$lib/models/album';
+import { ImageStatus } from '$lib/models/album';
 import { renameImageUrl } from '$lib/utils/config';
 import { getNameFromPath, getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
 import { toast } from '@zerodevx/svelte-toast';
@@ -30,20 +30,21 @@ class ImageRenameMachine {
     }
 
     #renameStarted(oldPath: string, newPath: string): void {
-        albumState.imageRenames.set(oldPath, {
-            oldPath,
-            newPath,
-            status: RenameStatus.IN_PROGRESS,
+        albumState.images.set(oldPath, {
+            status: ImageStatus.RENAMING,
+            rename: {
+                newPath,
+            },
         });
     }
 
     #success(oldImagePath: string): void {
-        albumState.imageRenames.delete(oldImagePath);
+        albumState.images.delete(oldImagePath);
     }
 
     #error(oldImagePath: string, newImagePath: string, errorMessage: string): void {
         console.error(`Error renaming ${oldImagePath} to ${newImagePath}: ${errorMessage}`);
-        albumState.imageRenames.delete(oldImagePath);
+        albumState.images.delete(oldImagePath);
         toast.push(`Error renaming image: ${errorMessage}`);
     }
 

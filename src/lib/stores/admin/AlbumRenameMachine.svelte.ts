@@ -1,9 +1,10 @@
-import { RenameStatus } from '$lib/models/album';
 import { renameAlbumUrl } from '$lib/utils/config';
 import { getNameFromPath, getParentFromPath, isValidDayAlbumPath } from '$lib/utils/galleryPathUtils';
 import { toast } from '@zerodevx/svelte-toast';
 import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
 import { albumState } from '../AlbumState.svelte';
+import { AlbumStatus } from '$lib/models/album';
+import type { Album } from '$lib/models/GalleryItemInterfaces';
 
 /**
  * Album rename state machine
@@ -26,24 +27,45 @@ class AlbumRenameMachine {
     //
 
     renameDayAlbum(oldAlbumPath: string, newAlbumPath: string): void {
-        this.#renameDayAlbum(oldAlbumPath, newAlbumPath); // call async logic in a fire-and-forget manner
+        if (!isValidDayAlbumPath(oldAlbumPath)) throw new Error(`Invalid old album path [${oldAlbumPath}]`);
+        if (!isValidDayAlbumPath(newAlbumPath)) throw new Error(`Invalid new album path [${newAlbumPath}]`);
+        const albumEntry = albumState.albums.get(oldAlbumPath);
+        if (!albumEntry?.status?.startsWith(AlbumStatus.LOADED))
+            throw new Error(`Album [${oldAlbumPath}] in invalid state [${albumEntry?.status}] to rename`);
+        if (!albumEntry.album) throw new Error(`Album [${oldAlbumPath}] not found`);
+
+        this.#renameDayAlbum(albumEntry.album, newAlbumPath); // call async logic in a fire-and-forget manner
     }
 
-    #renameStarted(oldPath: string, newPath: string): void {
-        albumState.albumRenames.set(oldPath, {
-            oldPath: oldPath,
-            newPath: newPath,
-            status: RenameStatus.IN_PROGRESS,
-        });
+    #renameStarted(oldAlbumPath: string, newAlbumPath: string): void {
+        console.log(`Renaming album [${oldAlbumPath}] to [${newAlbumPath}]...`);
+        // TODO: use immer to set state immutably
+        const albumEntry = albumState.albums.get(oldAlbumPath);
+        if (!albumEntry?.album) throw new Error(`Album [${oldAlbumPath}] not found`);
+        albumEntry.status = AlbumStatus.RENAMING;
+        albumState.albums.set(oldAlbumPath, albumEntry);
     }
 
     #success(oldAlbumPath: string): void {
-        albumState.albumRenames.delete(oldAlbumPath);
+        console.log(`Album [${oldAlbumPath}] renamed`);
+        const albumEntry = albumState.albums.get(oldAlbumPath);
+        if (!albumEntry) throw new Error(`Album [${oldAlbumPath}] not found`);
+        albumState.albums.set(oldAlbumPath, {
+            status: AlbumStatus.RENAMED,
+            newPath: albumEntry.newPath,
+        });
     }
 
     #error(oldAlbumPath: string, newAlbumPath: string, errorMessage: string): void {
         console.error(`Error renaming album [${oldAlbumPath}] to [${newAlbumPath}]: ${errorMessage}`);
-        albumState.albumRenames.delete(oldAlbumPath);
+
+        // TODO: use immer to set state immutably
+        const albumEntry = albumState.albums.get(oldAlbumPath);
+        if (!albumEntry) throw new Error(`No album at path [${oldAlbumPath}]`);
+        albumEntry.status = AlbumStatus.DELETE_ERRORED;
+        albumEntry.errorMessage = errorMessage;
+        albumState.albums.set(oldAlbumPath, albumEntry);
+
         toast.push(`Error renaming album: ${errorMessage}`);
     }
 
@@ -58,14 +80,10 @@ class AlbumRenameMachine {
     //  - These don't return values; they return void or Promise<void>
     //
 
-    async #renameDayAlbum(oldAlbumPath: string, newAlbumPath: string): Promise<void> {
+    async #renameDayAlbum(album: Album, newAlbumPath: string): Promise<void> {
+        const oldAlbumPath = album?.path;
         try {
-            if (!isValidDayAlbumPath(oldAlbumPath)) throw new Error(`Invalid old album path [${oldAlbumPath}]`);
-            if (!isValidDayAlbumPath(newAlbumPath)) throw new Error(`Invalid new album path [${newAlbumPath}]`);
-            const album = albumState.albums.get(oldAlbumPath)?.album;
-            if (!album) throw new Error(`Album [${oldAlbumPath}] not loaded`);
             const newName = getNameFromPath(newAlbumPath);
-            console.log(`Renaming album [${oldAlbumPath}] to [${newName}]...`);
             this.#renameStarted(oldAlbumPath, newAlbumPath);
             const response = await fetch(renameAlbumUrl(oldAlbumPath), {
                 method: 'POST',

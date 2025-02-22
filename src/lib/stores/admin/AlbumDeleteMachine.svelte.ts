@@ -43,9 +43,11 @@ class AlbumDeleteMachine {
 
     #success(albumPath: string): void {
         console.log(`Album [${albumPath}] deleted`);
+
         albumState.albums.set(albumPath, {
             status: AlbumStatus.DELETED,
         });
+
         toast.push(`Album deleted`);
     }
 
@@ -56,6 +58,7 @@ class AlbumDeleteMachine {
         albumEntry.status = AlbumStatus.DELETE_ERRORED;
         albumEntry.errorMessage = errorMessage;
         albumState.albums.set(albumPath, albumEntry);
+
         toast.push(`Error deleting album: ${errorMessage}`);
     }
 

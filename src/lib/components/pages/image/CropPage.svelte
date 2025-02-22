@@ -12,7 +12,7 @@
     import { goto } from '$app/navigation';
     import { cropMachine } from '$lib/stores/admin/CropMachine.svelte';
     import { albumState } from '$lib/stores/AlbumState.svelte';
-    import { CropStatus } from '$lib/models/album';
+    import { ImageStatus } from '$lib/models/album';
 
     interface Props {
         image: Image;
@@ -20,8 +20,8 @@
 
     let { image }: Props = $props();
     let imageTitle: string = $derived(image.title);
-    let cropStatus: string = $derived(albumState.crops.get(image.path)?.status ?? 'NOT_CROPPING');
-    let disableButtons: boolean = $derived(cropStatus == CropStatus.IN_PROGRESS);
+    let cropStatus: string | undefined = $derived(albumState.images.get(image.path)?.status);
+    let disableButtons: boolean = $derived(cropStatus == ImageStatus.CROPPING);
     let cropper = $state() as CropImage;
 
     function onCancel() {

@@ -1,5 +1,5 @@
 import { toast } from '@zerodevx/svelte-toast';
-import { UploadState } from '$lib/models/album';
+import { ImageStatus, type ImageEntry } from '$lib/models/album';
 import { albumState, getUploadsForAlbum } from '../AlbumState.svelte';
 import { sanitizeImageName, hasValidExtension, getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
 import { getPresignedUploadUrlGenerationUrl } from '$lib/utils/config';
@@ -39,36 +39,27 @@ class UploadMachine {
     }
 
     #uploadEnqueued(imagePath: string, file: File): void {
-        albumState.uploads.push({
-            file,
-            imagePath,
-            status: UploadState.UPLOAD_NOT_STARTED,
+        albumState.images.set(imagePath, {
+            status: ImageStatus.UPLOAD_QUEUED,
+            upload: {
+                file,
+                imagePath,
+            },
         });
     }
 
     #uploadStarted(imagePath: string): void {
-        const upload = albumState.uploads.find((upload) => upload.imagePath === imagePath);
-        if (upload) upload.status = UploadState.UPLOADING;
+        const imageEntry = albumState.images.get(imagePath);
+        if (imageEntry?.upload) imageEntry.status = ImageStatus.UPLOAD_TRANSFERRING;
     }
 
     #uploadProcessing(imagePath: string, versionId: string): void {
-        const upload = albumState.uploads.find((upload) => upload.imagePath === imagePath);
-        if (upload) {
-            upload.status = UploadState.PROCESSING;
-            upload.versionId = versionId;
+        // TODO: make this immutable with Immer
+        const imageEntry = albumState.images.get(imagePath);
+        if (imageEntry?.upload) {
+            imageEntry.status = ImageStatus.UPLOAD_PROCESSING;
+            imageEntry.upload.versionId = versionId;
         }
-
-        // TODO: make this atomic, such as with the previous Immer-based implementation:
-        // uploadStore.update((oldValue: UploadStore) =>
-        //     produce(oldValue, (draftState: UploadStore) => {
-        //         const upload = draftState.find((upload) => upload.imagePath === imagePath);
-        //         if (upload) {
-        //             upload.status = UploadState.PROCESSING;
-        //             upload.versionId = versionId;
-        //         }
-        //         return draftState;
-        //     }),
-        // );
     }
 
     #uploadErrored(imagePath: string, errorMessage: string): void {
@@ -82,8 +73,7 @@ class UploadMachine {
     }
 
     #uploadComplete(imagePath: string): void {
-        // remove upload from list
-        albumState.uploads = albumState.uploads.filter((upload) => upload.imagePath !== imagePath);
+        albumState.images.delete(imagePath);
     }
 
     //
@@ -231,26 +221,36 @@ class UploadMachine {
     }
 
     async #areImagesProcessed(albumPath: string): Promise<boolean> {
-        const uploads = getUploadsForAlbum(albumPath);
+        const uploads: ImageEntry[] = getUploadsForAlbum(albumPath);
         if (!uploads || uploads.length === 0) return true;
         try {
             await albumLoadMachine.fetchFromServer(albumPath);
             const album = albumState.albums.get(albumPath)?.album;
-            if (!album) throw 'album not loaded';
-            for (const upload of uploads) {
-                // Skip checking uploads that are not yet in the processing state,
-                // which means they have not yet been uploaded to S3, which means
-                // they don't yet have a version (the versionId check is redundant)
-                if (upload.status !== UploadState.PROCESSING || !upload.versionId) return false;
-                const image = album.getImage(upload.imagePath);
-                if (image && image.versionId == upload.versionId) {
-                    // Found image. Remove it from list of images being processed
-                    this.#uploadComplete(upload.imagePath);
-                } else {
-                    console.log(
-                        `Did not find file [${upload.imagePath}] version [${upload.versionId}] in the album, it must still be processing`,
-                    );
-                    return false;
+            if (!album) throw new Error(`Album [${albumPath}] not loaded`);
+            for (const imageEntry of uploads) {
+                const status = imageEntry.status;
+
+                // If the image hasn't finished uploading, images aren't yet processed
+                if ([ImageStatus.UPLOAD_QUEUED, ImageStatus.UPLOAD_TRANSFERRING].includes(status)) return false;
+
+                if (ImageStatus.UPLOAD_PROCESSING === status) {
+                    // Uploading images should always have an upload object
+                    const upload = imageEntry.upload;
+                    if (!upload) throw new Error(`No upload object for image [${imageEntry}]`);
+
+                    // Processing images should always have a versionId from S3
+                    if (!upload.versionId) throw new Error(`No versionId for image [${upload.imagePath}]`);
+
+                    const image = album.getImage(upload.imagePath);
+                    if (image && image.versionId == upload.versionId) {
+                        // Found image. Remove it from list of images being processed
+                        this.#uploadComplete(upload.imagePath);
+                    } else {
+                        console.log(
+                            `Did not find file [${upload.imagePath}] version [${upload.versionId}] in the album, it must still be processing`,
+                        );
+                        return false;
+                    }
                 }
             }
             console.log(`Found all uploaded files in the album, processing complete!`);

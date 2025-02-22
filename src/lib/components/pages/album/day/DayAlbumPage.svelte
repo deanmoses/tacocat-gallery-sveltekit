@@ -5,23 +5,21 @@
 -->
 <script lang="ts">
     import DayAlbumPageLayout from './DayAlbumPageLayout.svelte';
-    import AdminToggle from '$lib/components/site/admin/toggle/AdminToggle.svelte';
     import PrevButton from '$lib/components/site/nav/PrevButton.svelte';
-    import UpButton from '$lib/components/site/nav/UpButton.svelte';
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
+    import UpButton from '$lib/components/site/nav/UpButton.svelte';
     import ImageThumbnail from '$lib/components/site/ImageThumbnail.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
-    import type { UploadEntry } from '$lib/models/album';
+    import type { ImageEntry } from '$lib/models/album';
+    import { getUploadsForAlbum } from '$lib/stores/AlbumState.svelte';
+    import AdminToggle from '$lib/components/site/admin/toggle/AdminToggle.svelte';
     import { sessionStore } from '$lib/stores/SessionStore.svelte';
-    import { albumState } from '$lib/stores/AlbumState.svelte';
 
     interface Props {
         album: Album;
     }
     let { album }: Props = $props();
-    let uploads: UploadEntry[] | undefined = $derived.by(() => {
-        return albumState.uploads.filter((upload) => upload.imagePath.startsWith(album.path));
-    });
+    let uploads: ImageEntry[] = $derived(getUploadsForAlbum(album.path));
 </script>
 
 <DayAlbumPageLayout title={album.title} published={album.published}>
@@ -66,8 +64,8 @@
                   so that non-admins aren't forced to download the code.
               -->
             {#await import('$lib/components/site/admin/UploadThumbnail.svelte') then { default: UploadThumbnail }}
-                {#each uploads as upload (upload.imagePath)}
-                    <UploadThumbnail {upload} />
+                {#each uploads as imageEntry (imageEntry.upload?.imagePath)}
+                    <UploadThumbnail {imageEntry} />
                 {/each}
             {/await}
         {/if}
