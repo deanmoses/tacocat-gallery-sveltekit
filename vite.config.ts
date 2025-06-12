@@ -1,8 +1,8 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import type { UserConfig } from 'vite';
+import { defineConfig } from 'vite';
 import { emulateProdOnLocalhost } from './src/lib/utils/settings';
 
-const config: UserConfig = {
+const config = defineConfig({
     plugins: [sveltekit()],
     server: {
         proxy: {
@@ -30,6 +30,12 @@ const config: UserConfig = {
             },
         },
     },
-};
+    test: {
+        environment: 'jsdom',
+        include: ['src/**/*.{test,spec}.ts'],
+        exclude: ['**/node_modules/**', '**/dist/**', '**/playwright.config.ts', '**/*.playwright.spec.ts'],
+        globals: true
+    }
+});
 
 export default config;

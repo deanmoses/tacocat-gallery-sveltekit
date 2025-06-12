@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
-import { toTitleFromFilename } from './titleUtils';
+import { describe, it, expect } from 'vitest';
+import { toTitleFromFilename } from '../titleUtils';
 
 const titles: { in: string; out: string }[] = [
     {
@@ -72,8 +72,11 @@ const titles: { in: string; out: string }[] = [
         out: 'IMAGE',
     },
 ];
-titles.forEach((title) => {
-    test(`Title [${title.in}]`, () => {
-        expect(toTitleFromFilename(title.in)).toBe(title.out);
+
+describe('toTitleFromFilename', () => {
+    titles.forEach((title) => {
+        it(`should convert [${title.in}] to [${title.out}]`, () => {
+            expect(toTitleFromFilename(title.in)).toBe(title.out);
+        });
     });
 });
