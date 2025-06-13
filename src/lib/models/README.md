@@ -1,6 +1,6 @@
 # Models
 
-This directory contains TypeScript classes repesenting the models of the things users interact with: Albums, Images, Thumbnails, etc
+This directory contains TypeScript classes representing the models of the things users interact with: Albums, Images, Thumbnails, etc
 
 ## These are pure data structures
 
