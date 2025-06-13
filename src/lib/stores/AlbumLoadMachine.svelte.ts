@@ -111,6 +111,9 @@ class AlbumLoadMachine {
 
         if (AlbumStatus.LOADING === status) this.#loadingErrored(path, message);
         else if (ReloadStatus.RELOADING == reloadStatus) this.#reloadingErrored(path);
+        else if (AlbumStatus.LOADED === status) {
+            console.log(`Album [${path}] keeping cached version after fetch error`);
+        }
         else console.error('Unexpected load status:', status);
     }
 
