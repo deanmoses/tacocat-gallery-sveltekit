@@ -62,7 +62,7 @@ class AlbumRenameMachine {
         // TODO: use immer to set state immutably
         const albumEntry = albumState.albums.get(oldAlbumPath);
         if (!albumEntry) throw new Error(`No album at path [${oldAlbumPath}]`);
-        albumEntry.status = AlbumStatus.DELETE_ERRORED;
+        albumEntry.status = AlbumStatus.RENAME_ERRORED;
         albumEntry.errorMessage = errorMessage;
         albumState.albums.set(oldAlbumPath, albumEntry);
 
