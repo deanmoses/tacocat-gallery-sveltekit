@@ -22,155 +22,149 @@ describe('AlbumLoadMachine', () => {
         vi.stubGlobal('fetch', mockFetch);
     });
 
+    // Helper functions
+    function createMockAlbum(path: string) {
+        return createMockAlbumRecord({ path });
+    }
+
+    function mockAlbumFetchSuccess(mockAlbum: any) {
+        mockFetch.mockResolvedValue({
+            ok: true,
+            json: () => Promise.resolve(mockAlbum)
+        });
+    }
+
+    function mockAlbumFetchFail(delay = 0) {
+        if (delay > 0) {
+            return mockFetch.mockImplementation(() =>
+                new Promise((resolve) => setTimeout(() => resolve({
+                    ok: false,
+                    status: 500,
+                    json: () => Promise.resolve({ error: 'Server error' })
+                }), delay))
+            );
+        } else {
+            return mockFetch.mockResolvedValue({
+                ok: false,
+                status: 500,
+                json: () => Promise.resolve({ error: 'Server error' })
+            });
+        }
+    }
+
+    function mockAlbumFetchNotFound() {
+        mockFetch.mockResolvedValue({
+            ok: false,
+            status: 404,
+            json: () => Promise.resolve({ error: 'Not found' })
+        });
+    }
+
+    function mockIdbSuccess(mockAlbum: any) {
+        (getFromIdb as any).mockResolvedValue(mockAlbum);
+    }
+
     describe('fetch', () => {
         it('should go NOT_LOADED > LOADING > LOADED when album exists on disk', async () => {
             const albumPath = '/2024/01-01/';
-            const mockAlbumRecord = createMockAlbumRecord({
-                path: albumPath
-            });
-            // Mock idb-keyval to return an AlbumRecord
-            (getFromIdb as any).mockResolvedValue(mockAlbumRecord);
-            // Mock fetch to return a successful response
-            mockFetch.mockResolvedValue({
-                ok: true,
-                json: () => Promise.resolve(mockAlbumRecord)
-            });
-            // Act
+            const mockAlbum = createMockAlbum(albumPath);
+            mockIdbSuccess(mockAlbum);
+            mockAlbumFetchSuccess(mockAlbum);
+
             albumLoadMachine.fetch(albumPath);
-            // Assert - Check initial state transition to LOADING
+
             expect(albumState.albums.get(albumPath)?.status).toBe(AlbumStatus.LOADING);
-            // Wait for async operations to complete
             await vi.waitFor(() => {
                 expect(albumState.albums.get(albumPath)?.status).toBe(AlbumStatus.LOADED);
             });
-            // Verify the album was loaded correctly
             expect(albumState.albums.get(albumPath)?.album).toBeDefined();
             expect(albumState.albums.get(albumPath)?.album?.path).toBe(albumPath);
-            expect(albumState.albums.get(albumPath)?.album?.title).toBe('January 1, 2024'); // AlbumDayImpl will use the date
-            // Verify idb-keyval was called
+            expect(albumState.albums.get(albumPath)?.album?.title).toBe('January 1, 2024');
             expect(getFromIdb).toHaveBeenCalled();
-            // Verify fetch was called
             expect(mockFetch).toHaveBeenCalled();
         });
 
         it('should go NOT_LOADED > LOADING > LOADED when album not in IDB but found on server', async () => {
             const albumPath = '/2024/01-01/';
-            const mockAlbumRecord = createMockAlbumRecord({
-                path: albumPath
-            });
-            // Mock idb-keyval to return undefined (not found)
-            (getFromIdb as any).mockResolvedValue(undefined);
-            // Mock fetch to return a successful response
-            mockFetch.mockResolvedValue({
-                ok: true,
-                json: () => Promise.resolve(mockAlbumRecord)
-            });
-            // Act
+            const mockAlbum = createMockAlbum(albumPath);
+            mockIdbSuccess(undefined);
+            mockAlbumFetchSuccess(mockAlbum);
+
             albumLoadMachine.fetch(albumPath);
-            // Assert - Check initial state transition to LOADING
+
             expect(albumState.albums.get(albumPath)?.status).toBe(AlbumStatus.LOADING);
-            // Wait for async operations to complete
             await vi.waitFor(() => {
                 expect(albumState.albums.get(albumPath)?.status).toBe(AlbumStatus.LOADED);
             });
-            // Verify the album was loaded correctly
             expect(albumState.albums.get(albumPath)?.album).toBeDefined();
             expect(albumState.albums.get(albumPath)?.album?.path).toBe(albumPath);
-            expect(albumState.albums.get(albumPath)?.album?.title).toBe('January 1, 2024'); // AlbumDayImpl will use the date
-            // Verify idb-keyval was called
+            expect(albumState.albums.get(albumPath)?.album?.title).toBe('January 1, 2024');
             expect(getFromIdb).toHaveBeenCalled();
-            // Verify fetch was called
             expect(mockFetch).toHaveBeenCalled();
-            // Verify the album was stored in IDB
-            expect(vi.mocked(setToIdb)).toHaveBeenCalledWith(albumPath, mockAlbumRecord);
+            expect(vi.mocked(setToIdb)).toHaveBeenCalledWith(albumPath, mockAlbum);
         });
 
         it('should go NOT_LOADED > LOADING > LOADED > DOES_NOT_EXIST when album found in IDB but not on server', async () => {
             const albumPath = '/2024/01-01/';
-            const mockAlbumRecord = createMockAlbumRecord({
-                path: albumPath
-            });
-            // Mock idb-keyval to return an AlbumRecord
-            (getFromIdb as any).mockResolvedValue(mockAlbumRecord);
-            // Mock fetch to return 404
-            mockFetch.mockResolvedValue({
-                ok: false,
-                status: 404,
-                json: () => Promise.resolve({ error: 'Not found' })
-            });
-            // Act
+            const mockAlbum = createMockAlbum(albumPath);
+            mockIdbSuccess(mockAlbum);
+            mockAlbumFetchNotFound();
+
             albumLoadMachine.fetch(albumPath);
-            // Assert - Check initial state transition to LOADING
+
             expect(albumState.albums.get(albumPath)?.status).toBe(AlbumStatus.LOADING);
-            // Wait for async operations to complete
             await vi.waitFor(() => {
                 expect(albumState.albums.get(albumPath)?.status).toBe(AlbumStatus.DOES_NOT_EXIST);
             });
-            // Verify idb-keyval was called
             expect(getFromIdb).toHaveBeenCalled();
-            // Verify fetch was called
             expect(mockFetch).toHaveBeenCalled();
-            // Verify the album was removed from IDB
             expect(vi.mocked(delFromIdb)).toHaveBeenCalledWith(albumPath);
         });
 
         it('should go NOT_LOADED > LOADING > LOADED when album found in IDB but 500 on server', async () => {
             const albumPath = '/2024/01-01/';
-            const mockAlbumRecord = createMockAlbumRecord({
-                path: albumPath
-            });
-            (getFromIdb as any).mockResolvedValue(mockAlbumRecord);
-            // Add a delay to the fetch mock
-            mockFetch.mockImplementation(() =>
-                new Promise((resolve) => setTimeout(() => resolve({
-                    ok: false,
-                    status: 500,
-                    json: () => Promise.resolve({ error: 'Server error' })
-                }), 100))
-            );
+            const mockAlbum = createMockAlbum(albumPath);
+            mockIdbSuccess(mockAlbum);
+            mockAlbumFetchFail(100);
+
             albumLoadMachine.fetch(albumPath);
 
-            // First transition: NOT_LOADED > LOADING
+            // Verify we go to LOADING
             expect(albumState.albums.get(albumPath)?.status).toBe(AlbumStatus.LOADING);
 
-            // Second transition: LOADING > LOADED (after finding in IDB)
+            // Wait for IDB fetch to complete
             await vi.waitFor(() => {
-                expect(albumState.albums.get(albumPath)?.status).toBe(AlbumStatus.LOADED);
+                return (getFromIdb as any).mock.calls.length > 0;
             });
 
-            // State should remain LOADED even after server error
-            await vi.waitFor(() => {
-                expect(albumState.albums.get(albumPath)?.status).toBe(AlbumStatus.LOADED);
-            });
-
+            // Verify we go to LOADED after IDB fetch
+            expect(albumState.albums.get(albumPath)?.status).toBe(AlbumStatus.LOADED);
             expect(getFromIdb).toHaveBeenCalled();
+
+            // Wait for server fetch to complete
+            await vi.waitFor(() => {
+                return mockFetch.mock.calls.length > 0;
+            }, { timeout: 200 });
+
+            // Verify we remain in LOADED after server error
+            expect(albumState.albums.get(albumPath)?.status).toBe(AlbumStatus.LOADED);
             expect(mockFetch).toHaveBeenCalled();
             expect(vi.mocked(delFromIdb)).not.toHaveBeenCalledWith(albumPath);
         });
 
         it('should go NOT_LOADED > LOADING > LOAD_ERRORED when album not in IDB and 500 on server', async () => {
             const albumPath = '/2024/01-01/';
-            // Mock idb-keyval to return undefined (not found)
-            (getFromIdb as any).mockResolvedValue(undefined);
-            // Mock fetch to return a 500 error
-            mockFetch.mockResolvedValue({
-                ok: false,
-                status: 500,
-                json: () => Promise.resolve({ error: 'Server error' })
-            });
-            // Act
+            mockIdbSuccess(undefined);
+            mockAlbumFetchFail();
+
             albumLoadMachine.fetch(albumPath);
-            // Assert - Check initial state transition to LOADING
+
             expect(albumState.albums.get(albumPath)?.status).toBe(AlbumStatus.LOADING);
-            // Wait for async operations to complete
             await vi.waitFor(() => {
                 expect(albumState.albums.get(albumPath)?.status).toBe(AlbumStatus.LOAD_ERRORED);
             });
-            // Verify idb-keyval was called
             expect(getFromIdb).toHaveBeenCalled();
-            // Verify fetch was called
             expect(mockFetch).toHaveBeenCalled();
-            // Should not store or delete anything in IDB
             expect(vi.mocked(setToIdb)).not.toHaveBeenCalled();
             expect(vi.mocked(delFromIdb)).not.toHaveBeenCalled();
         });
