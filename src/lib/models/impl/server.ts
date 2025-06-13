@@ -21,15 +21,6 @@ export type AlbumNavInfo = {
     path: string;
 };
 
-// export type ImageGalleryItem = ImageRecord & {
-
-// };
-
-// export type ImageNavInfo = {
-//     path: string;
-//     title?: string;
-// };
-
 //
 // RECORD TYPE DECLARATIONS
 // A Record is a single row/item/record from DynamoDB
