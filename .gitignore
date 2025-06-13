@@ -37,3 +37,6 @@ npm-debug.log*
 
 # JetBrains editor dir
 .idea/
+
+# Vitest cache
+.last-run.json
