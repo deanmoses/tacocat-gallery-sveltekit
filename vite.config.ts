@@ -13,11 +13,11 @@ const config = defineConfig({
                     : 'https://api.staging-pix.tacocat.com/',
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/api/, ''),
-                configure: (proxy, _options) => {
-                    proxy.on('error', (err, _req, _res) => {
+                configure: (proxy) => {
+                    proxy.on('error', (err) => {
                         console.log('proxy error', err);
                     });
-                    proxy.on('proxyRes', (proxyRes, req, _res) => {
+                    proxy.on('proxyRes', (proxyRes, req) => {
                         if (200 !== proxyRes.statusCode) {
                             console.log(
                                 'Response from AWS:',
@@ -35,8 +35,8 @@ const config = defineConfig({
         environment: 'jsdom',
         include: ['src/**/*.{test,spec}.ts'],
         exclude: ['**/node_modules/**', '**/dist/**', '**/playwright.config.ts', '**/*.playwright.spec.ts'],
-        globals: true
-    }
+        globals: true,
+    },
 });
 
 export default config;

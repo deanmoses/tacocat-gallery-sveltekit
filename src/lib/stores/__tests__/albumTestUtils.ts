@@ -21,6 +21,6 @@ export function createMockAlbumRecord(partialAlbumRecord: Partial<AlbumRecord> =
         published: true,
         summary: '',
         updatedOn: new Date().toISOString(),
-        ...partialAlbumRecord
+        ...partialAlbumRecord,
     };
 }

@@ -24,14 +24,14 @@ describe('AlbumLoadMachine', () => {
 
     // Helper functions
 
-    function mockIdbSuccess(album: any) {
+    function mockIdbSuccess(album: unknown) {
         vi.mocked(getFromIdb).mockResolvedValueOnce(album);
     }
 
-    function mockAlbumFetchSuccess(album: any) {
+    function mockAlbumFetchSuccess(album: unknown) {
         mockFetch.mockResolvedValueOnce({
             ok: true,
-            json: () => Promise.resolve(album)
+            json: () => Promise.resolve(album),
         });
     }
 
@@ -39,24 +39,31 @@ describe('AlbumLoadMachine', () => {
         mockFetch.mockResolvedValue({
             ok: false,
             status: 404,
-            json: () => Promise.resolve({ error: 'Not found' })
+            json: () => Promise.resolve({ error: 'Not found' }),
         });
     }
 
     function mockAlbumFetchFail(delay = 0) {
         if (delay > 0) {
-            return mockFetch.mockImplementation(() =>
-                new Promise((resolve) => setTimeout(() => resolve({
-                    ok: false,
-                    status: 500,
-                    json: () => Promise.resolve({ error: 'Server error' })
-                }), delay))
+            return mockFetch.mockImplementation(
+                () =>
+                    new Promise((resolve) =>
+                        setTimeout(
+                            () =>
+                                resolve({
+                                    ok: false,
+                                    status: 500,
+                                    json: () => Promise.resolve({ error: 'Server error' }),
+                                }),
+                            delay,
+                        ),
+                    ),
             );
         } else {
             return mockFetch.mockResolvedValue({
                 ok: false,
                 status: 500,
-                json: () => Promise.resolve({ error: 'Server error' })
+                json: () => Promise.resolve({ error: 'Server error' }),
             });
         }
     }
@@ -139,9 +146,12 @@ describe('AlbumLoadMachine', () => {
             expect(getFromIdb).toHaveBeenCalled();
 
             // Wait for server fetch to complete
-            await vi.waitFor(() => {
-                return mockFetch.mock.calls.length > 0;
-            }, { timeout: 200 });
+            await vi.waitFor(
+                () => {
+                    return mockFetch.mock.calls.length > 0;
+                },
+                { timeout: 200 },
+            );
 
             // Verify we remain in LOADED after server error
             expect(albumState.albums.get(albumPath)?.status).toBe(AlbumStatus.LOADED);

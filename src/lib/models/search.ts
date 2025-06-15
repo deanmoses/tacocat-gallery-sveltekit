@@ -39,4 +39,4 @@ export const SearchLoadStatus = {
     LOADED: 'LOADED',
 } as const;
 
-export type SearchLoadStatus = typeof SearchLoadStatus[keyof typeof SearchLoadStatus];
+export type SearchLoadStatus = (typeof SearchLoadStatus)[keyof typeof SearchLoadStatus];
