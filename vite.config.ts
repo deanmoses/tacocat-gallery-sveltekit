@@ -1,9 +1,10 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import { emulateProdOnLocalhost } from './src/lib/utils/settings';
+import devtoolsJson from 'vite-plugin-devtools-json';
 
 const config = defineConfig({
-    plugins: [sveltekit()],
+    plugins: [sveltekit(), devtoolsJson()],
     server: {
         proxy: {
             '/api': {
