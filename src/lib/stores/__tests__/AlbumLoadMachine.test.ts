@@ -1,9 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
 import { albumState } from '../AlbumState.svelte';
 import { AlbumStatus } from '$lib/models/album';
 import { get as getFromIdb, set as setToIdb, del as delFromIdb } from 'idb-keyval';
 import { createMockAlbumRecordFromPath } from './albumTestUtils';
+import type { AlbumRecord } from '$lib/models/impl/server';
 
 // Mock idb-keyval
 vi.mock('idb-keyval', () => ({
@@ -24,11 +25,11 @@ describe('AlbumLoadMachine', () => {
 
     // Helper functions
 
-    function mockIdbSuccess(album: unknown) {
+    function mockIdbSuccess(album: AlbumRecord | undefined) {
         vi.mocked(getFromIdb).mockResolvedValueOnce(album);
     }
 
-    function mockAlbumFetchSuccess(album: unknown) {
+    function mockAlbumFetchSuccess(album: AlbumRecord) {
         mockFetch.mockResolvedValueOnce({
             ok: true,
             json: () => Promise.resolve(album),
@@ -138,7 +139,7 @@ describe('AlbumLoadMachine', () => {
 
             // Wait for IDB fetch to complete
             await vi.waitFor(() => {
-                return (getFromIdb as any).mock.calls.length > 0;
+                return (getFromIdb as Mock).mock.calls.length > 0;
             });
 
             // Verify we go to LOADED after IDB fetch
