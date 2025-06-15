@@ -3,7 +3,7 @@ import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
 import { albumState } from '../AlbumState.svelte';
 import { AlbumStatus } from '$lib/models/album';
 import { get as getFromIdb, set as setToIdb, del as delFromIdb } from 'idb-keyval';
-import { createMockAlbumRecord } from './albumTestUtils';
+import { createMockAlbumRecordFromPath } from './albumTestUtils';
 
 // Mock idb-keyval
 vi.mock('idb-keyval', () => ({
@@ -23,14 +23,23 @@ describe('AlbumLoadMachine', () => {
     });
 
     // Helper functions
-    function createMockAlbum(path: string) {
-        return createMockAlbumRecord({ path });
+
+    function mockIdbSuccess(album: any) {
+        vi.mocked(getFromIdb).mockResolvedValueOnce(album);
     }
 
-    function mockAlbumFetchSuccess(mockAlbum: any) {
-        mockFetch.mockResolvedValue({
+    function mockAlbumFetchSuccess(album: any) {
+        mockFetch.mockResolvedValueOnce({
             ok: true,
-            json: () => Promise.resolve(mockAlbum)
+            json: () => Promise.resolve(album)
+        });
+    }
+
+    function mockAlbumFetchNotFound() {
+        mockFetch.mockResolvedValue({
+            ok: false,
+            status: 404,
+            json: () => Promise.resolve({ error: 'Not found' })
         });
     }
 
@@ -52,22 +61,10 @@ describe('AlbumLoadMachine', () => {
         }
     }
 
-    function mockAlbumFetchNotFound() {
-        mockFetch.mockResolvedValue({
-            ok: false,
-            status: 404,
-            json: () => Promise.resolve({ error: 'Not found' })
-        });
-    }
-
-    function mockIdbSuccess(mockAlbum: any) {
-        (getFromIdb as any).mockResolvedValue(mockAlbum);
-    }
-
     describe('fetch', () => {
         it('should go NOT_LOADED > LOADING > LOADED when album exists on disk', async () => {
             const albumPath = '/2024/01-01/';
-            const mockAlbum = createMockAlbum(albumPath);
+            const mockAlbum = createMockAlbumRecordFromPath(albumPath);
             mockIdbSuccess(mockAlbum);
             mockAlbumFetchSuccess(mockAlbum);
 
@@ -86,7 +83,7 @@ describe('AlbumLoadMachine', () => {
 
         it('should go NOT_LOADED > LOADING > LOADED when album not in IDB but found on server', async () => {
             const albumPath = '/2024/01-01/';
-            const mockAlbum = createMockAlbum(albumPath);
+            const mockAlbum = createMockAlbumRecordFromPath(albumPath);
             mockIdbSuccess(undefined);
             mockAlbumFetchSuccess(mockAlbum);
 
@@ -106,7 +103,7 @@ describe('AlbumLoadMachine', () => {
 
         it('should go NOT_LOADED > LOADING > LOADED > DOES_NOT_EXIST when album found in IDB but not on server', async () => {
             const albumPath = '/2024/01-01/';
-            const mockAlbum = createMockAlbum(albumPath);
+            const mockAlbum = createMockAlbumRecordFromPath(albumPath);
             mockIdbSuccess(mockAlbum);
             mockAlbumFetchNotFound();
 
@@ -123,7 +120,7 @@ describe('AlbumLoadMachine', () => {
 
         it('should go NOT_LOADED > LOADING > LOADED when album found in IDB but 500 on server', async () => {
             const albumPath = '/2024/01-01/';
-            const mockAlbum = createMockAlbum(albumPath);
+            const mockAlbum = createMockAlbumRecordFromPath(albumPath);
             mockIdbSuccess(mockAlbum);
             mockAlbumFetchFail(100);
 
