@@ -7,13 +7,15 @@ export type Draft = {
     content?: DraftContent;
 };
 
-export enum DraftStatus {
-    NO_CHANGES = 'NO_CHANGES',
-    UNSAVED_CHANGES = 'UNSAVED_CHANGES',
-    SAVING = 'SAVING',
-    SAVED = 'SAVED',
-    ERRORED = 'ERRORED',
-}
+export const DraftStatus = {
+    NO_CHANGES: 'NO_CHANGES',
+    UNSAVED_CHANGES: 'UNSAVED_CHANGES',
+    SAVING: 'SAVING',
+    SAVED: 'SAVED',
+    ERRORED: 'ERRORED',
+} as const;
+
+export type DraftStatus = (typeof DraftStatus)[keyof typeof DraftStatus];
 
 /**
  * Actual drafted content.

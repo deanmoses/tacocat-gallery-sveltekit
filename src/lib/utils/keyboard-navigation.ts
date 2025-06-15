@@ -57,10 +57,11 @@ function getUrlToNavigateTo(key: KeyboardEvent['key'], path: string, getAlbum: G
     }
 }
 
-enum Direction {
-    Next,
-    Prev,
-}
+const Direction = {
+    Next: 0,
+    Prev: 1,
+} as const;
+type Direction = (typeof Direction)[keyof typeof Direction];
 
 /**
  * Return URL to next or prev photo

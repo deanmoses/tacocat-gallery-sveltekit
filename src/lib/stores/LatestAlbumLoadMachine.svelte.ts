@@ -10,12 +10,14 @@ export type LatestAlbumThumbnailEntry = {
     status: LatestAlbumThumbnailStatus;
 };
 
-export enum LatestAlbumThumbnailStatus {
-    NOT_LOADED = 'NOT_LOADED.IDLE',
-    LOADING = 'NOT_LOADED.LOADING',
-    LOADED = 'LOADED.IDLE',
-    RELOADING = 'LOADED.RELOADING',
-}
+export const LatestAlbumThumbnailStatus = {
+    NOT_LOADED: 'NOT_LOADED.IDLE',
+    LOADING: 'NOT_LOADED.LOADING',
+    LOADED: 'LOADED.IDLE',
+    RELOADING: 'LOADED.RELOADING',
+} as const;
+
+export type LatestAlbumThumbnailStatus = (typeof LatestAlbumThumbnailStatus)[keyof typeof LatestAlbumThumbnailStatus];
 
 /** IndexedDB key where latest album numbnail is stored */
 const idbThumbnailKey = 'latest';

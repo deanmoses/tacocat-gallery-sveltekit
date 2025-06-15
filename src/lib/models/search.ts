@@ -30,17 +30,13 @@ export type SearchResults = {
 /**
  * Status of the initial load of the search results
  */
-export enum SearchLoadStatus {
-    /** The search has not been searched for  */
-    NOT_LOADED = 'NOT_LOADED',
-    /** Searching is underway */
-    LOADING = 'LOADING',
-    /** Retrieving more results is underway */
-    LOADING_MORE_RESULTS = 'LOADING_MORE_RESULTS',
-    /** There was an error searching */
-    ERROR_LOADING = 'ERROR_LOADING',
-    /** There was an error loading additional results */
-    ERROR_LOADING_MORE_RESULTS = 'ERROR_LOADING_MORE_RESULTS',
-    /** The search has been successfully loaded */
-    LOADED = 'LOADED',
-}
+export const SearchLoadStatus = {
+    NOT_LOADED: 'NOT_LOADED',
+    LOADING: 'LOADING',
+    LOADING_MORE_RESULTS: 'LOADING_MORE_RESULTS',
+    ERROR_LOADING: 'ERROR_LOADING',
+    ERROR_LOADING_MORE_RESULTS: 'ERROR_LOADING_MORE_RESULTS',
+    LOADED: 'LOADED',
+} as const;
+
+export type SearchLoadStatus = typeof SearchLoadStatus[keyof typeof SearchLoadStatus];
