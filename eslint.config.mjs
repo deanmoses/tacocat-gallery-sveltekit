@@ -3,13 +3,13 @@
 import eslint from '@eslint/js';
 import typescriptEslint from 'typescript-eslint';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
-import eslintPluginSvelte from 'eslint-plugin-svelte';
 
 export default typescriptEslint.config(
     eslint.configs.recommended,
     typescriptEslint.configs.recommended,
-    eslintPluginSvelte.configs['flat/prettier'],
+    // @ts-expect-error - Type mismatch between ESLint and TypeScript ESLint configs
     eslintPluginPrettierRecommended,
+
     {
         ignores: [
             '.DS_Store',
@@ -23,6 +23,10 @@ export default typescriptEslint.config(
             'pnpm-lock.yaml',
             'package-lock.json',
             'yarn.lock',
+            '**/*.d.ts',
+            '**/.svelte-kit/**',
+            '**/build/**',
+            '**/dist/**',
         ],
     },
 );
