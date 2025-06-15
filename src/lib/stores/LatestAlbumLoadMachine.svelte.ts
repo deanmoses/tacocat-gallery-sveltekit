@@ -64,9 +64,10 @@ class LatestAlbumLoadMachine {
                 this.#entry = { status: LatestAlbumThumbnailStatus.LOADING };
                 this.#fetchFromDiskThenServer(); // call async logic in a fire-and-forget manner
                 break;
+            case LatestAlbumThumbnailStatus.LOADED:
             case LatestAlbumThumbnailStatus.LOADING:
             case LatestAlbumThumbnailStatus.RELOADING:
-                this.#entry.status = LatestAlbumThumbnailStatus.RELOADING;
+                this.#entry = { ...this.#entry, status: LatestAlbumThumbnailStatus.RELOADING };
                 this.#fetchFromServer(); // call async logic in a fire-and-forget manner
                 break;
             default:
