@@ -1,11 +1,7 @@
 ---
-description: 
+description: This rule provides comprehensive best practices and coding standards for SvelteKit development with a focus on using the newer SvelteKit 2 over the older, but more common SvelteKit 1.
 globs: src/**/*.svelte,src/**/*.svelte.ts
 alwaysApply: false
----
----
-description: This rule provides comprehensive best practices and coding standards for SvelteKit development with a focus on using the newer SvelteKit 2 over the older, but more common SvelteKit 1.
-globs: ["**/*.{svelte,ts}"]
 ---
 
 # SvelteKit 2

@@ -1,0 +1,8 @@
+---
+description: Basic ground rules that apply to any work done in this project
+globs: 
+alwaysApply: true
+---
+
+ - After every code change, before you announce to the user that you're done, run the project's unit tests.  Never say you're done with a change if you haven't run the unit tests.
+ - 

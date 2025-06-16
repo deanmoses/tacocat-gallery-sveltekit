@@ -1,11 +1,7 @@
 ---
-description: 
+description: This rule provides comprehensive best practices and coding standards for Svelte development with a focus on using the newer Svelte 5 over the older, but more common Svelte 4.
 globs: src/**/*.svelte,src/**/*.svelte.ts
 alwaysApply: false
----
----
-description: This rule provides comprehensive best practices and coding standards for Svelte development with a focus on using the newer Svelte 5 over the older, but more common Svelte 4.
-globs: ["**/*.{svelte,ts}"]
 ---
 
 # Svelte 5
