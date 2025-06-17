@@ -56,6 +56,10 @@ graph TB
     class Server,IndexedDB externalLayer
 ```
 
+## Component Architecture
+
+For detailed information about the components layer, see [Component Architecture](component_architecture.md).
+
 ## State Management
 
 We use a state machine pattern for complex state management. The state machines are at /Users/dmoses/dev/tacocat/tacocat-gallery-sveltekit/src/lib/state and are organized by domain, such as:
