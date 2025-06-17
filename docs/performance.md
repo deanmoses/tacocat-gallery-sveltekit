@@ -95,3 +95,7 @@ Albums and other data fetched from APIs are cached with a Cache-Then-Network aka
 - **Bundle analysis**: Monitor bundle size changes
 - **Network tab**: Check caching effectiveness
 - **Lighthouse**: Regular performance audits
+
+### Back End Performance
+
+It's not in this project, but our choices around databases, Content Delivery Networks (CDNs) and other back end infrastructure were driven in large part by performance considerations

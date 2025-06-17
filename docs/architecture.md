@@ -125,7 +125,7 @@ Therefore, we do NOT care about Search Engine Optimization (SEO). Some features 
 
 ## We Avoid Dependencies
 
-We avoid dependencies whenever possible, especially runtime dependencies. We are very careful and parsimonious about adding new dependencies / libraries to the project. A library has to add a LOT of value to be worth it.
+We avoid dependencies whenever possible, especially runtime dependencies. A library has to add a LOT of value to be worth adding to the project.
 
 We avoid dependencies because:
 
@@ -144,17 +144,9 @@ If we _must_ add a dependency, we look for:
 Examples of dependencies we have avoided:
 
 - We don't use a CSS framework
-- We don't use any library of pre-built components
+- We don't use a library of pre-built components
 - We don't use a state machine library
 
 ## Speed is an Obsession
 
-We prioritize a blazing fast user experience. Examples of choices we've made in support of this:
-
-- We chose Svelte and Sveltekit in part because they have one of the lightest weight downloads of the major web application frameworks.
-- The aforementioned ruthless elimination of dependencies.
-- The aforementioned lazy loading of admin functionality.
-- We've done extensive work to optimize the caching architecture: caching of the web app binaries, caching of API calls where appropriate, caching of images, etc
-- It's not in this project, but our choices around databases, Content Delivery Networks (CDNs) and other back end infrastructure were driven in large part by performance considerations
-
-For more, see [Performance](performance.md).
+We prioritize a blazing fast user experience. See [Performance](performance.md).
