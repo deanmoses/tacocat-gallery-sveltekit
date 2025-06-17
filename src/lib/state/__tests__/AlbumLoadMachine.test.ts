@@ -21,7 +21,7 @@ vi.mock('idb-keyval', () => ({
 
 describe('AlbumLoadMachine', () => {
     const mockFetch = vi.fn();
-    const TEST_TIMEOUT = 1000;
+    const TEST_TIMEOUT = 1000; // 1 second timeout for async operations
 
     beforeAll(() => {
         vi.stubGlobal('fetch', mockFetch);
@@ -74,7 +74,7 @@ describe('AlbumLoadMachine', () => {
      * Helper function to mock 404 Not Found response from server
      */
     function mockAlbumFetchNotFound() {
-        mockFetch.mockResolvedValue({
+        mockFetch.mockResolvedValueOnce({
             ok: false,
             status: 404,
             json: () => Promise.resolve({ error: 'Not found' }),
@@ -102,7 +102,7 @@ describe('AlbumLoadMachine', () => {
                     ),
             );
         }
-        return mockFetch.mockResolvedValue({
+        return mockFetch.mockResolvedValueOnce({
             ok: false,
             status: 500,
             json: () => Promise.resolve({ error: 'Server error' }),
@@ -111,17 +111,19 @@ describe('AlbumLoadMachine', () => {
 
     describe('fetch', () => {
         it('should go NOT_LOADED > LOADING > LOADED when album found in both IDB and server', async () => {
+            // Arrange: Set up test data and mocks
             const albumPath = '/2024/01-01/';
             const mockAlbum = createMockAlbumRecordFromPath(albumPath);
             mockIdbSuccess(mockAlbum);
             mockAlbumFetchSuccess(mockAlbum);
 
+            // Act: Trigger the state transition
             albumLoadMachine.fetch(albumPath);
 
-            // Verify initial loading state
+            // Assert: Verify initial loading state
             expectAlbumStatus(albumPath, AlbumStatus.LOADING);
 
-            // Verify final loaded state
+            // Wait: For async operations to complete
             await vi.waitFor(
                 () => {
                     expectAlbumStatus(albumPath, AlbumStatus.LOADED);
@@ -129,29 +131,31 @@ describe('AlbumLoadMachine', () => {
                 { timeout: TEST_TIMEOUT },
             );
 
-            // Verify album data
+            // Assert: Verify final state and side effects
             const loadedAlbum = albumState.albums.get(albumPath)?.album;
             expect(loadedAlbum).toBeDefined();
             expect(loadedAlbum?.path).toBe(albumPath);
             expect(loadedAlbum?.title).toBe('January 1, 2024');
 
-            // Verify API calls
+            // Verify API calls were made
             expect(getFromIdb).toHaveBeenCalledWith(albumPath);
             expectFetchCalledWithPath(albumPath);
         });
 
         it('should go NOT_LOADED > LOADING > LOADED when album not in IDB but found on server', async () => {
+            // Arrange: Set up test data and mocks
             const albumPath = '/2024/01-01/';
             const mockAlbum = createMockAlbumRecordFromPath(albumPath);
             mockIdbSuccess(undefined);
             mockAlbumFetchSuccess(mockAlbum);
 
+            // Act: Trigger the state transition
             albumLoadMachine.fetch(albumPath);
 
-            // Verify initial loading state
+            // Assert: Verify initial loading state
             expectAlbumStatus(albumPath, AlbumStatus.LOADING);
 
-            // Verify final loaded state
+            // Wait: For async operations to complete
             await vi.waitFor(
                 () => {
                     expectAlbumStatus(albumPath, AlbumStatus.LOADED);
@@ -159,7 +163,7 @@ describe('AlbumLoadMachine', () => {
                 { timeout: TEST_TIMEOUT },
             );
 
-            // Verify album data
+            // Assert: Verify final state and side effects
             const loadedAlbum = albumState.albums.get(albumPath)?.album;
             expect(loadedAlbum).toBeDefined();
             expect(loadedAlbum?.path).toBe(albumPath);
@@ -172,17 +176,19 @@ describe('AlbumLoadMachine', () => {
         });
 
         it('should go NOT_LOADED > LOADING > LOADED > DOES_NOT_EXIST when album found in IDB but not on server', async () => {
+            // Arrange: Set up test data and mocks
             const albumPath = '/2024/01-01/';
             const mockAlbum = createMockAlbumRecordFromPath(albumPath);
             mockIdbSuccess(mockAlbum);
             mockAlbumFetchNotFound();
 
+            // Act: Trigger the state transition
             albumLoadMachine.fetch(albumPath);
 
-            // Verify initial loading state
+            // Assert: Verify initial loading state
             expectAlbumStatus(albumPath, AlbumStatus.LOADING);
 
-            // Verify final state
+            // Wait: For async operations to complete
             await vi.waitFor(
                 () => {
                     expectAlbumStatus(albumPath, AlbumStatus.DOES_NOT_EXIST);
@@ -190,24 +196,26 @@ describe('AlbumLoadMachine', () => {
                 { timeout: TEST_TIMEOUT },
             );
 
-            // Verify API calls and IDB cleanup
+            // Assert: Verify final state and side effects
             expect(getFromIdb).toHaveBeenCalledWith(albumPath);
             expectFetchCalledWithPath(albumPath);
             expect(vi.mocked(delFromIdb)).toHaveBeenCalledWith(albumPath);
         });
 
         it('should keep IDB data when server returns 500', async () => {
+            // Arrange: Set up test data and mocks
             const albumPath = '/2024/01-01/';
             const mockAlbum = createMockAlbumRecordFromPath(albumPath);
             mockIdbSuccess(mockAlbum);
             mockAlbumFetchFail(100);
 
+            // Act: Trigger the state transition
             albumLoadMachine.fetch(albumPath);
 
-            // Verify initial loading state
+            // Assert: Verify initial loading state
             expectAlbumStatus(albumPath, AlbumStatus.LOADING);
 
-            // Wait for IDB fetch to complete
+            // Wait: For IDB fetch to complete
             await vi.waitFor(
                 () => {
                     return (getFromIdb as Mock).mock.calls.length > 0;
@@ -215,11 +223,11 @@ describe('AlbumLoadMachine', () => {
                 { timeout: TEST_TIMEOUT },
             );
 
-            // Verify we go to LOADED after IDB fetch
+            // Assert: Verify we go to LOADED after IDB fetch
             expectAlbumStatus(albumPath, AlbumStatus.LOADED);
             expect(getFromIdb).toHaveBeenCalledWith(albumPath);
 
-            // Wait for server fetch to complete
+            // Wait: For server fetch to complete
             await vi.waitFor(
                 () => {
                     return mockFetch.mock.calls.length > 0;
@@ -227,23 +235,25 @@ describe('AlbumLoadMachine', () => {
                 { timeout: TEST_TIMEOUT },
             );
 
-            // Verify we remain in LOADED after server error
+            // Assert: Verify we remain in LOADED after server error
             expectAlbumStatus(albumPath, AlbumStatus.LOADED);
             expectFetchCalledWithPath(albumPath);
             expect(vi.mocked(delFromIdb)).not.toHaveBeenCalledWith(albumPath);
         });
 
         it('should go NOT_LOADED > LOADING > LOAD_ERRORED when album not in IDB and server returns 500', async () => {
+            // Arrange: Set up test data and mocks
             const albumPath = '/2024/01-01/';
             mockIdbSuccess(undefined);
             mockAlbumFetchFail();
 
+            // Act: Trigger the state transition
             albumLoadMachine.fetch(albumPath);
 
-            // Verify initial loading state
+            // Assert: Verify initial loading state
             expectAlbumStatus(albumPath, AlbumStatus.LOADING);
 
-            // Verify final state
+            // Wait: For async operations to complete
             await vi.waitFor(
                 () => {
                     expectAlbumStatus(albumPath, AlbumStatus.LOAD_ERRORED);
@@ -251,7 +261,7 @@ describe('AlbumLoadMachine', () => {
                 { timeout: TEST_TIMEOUT },
             );
 
-            // Verify API calls and no IDB updates
+            // Assert: Verify final state and side effects
             expect(getFromIdb).toHaveBeenCalledWith(albumPath);
             expectFetchCalledWithPath(albumPath);
             expect(vi.mocked(setToIdb)).not.toHaveBeenCalled();
@@ -259,60 +269,61 @@ describe('AlbumLoadMachine', () => {
         });
 
         it('should throw error for invalid album path', () => {
+            // Arrange: Set up invalid input
             const invalidPath = 'invalid-path';
 
+            // Act & Assert: Verify error is thrown
             expect(() => {
                 albumLoadMachine.fetch(invalidPath);
             }).toThrow(`Invalid album path [${invalidPath}]`);
         });
 
         it('should do nothing if album is already loading', () => {
+            // Arrange: Set up album in loading state
             const albumPath = '/2024/01-01/';
-
-            // Set album to loading state
             albumState.albums.set(albumPath, { status: AlbumStatus.LOADING });
 
+            // Act: Attempt to fetch again
             albumLoadMachine.fetch(albumPath);
 
-            // It should remain in the LOADING state
-            expectAlbumStatus(albumPath, AlbumStatus.LOADING);
-
-            // Verify no additional API calls were made
+            // Assert: Verify no additional API calls were made
             expect(getFromIdb).not.toHaveBeenCalled();
             expect(mockFetch).not.toHaveBeenCalled();
+
+            // Verify state remains unchanged
+            expectAlbumStatus(albumPath, AlbumStatus.LOADING);
         });
 
         it('should do nothing if album is already reloading', () => {
+            // Arrange: Set up album in reloading state
             const albumPath = '/2024/01-01/';
-
-            // Set album to reloading state
             albumState.albumReloads.set(albumPath, ReloadStatus.RELOADING);
 
+            // Act: Attempt to fetch again
             albumLoadMachine.fetch(albumPath);
 
-            // Verify no additional API calls were made
+            // Assert: Verify no additional API calls were made
             expect(getFromIdb).not.toHaveBeenCalled();
             expect(mockFetch).not.toHaveBeenCalled();
         });
 
         it('should refetch from server when album is already loaded and refetch=true', async () => {
+            // Arrange: Set up album in loaded state and mocks
             const albumPath = '/2024/01-01/';
             const mockAlbum = createMockAlbumRecordFromPath(albumPath);
-
-            // Set album to loaded state
             albumState.albums.set(albumPath, {
                 status: AlbumStatus.LOADED,
                 album: toAlbum(mockAlbum),
             });
-
             mockAlbumFetchSuccess(mockAlbum);
 
+            // Act: Trigger refetch
             albumLoadMachine.fetch(albumPath, true); // refetch = true
 
-            // Verify reloading state is set
+            // Assert: Verify reloading state is set
             expect(albumState.albumReloads.get(albumPath)).toBe(ReloadStatus.RELOADING);
 
-            // Verify server fetch was called
+            // Wait: For server fetch to be called
             await vi.waitFor(
                 () => {
                     expectFetchCalledWithPath(albumPath);
@@ -322,18 +333,18 @@ describe('AlbumLoadMachine', () => {
         });
 
         it('should not refetch when album is loaded and refetch=false', () => {
+            // Arrange: Set up album in loaded state
             const albumPath = '/2024/01-01/';
             const mockAlbum = createMockAlbumRecordFromPath(albumPath);
-
-            // Set album to loaded state
             albumState.albums.set(albumPath, {
                 status: AlbumStatus.LOADED,
                 album: toAlbum(mockAlbum),
             });
 
+            // Act: Attempt to fetch with refetch=false
             albumLoadMachine.fetch(albumPath, false); // refetch = false
 
-            // Verify no reloading state is set
+            // Assert: Verify no reloading state is set
             expect(albumState.albumReloads.get(albumPath)).toBeUndefined();
 
             // Verify no server fetch was called
@@ -343,98 +354,119 @@ describe('AlbumLoadMachine', () => {
 
     describe('albumExists', () => {
         it('should return true when album exists in memory with LOADED status', async () => {
+            // Arrange: Set up album in loaded state
             const albumPath = '/2024/01-01/';
             const mockAlbum = createMockAlbumRecordFromPath(albumPath);
-
             albumState.albums.set(albumPath, {
                 status: AlbumStatus.LOADED,
                 album: toAlbum(mockAlbum),
             });
 
+            // Act: Check if album exists
             const exists = await albumLoadMachine.albumExists(albumPath);
+
+            // Assert: Verify result
             expect(exists).toBe(true);
         });
 
         it('should return true when album exists in memory with LOADING status', async () => {
+            // Arrange: Set up album in loading state
             const albumPath = '/2024/01-01/';
-
             albumState.albums.set(albumPath, {
                 status: AlbumStatus.LOADING,
             });
 
+            // Act: Check if album exists
             const exists = await albumLoadMachine.albumExists(albumPath);
+
+            // Assert: Verify result
             expect(exists).toBe(true);
         });
 
         it('should return false when album exists in memory with DOES_NOT_EXIST status', async () => {
+            // Arrange: Set up album in does-not-exist state
             const albumPath = '/2024/01-01/';
-
             albumState.albums.set(albumPath, {
                 status: AlbumStatus.DOES_NOT_EXIST,
             });
 
+            // Act: Check if album exists
             const exists = await albumLoadMachine.albumExists(albumPath);
+
+            // Assert: Verify result
             expect(exists).toBe(false);
         });
 
         it('should return true when album exists on disk but not in memory', async () => {
+            // Arrange: Set up mock for disk storage
             const albumPath = '/2024/01-01/';
             const mockAlbum = createMockAlbumRecordFromPath(albumPath);
-
             mockIdbSuccess(mockAlbum);
 
+            // Act: Check if album exists
             const exists = await albumLoadMachine.albumExists(albumPath);
+
+            // Assert: Verify result and API calls
             expect(exists).toBe(true);
             expect(getFromIdb).toHaveBeenCalledWith(albumPath);
         });
 
         it('should return false when album not found on disk or server', async () => {
+            // Arrange: Set up mocks for not found scenario
             const albumPath = '/2024/01-01/';
-
             mockIdbSuccess(undefined);
             mockFetch.mockResolvedValueOnce({
                 ok: false,
                 status: 404,
             });
 
+            // Act: Check if album exists
             const exists = await albumLoadMachine.albumExists(albumPath);
+
+            // Assert: Verify result and API calls
             expect(exists).toBe(false);
             expect(getFromIdb).toHaveBeenCalledWith(albumPath);
             expectFetchCalledWithPath(albumPath);
         });
 
         it('should return true when album exists on server', async () => {
+            // Arrange: Set up mocks for server success
             const albumPath = '/2024/01-01/';
-
             mockIdbSuccess(undefined);
             mockFetch.mockResolvedValueOnce({
                 ok: true,
                 status: 200,
             });
 
+            // Act: Check if album exists
             const exists = await albumLoadMachine.albumExists(albumPath);
+
+            // Assert: Verify result and API calls
             expect(exists).toBe(true);
             expect(getFromIdb).toHaveBeenCalledWith(albumPath);
             expectFetchCalledWithPath(albumPath);
         });
 
         it('should throw error for invalid album path', async () => {
+            // Arrange: Set up invalid input
             const invalidPath = 'invalid-path';
 
+            // Act & Assert: Verify error is thrown
             await expect(albumLoadMachine.albumExists(invalidPath)).rejects.toThrow(
                 `Invalid album path [${invalidPath}]`,
             );
         });
 
         it('should throw error for unexpected server response', async () => {
+            // Arrange: Set up mock for unexpected server response
             const albumPath = '/2024/01-01/';
-
             mockIdbSuccess(undefined);
             mockFetch.mockResolvedValueOnce({
                 ok: false,
                 status: 403, // Forbidden - unexpected status
             });
 
+            // Act & Assert: Verify error is thrown
             await expect(albumLoadMachine.albumExists(albumPath)).rejects.toThrow(
                 `Unexpected response [403] fetching album [${albumPath}]`,
             );
