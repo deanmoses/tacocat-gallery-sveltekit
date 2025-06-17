@@ -231,7 +231,7 @@ class UploadMachine {
                 const status = imageEntry.status;
 
                 // If the image hasn't finished uploading, images aren't yet processed
-                if ([ImageStatus.UPLOAD_QUEUED, ImageStatus.UPLOAD_TRANSFERRING].includes(status)) return false;
+                if (status === ImageStatus.UPLOAD_QUEUED || status === ImageStatus.UPLOAD_TRANSFERRING) return false;
 
                 if (ImageStatus.UPLOAD_PROCESSING === status) {
                     // Uploading images should always have an upload object
