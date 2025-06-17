@@ -20,7 +20,7 @@ Start development server: `npm run dev`
 
 4. Deploy the build to production with `npm run deploy-prod` and see results at https://pix.tacocat.com/
 
-## Docs
+## More Info
 
 - [Overall Architecture](docs/architecture.md)
 - [Component Architecture](docs/component_architecture.md)
