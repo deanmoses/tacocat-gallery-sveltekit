@@ -65,13 +65,14 @@ The photos displayed through the app are personal in nature, and we do not want 
 
 We implement this by including `<meta name="robots" content="noindex" />` in every page view. This is more effective than the historical practice of using a robots.txt file.
 
-Therefore, we do NOT care about Search Engine Optimization (SEO). Some features you might expect, like SEO-related meta tags, don't exist for this reason. Anything we can drop makes the app faster for end users.
+Therefore, we do NOT care about Search Engine Optimization (SEO). Some features you might expect, like site maps and SEO-related meta tags, don't exist for this reason.
 
 ## Browser Compatibility
 
 - We ensure compatibility with major browsers (Chrome, Firefox, Safari) on both desktop and mobile.
-- We ensure that any browser that hasn't been updated in two years still works. So HTML5, but not bleeding edge HTML5.
+- We ensure that the app works for browsers that haven't been updated in two years.
 - We do NOT support Internet Explorer (IE).
+- So we use HTML5, but not bleeding edge HTML5.
 
 ## We Avoid Dependencies
 
@@ -90,6 +91,12 @@ If we _must_ add a dependency, we look for:
     - We go out of our way to use libraries that themselves don't have dependencies
 - _Small size_
     - We prefer libraries with smaller bundled, minified size to client
+
+Examples of dependencies we have avoided:
+
+- We don't use a CSS framework
+- We don't use any library of pre-built components
+- We don't use a state machine library
 
 ## Speed is an Obsession
 
