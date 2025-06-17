@@ -11,4 +11,3 @@ alwaysApply: true
  [component_architecture.md](mdc:docs/component_architecture.md)
  [dev_workflow.md](mdc:docs/dev_workflow.md)
  [ai_assistant_workflow.md](mdc:docs/ai_assistant_workflow.md)
- [performance.md](mdc:docs/performance.md)
