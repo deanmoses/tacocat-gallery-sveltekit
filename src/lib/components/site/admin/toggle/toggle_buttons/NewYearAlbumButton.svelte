@@ -7,8 +7,8 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import CreateIcon from '$lib/components/site/icons/CreateIcon.svelte';
-    import { albumCreateMachine } from '$lib/stores/admin/AlbumCreateMachine.svelte';
-    import { albumLoadMachine } from '$lib/stores/AlbumLoadMachine.svelte';
+    import { albumCreateMachine } from '$lib/state/admin/AlbumCreateMachine.svelte';
+    import { albumLoadMachine } from '$lib/state/AlbumLoadMachine.svelte';
     import { isValidYearAlbumPath, sanitizeDayAlbumName } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import TextDialog from './TextDialog.svelte';

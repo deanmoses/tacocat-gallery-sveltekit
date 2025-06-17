@@ -11,7 +11,7 @@
     import BigImage from './BigImage.svelte';
     import AdminToggle from '$lib/components/site/admin/toggle/AdminToggle.svelte';
     import type { Album, Image } from '$lib/models/GalleryItemInterfaces';
-    import { sessionStore } from '$lib/stores/SessionStore.svelte';
+    import { sessionStore } from '$lib/state/SessionStore.svelte';
 
     interface Props {
         album: Album;

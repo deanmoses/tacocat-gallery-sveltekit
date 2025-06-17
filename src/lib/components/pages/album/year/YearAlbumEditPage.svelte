@@ -12,7 +12,7 @@
     import AlbumEditControls from '$lib/components/site/admin/edit_controls/AlbumEditControls.svelte';
     import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
-    import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
+    import { draftMachine } from '$lib/state/admin/DraftMachine.svelte';
 
     interface Props {
         album: Album;

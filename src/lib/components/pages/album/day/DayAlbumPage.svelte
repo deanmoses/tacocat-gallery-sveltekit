@@ -11,9 +11,9 @@
     import ImageThumbnail from '$lib/components/site/ImageThumbnail.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import type { ImageEntry } from '$lib/models/album';
-    import { getUploadsForAlbum } from '$lib/stores/AlbumState.svelte';
+    import { getUploadsForAlbum } from '$lib/state/AlbumState.svelte';
     import AdminToggle from '$lib/components/site/admin/toggle/AdminToggle.svelte';
-    import { sessionStore } from '$lib/stores/SessionStore.svelte';
+    import { sessionStore } from '$lib/state/SessionStore.svelte';
 
     interface Props {
         album: Album;

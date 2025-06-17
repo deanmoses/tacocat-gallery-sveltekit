@@ -2,7 +2,7 @@
     import type { PageProps } from './$types';
     import AlbumRouting from '$lib/components/pages/album/AlbumRouting.svelte';
     import DayAlbumPage from '$lib/components/pages/album/day/DayAlbumPage.svelte';
-    import { albumState } from '$lib/stores/AlbumState.svelte';
+    import { albumState } from '$lib/state/AlbumState.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
 
     let { data }: PageProps = $props();

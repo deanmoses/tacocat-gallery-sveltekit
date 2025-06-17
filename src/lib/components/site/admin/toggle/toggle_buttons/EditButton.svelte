@@ -6,7 +6,7 @@
 <script lang="ts">
     import { page } from '$app/state';
     import EditIcon from '$lib/components/site/icons/EditIcon.svelte';
-    import { editModeMachine } from '$lib/stores/admin/EditModeMachine.svete';
+    import { editModeMachine } from '$lib/state/admin/EditModeMachine.svete';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 
     let path: string = $derived(page.url.pathname);

@@ -7,7 +7,7 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import RenameIcon from '$lib/components/site/icons/RenameIcon.svelte';
-    import { albumLoadMachine } from '$lib/stores/AlbumLoadMachine.svelte';
+    import { albumLoadMachine } from '$lib/state/AlbumLoadMachine.svelte';
     import {
         getNameFromPath,
         getParentFromPath,
@@ -16,7 +16,7 @@
     } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import TextDialog from './TextDialog.svelte';
-    import { albumRenameMachine } from '$lib/stores/admin/AlbumRenameMachine.svelte';
+    import { albumRenameMachine } from '$lib/state/admin/AlbumRenameMachine.svelte';
 
     let albumPath: string = $derived(page.url.pathname + '/');
     let show: boolean = $derived(isValidDayAlbumPath(albumPath)); // Show this button only on day albums

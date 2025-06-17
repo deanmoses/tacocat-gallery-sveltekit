@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
     import { AlbumStatus } from '$lib/models/album';
-    import { albumState } from '$lib/stores/AlbumState.svelte';
+    import { albumState } from '$lib/state/AlbumState.svelte';
     import type { Snippet } from 'svelte';
     import Thumbnail from './Thumbnail.svelte';
 

@@ -8,8 +8,8 @@
     import { page } from '$app/state';
     import DeleteIcon from '$lib/components/site/icons/DeleteIcon.svelte';
     import type { AlbumEntry } from '$lib/models/album';
-    import { albumDeleteMachine } from '$lib/stores/admin/AlbumDeleteMachine.svelte';
-    import { albumState } from '$lib/stores/AlbumState.svelte';
+    import { albumDeleteMachine } from '$lib/state/admin/AlbumDeleteMachine.svelte';
+    import { albumState } from '$lib/state/AlbumState.svelte';
     import { getParentFromPath, isValidDayAlbumPath, isValidYearAlbumPath } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 

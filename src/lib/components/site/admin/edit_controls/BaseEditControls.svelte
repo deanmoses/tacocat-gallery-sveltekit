@@ -12,8 +12,8 @@
     import { DraftStatus } from '$lib/models/draft';
     import { page } from '$app/state';
     import { isValidImagePath } from '$lib/utils/galleryPathUtils';
-    import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
-    import { editModeMachine } from '$lib/stores/admin/EditModeMachine.svete';
+    import { draftMachine } from '$lib/state/admin/DraftMachine.svelte';
+    import { editModeMachine } from '$lib/state/admin/EditModeMachine.svete';
 
     interface Props {
         rightControls?: Snippet;

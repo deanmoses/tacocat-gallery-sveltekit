@@ -16,8 +16,8 @@
     } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import TextDialog from './TextDialog.svelte';
-    import { imageRenameMachine } from '$lib/stores/admin/ImageRenameMachine.svelte';
-    import { albumState } from '$lib/stores/AlbumState.svelte';
+    import { imageRenameMachine } from '$lib/state/admin/ImageRenameMachine.svelte';
+    import { albumState } from '$lib/state/AlbumState.svelte';
 
     let imagePath: string = $derived(page.url.pathname);
     let show: boolean = $derived(isValidImagePath(imagePath)); // Show this button only on images

@@ -10,8 +10,8 @@
     import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
     import SaveIcon from '$lib/components/site/icons/SaveIcon.svelte';
     import { goto } from '$app/navigation';
-    import { cropMachine } from '$lib/stores/admin/CropMachine.svelte';
-    import { albumState } from '$lib/stores/AlbumState.svelte';
+    import { cropMachine } from '$lib/state/admin/CropMachine.svelte';
+    import { albumState } from '$lib/state/AlbumState.svelte';
     import { ImageStatus } from '$lib/models/album';
 
     interface Props {

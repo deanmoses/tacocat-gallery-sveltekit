@@ -10,7 +10,7 @@
     import HomeIcon from '$lib/components/site/icons/HomeIcon.svelte';
     import AlbumProcessingPage from './AlbumProcessingPage.svelte';
     import type { Snippet } from 'svelte';
-    import { albumState } from '$lib/stores/AlbumState.svelte';
+    import { albumState } from '$lib/state/AlbumState.svelte';
 
     interface Props {
         albumPath: string;

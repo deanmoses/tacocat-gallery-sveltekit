@@ -3,7 +3,7 @@
     import AdminPageLayout from '$lib/components/pages/admin/AdminPageLayout.svelte';
     import LoginIcon from '$lib/components/site/icons/LoginIcon.svelte';
     import { getLoginUrl } from '$lib/utils/config';
-    import { sessionStore } from '$lib/stores/SessionStore.svelte';
+    import { sessionStore } from '$lib/state/SessionStore.svelte';
 
     let isAdmin = $derived(sessionStore.isAdmin);
 </script>

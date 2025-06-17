@@ -11,7 +11,7 @@
     import ImageProcessingPage from './ImageProcessingPage.svelte';
     import AlbumErrorPage from '../album/AlbumErrorPage.svelte';
     import type { Snippet } from 'svelte';
-    import { albumState } from '$lib/stores/AlbumState.svelte';
+    import { albumState } from '$lib/state/AlbumState.svelte';
 
     interface Props {
         albumPath: string;

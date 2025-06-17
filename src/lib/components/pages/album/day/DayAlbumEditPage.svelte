@@ -11,13 +11,13 @@
     import ImageThumbnail from '$lib/components/site/ImageThumbnail.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import type { ImageEntry } from '$lib/models/album';
-    import { getUploadsForAlbum } from '$lib/stores/AlbumState.svelte';
+    import { getUploadsForAlbum } from '$lib/state/AlbumState.svelte';
     import SelectableStar from '$lib/components/site/admin/SelectableStar.svelte';
     import AlbumEditControls from '$lib/components/site/admin/edit_controls/AlbumEditControls.svelte';
     import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
     import UploadThumbnail from '$lib/components/site/admin/UploadThumbnail.svelte';
-    import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
-    import { albumThumbnailSetMachine } from '$lib/stores/admin/AlbumThumbnailSetMachine.svelte';
+    import { draftMachine } from '$lib/state/admin/DraftMachine.svelte';
+    import { albumThumbnailSetMachine } from '$lib/state/admin/AlbumThumbnailSetMachine.svelte';
     import DayAlbumFullScreenDropZone from './DayAlbumFullScreenDropZone.svelte';
 
     interface Props {

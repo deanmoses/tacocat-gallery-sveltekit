@@ -4,7 +4,7 @@
   On hover, display edit buttons if user is an admin
 -->
 <script lang="ts">
-    import { sessionStore } from '$lib/stores/SessionStore.svelte';
+    import { sessionStore } from '$lib/state/SessionStore.svelte';
 </script>
 
 <!-- 

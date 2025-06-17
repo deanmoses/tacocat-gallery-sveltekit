@@ -13,7 +13,7 @@ This project only contains the static Single Page App (SPA) assets; the back end
 
 ## State Management
 
-We use a state machine pattern for complex state management. The state machines are at /Users/dmoses/dev/tacocat/tacocat-gallery-sveltekit/src/lib/stores and are organized by domain, such as:
+We use a state machine pattern for complex state management. The state machines are at /Users/dmoses/dev/tacocat/tacocat-gallery-sveltekit/src/lib/state and are organized by domain, such as:
 
 - `AlbumState`: Manages album data and loading states
 - `SessionStore`: Handles user session information

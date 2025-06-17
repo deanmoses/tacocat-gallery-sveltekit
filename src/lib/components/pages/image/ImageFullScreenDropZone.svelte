@@ -5,9 +5,9 @@
 -->
 <script lang="ts">
     import FullScreenDropZone from '$lib/components/site/admin/FullScreenDropZone.svelte';
-    import { getDroppedImages } from '$lib/stores/admin/DragDropUtils';
-    import { uploadMachine } from '$lib/stores/admin/UploadMachine.svelte';
-    import { sessionStore } from '$lib/stores/SessionStore.svelte';
+    import { getDroppedImages } from '$lib/state/admin/DragDropUtils';
+    import { uploadMachine } from '$lib/state/admin/UploadMachine.svelte';
+    import { sessionStore } from '$lib/state/SessionStore.svelte';
     import { toast } from '@zerodevx/svelte-toast';
 
     interface Props {

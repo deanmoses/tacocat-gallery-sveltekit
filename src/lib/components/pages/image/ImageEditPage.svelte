@@ -14,7 +14,7 @@
     import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
     import type { Album, Image } from '$lib/models/GalleryItemInterfaces';
     import ImageFullScreenDropZone from './ImageFullScreenDropZone.svelte';
-    import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
+    import { draftMachine } from '$lib/state/admin/DraftMachine.svelte';
 
     interface Props {
         album: Album;

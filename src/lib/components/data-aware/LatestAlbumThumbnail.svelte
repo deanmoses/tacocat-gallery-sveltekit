@@ -6,7 +6,7 @@
 <script lang="ts">
     import Thumbnail from '$lib/components/site/Thumbnail.svelte';
     import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
-    import { latestAlbumLoadMachine } from '$lib/stores/LatestAlbumLoadMachine.svelte';
+    import { latestAlbumLoadMachine } from '$lib/state/LatestAlbumLoadMachine.svelte';
     import { onMount } from 'svelte';
 
     let thumb: Thumbable | undefined = $derived(latestAlbumLoadMachine.entry.thumbnail);

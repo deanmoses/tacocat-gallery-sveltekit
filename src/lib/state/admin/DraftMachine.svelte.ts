@@ -15,7 +15,7 @@ const initialState: Draft = {
 };
 
 /**
- * Store of the draft changes to an album or a image
+ * State management for the draft changes to an album or a image
  *
  * Unlike the Redux version, which held a draft per album, this
  * only holds the one single draft that's currently being edited.
@@ -24,12 +24,12 @@ const initialState: Draft = {
  */
 class DraftMachine {
     /**
-     * Private writable store holding the draft
+     * Private writable state holding the draft
      */
     #draft: Draft = $state(initialState);
 
     /**
-     * Public read-only store of the draft
+     * Public read-only state of the draft
      */
     readonly draft: Draft = $derived(this.#draft);
 
@@ -44,11 +44,11 @@ class DraftMachine {
 
     //
     // STATE TRANSITION METHODS
-    // These mutate the store's state.
+    // These mutate the state.
     //
     // Characteristics:
-    //  - These are the ONLY way to update this store's state.
-    //    These should be the only public methods on this store.
+    //  - These are the ONLY way to update this state.
+    //    These should be the only public methods on this state machine.
     //  - These ONLY update state.
     //    If they have to do any work, like making a server call, they invoke it in an
     //    event-like fire-and-forget fashion, meaning invoke async methods *without* await.

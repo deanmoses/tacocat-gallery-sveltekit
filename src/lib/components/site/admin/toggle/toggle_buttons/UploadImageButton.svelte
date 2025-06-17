@@ -6,7 +6,7 @@
 <script lang="ts">
     import { page } from '$app/state';
     import UploadIcon from '$lib/components/site/icons/UploadIcon.svelte';
-    import { uploadMachine } from '$lib/stores/admin/UploadMachine.svelte';
+    import { uploadMachine } from '$lib/state/admin/UploadMachine.svelte';
     import { isValidImagePath, validExtensionsString } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
 

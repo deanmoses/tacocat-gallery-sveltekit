@@ -4,7 +4,7 @@
   Make the passed-in plain text (not HTML) editable
 -->
 <script lang="ts">
-    import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
+    import { draftMachine } from '$lib/state/admin/DraftMachine.svelte';
 
     interface Props {
         /** The text content to be made editable */

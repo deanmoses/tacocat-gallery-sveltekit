@@ -9,7 +9,7 @@
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import SetYearThumbnailConfirmDialog from './SetYearThumbnailConfirmDialog.svelte';
     import StarIcon from '$lib/components/site/icons/StarIcon.svelte';
-    import { albumThumbnailSetMachine } from '$lib/stores/admin/AlbumThumbnailSetMachine.svelte';
+    import { albumThumbnailSetMachine } from '$lib/state/admin/AlbumThumbnailSetMachine.svelte';
 
     let imagePath: string = $derived(page.url.pathname);
     let show: boolean = $derived(isValidImagePath(imagePath)); // Show this button only on image pages

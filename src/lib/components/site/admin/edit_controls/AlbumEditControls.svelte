@@ -4,7 +4,7 @@
   Controls for editing albums
 -->
 <script lang="ts">
-    import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
+    import { draftMachine } from '$lib/state/admin/DraftMachine.svelte';
     import BaseEditControls from './BaseEditControls.svelte';
 
     interface Props {

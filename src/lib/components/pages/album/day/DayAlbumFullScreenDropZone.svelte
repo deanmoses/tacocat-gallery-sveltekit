@@ -6,11 +6,11 @@
 <script lang="ts">
     import FullScreenDropZone from '$lib/components/site/admin/FullScreenDropZone.svelte';
     import UploadReplaceConfirmDialog from '$lib/components/site/admin/toggle/toggle_buttons/UploadReplaceConfirmDialog.svelte';
-    import { getDroppedImages } from '$lib/stores/admin/DragDropUtils';
-    import { uploadMachine, type ImagesToUpload } from '$lib/stores/admin/UploadMachine.svelte';
-    import { getSanitizedFiles } from '$lib/stores/admin/UploadMachine.svelte';
-    import { sessionStore } from '$lib/stores/SessionStore.svelte';
-    import { albumState } from '$lib/stores/AlbumState.svelte';
+    import { getDroppedImages } from '$lib/state/admin/DragDropUtils';
+    import { uploadMachine, type ImagesToUpload } from '$lib/state/admin/UploadMachine.svelte';
+    import { getSanitizedFiles } from '$lib/state/admin/UploadMachine.svelte';
+    import { sessionStore } from '$lib/state/SessionStore.svelte';
+    import { albumState } from '$lib/state/AlbumState.svelte';
 
     interface Props {
         albumPath: string;

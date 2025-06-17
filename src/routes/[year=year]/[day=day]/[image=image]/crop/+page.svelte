@@ -2,7 +2,7 @@
     import type { PageProps } from './$types';
     import CropPage from '$lib/components/pages/image/CropPage.svelte';
     import ImageRouting from '$lib/components/pages/image/ImageRouting.svelte';
-    import { albumState } from '$lib/stores/AlbumState.svelte';
+    import { albumState } from '$lib/state/AlbumState.svelte';
 
     let { data }: PageProps = $props();
     let albumPath = $derived(data.albumPath);

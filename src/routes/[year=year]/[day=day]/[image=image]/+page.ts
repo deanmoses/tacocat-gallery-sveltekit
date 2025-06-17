@@ -1,4 +1,4 @@
-import { albumLoadMachine } from '$lib/stores/AlbumLoadMachine.svelte';
+import { albumLoadMachine } from '$lib/state/AlbumLoadMachine.svelte';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = ({ params }) => {

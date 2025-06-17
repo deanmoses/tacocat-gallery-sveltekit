@@ -11,16 +11,16 @@ import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
 import { SvelteMap } from 'svelte/reactivity';
 
 /**
- * Store of search results
+ * State management for search results
  */
 class SearchStore {
     /**
-     * Private writable store of search results
+     * Private writable state of search results
      */
     #searches = new SvelteMap<SearchQuery, Search>();
 
     /**
-     * Public read-only version of store
+     * Public read-only version of state
      */
     readonly searches: ReadonlyMap<SearchQuery, Search> = $derived(this.#searches);
 
@@ -117,7 +117,7 @@ class SearchStore {
     }
 
     /**
-     * Store search results in Svelte store
+     * Store search results in state
      */
     #setSearch(query: SearchQuery, searchResults: SearchResults): void {
         const searchEntry = this.#getOrCreateWritableStore(query);

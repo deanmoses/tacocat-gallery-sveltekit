@@ -7,8 +7,8 @@
     import { page } from '$app/state';
     import { goto } from '$app/navigation';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
-    import { sessionStore } from '$lib/stores/SessionStore.svelte';
-    import { albumState } from '$lib/stores/AlbumState.svelte';
+    import { sessionStore } from '$lib/state/SessionStore.svelte';
+    import { albumState } from '$lib/state/AlbumState.svelte';
 
     let { children }: LayoutProps = $props();
 

@@ -4,7 +4,7 @@
     import SearchLoadingPage from '$lib/components/pages/search/SearchLoadingPage.svelte';
     import SearchResultsPage from '$lib/components/pages/search/SearchResultsPage.svelte';
     import { SearchLoadStatus, type Search, type SearchResults } from '$lib/models/search';
-    import { searchStore } from '$lib/stores/SearchStore.svelte';
+    import { searchStore } from '$lib/state/SearchStore.svelte';
 
     let { data }: PageProps = $props();
     let returnPath = $derived(data.returnPath);

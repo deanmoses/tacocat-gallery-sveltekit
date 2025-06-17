@@ -4,7 +4,7 @@
   Make the passed-in HTML editable via a rich text editor
 -->
 <script lang="ts">
-    import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
+    import { draftMachine } from '$lib/state/admin/DraftMachine.svelte';
     import HtmlEditor from './HtmlEditor.svelte';
 
     interface Props {

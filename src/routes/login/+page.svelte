@@ -3,7 +3,7 @@
     import LoginIcon from '$lib/components/site/icons/LoginIcon.svelte';
     import LogoutIcon from '$lib/components/site/icons/LogoutIcon.svelte';
     import { getLoginUrl, getLogoutUrl } from '$lib/utils/config';
-    import { sessionStore } from '$lib/stores/SessionStore.svelte';
+    import { sessionStore } from '$lib/state/SessionStore.svelte';
 
     let isAdmin = $derived(sessionStore.isAdmin);
 </script>
