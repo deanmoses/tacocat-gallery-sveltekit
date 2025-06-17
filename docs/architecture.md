@@ -11,6 +11,51 @@ This project only contains the static Single Page App (SPA) assets; the back end
 - The hosting of this web app
 - The back end photo management: photo storage, database, search, user management, image manipulation
 
+## High Level Diagram
+
+The Single Page App (SPA) separates its concerns across these main layers:
+
+```mermaid
+graph TB
+    subgraph "Components Layer"
+        Components["🎨 Components<br/>(Pages, Site, Admin, Data-Aware)"]
+    end
+
+    subgraph "State Layer"
+        State["🎛️ State Machines & Stores<br/>(AlbumState, SessionStore, SearchStore<br/>DraftMachine, UploadMachine, etc.)"]
+    end
+
+    subgraph "Models Layer"
+        Models["📊 Models<br/>(Album, Image, Draft, Search<br/>Data Structures)"]
+    end
+
+    subgraph "External"
+        Server["🌐 Backend Server<br/>(API & Storage)"]
+        IndexedDB["💾 IndexedDB<br/>(Local Cache)"]
+    end
+
+    %% Component relationships
+    Components --> State
+    Components --> Models
+
+    %% State machine relationships
+    State --> Models
+
+    %% Data flow
+    State --> Server
+    State --> IndexedDB
+
+    classDef componentLayer fill:#e1f5fe
+    classDef stateLayer fill:#f3e5f5
+    classDef modelLayer fill:#e8f5e8
+    classDef externalLayer fill:#fff3e0
+
+    class Components componentLayer
+    class State stateLayer
+    class Models modelLayer
+    class Server,IndexedDB externalLayer
+```
+
 ## State Management
 
 We use a state machine pattern for complex state management. The state machines are at /Users/dmoses/dev/tacocat/tacocat-gallery-sveltekit/src/lib/state and are organized by domain, such as:
