@@ -10,7 +10,7 @@ Clone this project, `cd` into its directory, install dependencies with `npm inst
 
 Start development server: `npm run dev`
 
-## Production
+## Deploy to Production
 
 1. Create the production assets: `npm run build`
 
@@ -19,3 +19,10 @@ Start development server: `npm run dev`
 3. Deploy the build to staging with `npm run deploy-staging` and see results at https://staging-pix.tacocat.com/
 
 4. Deploy the build to production with `npm run deploy-prod` and see results at https://pix.tacocat.com/
+
+## Docs
+
+- [Overall Architecture](docs/architecture.md)
+- [Component Architecture](docs/component_architecture.md)
+- [Development Workflow](docs/dev_workflow.md)
+- [Development Environment](docs/dev_env.md)

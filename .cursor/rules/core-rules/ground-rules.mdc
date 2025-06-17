@@ -4,5 +4,10 @@ globs:
 alwaysApply: true
 ---
 
- - After every code change, before you announce to the user that you're done, run the project's unit tests.  Never say you're done with a change if you haven't run the unit tests.
- - 
+ - After every code change, run the project's unit tests before you announce to the user that you're done.  Never say you're done with a change if you haven't run the unit tests.
+ 
+ ## Project Documentation
+ [architecture.md](mdc:docs/architecture.md)
+ [component_architecture.md](mdc:docs/component_architecture.md)
+ [dev_workflow.md](mdc:docs/dev_workflow.md)
+ [performance.md](mdc:docs/performance.md)
