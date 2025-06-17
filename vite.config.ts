@@ -36,6 +36,11 @@ const config = defineConfig({
         include: ['src/**/*.{test,spec}.ts'],
         exclude: ['**/node_modules/**', '**/dist/**', '**/playwright.config.ts', '**/*.playwright.spec.ts'],
         globals: true,
+        coverage: {
+            provider: 'v8',
+            reporter: ['text', 'json', 'html'],
+            include: ['src/**/*.ts', 'src/**/*.js'],
+        },
     },
 });
 

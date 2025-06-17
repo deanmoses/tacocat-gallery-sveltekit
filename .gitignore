@@ -16,6 +16,9 @@ node_modules/
 # Target build directory for processed, compiled web app
 dist/
 
+# Code coverage reports
+coverage/
+
 test/temp
 .tmp
 
