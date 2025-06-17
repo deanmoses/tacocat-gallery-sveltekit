@@ -24,6 +24,7 @@ npm run test
 - **Watch mode**: `npm run test:unit:watch` - Continuous testing during development
 - **E2E tests**: `npm run test:e2e` - Full integration testing
 - **All tests**: `npm run test` - Run both unit and E2E tests
+- **Code coverage**: `npm run test:coverage` - Generate coverage report
 
 ## Type Checking
 
