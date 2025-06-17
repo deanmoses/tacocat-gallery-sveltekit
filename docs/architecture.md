@@ -6,7 +6,7 @@ This is a single page app (SPA) built in SvelteKit and TypeScript. It does not u
 
 ## The Back End is Elsewhere
 
-This project only contains the static Single Page App (SPA) assets; the back end infrastructure for the app is contained in other projects. That includes:
+This project only contains the Single Page App (SPA), which is a collection of static assets; the back end infrastructure for the app is contained in other projects. So this project does not include:
 
 - The hosting of this web app
 - The back end photo management: photo storage, database, search, user management, image manipulation
@@ -78,7 +78,9 @@ We do not use a state machine library; we evaluated several of the front-runners
 
 State is stored in \*.svelte.ts classes. These are compiled by Svelte and use Svelte 5's rune-based reactive state system with `$state` and `$derived`. We do NOT use Svelte stores.
 
-## Data Caching Strategy
+## Caching
+
+### Data Caching
 
 For retrieving albums and other data from the server, we use a Cache-Then-Network aka Stale-While-Revalidate pattern:
 
@@ -97,6 +99,13 @@ This strategy ensures:
 - Always-fresh data through background updates
 - Some measure of offline capability / graceful degradation when network is unavailable
 
+### Service Worker Caching
+
+- **Static assets caching**: All bundler-generated files are cached immediately
+- **Image caching**: Images fetched and cached for offline use
+- **Cache versioning**: Automatic cache invalidation on app updates
+- **Selective caching**: Respects `no-store` cache headers for dynamic content
+
 ## User Model
 
 - _End users_: the audience that uses this web app are unauthenticated guest users; we do not want people to have to manage logins.
@@ -104,7 +113,7 @@ This strategy ensures:
 
 ## Lazy Loading
 
-We want the unauthenticated guest experience to be as fast as possible. Therefore we use lazy loading techniques to ensure that guests don't download any of the admin code.
+We want the unauthenticated guest experience to be as fast as possible. Therefore we use lazy loading techniques to ensure that guests don't download any of the admin code. Any feature that is only for admins MUST be lazy loaded.
 
 This often looks like this: ` {#await import('$lib/components/site/admin/SomeAdminComponent.svelte') then { default: SomeAdminComponent }}`
 
@@ -147,6 +156,14 @@ Examples of dependencies we have avoided:
 - We don't use a library of pre-built components
 - We don't use a state machine library
 
-## Speed is an Obsession
+## We Obsess Over Speed
 
-We prioritize a blazing fast user experience. See [Performance](performance.md).
+Speed is a core value of this application. We prioritize a blazing fast guest user experience.
+
+Examples of choices we've made in support of this:
+
+- We chose Svelte and Sveltekit in part because they have one of the lightest weight downloads of the major web application frameworks.
+- The aforementioned ruthless elimination of dependencies.
+- The aforementioned lazy loading of admin functionality.
+- We've done extensive work to optimize the caching architecture: caching of the web app binaries, caching of API calls where appropriate, caching of images, etc
+- It's not in this project, but our choices around databases, Content Delivery Networks (CDNs) and other back end infrastructure were driven in large part by performance considerations

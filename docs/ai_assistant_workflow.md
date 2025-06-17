@@ -2,6 +2,8 @@
 
 Guidelines for AI development assistants working on this project.
 
+## AI Assistant Development Workflow
+
 ### When Making Changes to Live Code
 
 1. **Read and understand** the existing code first
@@ -25,8 +27,14 @@ Guidelines for AI development assistants working on this project.
 8. **Re-run the failing step** to confirm the fix, then continue on to the next step
 9. **Report completion** only after all steps pass
 
-### Test Execution is Mandatory
+## AI Assistants Must Avoid These Common Mistakes
+
+### Test Execution is MANDATORY
 
 - **ALWAYS run unit tests after making code changes** before telling the user you're done
 - If tests fail, fix the issues before reporting completion
 - Never say "I'm done" or "the task is complete" without running tests first
+
+### Do NOT Fix Link Errors Yourself
+
+- Instead of fixing lint errors yourself, first try `npm run lint:fix`
