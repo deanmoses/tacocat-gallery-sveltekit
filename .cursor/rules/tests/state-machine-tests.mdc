@@ -1,0 +1,7 @@
+---
+description: Guidelines for writing tests
+globs: src/**/*.test.ts
+alwaysApply: false
+---
+
+ - State machine testing guidelines: [state_machine_testing.md](mdc:docs/state_machine_testing.md)

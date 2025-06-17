@@ -8,8 +8,11 @@ Before committing, run these checks:
 # Format code
 npm run format
 
-# Lint code
+# Lint code (check for issues)
 npm run lint
+
+# Fix linting issues automatically
+npm run lint:fix
 
 # Type check
 npm run check
@@ -17,6 +20,8 @@ npm run check
 # Run all tests
 npm run test
 ```
+
+**Note**: Use `npm run lint` to check for issues, and `npm run lint:fix` to automatically fix most linting and formatting problems.
 
 ## Testing
 
@@ -80,6 +85,12 @@ npm run check
 
 ```bash
 npm run format
+```
+
+**Linting issues:**
+
+```bash
+npm run lint:fix
 ```
 
 **Test failures:**
