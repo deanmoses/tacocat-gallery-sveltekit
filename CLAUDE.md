@@ -50,3 +50,14 @@
 
 - Staging: `npm run deploy-staging` → https://staging-pix.tacocat.com/
 - Production: `npm run deploy-prod` → https://pix.tacocat.com/
+
+## Claude Code Configuration
+
+This project is optimally configured for Claude Code with comprehensive documentation and workflows:
+
+- **Setup Guide**: @docs/claude.md - Complete configuration and usage guide
+- **Plan Management**: Use `/plan`, `/implement`, `/review` commands for structured development
+- **Testing Integration**: Automated workflow following @docs/ai_assistant_workflow.md
+- **Project Documentation**: All docs available via `mdc:` links in Cursor rules
+
+See @docs/claude.md for detailed setup instructions and best practices.

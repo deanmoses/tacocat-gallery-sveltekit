@@ -26,3 +26,5 @@ Start development server: `npm run dev`
 - [Component Architecture](docs/component_architecture.md)
 - [Development Workflow](docs/dev_workflow.md)
 - [Development Environment](docs/dev_env.md)
+- [Testing](docs/testing.md)
+- [Using Claude Code](docs/claude.md)

@@ -43,3 +43,6 @@ npm-debug.log*
 
 # Vitest cache
 .last-run.json
+
+# Claude Code personal settings
+.claude/settings.local.json
