@@ -27,7 +27,7 @@
 - `src/lib/state/` - State machines and stores
 - `src/lib/utils/` - Utility functions
 - `src/routes/` - SvelteKit route definitions
-- `test/` - Test files and test data
+- `tests/` - Test files and test data
 - `docs/` - Project documentation
 
 ## Code Style
