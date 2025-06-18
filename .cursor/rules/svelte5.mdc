@@ -6,4 +6,4 @@ alwaysApply: false
 
 # Svelte 5
 
-This project uses Svelte 5 as described in [docs/svelte5.md](../../../docs/svelte5.md).
+This project uses Svelte 5 as described in [docs/svelte5.md](mdc:docs/svelte5.md).

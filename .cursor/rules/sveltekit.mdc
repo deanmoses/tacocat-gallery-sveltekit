@@ -4,6 +4,4 @@ globs: src/**/*.svelte,src/**/*.svelte.ts
 alwaysApply: false
 ---
 
-# SvelteKit 2
-
-For comprehensive SvelteKit 2 guidance, see [docs/sveltekit.md](../../../docs/sveltekit.md).
+This project uses SvelteKit as described in [docs/sveltekit.md](mdc:docs/sveltekit.md).
