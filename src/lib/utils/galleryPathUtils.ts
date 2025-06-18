@@ -111,6 +111,11 @@ export function sanitizeDayAlbumName(albumName: string): string {
         .replace(/^-/g, ''); // remove leading -
 }
 
+interface PathInfo {
+    parent: string;
+    name: string | undefined;
+}
+
 /**
  * Return the specified path's parent path and leaf item
  *  - /2001/12-31/image.jpg returns  '/2001/12-31/' and 'image.jpg'
@@ -118,9 +123,9 @@ export function sanitizeDayAlbumName(albumName: string): string {
  *  - /2001 returns '/' and '2001'
  *  - / returns  '' and undefined
  *
- *  @param {String} path a path of the format /2001/12-31/image.jpg, or a subset thereof
+ *  @param path a path of the format /2001/12-31/image.jpg, or a subset thereof
  */
-export function getParentAndNameFromPath(path: string) {
+export function getParentAndNameFromPath(path: string): PathInfo {
     if (!path) throw new Error('Invalid path: cannot be empty');
     path = path.toString().trim();
     if (!path) throw new Error('Invalid path: cannot be empty');
@@ -130,7 +135,7 @@ export function getParentAndNameFromPath(path: string) {
     if (!pathParts[pathParts.length - 1]) pathParts.pop(); // if the path ended in a "/", remove the blank path part at the end
     const name = pathParts.pop(); // remove leaf of path
     path = pathParts.join('/');
-    if (path.substr(-1) !== '/') path = path + '/'; // make sure path ends with a "/"
+    if (path.slice(-1) !== '/') path = path + '/'; // make sure path ends with a "/"
     if (path.lastIndexOf('/', 0) !== 0) path = '/' + path; // make sure path starts with a "/"
     return {
         parent: path,

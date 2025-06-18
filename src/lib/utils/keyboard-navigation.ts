@@ -38,7 +38,7 @@ export function handleKeyboardNavigation(
  * @param path path to the current album or image
  * @returns path of album or image to navigate to, or null if do not navigate
  */
-function getUrlToNavigateTo(key: KeyboardEvent['key'], path: string, getAlbum: GetAlbumFunction) {
+function getUrlToNavigateTo(key: KeyboardEvent['key'], path: string, getAlbum: GetAlbumFunction): string | null {
     switch (key) {
         // left arrow: go to previous photo or album
         case 'ArrowLeft':
