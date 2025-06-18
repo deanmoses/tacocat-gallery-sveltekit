@@ -11,7 +11,7 @@ Previously, you had to `throw` the values returned from `error(...)` and `redire
 Old, SvelteKit 1 syntax:
 
 ```js
-import { error } from '@sveltejs/kit'
+import { error } from '@sveltejs/kit';
 
 // ...
 throw error(500, 'something went wrong');
@@ -20,7 +20,7 @@ throw error(500, 'something went wrong');
 New, SvelteKit 2 syntax:
 
 ```js
-import { error } from '@sveltejs/kit'
+import { error } from '@sveltejs/kit';
 
 // ...
 error(500, 'something went wrong');
@@ -39,8 +39,8 @@ Old, SvelteKit 1 syntax:
 ```js
 /** @type {import('./$types').PageServerLoad} */
 export function load({ cookies }) {
-	cookies.set(name, value);
-	return { response }
+    cookies.set(name, value);
+    return { response };
 }
 ```
 
@@ -49,8 +49,8 @@ New, SvelteKit 2 syntax:
 ```js
 /** @type {import('./$types').PageServerLoad} */
 export function load({ cookies }) {
-	cookies.set(name, value, { path: '/' });
-	return { response }
+    cookies.set(name, value, { path: '/' });
+    return { response };
 }
 ```
 
@@ -66,19 +66,19 @@ Old, SvelteKit 1 syntax:
 // If you have a single promise
 /** @type {import('./$types').PageServerLoad} */
 export function load({ fetch }) {
-	const response = fetch(url).then(r => r.json());
-	return { response }
+    const response = fetch(url).then((r) => r.json());
+    return { response };
 }
 ```
 
 ```js
 // If you have multiple promises
 /** @type {import('./$types').PageServerLoad} */
-export  function load({ fetch }) {
-    const a = fetch(url1).then(r => r.json());
-    const b = fetch(url2).then(r => r.json());
+export function load({ fetch }) {
+    const a = fetch(url1).then((r) => r.json());
+    const b = fetch(url2).then((r) => r.json());
 
-	return { a, b };
+    return { a, b };
 }
 ```
 
@@ -88,8 +88,8 @@ New, SvelteKit 2 syntax:
 // If you have a single promise
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ fetch }) {
-	const response = await fetch(url).then(r => r.json());
-	return { response }
+    const response = await fetch(url).then((r) => r.json());
+    return { response };
 }
 ```
 
@@ -216,7 +216,7 @@ Old, SvelteKit 1 syntax:
 
 ```svelte
 <script>
-	import { page } from '$app/stores';
+    import { page } from '$app/stores';
 </script>
 
 {$page.data}
@@ -226,7 +226,7 @@ New, SvelteKit 2 syntax:
 
 ```svelte
 <script>
-	import { page } from '$app/state';
+    import { page } from '$app/state';
 </script>
 
 {page.data}

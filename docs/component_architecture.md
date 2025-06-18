@@ -115,7 +115,7 @@ Keep components brief. A component should do only one thing. Guidelines:
 
 - **Small (10-25 lines)**: Icons, simple UI elements, loading states
 - **Medium (26-50 lines)**: Standard components, simple layouts
-- **Large (51-85 lines)**: Complex UI components, simple page components  
+- **Large (51-85 lines)**: Complex UI components, simple page components
 - **Extra Large (86-120 lines)**: Complex page components, admin components with forms
 - **Review Threshold (120+ lines)**: Should be considered for refactoring
 
