@@ -8,8 +8,8 @@ import { test as it, expect, type Response } from '@playwright/test';
 
 /**
  * Bundle size thresholds for performance regression detection
- * Current actual sizes: ~7KB critical, ~127KB total
- * Thresholds set with buffer to catch even relatively minor regressions
+ * Thresholds set with a small buffer from the existing sizes,
+ * to catch even relatively minor regressions
  */
 const BUNDLE_SIZE_THRESHOLDS = {
     /** Critical resources: CSS and essential JS needed for first paint */
