@@ -151,7 +151,7 @@ export function searchUrl(q: SearchQuery, startAt: number, pageSize: number): st
     if (q.oldestFirst) params.push('oldestFirst=' + q.oldestFirst);
     if (startAt) params.push('startAt=' + startAt);
     if (pageSize) params.push('pageSize=' + pageSize);
-    if (params) url += '?' + params.join('&');
+    if (params.length > 0) url += '?' + params.join('&');
     return url;
 }
 
@@ -165,7 +165,7 @@ export function localSearchUrl(q: SearchQuery, returnPath: string): string {
     if (q.oldestYear) params.push('oldest=' + q.oldestYear);
     if (q.newestYear) params.push('newest=' + q.newestYear);
     if (q.oldestFirst) params.push('oldestFirst=' + q.oldestFirst);
-    if (params) url += '?' + params.join('&');
+    if (params.length > 0) url += '?' + params.join('&');
     return url;
 }
 
