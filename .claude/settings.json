@@ -1,7 +1,8 @@
 {
     "permissions": {
         "allow": [
-            "WebFetch(domain:docs.anthropic.com)",
+            "WebFetch(domain:*.anthropic.com)",
+            "WebFetch(domain:github.com)",
             "Bash(npm run *)",
             "Bash(npx playwright test *)",
             "Bash(npx tsc *)",
@@ -15,7 +16,12 @@
             "Bash(git diff *)",
             "Bash(git log *)",
             "Bash(git add *)",
-            "Bash(git commit *)"
+            "Bash(git commit *)",
+            "Bash(claude mcp add:*)",
+            "Bash(claude mcp:*)",
+            "Bash(gh repo view:*)",
+            "mcp__ide__getDiagnostics",
+            "mcp__github__list_issues"
         ],
         "deny": []
     },
