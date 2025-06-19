@@ -10,54 +10,21 @@
 - **Lint**: `npm run lint`
 - **Type Check**: `npm run check`
 - **Format**: `npm run format`
+- **Deploy Staging**: `npm run deploy-staging` → https://staging-pix.tacocat.com/
+- **Deploy Production**: `npm run deploy-prod` → https://pix.tacocat.com/
 
-## Tech Stack
+## Project Overview
 
-- SvelteKit with TypeScript
-- Svelte 5
-- Vite for bundling
-- Playwright for E2E testing
-- Vitest for unit testing
-- ESLint + Prettier for code quality
+- SvelteKit SPA with TypeScript and Svelte 5
+- Personal photo gallery app with admin/guest separation
+- Fast, lightweight, offline-capable
+- Custom state machines, minimal external dependencies
 
-## Project Structure
+## Documentation
 
-- `src/lib/components/` - Reusable Svelte components
-- `src/lib/models/` - TypeScript interfaces and data models
-- `src/lib/state/` - State machines and stores
-- `src/lib/utils/` - Utility functions
-- `src/routes/` - SvelteKit route definitions
-- `tests/` - Test files and test data
-- `docs/` - Project documentation
-
-## Code Style
-
-- Use TypeScript for all new files
-- Follow existing Svelte component patterns
-- State management uses custom state machines in `src/lib/state/`
-- Components are organized by domain (admin, album, image, search, site)
-- Use composition, not inheritance
-- Use semantic HTML and accessible markup
-
-## Dependencies
-
-- Node.js >= 23.5.0 required
-- Uses npm for package management
-- No external UI library - custom component system
-- No external CSS system - custom CSS
-
-## Deployment
-
-- Staging: `npm run deploy-staging` → https://staging-pix.tacocat.com/
-- Production: `npm run deploy-prod` → https://pix.tacocat.com/
-
-## Claude Code Configuration
-
-This project is optimally configured for Claude Code with comprehensive documentation and workflows:
-
-- **Setup Guide**: @docs/claude.md - Complete configuration and usage guide
-- **Plan Management**: Use `/plan`, `/implement`, `/review` commands for structured development
-- **Testing Integration**: Automated workflow following @docs/ai_assistant_workflow.md
-- **Project Documentation**: All docs available via `mdc:` links in Cursor rules
-
-See @docs/claude.md for detailed setup instructions and best practices.
+- **Architecture**: @docs/architecture.md - High-level system design, caching, performance philosophy
+- **Component Patterns**: @docs/component_architecture.md - Component organization, patterns, best practices  
+- **AI Assistant Workflow**: @docs/ai_assistant_workflow.md - Development workflow for AI assistants
+- **Claude Code Setup**: @docs/claude.md - Complete Claude Code configuration guide
+- **Development Workflow**: @docs/dev_workflow.md - Troubleshooting and development tips
+- **Testing Guidelines**: @docs/testing.md - Testing patterns and requirements
