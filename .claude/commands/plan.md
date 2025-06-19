@@ -2,15 +2,28 @@
 
 Ultrathink through creating a comprehensive plan for the requested task.
 
+_See [@docs/claude.md](../docs/claude.md) for complete workflow._
+
 ## Planning Process
 
-1. **Understand Requirements**: Thoroughly analyze what is being requested
-2. **Choose Template**: Select appropriate template from @plans/templates/
+1. **Check for Existing Plan**: First check if @plans/current-plan.md already exists
+
+    **If current plan exists:**
+
+    - Show current plan status and progress
+    - Offer options to user:
+        - Use `/complete` to archive the current plan as completed
+        - Use `/backlog` to move current plan to backlog for later
+        - Create timestamped backup and proceed with new plan
+    - **STOP** and wait for user decision before proceeding
+
+2. **Understand Requirements**: Thoroughly analyze what is being requested
+3. **Choose Template**: Select appropriate template from @plans/templates/
     - Feature development: use feature-plan.md
     - Bug fixing: use bug-fix-plan.md
     - Refactoring: use refactor-plan.md
-3. **Create Detailed Plan**: Use extended thinking to consider all aspects
-4. **Save Plan**: Store as @plans/current-plan.md for tracking
+4. **Create Detailed Plan**: Use extended thinking to consider all aspects
+5. **Save Plan**: Store as @plans/current-plan.md for tracking
 
 ## Key Considerations
 

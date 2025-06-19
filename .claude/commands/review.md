@@ -1,6 +1,8 @@
-# Command: Code Review
+# Command: Review
 
-Perform comprehensive code review against plan requirements and project standards.
+Perform comprehensive review of the code against the plan's requirements and project standards.
+
+_See [@docs/claude.md](../docs/claude.md) for complete workflow._
 
 ## Review Process
 

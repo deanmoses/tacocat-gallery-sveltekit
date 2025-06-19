@@ -1,6 +1,8 @@
-# Command: Implement Current Plan
+# Command: Implement
 
 Execute the current plan with systematic progress tracking and testing integration.
+
+_See [@docs/claude.md](../docs/claude.md) for complete workflow._
 
 ## Implementation Process
 
