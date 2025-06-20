@@ -1,4 +1,4 @@
-# Command: Complete Current Plan
+# Command: Mark Current Plan as Complete
 
 Archive the current plan as completed and clear the active plan slot.
 
@@ -41,11 +41,3 @@ If completed directory doesn't exist:
 
 - Create it automatically
 - Proceed with archiving
-
-## Follow-up Actions
-
-After completion, suggest:
-
-- Review lessons learned from completed plan
-- Use `/plan` to start next planning cycle
-- Update project documentation if needed

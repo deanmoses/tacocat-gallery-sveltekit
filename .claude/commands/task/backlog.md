@@ -1,4 +1,4 @@
-# Command: Move Plan to Backlog
+# Command: Move Current Plan to Backlog
 
 Move the current plan to backlog for future consideration and clear the active plan slot.
 
@@ -27,11 +27,11 @@ Examples:
 
 Move plans to backlog when:
 
+- **Future work**: Good idea for later implementation
 - **Deprioritized**: Important but not urgent
 - **Blocked**: Waiting on external dependencies
 - **Scope change**: Too large for current sprint
 - **Research needed**: Requires more investigation
-- **Future enhancement**: Good idea for later implementation
 
 ## Success Criteria
 
@@ -60,11 +60,3 @@ If backlog directory doesn't exist:
 
 - Create it automatically
 - Proceed with moving plan
-
-## Follow-up Actions
-
-After moving to backlog:
-
-- Use `/plan` to start new planning cycle
-- Periodically review backlog for reactivation opportunities
-- Consider grouping related backlog items for future planning
