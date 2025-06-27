@@ -2,5 +2,7 @@
     "editor.formatOnSave": true,
     "typescript.tsdk": "node_modules/typescript/lib",
     "typescript.enablePromptUseWorkspaceTsdk": true,
-    "cursor.typescript.tsdk": "node_modules/typescript/lib"
+    "cursor.typescript.tsdk": "node_modules/typescript/lib",
+    "vitest.enable": true,
+    "vitest.commandLine": "npm run test:unit --"
 }
