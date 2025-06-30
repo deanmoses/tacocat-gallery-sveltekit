@@ -8,6 +8,7 @@
     import { page } from '$app/state';
     import { siteTitle } from '$lib/utils/config';
     import type { Snippet } from 'svelte';
+    import FeelingLuckyButton from './FeelingLuckyButton.svelte';
 
     interface Props {
         /** Hide the header on small viewports */
@@ -32,6 +33,17 @@
         hideSiteTitle = false,
         children,
     }: Props = $props();
+
+    function isLuckyState(state: unknown): boolean {
+        return (
+            typeof state === 'object' &&
+            state !== null &&
+            'arrivedViaLucky' in state &&
+            (state as { arrivedViaLucky: unknown }).arrivedViaLucky === true
+        );
+    }
+
+    let showFeelingLucky = $derived(isLuckyState(page.state));
 </script>
 
 <header class:bottomBorder={!hideBottomBorder} class:hidden-sm={hideWhenSmall}>
@@ -40,6 +52,9 @@
     <div>
         {#if !hideSiteTitle}
             <span class="site-title hidden-xs">{siteTitle()}</span>
+        {/if}
+        {#if showFeelingLucky}
+            <FeelingLuckyButton />
         {/if}
         {#if !hideSearch}
             <a href="/search?returnPath={page.url.pathname}" class="hidden-xxs" title="Search">

@@ -17,20 +17,12 @@
 </script>
 
 {#if thumb}
-    <aside>
-        <h2>Latest Album</h2>
-        <Thumbnail title={thumb.title} summary={thumb.summary} href={thumb.path} src={thumb.thumbnailUrl} />
-    </aside>
+    <h2>Latest Album</h2>
+    <Thumbnail title={thumb.title} summary={thumb.summary} href={thumb.path} src={thumb.thumbnailUrl} />
 {/if}
 
 <style>
-    aside {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.7em;
-    }
-    aside h2 {
+    h2 {
         font-size: 16px;
         font-weight: bold;
         color: var(--default-text-color);

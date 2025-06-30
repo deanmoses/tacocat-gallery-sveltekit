@@ -16,6 +16,7 @@
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import { siteShortTitle, siteTitle } from '$lib/utils/config';
     import AdminToggle from '$lib/components/site/admin/toggle/AdminToggle.svelte';
+    import FeelingLuckyButton from '$lib/components/site/FeelingLuckyButton.svelte';
 
     interface Props {
         album: Album;
@@ -37,7 +38,12 @@
     </Header>
     <PageContent>
         <Sidebar>
-            <LatestAlbumThumbnail />
+            <aside class="sidebar-item">
+                <LatestAlbumThumbnail />
+            </aside>
+            <div class="sidebar-item">
+                <FeelingLuckyButton />
+            </div>
         </Sidebar>
         <MainContent>
             <Thumbnails>
@@ -53,3 +59,15 @@
         </MainContent>
     </PageContent>
 </SiteLayout>
+
+<style>
+    .sidebar-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.7em;
+    }
+    div.sidebar-item {
+        margin-top: 2em;
+    }
+</style>
