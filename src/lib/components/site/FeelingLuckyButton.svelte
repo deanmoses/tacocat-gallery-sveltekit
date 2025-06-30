@@ -4,17 +4,18 @@
   "I'm Feeling Lucky" button
 -->
 <script lang="ts">
-    import { feelingLuckyMachine } from '$lib/state/FeelingLuckyMachine.svelte';
+    import { FeelingLuckyMachine, FeelingLuckyStatus } from '$lib/state/FeelingLuckyMachine.svelte';
     import DiceIcon from './icons/DiceIcon.svelte';
 
     const title = "I'm Feeling Lucky";
-    let requestId = $state<number | undefined>();
-    let fetching = $derived(requestId !== undefined && feelingLuckyMachine.ongoingRequests.has(requestId));
+
+    let luckyMachine = $state<FeelingLuckyMachine | undefined>();
+    let fetching = $derived(luckyMachine?.status === FeelingLuckyStatus.IN_PROGRESS);
     let disabled = $derived(fetching);
     let spinning = $derived(fetching);
 
     function handleClick() {
-        requestId = feelingLuckyMachine.start();
+        luckyMachine = new FeelingLuckyMachine();
     }
 </script>
 

@@ -1,23 +1,33 @@
 import { toast } from '@zerodevx/svelte-toast';
 import { goto } from '$app/navigation';
-import { SvelteSet } from 'svelte/reactivity';
+
+export const FeelingLuckyStatus = {
+    IN_PROGRESS: 'IN_PROGRESS',
+    SUCCESS: 'SUCCESS',
+    ERROR: 'ERROR',
+} as const;
+
+type FeelingLuckyStatus = (typeof FeelingLuckyStatus)[keyof typeof FeelingLuckyStatus];
 
 /**
- * State machine for "I'm Feeling Lucky" feature
+ * State machine for "I'm Feeling Lucky"
  */
-class FeelingLuckyMachine {
+export class FeelingLuckyMachine {
     //
-    // STATE
+    // STATE MACHINE STATE
     //
 
-    /**
-     * Active "I'm Feeling Lucky" requests
-     */
-    ongoingRequests = new SvelteSet<number>();
+    status = $state<FeelingLuckyStatus>();
+    errorMessage = $state<string | undefined>();
+
+    constructor() {
+        this.status = FeelingLuckyStatus.IN_PROGRESS;
+        this.#fetch(); // Kick off asynchronous fetch of a random image
+    }
 
     //
     // STATE TRANSITION METHODS
-    // These mutate the machine's state.
+    // These mutate the store's state.
     //
     // Characteristics:
     //  - These are the ONLY way to update this store's state.
@@ -32,38 +42,25 @@ class FeelingLuckyMachine {
     //
 
     /**
-     * Trigger fetching and navigating to a random image
+     * A lucky image was successfully fetched
      *
-     * @returns {number} Unique ID that can be used to get the status of this request
-     */
-    start(): number {
-        const requestId = Math.random();
-        this.ongoingRequests.add(requestId);
-        this.#fetch(requestId); // fire and forget
-        return requestId;
-    }
-
-    /**
-     * Handle successful fetch and navigate to the image
-     *
-     * @param requestId Unique ID for this request
      * @param imagePath Path to the lucky image
      */
-    #success(requestId: number, imagePath: string): void {
-        this.ongoingRequests.delete(requestId);
+    #success(imagePath: string): void {
+        this.status = FeelingLuckyStatus.SUCCESS;
         goto(imagePath, {
             state: { arrivedViaLucky: true },
         });
     }
 
     /**
-     * Handle fetch error and show user notification
+     * There was an error attempting to fetch a lucky image
      *
-     * @param requestId Unique ID for this request
      * @param errorMessage The error message to display
      */
-    #error(requestId: number, errorMessage: string): void {
-        this.ongoingRequests.delete(requestId);
+    #error(errorMessage: string): void {
+        this.status = FeelingLuckyStatus.ERROR;
+        this.errorMessage = errorMessage;
         toast.push(`I wasn't so lucky: ${errorMessage}`);
     }
 
@@ -71,27 +68,24 @@ class FeelingLuckyMachine {
     // SERVICE METHODS
     // These 'do work', like making a server call.
     //
+    // Characteristics:
+    //  - These are private, meant to only be called by STATE TRANSITION METHODS
+    //  - These don't mutate state directly; rather, they call STATE TRANSITION METHODS to do it
+    //  - These are generally async
+    //  - These don't return values; they return void or Promise<void>
+    //
 
     /**
      * Fetch the path of a random image
-     *
-     * @param requestId Unique ID for this request
      */
-    async #fetch(requestId: number): Promise<void> {
+    async #fetch(): Promise<void> {
         try {
             // TODO: Replace with real API call
             const imagePath = await this.#mockFetchRandomImagePath();
-
-            // Only update if this is still an active request
-            if (this.ongoingRequests.has(requestId)) {
-                this.#success(requestId, imagePath);
-            }
+            this.#success(imagePath);
         } catch (error) {
-            // Only update if this is still an active request
-            if (this.ongoingRequests.has(requestId)) {
-                const msg = error instanceof Error ? error.message : 'Failed to fetch random image';
-                this.#error(requestId, msg);
-            }
+            const msg = error instanceof Error ? error.message : 'Failed to fetch random image';
+            this.#error(msg);
         }
     }
 
@@ -120,5 +114,3 @@ class FeelingLuckyMachine {
         return randomPath;
     }
 }
-
-export const feelingLuckyMachine = new FeelingLuckyMachine();
