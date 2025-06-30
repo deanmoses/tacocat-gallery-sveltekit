@@ -284,6 +284,112 @@ it('should handle async error when CONDITION', async () => {
 });
 ```
 
+## End-to-End Testing with Playwright
+
+### Before Writing E2E Tests
+
+**ALWAYS examine the actual DOM structure** before writing Playwright tests. Avoid assumptions about CSS classes, element hierarchy, or component structure.
+
+#### 1. Inspect Components First
+
+Before writing selectors, examine the actual components:
+
+```bash
+# Look at page components to understand routing
+find src/lib/components/pages -name "*.svelte" | head -5
+
+# Look at site components for UI structure  
+find src/lib/components/site -name "*.svelte" | head -10
+
+# Check routes for available URLs
+ls src/routes/
+```
+
+#### 2. Use Browser DevTools
+
+- Navigate to pages manually in browser
+- Inspect actual DOM elements and their attributes
+- Note CSS classes, `data-*` attributes, ARIA labels
+- Test responsive behavior at different viewport sizes
+
+#### 3. Look for Test-Friendly Attributes
+
+Prioritize selectors in this order:
+
+```typescript
+// ✅ Best: Test-specific attributes
+page.getByTestId('album-thumbnail')
+page.getByRole('button', { name: 'Upload Photo' })
+
+// ✅ Good: Semantic attributes  
+page.getByRole('link', { name: /home/i })
+page.getByLabel('Search photos')
+
+// ⚠️ Okay: Stable CSS classes (if semantic attributes unavailable)
+page.locator('.album-grid')
+
+// ❌ Avoid: Generic or implementation-specific selectors
+page.locator('div.css-xyz123')
+page.locator('button:nth-child(3)')
+```
+
+#### 4. Verify Routes Exist
+
+Check routing structure before writing navigation tests:
+
+```typescript
+// Check actual routes in src/routes/ directory
+// Don't assume URLs like '/albums/123' exist without verification
+```
+
+### E2E Test Structure
+
+#### Arrange-Act-Assert for E2E
+
+```typescript
+test('should navigate through photo gallery', async ({ page }) => {
+    // Arrange: Set up initial state
+    await page.goto('/');
+    
+    // Act: Perform user interactions
+    await page.getByRole('link', { name: /albums/i }).click();
+    await page.getByTestId('album-thumbnail').first().click();
+    
+    // Assert: Verify expected outcomes
+    await expect(page).toHaveURL(/\/album\/\d+/);
+    await expect(page.getByRole('heading')).toBeVisible();
+});
+```
+
+#### Wait for Dynamic Content
+
+```typescript
+// ✅ Good: Wait for specific content
+await page.waitForLoadState('networkidle');
+await expect(page.getByTestId('photo-grid')).toBeVisible();
+
+// ✅ Good: Wait for API calls to complete
+await page.waitForResponse(response => response.url().includes('/api/albums'));
+
+// ❌ Bad: Arbitrary waits
+await page.waitForTimeout(2000);
+```
+
+#### Mobile-Responsive Testing
+
+```typescript
+test('should work on mobile devices', async ({ page }) => {
+    // Set mobile viewport
+    await page.setViewportSize({ width: 375, height: 667 });
+    
+    await page.goto('/');
+    
+    // Test mobile-specific UI elements
+    await expect(page.getByTestId('mobile-menu-toggle')).toBeVisible();
+    await expect(page.getByTestId('desktop-nav')).not.toBeVisible();
+});
+```
+
 ## State Machine Testing
 
 For testing state machines and complex state management, see [State Machine Testing Guide](./state_machine_testing.md).
