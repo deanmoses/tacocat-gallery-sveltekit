@@ -1,5 +1,14 @@
 set -e
 
+# Check for direct edits to generated agent docs (must run first)
+./scripts/guard-generated-agent-docs.sh
+
+# Regenerate agent docs if source changed
+if git diff --cached --name-only | grep -qE "(docs/AGENTS\.src\.md|scripts/build-agent-docs\.mjs)$"; then
+    node scripts/build-agent-docs.mjs
+    git add CLAUDE.md AGENTS.md
+fi
+
 # Scan for secrets (requires installing gitleaks)
 if command -v gitleaks &> /dev/null; then
     gitleaks protect --staged --no-banner
