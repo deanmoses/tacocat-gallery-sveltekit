@@ -1,5 +1,13 @@
 set -e
 
+# Scan for secrets (requires installing gitleaks)
+if command -v gitleaks &> /dev/null; then
+    gitleaks protect --staged --no-banner
+else
+    echo "Warning: gitleaks not installed, skipping secret scan"
+    echo "Install with: brew install gitleaks"
+fi
+
 # Run lint-staged (formats and lints staged files only)
 npx lint-staged
 

@@ -105,7 +105,8 @@ Album data cached in IndexedDB with network fallback.
 ## Tools & CI
 
 - **gh CLI**: Claude (and scripts) have read-write access to the `gh` CLI tool. Use it for GitHub operations instead of the GitHub MCP server.
-- **Pre-commit hooks**: Husky runs lint-staged, type checking, and fast unit tests on commit. To bypass when needed: `git commit --no-verify`
+- **Pre-commit hooks**: Husky runs gitleaks (secret scanning), lint-staged, type checking, and unit tests on commit. To bypass when needed: `git commit --no-verify`
+- **Gitleaks**: Secret scanner runs on pre-commit. Install with `brew install gitleaks`. The hook warns but continues if gitleaks is not installed.
 
 ## Branch Protection
 
