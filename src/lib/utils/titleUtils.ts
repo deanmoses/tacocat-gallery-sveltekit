@@ -1,6 +1,6 @@
 export function toTitleFromFilename(filename: string): string {
     return filename
-        .replace(/\.[^\.]*$/, '') // remove extension
+        .replace(/\.[^.]*$/, '') // remove extension
         .replace(/[-_]/g, ' ') // - and _ to space
         .replace(/\d[a-zA-Z]$/, '') // remove numbers like '1b'
         .replace(/\d/g, '') // remove every other number

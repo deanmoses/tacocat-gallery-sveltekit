@@ -18,6 +18,7 @@ dist/
 
 test/temp
 .tmp
+test-results/
 
 # SASS intermediate compile files
 *.scssc
@@ -37,3 +38,4 @@ npm-debug.log*
 
 # JetBrains editor dir
 .idea/
+

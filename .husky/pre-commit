@@ -1,0 +1,7 @@
+set -e
+
+# Run lint-staged (formats and lints staged files only)
+npx lint-staged
+
+# Type check (runs on all files, but fast)
+npm run check

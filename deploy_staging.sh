@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 cloudfront_distribution_id=E13M70NHFSSCUR
 
