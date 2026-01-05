@@ -99,3 +99,14 @@ Album data cached in IndexedDB with network fallback.
 
 - **gh CLI**: Claude (and scripts) have read-write access to the `gh` CLI tool. Use it for GitHub operations instead of the GitHub MCP server.
 - **Pre-commit hooks**: Husky runs lint-staged, type checking, and fast unit tests on commit. To bypass when needed: `git commit --no-verify`
+
+## Branch Protection
+
+The `main` branch is protected:
+- Requires PR before merging (no direct pushes)
+- Requires status checks to pass
+- Does NOT require reviews
+- Does NOT require branches to be up to date
+
+Repo settings:
+- Auto-delete head branches after merge
