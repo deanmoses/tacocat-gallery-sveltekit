@@ -148,7 +148,7 @@ function main() {
         process.exit(1);
     }
 
-    const sourceLines = sourceContent.split('\n');
+    const sourceLines = sourceContent.split(/\r?\n/);
 
     // Validate markers before generating
     validateMarkers(sourceLines);
