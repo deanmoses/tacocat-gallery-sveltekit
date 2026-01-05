@@ -31,6 +31,7 @@ Requires Node.js >=24.0.0 (enforced).
 ## Architecture
 
 ### Routing
+
 - `/` - Root album (all photos)
 - `/[year]/` - Year album
 - `/[year]/[day]/` - Day album (MM-DD format)
@@ -42,29 +43,34 @@ Requires Node.js >=24.0.0 (enforced).
 Stores follow strict separation between **state transition methods** and **service methods**:
 
 1. **State Transition Methods** (public)
-   - Synchronous, return `void`
-   - Only way to update state
-   - May fire-and-forget async work
-   - Use Svelte 5's `$state` and `$derived`
+
+    - Synchronous, return `void`
+    - Only way to update state
+    - May fire-and-forget async work
+    - Use Svelte 5's `$state` and `$derived`
 
 2. **Service Methods** (private)
-   - Async, do actual work (fetch, save)
-   - Call state transition methods when complete
-   - Never mutate state directly
+    - Async, do actual work (fetch, save)
+    - Call state transition methods when complete
+    - Never mutate state directly
 
 ### Key Stores
+
 - `SessionStore` - Authentication state
 - `AlbumState` - Global album/image state
 - `AlbumLoadMachine` - Album fetching state machine
 - Admin state machines: `UploadMachine`, `AlbumCreateMachine`, `AlbumDeleteMachine`, `AlbumRenameMachine`, `ImageDeleteMachine`, `ImageRenameMachine`, `CropMachine`, `DraftMachine`
 
 ### Data Models
+
 Located in `/src/lib/models/impl/`. Pure data structures (no fetching/persistence):
+
 - Album types: ROOT, YEAR, DAY
 - `AlbumCreator` factory converts server JSON to model instances
 - Strict path validation via regex in `galleryPathUtils.ts`
 
 ### Gallery Path System
+
 - Album paths: `/`, `/2001/`, `/2001/12-31/`
 - Image paths: `/2001/12-31/image.jpg` (only in day albums)
 - Path validation and sanitization enforced throughout
@@ -76,6 +82,7 @@ Located in `/src/lib/models/impl/`. Pure data structures (no fetching/persistenc
 - Production: `https://api.pix.tacocat.com/`
 
 Key endpoints:
+
 - `GET /album[path]` - Fetch album
 - `PUT/PATCH/DELETE /album[path]` or `/image[path]` - CRUD
 - `POST /presigned[path]` - S3 upload URLs
@@ -103,10 +110,12 @@ Album data cached in IndexedDB with network fallback.
 ## Branch Protection
 
 The `main` branch is protected:
+
 - Requires PR before merging (no direct pushes)
 - Requires status checks to pass
 - Does NOT require reviews
 - Does NOT require branches to be up to date
 
 Repo settings:
+
 - Auto-delete head branches after merge

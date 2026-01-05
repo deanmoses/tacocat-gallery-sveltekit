@@ -141,7 +141,6 @@ class SearchStore {
 
     #getLoadStatus(query: SearchQuery): SearchLoadStatus {
         const search = this.#searches.get(query);
-        // eslint-disable-next-line no-extra-boolean-cast
         return !!search ? search.status : SearchLoadStatus.NOT_LOADED;
     }
 

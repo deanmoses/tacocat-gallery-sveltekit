@@ -29,13 +29,7 @@
 {:else if AlbumLoadStatus.LOADED == status && !!thumb}
     <aside>
         <h2>Latest Album</h2>
-        <Thumbnail
-            path={thumb.path}
-            title={thumb.title}
-            summary={thumb.summary}
-            href={thumb.path}
-            src={thumb.thumbnailUrl}
-        />
+        <Thumbnail title={thumb.title} summary={thumb.summary} href={thumb.path} src={thumb.thumbnailUrl} />
     </aside>
 {:else}
     <!-- display nothing if I don't understand what's going on -->

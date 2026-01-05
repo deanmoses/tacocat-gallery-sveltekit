@@ -43,6 +43,7 @@
         "eslint-plugin-prettier": "^5.2.3",
         "eslint-plugin-svelte": "^2.46.1",
         "husky": "^9.1.7",
+        "lint-staged": "^16.2.7",
         "prettier": "^3.5.1",
         "prettier-plugin-svelte": "^3.3.3",
         "svelte": "^5.20.1",
@@ -64,5 +65,9 @@
     "engines": {
         "node": ">=24.0.0"
     },
-    "type": "module"
+    "type": "module",
+    "lint-staged": {
+        "*.{js,mjs,ts,svelte,json,css,html,md,yml,yaml}": "prettier --write",
+        "*.{js,mjs,ts,svelte}": "eslint --fix"
+    }
 }

@@ -21,7 +21,7 @@
     let selecting: boolean = $state(false);
     $effect(() => {
         // Reference 'selected' so that $effect is triggered every time it changes
-        selected;
+        void selected;
         selecting = false;
     });
 
