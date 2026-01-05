@@ -21,8 +21,8 @@ Requires Node.js >=24.0.0 (enforced).
 
 ## Tech Stack
 
-- **SvelteKit 2** with Svelte 5 - Static adapter (SPA mode, SSR disabled)
-- **Vite 6** - Dev server proxies `/api/*` to backend
+- **SvelteKit 2** with Svelte 5 - Static adapter (SPA mode, SSR disabled). All code runs in the browser; there is no server-side rendering.
+- **Vite 6** - Dev and preview servers proxy `/api/*` to backend
 - **TypeScript** - Strict mode enabled
 - **Immer** - Immutable state updates via `produce()`
 - **Quill** - Rich text editing for descriptions
@@ -77,7 +77,7 @@ Located in `/src/lib/models/impl/`. Pure data structures (no fetching/persistenc
 
 ## API Integration
 
-- Dev: Vite proxies `/api/*` to staging backend
+- Localhost: Vite proxies `/api/*` to staging backend (both dev and preview servers)
 - Staging: `https://api.staging-pix.tacocat.com/`
 - Production: `https://api.pix.tacocat.com/`
 
