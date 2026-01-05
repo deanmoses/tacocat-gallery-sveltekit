@@ -143,8 +143,8 @@ function main() {
     let sourceContent;
     try {
         sourceContent = readFileSync(SOURCE_FILE, 'utf-8');
-    } catch {
-        console.error(`Error: Source file not found: ${SOURCE_FILE}`);
+    } catch (err) {
+        console.error(`Error reading source file ${SOURCE_FILE}:`, err.message);
         process.exit(1);
     }
 
@@ -156,13 +156,23 @@ function main() {
     // Generate CLAUDE.md
     let claudeContent = generateOutput(sourceLines, 'CLAUDE');
     claudeContent = cleanEmptyLines(claudeContent);
-    writeFileSync(CLAUDE_OUTPUT, HEADER + claudeContent);
+    try {
+        writeFileSync(CLAUDE_OUTPUT, HEADER + claudeContent, 'utf-8');
+    } catch (err) {
+        console.error(`Error writing ${CLAUDE_OUTPUT}:`, err.message);
+        process.exit(1);
+    }
     console.log(`Generated: ${CLAUDE_OUTPUT}`);
 
     // Generate AGENTS.md
     let agentsContent = generateOutput(sourceLines, 'AGENTS');
     agentsContent = cleanEmptyLines(agentsContent);
-    writeFileSync(AGENTS_OUTPUT, HEADER + agentsContent);
+    try {
+        writeFileSync(AGENTS_OUTPUT, HEADER + agentsContent, 'utf-8');
+    } catch (err) {
+        console.error(`Error writing ${AGENTS_OUTPUT}:`, err.message);
+        process.exit(1);
+    }
     console.log(`Generated: ${AGENTS_OUTPUT}`);
 }
 
