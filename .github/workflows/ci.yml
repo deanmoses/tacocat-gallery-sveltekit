@@ -86,6 +86,14 @@ jobs:
             - name: Deploy to staging
               run: ./deploy_staging.sh
 
+    test-staging:
+        needs: deploy-staging
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
