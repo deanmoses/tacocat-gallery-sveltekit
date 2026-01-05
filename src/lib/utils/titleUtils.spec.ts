@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from 'vitest';
 import { toTitleFromFilename } from './titleUtils';
 
 const titles: { in: string; out: string }[] = [

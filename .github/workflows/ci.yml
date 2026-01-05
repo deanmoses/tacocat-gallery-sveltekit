@@ -40,17 +40,14 @@ jobs:
             - name: Install dependencies
               run: npm ci
 
-            - name: Install Playwright browsers
-              run: npx playwright install --with-deps
-
             - name: Lint
               run: npm run lint
 
             - name: Type check
               run: npm run check
 
-            - name: Test
-              run: npm run test
+            - name: Unit tests
+              run: npm run test:unit
 
             - name: Build
               run: npm run build

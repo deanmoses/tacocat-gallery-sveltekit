@@ -5,3 +5,6 @@ npx lint-staged
 
 # Type check (runs on all files, but fast)
 npm run check
+
+# Run unit tests (fast, no browser needed)
+npm run test:unit
