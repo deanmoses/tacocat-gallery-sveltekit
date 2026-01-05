@@ -1,0 +1,18 @@
+# CodeRabbit AI Code Review Configuration
+# https://docs.coderabbit.ai/guides/configure-coderabbit
+
+version: 2
+
+reviews:
+    path_filters:
+        - '!package-lock.json'
+        - '!build/**'
+        - '!.svelte-kit/**'
+        - '!*.min.js'
+        - '!test/data/**'
+
+knowledge_base:
+    code_guidelines:
+        enabled: true
+        filePatterns:
+            - '**/CLAUDE.md'
