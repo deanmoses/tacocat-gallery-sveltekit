@@ -2,12 +2,16 @@
 	Per-year styling
 */
 
-/* default colors for years with no styling of their own */
+/* 
+    Default colors for years with no styling of their own.
+    Make sure this doesn't specify one-off variables like --month-color because
+    those would apply to all years that don't specifically override them.
+*/
 .site-container {
-    --body-color: #f0efeb; /* Cloud Dancer */
-    --header-color: #f5ebc7; /* Lemon Icing */
-    --sidebar-color: #ccd4dc; /* Rainy Nimbus Cloud */
-    --button-color: #ddd3dc; /* Orchid Tint */
+    --body-color: #9d7967; /* Mocha Mousse */
+    --header-color: #efe9e1; /* Gardenia */
+    --sidebar-color: #a59a90; /* Cobblestone */
+    --button-color: #8d9e70; /* Tendril */
 }
 
 .site-container[data-year='2026'] {
