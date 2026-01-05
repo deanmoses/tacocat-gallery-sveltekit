@@ -1,9 +1,13 @@
+/// <reference types="vitest/config" />
 import { sveltekit } from '@sveltejs/kit/vite';
-import type { UserConfig } from 'vite';
+import { defineConfig } from 'vite';
 import { emulateProdOnLocalhost } from './src/lib/utils/settings';
 
-const config: UserConfig = {
+export default defineConfig({
     plugins: [sveltekit()],
+    test: {
+        include: ['src/**/*.spec.ts'],
+    },
     server: {
         proxy: {
             '/api': {
@@ -30,6 +34,4 @@ const config: UserConfig = {
             },
         },
     },
-};
-
-export default config;
+});
