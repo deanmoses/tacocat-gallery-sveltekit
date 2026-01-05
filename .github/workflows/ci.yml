@@ -85,3 +85,18 @@ jobs:
 
             - name: Deploy to staging
               run: ./deploy_staging.sh
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '24'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Install Playwright browsers
+              run: npx playwright install chromium
+
+            - name: Run smoke test against staging
+              run: npm run test:e2e:staging
