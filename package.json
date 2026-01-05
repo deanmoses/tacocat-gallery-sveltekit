@@ -24,6 +24,7 @@
         "test:unit": "vitest run",
         "test:e2e": "playwright test",
         "test:e2e:staging": "BASE_URL=https://staging-pix.tacocat.com playwright test",
+        "test:e2e:prod": "BASE_URL=https://pix.tacocat.com playwright test",
         "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
         "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
         "lint": "prettier --check . && eslint .",
