@@ -1,4 +1,3 @@
-import { dev } from '$app/environment';
 import type { Rectangle } from '$lib/models/impl/server';
 import { emulateProdOnLocalhost } from './settings';
 import { isValidAlbumPath, isValidImagePath } from './galleryPathUtils';
@@ -19,8 +18,22 @@ function isStaging(): boolean {
     );
 }
 
+/**
+ * Note: This is browser-only (returns false during SSR).
+ * This is safe because the app is a static SPA with no server-side data fetching.
+ * If SSR were enabled, this would need to handle the server-side case.
+ */
+function isLocalhost(): boolean {
+    if (!browser) return false;
+    return window?.location?.hostname === 'localhost' || window?.location?.hostname === '127.0.0.1';
+}
+
 function baseApiUrl(): string {
-    return dev ? '/api/' : isStaging() ? 'https://api.staging-pix.tacocat.com/' : 'https://api.pix.tacocat.com/';
+    // Use proxy path on localhost (works for both dev and preview servers).
+    // Note: This assumes browser-only execution (SPA mode). LAN IPs (e.g., 192.168.x.x)
+    // won't trigger the proxy and will hit staging/prod directly.
+    if (isLocalhost()) return '/api/';
+    return isStaging() ? 'https://api.staging-pix.tacocat.com/' : 'https://api.pix.tacocat.com/';
 }
 function baseAuthApiUrl(): string {
     return isStaging() ? 'https://auth.staging-pix.tacocat.com/' : 'https://auth.pix.tacocat.com/';
