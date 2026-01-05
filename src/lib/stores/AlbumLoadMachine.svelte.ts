@@ -237,7 +237,6 @@ class AlbumLoadMachine {
         // This helps with testing in development.
         // The production build process replaces the text 'process.env.NODE_ENV'
         // with the literal string 'production'
-        // @ts-expect-error: process.env.NODE_ENV is illegal, replaced by Svelte processor
         if ('production' === process.env.NODE_ENV) {
             requestConfig.credentials = 'include';
         }
