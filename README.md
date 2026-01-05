@@ -18,5 +18,5 @@ Start development server: `npm run dev`
 ## Production
 
 1. Create the production assets: `npm run build`
-2. Deploy the build to staging with `npm run deploy-staging` and see results at https://staging-pix.tacocat.com/
-3. Deploy the build to production with `npm run deploy-prod` and see results at https://pix.tacocat.com/
+2. Deploy the build to staging with `npm run deploy-staging` and see results at <https://staging-pix.tacocat.com/>
+3. Deploy the build to production with `npm run deploy-prod` and see results at <https://pix.tacocat.com/>

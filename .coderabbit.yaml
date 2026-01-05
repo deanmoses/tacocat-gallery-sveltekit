@@ -1,7 +1,5 @@
 # CodeRabbit AI Code Review Configuration
-# https://docs.coderabbit.ai/guides/configure-coderabbit
-
-version: 2
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 
 reviews:
     path_filters:
