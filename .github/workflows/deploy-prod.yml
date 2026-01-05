@@ -3,20 +3,20 @@ name: Deploy to Production
 on:
     workflow_dispatch:
 
+concurrency:
+    group: deploy-production
+    cancel-in-progress: false # Don't cancel in-progress deploys
+
 env:
-    HUSKY: 0
+    HUSKY: 0 # Skip git hooks in CI - we run checks directly
 
 jobs:
-    deploy-prod:
+    build:
         runs-on: ubuntu-latest
-        permissions:
-            contents: write # Required for pushing tags and creating releases
 
         steps:
             - name: Checkout
               uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0 # Full history for changelog generation
 
             - name: Setup Node.js
               uses: actions/setup-node@v4
@@ -39,6 +39,28 @@ jobs:
             - name: Build
               run: npm run build
 
+            # Upload build artifacts for deploy job
+            - name: Upload build artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: build
+                  path: build/
+                  retention-days: 1
+
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Download build artifacts
+              uses: actions/download-artifact@v4
+              with:
+                  name: build
+                  path: build/
+
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v4
               with:
@@ -48,6 +70,47 @@ jobs:
 
             - name: Deploy to production
               run: ./deploy_prod.sh
+
+    smoke-test:
+        needs: deploy
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '24'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Cache Playwright browsers
+              uses: actions/cache@v4
+              with:
+                  path: ~/.cache/ms-playwright
+                  key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+            - name: Install Playwright browsers
+              run: npx playwright install chromium
+
+            - name: Run smoke test against production
+              run: npm run test:e2e:prod
+
+    create-release:
+        needs: smoke-test
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write # Required for pushing tags and creating releases
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0 # Full history for changelog generation
 
             - name: Create release tag
               id: tag
