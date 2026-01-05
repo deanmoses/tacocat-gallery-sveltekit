@@ -1,0 +1,106 @@
+name: Deploy to Production
+
+on:
+    workflow_dispatch:
+
+env:
+    HUSKY: 0
+
+jobs:
+    deploy-prod:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write # Required for pushing tags and creating releases
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0 # Full history for changelog generation
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '24'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Lint
+              run: npm run lint
+
+            - name: Type check
+              run: npm run check
+
+            - name: Unit tests
+              run: npm run test:unit
+
+            - name: Build
+              run: npm run build
+
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  aws-region: us-east-1
+
+            - name: Deploy to production
+              run: ./deploy_prod.sh
+
+            - name: Create release tag
+              id: tag
+              run: |
+                  # Get current year
+                  year=$(date +%Y)
+
+                  # Find the latest tag for this year
+                  latest_tag=$(git tag -l "${year}v*" | sort -V | tail -n1)
+
+                  if [ -z "$latest_tag" ]; then
+                      # No tags this year, start at v1
+                      new_tag="${year}v1"
+                  else
+                      # Extract version number and increment
+                      version_num=${latest_tag#${year}v}
+                      new_version=$((version_num + 1))
+                      new_tag="${year}v${new_version}"
+                  fi
+
+                  echo "Creating tag: $new_tag"
+                  echo "tag=$new_tag" >> $GITHUB_OUTPUT
+
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git tag -a "$new_tag" -m "Production release $new_tag"
+                  git push origin "$new_tag"
+
+            - name: Generate changelog
+              id: changelog
+              run: |
+                  # Get the previous tag (only match YYYYvN format)
+                  prev_tag=$(git tag -l "[0-9][0-9][0-9][0-9]v*" | sort -V | tail -n2 | head -n1)
+                  new_tag="${{ steps.tag.outputs.tag }}"
+
+                  if [ -z "$prev_tag" ] || [ "$prev_tag" = "$new_tag" ]; then
+                      # First release or only one tag
+                      changelog="Initial release"
+                  else
+                      # Generate changelog from commits between tags (inclusive of new tag)
+                      changelog=$(git log --pretty=format:"- %s" "$prev_tag".."$new_tag" 2>/dev/null || echo "- Production deployment")
+                  fi
+
+                  # Write to file to preserve newlines
+                  echo "$changelog" > changelog.txt
+                  echo "Generated changelog from $prev_tag to $new_tag"
+
+            - name: Create GitHub Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  tag_name: ${{ steps.tag.outputs.tag }}
+                  name: ${{ steps.tag.outputs.tag }}
+                  body_path: changelog.txt
+                  generate_release_notes: false
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
