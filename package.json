@@ -59,7 +59,7 @@
     },
     "engineStrict": true,
     "engines": {
-        "node": ">=23.5.0"
+        "node": ">=24.0.0"
     },
     "type": "module"
 }
