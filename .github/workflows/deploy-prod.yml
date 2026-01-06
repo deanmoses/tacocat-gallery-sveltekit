@@ -110,7 +110,7 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
               with:
-                  fetch-depth: 0 # Full history for changelog generation
+                  fetch-depth: 0 # Full history needed to find latest tag
 
             - name: Create release tag
               id: tag
@@ -139,31 +139,11 @@ jobs:
                   git tag -a "$new_tag" -m "Production release $new_tag"
                   git push origin "$new_tag"
 
-            - name: Generate changelog
-              id: changelog
-              run: |
-                  # Get the previous tag (only match YYYYvN format)
-                  prev_tag=$(git tag -l "[0-9][0-9][0-9][0-9]v*" | sort -V | tail -n2 | head -n1)
-                  new_tag="${{ steps.tag.outputs.tag }}"
-
-                  if [ -z "$prev_tag" ] || [ "$prev_tag" = "$new_tag" ]; then
-                      # First release or only one tag
-                      changelog="Initial release"
-                  else
-                      # Generate changelog from commits between tags (inclusive of new tag)
-                      changelog=$(git log --pretty=format:"- %s" "$prev_tag".."$new_tag" 2>/dev/null || echo "- Production deployment")
-                  fi
-
-                  # Write to file to preserve newlines
-                  echo "$changelog" > changelog.txt
-                  echo "Generated changelog from $prev_tag to $new_tag"
-
             - name: Create GitHub Release
               uses: softprops/action-gh-release@v2
               with:
                   tag_name: ${{ steps.tag.outputs.tag }}
                   name: ${{ steps.tag.outputs.tag }}
-                  body_path: changelog.txt
-                  generate_release_notes: false
+                  generate_release_notes: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
