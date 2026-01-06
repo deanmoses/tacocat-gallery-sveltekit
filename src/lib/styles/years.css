@@ -4,6 +4,7 @@
 
 /* 
     Default colors for years with no styling of their own.
+    This does NOT need to change every year.
     Make sure this doesn't specify one-off variables like --month-color because
     those would apply to all years that don't specifically override them.
 */
@@ -14,6 +15,10 @@
     --button-color: #8d9e70; /* Tendril */
 }
 
+/** 
+    Colors for current year and non-year pages like root album, search, etc. 
+**/
+.site-container[data-year='current'],
 .site-container[data-year='2026'] {
     --body-color: #f0efeb; /* Cloud Dancer */
     --header-color: #f5ebc7; /* Lemon Icing */
