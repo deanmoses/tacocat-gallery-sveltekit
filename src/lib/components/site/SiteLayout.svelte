@@ -15,12 +15,12 @@
     }
 
     let { hideFooter = false, editControls, children }: Props = $props();
-    let year = $derived(page.params.year || '');
+    let year = $derived(page.params.year || 'current');
 </script>
 
 {@render editControls?.()}
 
-<div class="site-container" data-year={year || null}>
+<div class="site-container" data-year={year}>
     <div class="page-container">
         {@render children?.()}
     </div>
