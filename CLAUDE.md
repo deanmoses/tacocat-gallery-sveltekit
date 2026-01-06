@@ -52,7 +52,6 @@ Requires Node.js >=24.0.0.
 Stores follow strict separation between **state transition methods** and **service methods**:
 
 1. **State Transition Methods** (public)
-
     - Synchronous, return `void`
     - Only way to update state
     - May fire-and-forget async work
