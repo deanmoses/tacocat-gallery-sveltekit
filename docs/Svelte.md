@@ -25,28 +25,43 @@ All store classes (`.svelte.ts` files) strictly separate two types of methods:
 ```typescript
 class AlbumStore {
     #loading = $state(false);
+    #error = $state<string | undefined>(undefined);
     loading = $derived(this.#loading);
+    error = $derived(this.#error);
 
     // State transition method (public, sync, void)
     fetch(path: string): void {
         this.#loading = true;
+        this.#error = undefined;
         this.#fetchFromServer(path); // fire and forget - no await
     }
 
-    // Service method (private, async)
+    // Service method (private, async) - handles its own errors
     async #fetchFromServer(path: string): Promise<void> {
-        const response = await fetch(`/api/album${path}`);
-        const data = await response.json();
-        this.#setAlbum(data); // calls state transition method
+        try {
+            const response = await fetch(`/api/album${path}`);
+            const data = await response.json();
+            this.#setAlbum(data);
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : String(e);
+            this.#setError(msg);
+        }
     }
 
-    // State transition method
+    // State transition methods
     #setAlbum(album: Album): void {
         this.#loading = false;
         this.#album = album;
     }
+
+    #setError(message: string): void {
+        this.#loading = false;
+        this.#error = message;
+    }
 }
 ```
+
+**Important:** Service methods must handle their own errors with try-catch since they are called fire-and-forget. Errors are communicated to the UI via error state, not thrown promises.
 
 ### Private Field Naming
 
@@ -95,16 +110,24 @@ albums = $state(new Map<string, AlbumEntry>());
 
 ### instanceof Error Guard
 
-Always use `instanceof Error` guard when catching unknown errors:
+Always use `instanceof Error` guard when catching unknown errors. TypeScript's `catch` clause types `e` as `unknown`, so direct property access will fail:
 
 ```typescript
-// GOOD
-catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    this.#handleError(msg);
+// GOOD - complete try-catch with guard
+async #fetchFromServer(path: string): Promise<void> {
+    try {
+        const response = await fetch(`/api/album${path}`);
+        if (!response.ok) throw new Error(response.statusText);
+        const data = await response.json();
+        this.#setAlbum(data);
+    } catch (e) {
+        // e is 'unknown' - must guard before accessing .message
+        const msg = e instanceof Error ? e.message : String(e);
+        this.#setError(msg);
+    }
 }
 
-// BAD - assumes e is Error
+// BAD - assumes e is Error (TypeScript error: 'e' is of type 'unknown')
 catch (e) {
     this.#handleError(e.message);
 }
