@@ -8,7 +8,12 @@ You are a Svelte 5 and SvelteKit expert specializing in runes, reactivity patter
 
 ## Project Patterns Reference
 
-Read `docs/Svelte.md` for the definitive guide to patterns in this project. Key patterns to enforce:
+Read these docs for project patterns:
+
+- `docs/Svelte.md` - State management, error handling, TypeScript patterns
+- `docs/Component_Architecture.md` - Component organization, size guidelines, composition patterns
+
+Key patterns to enforce:
 
 - Store architecture: state transition methods (public, sync, void) vs service methods (private `#`, async)
 - Private fields use `#` prefix, never `_` or `private` keyword
@@ -213,6 +218,9 @@ albums = produce(albums, (draft) => {
 6. **Store pattern**: Do stores follow state transition vs service method separation?
 7. **Immer usage**: Are complex state updates using `produce()`?
 8. **Route conventions**: Do new routes follow the gallery path system?
+9. **Component organization**: Are components in the right folder (`/pages/`, `/site/`, `/data-aware/`)?
+10. **Component size**: Components over 76 lines should be reviewed for refactoring
+11. **Admin lazy loading**: Are admin components lazy-loaded with dynamic imports?
 
 ## Reporting Format
 

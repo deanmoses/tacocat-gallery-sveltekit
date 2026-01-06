@@ -20,3 +20,10 @@ Start development server: `npm run dev`
 1. Create the production assets: `npm run build`
 2. Deploy the build to staging with `npm run deploy-staging` and see results at <https://staging-pix.tacocat.com/>
 3. Deploy the build to production with `npm run deploy-prod` and see results at <https://pix.tacocat.com/>
+
+## More Info
+
+- [Architecture](docs/Architecture.md)
+- [Component Architecture](docs/Component_Architecture.md)
+- [Testing](docs/Testing.md)
+- [Svelte 5 Patterns](docs/Svelte.md)
