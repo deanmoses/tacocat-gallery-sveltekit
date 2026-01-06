@@ -117,6 +117,31 @@ Album data cached in IndexedDB with network fallback.
 - **Pre-commit hooks**: Husky runs gitleaks (secret scanning), lint-staged, type checking, and unit tests on commit. To bypass when needed: `git commit --no-verify`
 - **Gitleaks**: Secret scanner runs on pre-commit. Install with `brew install gitleaks`. The hook warns but continues if gitleaks is not installed.
 
+## Git Amend
+
+`git commit --amend` only amends HEAD (the most recent commit). To amend an older commit, you must use interactive rebase:
+
+```bash
+git rebase -i <commit>^   # Interactive rebase starting from parent of target commit
+# Change "pick" to "edit" for the commit you want to amend
+# Make your changes, then:
+git add <files>
+git commit --amend
+git rebase --continue
+```
+
+## PR Labels
+
+Use labels on pull requests. Apply all labels that fit. Only use the following labels:
+
+- `enhancement` - User-facing features or improvements. Must change production code behavior.
+- `refactor` - Production code changes that don't alter behavior
+- `bug` - Fixes broken production code functionality
+- `test` - Changes to tests
+- `documentation` - Documentation changes
+
+**No label needed** for dependency bumps, CI/CD, tooling, or infrastructure changes - these go in "Other Changes" in release notes.
+
 ## Branch Protection
 
 The `main` branch is protected:

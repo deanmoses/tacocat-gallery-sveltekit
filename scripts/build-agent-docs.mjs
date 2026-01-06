@@ -131,12 +131,13 @@ function generateOutput(sourceLines, target) {
 
 /**
  * Clean up excessive empty lines that result from removing blocks.
- * Reduces 3+ consecutive newlines to 2 (one blank line).
+ * - Reduces 3+ consecutive newlines to 2 (one blank line)
+ * - Removes leading blank lines
  * @param {string} content
  * @returns {string}
  */
 function cleanEmptyLines(content) {
-    return content.replace(/\n{3,}/g, '\n\n');
+    return content.replace(/\n{3,}/g, '\n\n').replace(/^\n+/, '');
 }
 
 function main() {
