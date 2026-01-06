@@ -7,7 +7,6 @@
     interface Props {
         width?: string;
         height?: string;
-        onclick?: (event: MouseEvent) => void;
     }
 
     let { width = '1em', height = '1em' }: Props = $props();
@@ -17,10 +16,7 @@
     const viewBox = '0 0 1196 1081.166748046875';
 </script>
 
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<!-- svelte-ignore attribute_global_event_reference -->
-<svg {onclick} {width} {height} {viewBox}><path {d} /></svg>
+<svg {width} {height} {viewBox}><path {d} /></svg>
 
 <style>
     path {

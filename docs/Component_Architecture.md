@@ -7,13 +7,11 @@ We use Svelte 5 components and Sveltekit.
 The main categories of components are organized by folder:
 
 1. **`/pages/`** - Page-level components that handle routing, UI states and loading the page's data
-
     - Organized by domain (album, image, search, admin)
     - Contains routing logic and loading/error states
     - Examples: `AlbumLoadingPage.svelte`, `AlbumErrorPage.svelte`
 
 2. **`/site/`** - Reusable UI components that are composed into user experiences by the `/pages/`
-
     - Layout components (`SiteLayout.svelte`, `Header.svelte`)
     - Navigation components (`nav/` subdirectory)
     - Icon components (`icons/` subdirectory)
