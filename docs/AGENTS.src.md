@@ -41,6 +41,7 @@ npm run check        # Type checking (svelte-check + TypeScript)
 npm run lint         # ESLint + Prettier check
 npm run format       # Auto-format with Prettier
 npm run quality      # Format, lint, and type check
+npm run precommit    # Quality checks + unit tests (for pre-commit/pre-PR)
 npm run agent-docs   # Regenerate CLAUDE.md and AGENTS.md
 npm run deploy-staging  # Deploy to staging (S3 + CloudFront)
 npm run deploy-prod     # Deploy to production
@@ -82,6 +83,8 @@ Stores follow strict separation between **state transition methods** and **servi
     - Async, do actual work (fetch, save)
     - Call state transition methods when complete
     - Never mutate state directly
+
+See `docs/Svelte.md` for detailed Svelte 5 patterns and TypeScript conventions.
 
 ### Key Stores
 
@@ -145,6 +148,11 @@ START_AGENTS
 
 - **Pre-commit hooks**: Husky runs gitleaks (secret scanning), lint-staged, type checking, and unit tests on commit. To bypass when needed: `git commit --no-verify`
 - **Gitleaks**: Secret scanner runs on pre-commit. Install with `brew install gitleaks`. The hook warns but continues if gitleaks is not installed.
+
+START_CLAUDE
+
+- **Pre-PR Review**: Use `/pre-pr-check` to run comprehensive quality checks before creating a PR. This runs 4 specialized review agents (documentation, Svelte 5, clean code, code smells) and guides you through the results.
+  END_CLAUDE
 
 ## Git Amend
 

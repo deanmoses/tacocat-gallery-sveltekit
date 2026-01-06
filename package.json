@@ -30,6 +30,7 @@
         "lint": "prettier --check . && eslint .",
         "format": "prettier --write .",
         "quality": "npm run format && npm run lint && npm run check",
+        "precommit": "npm run quality && npm run test:unit",
         "deploy-staging": "./deploy_staging.sh",
         "deploy-prod": "./deploy_prod.sh",
         "agent-docs": "node scripts/build-agent-docs.mjs",

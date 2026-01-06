@@ -20,6 +20,7 @@ npm run check        # Type checking (svelte-check + TypeScript)
 npm run lint         # ESLint + Prettier check
 npm run format       # Auto-format with Prettier
 npm run quality      # Format, lint, and type check
+npm run precommit    # Quality checks + unit tests (for pre-commit/pre-PR)
 npm run agent-docs   # Regenerate CLAUDE.md and AGENTS.md
 npm run deploy-staging  # Deploy to staging (S3 + CloudFront)
 npm run deploy-prod     # Deploy to production
@@ -61,6 +62,8 @@ Stores follow strict separation between **state transition methods** and **servi
     - Async, do actual work (fetch, save)
     - Call state transition methods when complete
     - Never mutate state directly
+
+See `docs/Svelte.md` for detailed Svelte 5 patterns and TypeScript conventions.
 
 ### Key Stores
 
