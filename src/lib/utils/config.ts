@@ -192,13 +192,6 @@ function ensureDumbQuotes(searchTerms: string): string {
 }
 
 /**
- * URL to send HTTP POST to reset Redis search engine
- */
-export function redisResetUrl(): string {
-    return baseApiUrl() + 'redis-reset';
-}
-
-/**
  * URL to check user's authentication status
  */
 export function checkAuthenticationUrl(): string {

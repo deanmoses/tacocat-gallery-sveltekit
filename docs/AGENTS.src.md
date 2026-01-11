@@ -63,10 +63,11 @@ Requires Node.js >=24.0.0.
 ### Routing
 
 - `/` - Root album (all photos)
-- `/[year]/` - Year album
-- `/[year]/[day]/` - Day album (MM-DD format)
-- `/[year]/[day]/[image]/` - Image detail view
-- `/admin/` - Admin panel (auth required)
+- `/[year]` - Year album
+- `/[year]/[day]` - Day album (MM-DD format)
+- `/[year]/[day]/[image]` - Image detail view
+- `/search/[terms]` - Search results
+- `/login` - Auth redirect handler
 
 ### State Management Pattern
 
