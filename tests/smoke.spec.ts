@@ -11,6 +11,12 @@ test.describe('Smoke test', () => {
     // Increase timeout for live environment with multiple network hops
     test.setTimeout(60000);
 
+    test('page includes noindex meta tag', async ({ page }) => {
+        await page.goto('/');
+        const robotsMeta = page.locator('meta[name="robots"][content="noindex"]');
+        await expect(robotsMeta).toBeAttached();
+    });
+
     test('navigate through album hierarchy', async ({ page }) => {
         // Step 1: Navigate to home page
         await page.goto('/');
