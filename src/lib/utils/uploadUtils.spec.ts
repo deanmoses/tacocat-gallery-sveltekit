@@ -1,0 +1,155 @@
+import { test, expect, describe } from 'vitest';
+import { findProcessedUploads } from './uploadUtils';
+import { UploadState, type UploadEntry } from '$lib/models/album';
+
+/**
+ * Helper to create an UploadEntry for testing.
+ * Uses a minimal mock File since we don't need file contents for these tests.
+ */
+function createUpload(imagePath: string, status: UploadState, versionId?: string): UploadEntry {
+    return {
+        file: new File([], 'test.jpg'),
+        imagePath,
+        status,
+        versionId,
+    };
+}
+
+describe('findProcessedUploads', () => {
+    test('returns empty arrays when no uploads provided', () => {
+        const result = findProcessedUploads([], () => undefined);
+
+        expect(result.processed).toEqual([]);
+        expect(result.allProcessed).toBe(true);
+    });
+
+    test('marks upload as processed when album has matching versionId', () => {
+        const uploads = [createUpload('/2024/01-01/photo.jpg', UploadState.PROCESSING, 'version-123')];
+        const getImageVersionId = (path: string) => (path === '/2024/01-01/photo.jpg' ? 'version-123' : undefined);
+
+        const result = findProcessedUploads(uploads, getImageVersionId);
+
+        expect(result.processed).toEqual(['/2024/01-01/photo.jpg']);
+        expect(result.allProcessed).toBe(true);
+    });
+
+    test('marks upload as pending when album does not contain the image', () => {
+        const uploads = [createUpload('/2024/01-01/photo.jpg', UploadState.PROCESSING, 'version-123')];
+        const getImageVersionId = () => undefined; // Image not in album
+
+        const result = findProcessedUploads(uploads, getImageVersionId);
+
+        expect(result.processed).toEqual([]);
+        expect(result.allProcessed).toBe(false);
+    });
+
+    test('marks upload as pending when versionId does not match', () => {
+        const uploads = [createUpload('/2024/01-01/photo.jpg', UploadState.PROCESSING, 'version-123')];
+        const getImageVersionId = () => 'different-version'; // Wrong version
+
+        const result = findProcessedUploads(uploads, getImageVersionId);
+
+        expect(result.processed).toEqual([]);
+        expect(result.allProcessed).toBe(false);
+    });
+
+    test('marks upload as pending when status is UPLOADING (not yet on S3)', () => {
+        const uploads = [createUpload('/2024/01-01/photo.jpg', UploadState.UPLOADING, undefined)];
+        const getImageVersionId = () => 'version-123';
+
+        const result = findProcessedUploads(uploads, getImageVersionId);
+
+        expect(result.processed).toEqual([]);
+        expect(result.allProcessed).toBe(false);
+    });
+
+    test('marks upload as pending when status is UPLOAD_NOT_STARTED', () => {
+        const uploads = [createUpload('/2024/01-01/photo.jpg', UploadState.UPLOAD_NOT_STARTED, undefined)];
+        const getImageVersionId = () => 'version-123';
+
+        const result = findProcessedUploads(uploads, getImageVersionId);
+
+        expect(result.processed).toEqual([]);
+        expect(result.allProcessed).toBe(false);
+    });
+
+    test('marks upload as pending when PROCESSING but no versionId yet', () => {
+        const uploads = [createUpload('/2024/01-01/photo.jpg', UploadState.PROCESSING, undefined)];
+        const getImageVersionId = () => 'version-123';
+
+        const result = findProcessedUploads(uploads, getImageVersionId);
+
+        expect(result.processed).toEqual([]);
+        expect(result.allProcessed).toBe(false);
+    });
+
+    //
+    // THE BUG: Previously, the code would return early after finding the first
+    // pending upload, never checking subsequent uploads. These tests verify
+    // that ALL uploads are checked, not just the first one.
+    //
+
+    test('checks ALL uploads, not just the first one (bug fix)', () => {
+        const uploads = [
+            createUpload('/2024/01-01/a.jpg', UploadState.PROCESSING, 'v1'),
+            createUpload('/2024/01-01/b.jpg', UploadState.PROCESSING, 'v2'),
+            createUpload('/2024/01-01/c.jpg', UploadState.PROCESSING, 'v3'),
+        ];
+        const albumVersions: Record<string, string> = {
+            '/2024/01-01/a.jpg': 'v1',
+            '/2024/01-01/b.jpg': 'v2',
+            '/2024/01-01/c.jpg': 'v3',
+        };
+        const getImageVersionId = (path: string) => albumVersions[path];
+
+        const result = findProcessedUploads(uploads, getImageVersionId);
+
+        expect(result.processed).toEqual(['/2024/01-01/a.jpg', '/2024/01-01/b.jpg', '/2024/01-01/c.jpg']);
+        expect(result.allProcessed).toBe(true);
+    });
+
+    test('correctly categorizes mix of processed and pending uploads', () => {
+        const uploads = [
+            createUpload('/2024/01-01/processed1.jpg', UploadState.PROCESSING, 'v1'),
+            createUpload('/2024/01-01/pending1.jpg', UploadState.PROCESSING, 'v2'),
+            createUpload('/2024/01-01/processed2.jpg', UploadState.PROCESSING, 'v3'),
+            createUpload('/2024/01-01/pending2.jpg', UploadState.UPLOADING, undefined),
+        ];
+        // Only processed1 and processed2 are in the album
+        const albumVersions: Record<string, string> = {
+            '/2024/01-01/processed1.jpg': 'v1',
+            '/2024/01-01/processed2.jpg': 'v3',
+        };
+        const getImageVersionId = (path: string) => albumVersions[path];
+
+        const result = findProcessedUploads(uploads, getImageVersionId);
+
+        // Should find processed1, skip pending1 (not in album), find processed2, skip pending2 (still uploading)
+        expect(result.processed).toEqual(['/2024/01-01/processed1.jpg', '/2024/01-01/processed2.jpg']);
+        expect(result.allProcessed).toBe(false);
+    });
+
+    test('identifies processed uploads even when first upload is still pending (bug regression test)', () => {
+        // This is the exact scenario that triggered the original bug:
+        // First upload is pending, but subsequent ones are processed.
+        // The old code would return early and never mark the others as processed.
+        const uploads = [
+            createUpload('/2024/01-01/still_pending.jpg', UploadState.PROCESSING, 'v1'),
+            createUpload('/2024/01-01/already_done.jpg', UploadState.PROCESSING, 'v2'),
+            createUpload('/2024/01-01/also_done.jpg', UploadState.PROCESSING, 'v3'),
+        ];
+        // First image NOT in album yet, but second and third ARE
+        const albumVersions: Record<string, string> = {
+            '/2024/01-01/already_done.jpg': 'v2',
+            '/2024/01-01/also_done.jpg': 'v3',
+        };
+        const getImageVersionId = (path: string) => albumVersions[path];
+
+        const result = findProcessedUploads(uploads, getImageVersionId);
+
+        // The key assertion: we should find the processed ones even though
+        // the first one in the list is still pending
+        expect(result.processed).toEqual(['/2024/01-01/already_done.jpg', '/2024/01-01/also_done.jpg']);
+        expect(result.allProcessed).toBe(false);
+    });
+});

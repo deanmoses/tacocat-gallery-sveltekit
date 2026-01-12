@@ -1,9 +1,16 @@
 import { toast } from '@zerodevx/svelte-toast';
 import { UploadState } from '$lib/models/album';
 import { albumState, getUploadsForAlbum } from '../AlbumState.svelte';
-import { sanitizeImageName, hasValidExtension, getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
+import {
+    sanitizeImageName,
+    hasValidExtension,
+    getParentFromPath,
+    isValidImagePath,
+    deduplicateImagePaths,
+} from '$lib/utils/galleryPathUtils';
 import { getPresignedUploadUrlGenerationUrl } from '$lib/utils/config';
 import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
+import { findProcessedUploads } from '$lib/utils/uploadUtils';
 
 export type ImagesToUpload = {
     file: File;
@@ -74,6 +81,7 @@ class UploadMachine {
     #uploadErrored(imagePath: string, errorMessage: string): void {
         console.error(`Error uploading [${imagePath}]: ${errorMessage}`);
         toast.push(`Error uploading [${imagePath}]: ${errorMessage}`);
+        this.#uploadComplete(imagePath);
     }
 
     #uploadSkipped(imagePath: string, skipMessage: string): void {
@@ -132,6 +140,7 @@ class UploadMachine {
                     return false;
                 }
             });
+            if (imagesToUpload.length === 0) return;
             const presignedUrls = await this.#getPresignedUploadUrls(imagesToUpload);
             for (const imageToUpload of imagesToUpload) {
                 this.#uploadEnqueued(imageToUpload.imagePath, imageToUpload.file);
@@ -150,6 +159,10 @@ class UploadMachine {
             await Promise.allSettled(imageUploads);
             await this.#pollForProcessedImages(albumPath);
         } catch (e) {
+            // Clean up any uploads that were enqueued before the failure
+            for (const imageToUpload of imagesToUpload) {
+                this.#uploadComplete(imageToUpload.imagePath);
+            }
             toast.push(`${e}`);
             return;
         }
@@ -228,6 +241,15 @@ class UploadMachine {
             count++;
         } while (!processingComplete && count <= 5);
         console.log(`Images have been processed.  Loop count: [${count}]`);
+
+        // If polling timed out with images still processing, clear them from UI and notify user
+        if (!processingComplete) {
+            const remaining = getUploadsForAlbum(albumPath);
+            for (const upload of remaining) {
+                this.#uploadComplete(upload.imagePath);
+            }
+            toast.push('Some images are still processing. Refresh to see them when ready.');
+        }
     }
 
     async #areImagesProcessed(albumPath: string): Promise<boolean> {
@@ -236,25 +258,18 @@ class UploadMachine {
         try {
             await albumLoadMachine.fetchFromServer(albumPath);
             const album = albumState.albums.get(albumPath)?.album;
-            if (!album) throw 'album not loaded';
-            for (const upload of uploads) {
-                // Skip checking uploads that are not yet in the processing state,
-                // which means they have not yet been uploaded to S3, which means
-                // they don't yet have a version (the versionId check is redundant)
-                if (upload.status !== UploadState.PROCESSING || !upload.versionId) return false;
-                const image = album.getImage(upload.imagePath);
-                if (image && image.versionId == upload.versionId) {
-                    // Found image. Remove it from list of images being processed
-                    this.#uploadComplete(upload.imagePath);
-                } else {
-                    console.log(
-                        `Did not find file [${upload.imagePath}] version [${upload.versionId}] in the album, it must still be processing`,
-                    );
-                    return false;
-                }
+            if (!album) throw new Error('album not loaded');
+
+            const { processed, allProcessed } = findProcessedUploads(uploads, (imagePath) => {
+                const image = album.getImage(imagePath);
+                return image?.versionId;
+            });
+
+            for (const imagePath of processed) {
+                this.#uploadComplete(imagePath);
             }
-            console.log(`Found all uploaded files in the album, processing complete!`);
-            return true;
+
+            return allProcessed;
         } catch (e) {
             console.error(`Error checking if images are processed`, e);
             return false;
@@ -270,15 +285,27 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 //
 
 export function getSanitizedFiles(files: FileList | File[], albumPath: string): ImagesToUpload[] {
-    const imagesToUpload: ImagesToUpload[] = [];
+    // First pass: filter valid files and create initial paths
+    const validFiles: { file: File; imagePath: string }[] = [];
     for (const file of files) {
-        const imagePath = albumPath + sanitizeImageName(file.name);
         if (!hasValidExtension(file.name)) {
             console.log(`Skipping invalid type of image [${file.name}]`);
         } else {
-            console.log(`Adding [${imagePath}]`);
-            imagesToUpload.push({ file, imagePath });
+            const imagePath = albumPath + sanitizeImageName(file.name);
+            validFiles.push({ file, imagePath });
         }
+    }
+
+    // Deduplicate paths (e.g., photo.jpg and Photo.JPG both become photo.jpg)
+    const originalPaths = validFiles.map((f) => f.imagePath);
+    const deduplicatedPaths = deduplicateImagePaths(originalPaths);
+
+    // Build result with deduplicated paths
+    const imagesToUpload: ImagesToUpload[] = [];
+    for (let i = 0; i < validFiles.length; i++) {
+        const imagePath = deduplicatedPaths[i];
+        console.log(`Adding [${imagePath}]`);
+        imagesToUpload.push({ file: validFiles[i].file, imagePath });
     }
     return imagesToUpload;
 }
