@@ -25,6 +25,8 @@ export type SearchResults = {
     /** Total # of results in gallery, not this specific set of results */
     total: number;
     items?: Thumbable[];
+    /** Next offset to use for pagination (based on server response, not filtered items) */
+    nextStartAt?: number;
 };
 
 /**
