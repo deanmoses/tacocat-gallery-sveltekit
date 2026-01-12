@@ -4,6 +4,7 @@ import { albumState, getUploadsForAlbum } from '../AlbumState.svelte';
 import { sanitizeImageName, hasValidExtension, getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
 import { getPresignedUploadUrlGenerationUrl } from '$lib/utils/config';
 import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
+import { findProcessedUploads } from '$lib/utils/uploadUtils';
 
 export type ImagesToUpload = {
     file: File;
@@ -237,24 +238,17 @@ class UploadMachine {
             await albumLoadMachine.fetchFromServer(albumPath);
             const album = albumState.albums.get(albumPath)?.album;
             if (!album) throw 'album not loaded';
-            for (const upload of uploads) {
-                // Skip checking uploads that are not yet in the processing state,
-                // which means they have not yet been uploaded to S3, which means
-                // they don't yet have a version (the versionId check is redundant)
-                if (upload.status !== UploadState.PROCESSING || !upload.versionId) return false;
-                const image = album.getImage(upload.imagePath);
-                if (image && image.versionId == upload.versionId) {
-                    // Found image. Remove it from list of images being processed
-                    this.#uploadComplete(upload.imagePath);
-                } else {
-                    console.log(
-                        `Did not find file [${upload.imagePath}] version [${upload.versionId}] in the album, it must still be processing`,
-                    );
-                    return false;
-                }
+
+            const { processed, allProcessed } = findProcessedUploads(uploads, (imagePath) => {
+                const image = album.getImage(imagePath);
+                return image?.versionId;
+            });
+
+            for (const imagePath of processed) {
+                this.#uploadComplete(imagePath);
             }
-            console.log(`Found all uploaded files in the album, processing complete!`);
-            return true;
+
+            return allProcessed;
         } catch (e) {
             console.error(`Error checking if images are processed`, e);
             return false;
