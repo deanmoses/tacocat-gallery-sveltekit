@@ -13,10 +13,20 @@
     }
 
     let { upload }: Props = $props();
-    let url = URL.createObjectURL(upload.file);
+
+    // Create object URL that tracks upload.file changes and cleans up properly
+    let urlForTemplate = $state('');
+    $effect(() => {
+        const url = URL.createObjectURL(upload.file);
+        urlForTemplate = url;
+        return () => {
+            console.info(`UploadThumbnail: revoking object URL for ${upload.file.name}`);
+            URL.revokeObjectURL(url);
+        };
+    });
 </script>
 
-<Thumbnail title={upload.file.name} src={url} summary={upload.status}>
+<Thumbnail title={upload.file.name} src={urlForTemplate} summary={upload.status}>
     {#snippet selectionControls()}
         <div><WaitingIcon height="100px" width="100px" /></div>
     {/snippet}

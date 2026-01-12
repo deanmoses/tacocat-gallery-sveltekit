@@ -1,21 +1,17 @@
 import { toast } from '@zerodevx/svelte-toast';
-import { UploadState } from '$lib/models/album';
+import { UploadState, type ImageToUpload } from '$lib/models/album';
 import { albumState, getUploadsForAlbum } from '../AlbumState.svelte';
 import {
     sanitizeImageName,
-    hasValidExtension,
     getParentFromPath,
     isValidImagePath,
+    hasValidExtension,
     deduplicateImagePaths,
 } from '$lib/utils/galleryPathUtils';
-import { getPresignedUploadUrlGenerationUrl } from '$lib/utils/config';
 import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
 import { findProcessedUploads } from '$lib/utils/uploadUtils';
-
-export type ImagesToUpload = {
-    file: File;
-    imagePath: string;
-};
+import { validateImageBatch } from '$lib/utils/imageValidation';
+import { uploadToS3, fetchPresignedUrls } from '$lib/utils/s3Upload';
 
 /**
  * Image upload state machine
@@ -41,7 +37,7 @@ class UploadMachine {
         this.#uploadImage(imagePath, file); // invoke async service in fire-and-forget fashion
     }
 
-    uploadImages(albumPath: string, imagesToUpload: ImagesToUpload[]): void {
+    uploadImages(albumPath: string, imagesToUpload: ImageToUpload[]): void {
         this.#uploadImages(albumPath, imagesToUpload); // invoke async service in fire-and-forget fashion
     }
 
@@ -55,27 +51,21 @@ class UploadMachine {
 
     #uploadStarted(imagePath: string): void {
         const upload = albumState.uploads.find((upload) => upload.imagePath === imagePath);
-        if (upload) upload.status = UploadState.UPLOADING;
+        if (!upload) {
+            console.warn(`Upload not found for path: ${imagePath}`);
+            return;
+        }
+        upload.status = UploadState.UPLOADING;
     }
 
     #uploadProcessing(imagePath: string, versionId: string): void {
         const upload = albumState.uploads.find((upload) => upload.imagePath === imagePath);
-        if (upload) {
-            upload.status = UploadState.PROCESSING;
-            upload.versionId = versionId;
+        if (!upload) {
+            console.warn(`Upload not found for path: ${imagePath}`);
+            return;
         }
-
-        // TODO: make this atomic, such as with the previous Immer-based implementation:
-        // uploadStore.update((oldValue: UploadStore) =>
-        //     produce(oldValue, (draftState: UploadStore) => {
-        //         const upload = draftState.find((upload) => upload.imagePath === imagePath);
-        //         if (upload) {
-        //             upload.status = UploadState.PROCESSING;
-        //             upload.versionId = versionId;
-        //         }
-        //         return draftState;
-        //     }),
-        // );
+        upload.status = UploadState.PROCESSING;
+        upload.versionId = versionId;
     }
 
     #uploadErrored(imagePath: string, errorMessage: string): void {
@@ -115,7 +105,7 @@ class UploadMachine {
         if (!file) return;
         try {
             const albumPath = getParentFromPath(imagePath);
-            const imagesToUpload: ImagesToUpload[] = [{ file, imagePath }];
+            const imagesToUpload: ImageToUpload[] = [{ file, imagePath }];
             await this.#uploadImages(albumPath, imagesToUpload);
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
@@ -123,38 +113,54 @@ class UploadMachine {
         }
     }
 
-    async #uploadImages(albumPath: string, imagesToUpload: ImagesToUpload[]): Promise<void> {
+    async #uploadImages(albumPath: string, imagesToUpload: ImageToUpload[]): Promise<void> {
         try {
             if (!imagesToUpload || imagesToUpload.length === 0) throw new Error('No images to upload');
 
+            // Validate file extensions and image paths
             imagesToUpload = imagesToUpload.filter((imageToUpload) => {
-                try {
-                    if (!isValidImagePath(imageToUpload.imagePath))
-                        throw new Error(`Invalid image path: [${imageToUpload.imagePath}]`);
-                    if (!hasValidExtension(imageToUpload.file.name))
-                        throw new Error(`invalid type of image [${imageToUpload.file.name}]`);
-                    return true;
-                } catch (e) {
-                    const msg = e instanceof Error ? e.message : String(e);
-                    this.#uploadSkipped(imageToUpload.imagePath, msg);
+                if (!hasValidExtension(imageToUpload.file.name)) {
+                    this.#uploadSkipped(imageToUpload.imagePath, `Invalid file type: [${imageToUpload.file.name}]`);
                     return false;
                 }
+                if (!isValidImagePath(imageToUpload.imagePath)) {
+                    this.#uploadSkipped(imageToUpload.imagePath, `Invalid image path: [${imageToUpload.imagePath}]`);
+                    return false;
+                }
+                return true;
             });
             if (imagesToUpload.length === 0) return;
-            const presignedUrls = await this.#getPresignedUploadUrls(imagesToUpload);
+
+            // Validate image content (checks file size > 0 and that browser can load the image)
+            const validationResult = await validateImageBatch(imagesToUpload);
+            for (const imagePath of validationResult.invalid) {
+                this.#uploadSkipped(imagePath, 'Invalid or corrupted image file');
+            }
+            imagesToUpload = validationResult.valid;
+            if (imagesToUpload.length === 0) return;
+
+            // Get presigned URLs
+            const imagePaths = imagesToUpload.map((img) => img.imagePath);
+            const presignedResult = await fetchPresignedUrls(albumPath, imagePaths);
+            if (!presignedResult.success) {
+                throw new Error(presignedResult.error);
+            }
+            const presignedUrls = presignedResult.urls;
+
+            // Enqueue uploads
             for (const imageToUpload of imagesToUpload) {
                 this.#uploadEnqueued(imageToUpload.imagePath, imageToUpload.file);
             }
+
+            // Upload to S3 in parallel
             const imageUploads: Promise<void>[] = [];
             for (const imageToUpload of imagesToUpload) {
-                try {
-                    const presignedUrl = presignedUrls[imageToUpload.imagePath];
-                    if (!presignedUrl) throw new Error(`No presigned URL for image [${imageToUpload.imagePath}]`);
-                    imageUploads.push(this.#uploadImageViaPresignedUrl(imageToUpload, presignedUrl));
-                } catch (e) {
-                    const msg = e instanceof Error ? e.message : String(e);
-                    this.#uploadErrored(imageToUpload.imagePath, msg);
+                const presignedUrl = presignedUrls[imageToUpload.imagePath];
+                if (!presignedUrl) {
+                    this.#uploadErrored(imageToUpload.imagePath, `No presigned URL for image`);
+                    continue;
                 }
+                imageUploads.push(this.#uploadImageViaPresignedUrl(imageToUpload, presignedUrl));
             }
             await Promise.allSettled(imageUploads);
             await this.#pollForProcessedImages(albumPath);
@@ -168,65 +174,15 @@ class UploadMachine {
         }
     }
 
-    /**
-     * Retrieve presigned image upload URLs from server
-     *
-     * @returns map of image path to presigned URL
-     */
-    async #getPresignedUploadUrls(imagesToUpload: ImagesToUpload[]): Promise<{ [key: string]: string }> {
-        const albumPath = getParentFromPath(imagesToUpload[0].imagePath);
-        const imagePaths = imagesToUpload.map((imageToUpload) => imageToUpload.imagePath);
-        const response = await fetch(getPresignedUploadUrlGenerationUrl(albumPath), {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(imagePaths),
-        });
-        if (!response.ok) {
-            const msg = (await response.json()).errorMessage || response.statusText;
-            throw msg;
-        }
-        const presignedUploadUrls = await response.json();
-        return presignedUploadUrls;
-    }
-
-    async #uploadImageViaPresignedUrl(imageToUpload: ImagesToUpload, presignedUrl: string): Promise<void> {
+    async #uploadImageViaPresignedUrl(imageToUpload: ImageToUpload, presignedUrl: string): Promise<void> {
         this.#uploadStarted(imageToUpload.imagePath);
-        try {
-            const versionId = await this.#uploadViaPresignedUrl(imageToUpload, presignedUrl);
-            this.#uploadProcessing(imageToUpload.imagePath, versionId);
-        } catch (e) {
-            const msg = e instanceof Error ? e.message : String(e);
-            this.#uploadErrored(imageToUpload.imagePath, msg);
+        const result = await uploadToS3(imageToUpload.file, presignedUrl);
+        if (result.success) {
+            console.log(`Uploaded image [${imageToUpload.imagePath}], got versionId [${result.versionId}]`);
+            this.#uploadProcessing(imageToUpload.imagePath, result.versionId);
+        } else {
+            this.#uploadErrored(imageToUpload.imagePath, result.error);
         }
-    }
-
-    /** Upload using a presigned URL */
-    async #uploadViaPresignedUrl(imageToUpload: ImagesToUpload, presignedUrl: string): Promise<string> {
-        console.log(`Uploading image [${imageToUpload.imagePath}]`);
-        const response = await fetch(presignedUrl, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': imageToUpload.file.type,
-            },
-            body: imageToUpload.file,
-        });
-        if (!response.ok) {
-            throw response.statusText;
-        }
-        const versionId = response.headers.get('x-amz-version-id');
-        if (!versionId) {
-            console.error(
-                `No versionId for image [${imageToUpload.imagePath}].  Does the bucket's CORS configuration allow the browser to read the x-amz-version-id header?`,
-                response,
-            );
-            throw new Error(`No versionId for image ${imageToUpload.imagePath}`);
-        }
-        console.log(`Uploaded image [${imageToUpload.imagePath}], got versionId [${versionId}]`);
-        return versionId;
     }
 
     /**
@@ -234,13 +190,13 @@ class UploadMachine {
      */
     async #pollForProcessedImages(albumPath: string): Promise<void> {
         let processingComplete = false;
-        let count = 0;
+        let pollAttemptCount = 0;
         do {
             await sleep(1500);
             processingComplete = await this.#areImagesProcessed(albumPath);
-            count++;
-        } while (!processingComplete && count <= 5);
-        console.log(`Images have been processed.  Loop count: [${count}]`);
+            pollAttemptCount++;
+        } while (!processingComplete && pollAttemptCount <= 5);
+        console.log(`Images have been processed.  Loop count: [${pollAttemptCount}]`);
 
         // If polling timed out with images still processing, clear them from UI and notify user
         if (!processingComplete) {
@@ -284,28 +240,23 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // Utils for working with machine
 //
 
-export function getSanitizedFiles(files: FileList | File[], albumPath: string): ImagesToUpload[] {
-    // First pass: filter valid files and create initial paths
-    const validFiles: { file: File; imagePath: string }[] = [];
+export function getSanitizedFiles(files: FileList | File[], albumPath: string): ImageToUpload[] {
+    // Create sanitized paths for all files
+    const filesWithPaths: ImageToUpload[] = [];
     for (const file of files) {
-        if (!hasValidExtension(file.name)) {
-            console.log(`Skipping invalid type of image [${file.name}]`);
-        } else {
-            const imagePath = albumPath + sanitizeImageName(file.name);
-            validFiles.push({ file, imagePath });
-        }
+        const imagePath = albumPath + sanitizeImageName(file.name);
+        filesWithPaths.push({ file, imagePath });
     }
 
-    // Deduplicate paths (e.g., photo.jpg and Photo.JPG both become photo.jpg)
-    const originalPaths = validFiles.map((f) => f.imagePath);
+    // Deduplicate paths (e.g., photo-1.jpg and photo_1.jpg both become photo_1.jpg)
+    const originalPaths = filesWithPaths.map((f) => f.imagePath);
     const deduplicatedPaths = deduplicateImagePaths(originalPaths);
 
     // Build result with deduplicated paths
-    const imagesToUpload: ImagesToUpload[] = [];
-    for (let i = 0; i < validFiles.length; i++) {
+    const result: ImageToUpload[] = [];
+    for (let i = 0; i < filesWithPaths.length; i++) {
         const imagePath = deduplicatedPaths[i];
-        console.log(`Adding [${imagePath}]`);
-        imagesToUpload.push({ file: validFiles[i].file, imagePath });
+        result.push({ file: filesWithPaths[i].file, imagePath });
     }
-    return imagesToUpload;
+    return result;
 }
