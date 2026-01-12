@@ -191,6 +191,52 @@ export function albumPathToDate(albumPath: string): Date {
     return new Date(year, 0, 1); // Use Jan 1 for year albums
 }
 
+/**
+ * De-duplicate image paths by appending _2, _3, etc. to duplicates.
+ * Preserves the order of the original array.
+ *
+ * @param imagePaths array of image paths like /2024/01-01/photo.jpg
+ * @returns array with duplicates renamed
+ */
+export function deduplicateImagePaths(imagePaths: string[]): string[] {
+    const used = new Set<string>(); // All paths that are used (original or generated)
+    const result: string[] = [];
+
+    // First pass: mark all original paths as potentially used
+    for (const path of imagePaths) {
+        used.add(path);
+    }
+
+    // Track how many times we've seen each original path
+    const seenCount = new Map<string, number>();
+
+    for (const path of imagePaths) {
+        const count = seenCount.get(path) || 0;
+        seenCount.set(path, count + 1);
+
+        if (count === 0) {
+            // First occurrence - use as-is
+            result.push(path);
+        } else {
+            // Duplicate - find next available suffix
+            const dotIndex = path.lastIndexOf('.');
+            const base = path.slice(0, dotIndex);
+            const ext = path.slice(dotIndex);
+
+            let suffix = count + 1;
+            let newPath = `${base}_${suffix}${ext}`;
+            while (used.has(newPath)) {
+                suffix++;
+                newPath = `${base}_${suffix}${ext}`;
+            }
+            used.add(newPath);
+            result.push(newPath);
+        }
+    }
+
+    return result;
+}
+
 /** Return true if specified filename ends with a supported extension */
 export function hasValidExtension(fileName: string): boolean {
     return /\.(jpg|jpeg|gif|png)$/i.test(fileName);

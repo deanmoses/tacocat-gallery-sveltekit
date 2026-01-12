@@ -31,9 +31,8 @@ export function findProcessedUploads(
     let allProcessed = true;
 
     for (const upload of uploads) {
-        // Skip checking uploads that are not yet in the processing state,
-        // which means they have not yet been uploaded to S3, which means
-        // they don't yet have a version (the versionId check is redundant)
+        // Skip uploads not yet in PROCESSING state (still uploading to S3) or
+        // missing versionId (defensive check - should always have versionId when PROCESSING)
         if (upload.status !== UploadState.PROCESSING || !upload.versionId) {
             allProcessed = false;
             continue;

@@ -1,5 +1,5 @@
 import { test, expect, describe } from 'vitest';
-import { sanitizeImageName } from './galleryPathUtils';
+import { sanitizeImageName, deduplicateImagePaths } from './galleryPathUtils';
 
 describe('sanitizeImageName', () => {
     // Basic transformations
@@ -81,5 +81,65 @@ describe('sanitizeImageName', () => {
         expect(sanitizeImageName('Screenshot 2024-01-15 at 10.30.45 AM.png')).toBe(
             'screenshot_2024_01_15_at_10.30.45_am.png',
         );
+    });
+});
+
+describe('deduplicateImagePaths', () => {
+    test('returns paths unchanged when no duplicates', () => {
+        expect(deduplicateImagePaths(['/2024/01-01/a.jpg', '/2024/01-01/b.jpg'])).toEqual([
+            '/2024/01-01/a.jpg',
+            '/2024/01-01/b.jpg',
+        ]);
+    });
+
+    test('returns empty array for empty input', () => {
+        expect(deduplicateImagePaths([])).toEqual([]);
+    });
+
+    test('renames second duplicate with _2 suffix', () => {
+        expect(deduplicateImagePaths(['/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg'])).toEqual([
+            '/2024/01-01/photo.jpg',
+            '/2024/01-01/photo_2.jpg',
+        ]);
+    });
+
+    test('renames third duplicate with _3 suffix', () => {
+        expect(
+            deduplicateImagePaths(['/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg']),
+        ).toEqual(['/2024/01-01/photo.jpg', '/2024/01-01/photo_2.jpg', '/2024/01-01/photo_3.jpg']);
+    });
+
+    test('handles multiple different duplicates', () => {
+        expect(
+            deduplicateImagePaths(['/2024/01-01/a.jpg', '/2024/01-01/b.jpg', '/2024/01-01/a.jpg', '/2024/01-01/b.jpg']),
+        ).toEqual(['/2024/01-01/a.jpg', '/2024/01-01/b.jpg', '/2024/01-01/a_2.jpg', '/2024/01-01/b_2.jpg']);
+    });
+
+    test('handles different extensions', () => {
+        expect(deduplicateImagePaths(['/2024/01-01/photo.png', '/2024/01-01/photo.png'])).toEqual([
+            '/2024/01-01/photo.png',
+            '/2024/01-01/photo_2.png',
+        ]);
+    });
+
+    test('does not dedupe different files with same base name but different extensions', () => {
+        expect(deduplicateImagePaths(['/2024/01-01/photo.jpg', '/2024/01-01/photo.png'])).toEqual([
+            '/2024/01-01/photo.jpg',
+            '/2024/01-01/photo.png',
+        ]);
+    });
+
+    test('avoids collision when generated name matches existing file', () => {
+        // photo_2.jpg already exists, so the duplicate of photo.jpg should become photo_3.jpg
+        expect(
+            deduplicateImagePaths(['/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo_2.jpg']),
+        ).toEqual(['/2024/01-01/photo.jpg', '/2024/01-01/photo_3.jpg', '/2024/01-01/photo_2.jpg']);
+    });
+
+    test('avoids collision when existing file comes before duplicates', () => {
+        // photo_2.jpg comes first, then duplicates of photo.jpg should skip _2
+        expect(
+            deduplicateImagePaths(['/2024/01-01/photo_2.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg']),
+        ).toEqual(['/2024/01-01/photo_2.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo_3.jpg']);
     });
 });
