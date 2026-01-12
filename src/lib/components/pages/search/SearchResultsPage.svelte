@@ -9,6 +9,7 @@
     import SearchPage from '$lib/components/pages/search/SearchPage.svelte';
     import { SearchLoadStatus, type SearchQuery, type SearchResults } from '$lib/models/search';
     import FullPageMessage from '$lib/components/site/FullPageMessage.svelte';
+    import InfiniteScrollSentinel from '$lib/components/site/InfiniteScrollSentinel.svelte';
     import { searchStore } from '$lib/stores/SearchStore.svelte';
 
     interface Props {
@@ -24,13 +25,22 @@
     let newestYear = $derived(query.newestYear);
     let oldestFirst = $derived(query.oldestFirst);
     let noResults = $derived(!results?.items);
-    let moreResultsOnServer = $derived(results?.items?.length && results.items.length < results.total);
-    let numResultsUnfetched = $derived(!results?.items?.length ? 0 : results.total - results.items.length);
+    // Use nextStartAt to determine if more results exist (handles duplicate filtering correctly)
+    let moreResultsOnServer = $derived(results?.nextStartAt !== undefined && results.nextStartAt < results.total);
     let loadingMore = $derived(SearchLoadStatus.LOADING_MORE_RESULTS == status);
     let errorLoadingMore = $derived(SearchLoadStatus.ERROR_LOADING_MORE_RESULTS == status);
 
+    // Debouncing to prevent rapid-fire requests
+    let lastRequestTime = 0;
+    const MIN_REQUEST_INTERVAL = 500; // ms
+
     function getMoreResults() {
-        const startAt = results?.items?.length ?? 0;
+        const now = Date.now();
+        if (now - lastRequestTime < MIN_REQUEST_INTERVAL) return;
+        lastRequestTime = now;
+
+        // Use nextStartAt (based on server response) to avoid infinite loop when duplicates are filtered
+        const startAt = results?.nextStartAt ?? results?.items?.length ?? 0;
         searchStore.getMore(query, startAt);
     }
 </script>
@@ -63,6 +73,9 @@
             /></label
         >
         <label>Oldest first: <input type="checkbox" name="oldestFirst" id="oldestFirst" checked={oldestFirst} /></label>
+        {#if results?.total}
+            <span class="result-count">({results.total} results)</span>
+        {/if}
     </section>
     <section class:noResults>
         <h2 style="display:none">Search Results</h2>
@@ -71,15 +84,13 @@
                 {#each results.items as item (item.path)}
                     <Thumbnail href={item.href} src={item.thumbnailUrl} title={item.title} summary={item.summary} />
                 {/each}
-                {#if moreResultsOnServer}
+                {#if moreResultsOnServer || loadingMore}
                     {#if errorLoadingMore}
-                        Error loading more results
+                        <div class="load-status">Error loading more results</div>
                     {:else}
-                        <button onclick={getMoreResults} disabled={loadingMore}>Get More</button>
+                        <InfiniteScrollSentinel onIntersect={getMoreResults} disabled={loadingMore} />
                         {#if loadingMore}
-                            Loading...
-                        {:else}
-                            ({numResultsUnfetched} results left)
+                            <div class="load-status">Loading...</div>
                         {/if}
                     {/if}
                 {/if}
@@ -104,5 +115,14 @@
     }
     .yearInput {
         width: 8em;
+    }
+    .result-count {
+        color: var(--muted-text-color, #666);
+    }
+    .load-status {
+        width: 100%;
+        text-align: center;
+        padding: 1em;
+        color: var(--muted-text-color, #666);
     }
 </style>

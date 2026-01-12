@@ -77,15 +77,21 @@ class SearchStore {
                 console.log(`Search`, query, `fetched from server`, json);
                 const searchResults = this.#toSearchResults(json);
                 console.log(`Transformed search results `, searchResults);
+                // Calculate next offset based on server response size, not filtered size
+                const serverItemCount = searchResults.items?.length ?? 0;
+                searchResults.nextStartAt = startAt + serverItemCount;
                 if (startAt > 0) {
                     const read = this.#searches.get(query);
                     if (read) {
                         const prev = read;
                         if (prev.results?.items && searchResults.items) {
+                            // Filter out duplicates by path (handles edge case of data changing between requests)
+                            const existingPaths = new Set(prev.results.items.map((i) => i.path));
+                            const newItems = searchResults.items.filter((i) => !existingPaths.has(i.path));
                             console.log(
-                                `Adding ${searchResults.items.length} new results to ${prev.results.items.length} existing results`,
+                                `Adding ${newItems.length} new results to ${prev.results.items.length} existing results (${searchResults.items.length - newItems.length} duplicates filtered)`,
                             );
-                            searchResults.items = prev.results.items.concat(searchResults.items);
+                            searchResults.items = prev.results.items.concat(newItems);
                         }
                     }
                 }
