@@ -58,6 +58,14 @@ export enum CreateStatus {
 }
 
 /**
+ * Input data for uploading images (before upload starts)
+ */
+export type ImageToUpload = {
+    file: File;
+    imagePath: string;
+};
+
+/**
  * Represents a single image being uploaded
  */
 export type UploadEntry = {
