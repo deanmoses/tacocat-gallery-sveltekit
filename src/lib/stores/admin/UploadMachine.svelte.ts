@@ -229,6 +229,15 @@ class UploadMachine {
             count++;
         } while (!processingComplete && count <= 5);
         console.log(`Images have been processed.  Loop count: [${count}]`);
+
+        // If polling timed out with images still processing, clear them from UI and notify user
+        if (!processingComplete) {
+            const remaining = getUploadsForAlbum(albumPath);
+            for (const upload of remaining) {
+                this.#uploadComplete(upload.imagePath);
+            }
+            toast.push('Some images are still processing. Refresh to see them when ready.');
+        }
     }
 
     async #areImagesProcessed(albumPath: string): Promise<boolean> {
