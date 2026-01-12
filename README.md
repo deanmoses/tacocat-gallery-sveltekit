@@ -36,12 +36,14 @@ Committing to `main` deploys to staging (described above). You can also do it ma
 
 ```bash
 npm run build           # Create production assets
-npm run deploy-staging  # Deploy to <https://staging-pix.tacocat.com/>
+npm run deploy-staging  # Deploy to https://staging-pix.tacocat.com/
 ```
 
 ## Production
 
 Production: <https://pix.tacocat.com/>
+
+To deploy:
 
 1. On GitHub's website for this repo, go to [Actions](https://github.com/deanmoses/tacocat-gallery-sveltekit/actions) > [Deploy to Production](https://github.com/deanmoses/tacocat-gallery-sveltekit/actions/workflows/deploy-prod.yml)
 2. Click "Run workflow" and select the main branch. The workflow:
