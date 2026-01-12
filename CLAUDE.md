@@ -135,18 +135,6 @@ git commit --amend
 git rebase --continue
 ```
 
-## PR Labels
-
-Use labels on pull requests. Apply all labels that fit. Only use the following labels:
-
-- `enhancement` - User-facing features or improvements. Must change production code behavior.
-- `refactor` - Production code changes that don't alter behavior
-- `bug` - Fixes broken production code functionality
-- `test` - Changes to tests
-- `documentation` - Documentation changes
-
-**No label needed** for dependency bumps, CI/CD, tooling, or infrastructure changes - these go in "Other Changes" in release notes.
-
 ## Branch Protection
 
 The `main` branch is protected:

@@ -133,18 +133,6 @@ git commit --amend
 git rebase --continue
 ```
 
-## PR Labels
-
-Use labels on pull requests. Apply all labels that fit. Only use the following labels:
-
-- `enhancement` - User-facing features or improvements. Must change production code behavior.
-- `refactor` - Production code changes that don't alter behavior
-- `bug` - Fixes broken production code functionality
-- `test` - Changes to tests
-- `documentation` - Documentation changes
-
-**No label needed** for dependency bumps, CI/CD, tooling, or infrastructure changes - these go in "Other Changes" in release notes.
-
 ## Branch Protection
 
 The `main` branch is protected:
@@ -157,6 +145,81 @@ The `main` branch is protected:
 Repo settings:
 
 - Auto-delete head branches after merge
+
+## Branch, Commit and PR Conventions
+
+Use these types for branch names, commit messages, and PR titles:
+
+- `feat`: User-facing features or behavior changes (must change production code)
+- `fix`: Bug fixes (must change production code)
+- `docs`: Documentation only
+- `style`: Code style/formatting (no logic changes)
+- `refactor`: Code restructuring without behavior change
+- `test`: Adding or updating tests
+- `chore`: CI/CD, tooling, dependency bumps, configs (no production code)
+
+### Branch Naming
+
+Use `type/short-description`:
+
+```text
+feat/infinite-scroll
+fix/album-path-validation
+chore/pre-commit-hooks
+```
+
+### Commit Messages
+
+Use [Conventional Commits](https://www.conventionalcommits.org/):
+
+```text
+<type>(<scope>): <description>
+
+[optional body]
+```
+
+- **Scopes:** Optional. Use when it adds clarity (e.g., `ui`, `api`, `state`, `auth`).
+- **Breaking changes:** Use `!` suffix: `feat!: remove deprecated API`
+
+**Examples:**
+
+```text
+feat(search): add infinite scroll to results
+fix(album): correct image path validation
+chore: add husky pre-commit hooks
+docs: update API documentation
+```
+
+### Pull Requests
+
+**PR titles:** Use conventional commit format, same as commit messages.
+
+**PR descriptions:**
+
+```markdown
+## Summary
+
+One sentence describing the overall change.
+
+- Optional supporting details
+- If needed
+
+## Test plan
+
+- [ ] How to verify it works
+```
+
+### PR Labels
+
+Use labels on pull requests. Apply all labels that fit. Only use these labels:
+
+- `enhancement` - User-facing features or improvements (must change production code behavior)
+- `refactor` - Production code changes that don't alter behavior
+- `bug` - Fixes broken production code functionality
+- `test` - Changes to tests
+- `documentation` - Documentation changes
+
+**No label needed** for dependency bumps, CI/CD, tooling, or infrastructure changes - these go in "Other Changes" in release notes.
 
 ## AI Assistant Configuration
 
