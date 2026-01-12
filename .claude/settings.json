@@ -1,0 +1,5 @@
+{
+    "permissions": {
+        "allow": ["Skill(branch)", "Skill(branch:*)", "Skill(commit)", "Skill(commit:*)", "Skill(pr)", "Skill(pr:*)"]
+    }
+}
