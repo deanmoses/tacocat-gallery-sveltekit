@@ -29,10 +29,6 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) format.
 
 Optional. Use when it adds clarity. Examples: `ui`, `api`, `state`, `auth`.
 
-## Breaking Changes
-
-Use `!` suffix: `feat!: remove deprecated API`
-
 ## Examples
 
 ```text
