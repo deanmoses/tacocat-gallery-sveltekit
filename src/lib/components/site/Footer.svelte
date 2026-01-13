@@ -1,13 +1,18 @@
 <!--
-  @component 
-  
+  @component
+
   Site's footer
 -->
+<script lang="ts">
+    import logoWebp from '$lib/assets/tacocat-logo.webp';
+    import logoPng from '$lib/assets/tacocat-logo.png';
+</script>
+
 <footer class="hidden-sm">
     <picture>
-        <source srcset="/images/tacocat-logo.webp" />
-        <source srcset="/images/tacocat-logo.png" />
-        <img src="/images/tacocat-logo.png" width="102px" height="19px" alt="Tacocat Logo" />
+        <source srcset={logoWebp} type="image/webp" />
+        <source srcset={logoPng} type="image/png" />
+        <img src={logoPng} width="102" height="19" alt="Tacocat Logo" />
     </picture>
 </footer>
 
