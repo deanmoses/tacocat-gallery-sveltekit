@@ -1,5 +1,11 @@
 import { test, expect, describe } from 'vitest';
-import { sanitizeImageName, deduplicateImagePaths } from './galleryPathUtils';
+import {
+    sanitizeImageName,
+    deduplicateImagePaths,
+    hasValidExtension,
+    isValidImagePath,
+    validFileExtensions,
+} from './galleryPathUtils';
 
 describe('sanitizeImageName', () => {
     // Basic transformations
@@ -81,6 +87,61 @@ describe('sanitizeImageName', () => {
         expect(sanitizeImageName('Screenshot 2024-01-15 at 10.30.45 AM.png')).toBe(
             'screenshot_2024_01_15_at_10.30.45_am.png',
         );
+    });
+});
+
+describe('hasValidExtension', () => {
+    test('accepts standard image extensions', () => {
+        expect(hasValidExtension('photo.jpg')).toBe(true);
+        expect(hasValidExtension('photo.jpeg')).toBe(true);
+        expect(hasValidExtension('photo.png')).toBe(true);
+        expect(hasValidExtension('photo.gif')).toBe(true);
+    });
+
+    test('accepts HEIC/HEIF extensions', () => {
+        expect(hasValidExtension('photo.heic')).toBe(true);
+        expect(hasValidExtension('photo.heif')).toBe(true);
+        expect(hasValidExtension('photo.HEIC')).toBe(true);
+        expect(hasValidExtension('photo.HEIF')).toBe(true);
+    });
+
+    test('is case insensitive', () => {
+        expect(hasValidExtension('photo.JPG')).toBe(true);
+        expect(hasValidExtension('photo.PNG')).toBe(true);
+        expect(hasValidExtension('photo.Heic')).toBe(true);
+    });
+
+    test('rejects invalid extensions', () => {
+        expect(hasValidExtension('photo.txt')).toBe(false);
+        expect(hasValidExtension('photo.pdf')).toBe(false);
+        expect(hasValidExtension('photo.webp')).toBe(false);
+    });
+
+    test('rejects extension-only filenames', () => {
+        expect(hasValidExtension('.jpg')).toBe(false);
+        expect(hasValidExtension('.png')).toBe(false);
+        expect(hasValidExtension('.heic')).toBe(false);
+    });
+});
+
+describe('isValidImagePath', () => {
+    test('accepts HEIC/HEIF image paths', () => {
+        expect(isValidImagePath('/2024/01-15/photo.heic')).toBe(true);
+        expect(isValidImagePath('/2024/01-15/photo.heif')).toBe(true);
+        expect(isValidImagePath('/2024/01-15/photo.HEIC')).toBe(true);
+    });
+
+    test('accepts standard image paths', () => {
+        expect(isValidImagePath('/2024/01-15/photo.jpg')).toBe(true);
+        expect(isValidImagePath('/2024/01-15/photo.png')).toBe(true);
+    });
+});
+
+describe('validFileExtensions', () => {
+    test('includes heic and heif', () => {
+        const extensions = validFileExtensions();
+        expect(extensions).toContain('heic');
+        expect(extensions).toContain('heif');
     });
 });
 

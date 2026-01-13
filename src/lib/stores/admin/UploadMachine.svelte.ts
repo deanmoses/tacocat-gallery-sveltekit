@@ -189,13 +189,16 @@ class UploadMachine {
      * Poll the server, checking to see if the images have made it into the album
      */
     async #pollForProcessedImages(albumPath: string): Promise<void> {
+        const POLL_INTERVAL_MS = 1500;
+        const MAX_POLL_ATTEMPTS = 10;
+
         let processingComplete = false;
         let pollAttemptCount = 0;
         do {
-            await sleep(1500);
+            await sleep(POLL_INTERVAL_MS);
             processingComplete = await this.#areImagesProcessed(albumPath);
             pollAttemptCount++;
-        } while (!processingComplete && pollAttemptCount <= 5);
+        } while (!processingComplete && pollAttemptCount < MAX_POLL_ATTEMPTS);
         console.log(`Images have been processed.  Loop count: [${pollAttemptCount}]`);
 
         // If polling timed out with images still processing, clear them from UI and notify user

@@ -11,6 +11,7 @@
     import type { ImageToUpload } from '$lib/models/album';
     import { sessionStore } from '$lib/stores/SessionStore.svelte';
     import { albumState } from '$lib/stores/AlbumState.svelte';
+    import { getConvertedJpgPath } from '$lib/utils/uploadUtils';
 
     interface Props {
         albumPath: string;
@@ -45,7 +46,15 @@
         const albumEntry = albumState.albums.get(albumPath);
         if (!albumEntry || !albumEntry.album || !albumEntry.album?.images?.length) return imageNames;
         for (const file of files) {
-            const image = albumEntry.album?.getImage(file.imagePath);
+            // Check if exact path exists
+            let image = albumEntry.album?.getImage(file.imagePath);
+            // For HEIC/HEIF, also check if the converted JPG exists (backend converts HEIC→JPG)
+            if (!image) {
+                const convertedPath = getConvertedJpgPath(file.imagePath);
+                if (convertedPath) {
+                    image = albumEntry.album?.getImage(convertedPath);
+                }
+            }
             if (image) {
                 console.log(`File [${file.imagePath}] is already in album [${albumPath}]`);
                 imageNames.push(file.file.name);

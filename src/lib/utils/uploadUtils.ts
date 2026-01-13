@@ -11,6 +11,25 @@ export type ProcessedUploadsResult = {
 };
 
 /**
+ * Returns true if the file has a HEIC/HEIF extension.
+ * The backend converts these to JPG, so we need to check for the converted path.
+ */
+function isHeicPath(imagePath: string): boolean {
+    return /\.(heic|heif)$/i.test(imagePath);
+}
+
+/**
+ * For HEIC/HEIF files, returns the expected JPG path after backend conversion.
+ * For other files, returns undefined.
+ */
+export function getConvertedJpgPath(imagePath: string): string | undefined {
+    if (!isHeicPath(imagePath)) {
+        return undefined;
+    }
+    return imagePath.replace(/\.(heic|heif)$/i, '.jpg');
+}
+
+/**
  * Checks which uploads have been processed by comparing upload entries
  * against the current album state.
  *
@@ -37,16 +56,33 @@ export function findProcessedUploads(
             allProcessed = false;
             continue;
         }
+
+        // Check if the image is in the album with matching versionId
         const albumVersionId = getImageVersionId(upload.imagePath);
+
         if (albumVersionId && albumVersionId === upload.versionId) {
-            // Found image. Mark as processed.
+            // Found image with matching versionId. Mark as processed.
             processed.push(upload.imagePath);
-        } else {
-            console.log(
-                `Did not find file [${upload.imagePath}] version [${upload.versionId}] in the album, it must still be processing`,
-            );
-            allProcessed = false;
+            continue;
         }
+
+        // For HEIC/HEIF files, check if the converted JPG exists in the album.
+        // The converted JPG will have a different versionId than the original upload,
+        // so we just check for existence rather than matching versionId.
+        const convertedPath = getConvertedJpgPath(upload.imagePath);
+        if (convertedPath) {
+            const convertedVersionId = getImageVersionId(convertedPath);
+            if (convertedVersionId) {
+                // Found converted JPG. Mark as processed.
+                processed.push(upload.imagePath);
+                continue;
+            }
+        }
+
+        console.log(
+            `Did not find file [${upload.imagePath}] version [${upload.versionId}] in the album, it must still be processing`,
+        );
+        allProcessed = false;
     }
     if (allProcessed) {
         console.log(`Found all uploaded files in the album, processing complete!`);

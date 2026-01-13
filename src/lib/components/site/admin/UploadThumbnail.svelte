@@ -1,10 +1,11 @@
 <!--
-  @component 
-  
+  @component
+
   A thumbnail of an uploading image
 -->
 <script lang="ts">
     import type { UploadEntry } from '$lib/models/album';
+    import { createPreviewUrl } from '$lib/utils/imageValidation';
     import Thumbnail from '../Thumbnail.svelte';
     import WaitingIcon from '../icons/WaitingIcon.svelte';
 
@@ -15,13 +16,26 @@
     let { upload }: Props = $props();
 
     // Create object URL that tracks upload.file changes and cleans up properly
-    let urlForTemplate = $state('');
+    // For HEIC files, tests if browser can display them (Safari can, others can't)
+    let urlForTemplate = $state<string | undefined>(undefined);
     $effect(() => {
-        const url = URL.createObjectURL(upload.file);
-        urlForTemplate = url;
+        let active = true;
+        let currentUrl = '';
+        createPreviewUrl(upload.file).then((url) => {
+            if (!active) {
+                // Effect was cleaned up before promise resolved
+                if (url) URL.revokeObjectURL(url);
+                return;
+            }
+            currentUrl = url;
+            urlForTemplate = url || undefined;
+        });
         return () => {
-            console.info(`UploadThumbnail: revoking object URL for ${upload.file.name}`);
-            URL.revokeObjectURL(url);
+            active = false;
+            if (currentUrl) {
+                console.info(`UploadThumbnail: revoking object URL for ${upload.file.name}`);
+                URL.revokeObjectURL(currentUrl);
+            }
         };
     });
 </script>

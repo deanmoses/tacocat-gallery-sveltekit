@@ -31,8 +31,18 @@ export async function validateImageBatch(files: ImageToUpload[]): Promise<ImageV
 }
 
 /**
+ * Returns true if the file has a HEIC/HEIF extension.
+ * These formats aren't supported by most browsers' Image element,
+ * so we skip content validation for them.
+ */
+function isHeicFile(fileName: string): boolean {
+    return /\.(heic|heif)$/i.test(fileName);
+}
+
+/**
  * Validates a single file by attempting to load it as an image.
  * Creates a temporary object URL, attempts load, then revokes the URL.
+ * HEIC/HEIF files skip browser Image validation since most browsers can't load them.
  *
  * @returns true if valid, false if invalid
  */
@@ -42,6 +52,12 @@ async function validateSingleImage(imageToUpload: ImageToUpload): Promise<boolea
     // Check for empty file
     if (file.size === 0) {
         return false;
+    }
+
+    // HEIC/HEIF files can't be loaded by most browsers' Image element,
+    // so skip content validation for them (backend will handle conversion)
+    if (isHeicFile(file.name)) {
+        return true;
     }
 
     // Attempt to load as image
@@ -65,4 +81,28 @@ function loadImage(url: string): Promise<boolean> {
         img.onerror = () => resolve(false);
         img.src = url;
     });
+}
+
+/**
+ * Creates an object URL for an image file.
+ * For HEIC/HEIF files, tests if the browser can display them first.
+ * Returns empty string if the browser can't display the file.
+ */
+export async function createPreviewUrl(file: File): Promise<string> {
+    const url = URL.createObjectURL(file);
+
+    // Non-HEIC files can be displayed by all browsers
+    if (!isHeicFile(file.name)) {
+        return url;
+    }
+
+    // Test if browser can load this HEIC file
+    const canLoad = await loadImage(url);
+    if (canLoad) {
+        return url;
+    }
+
+    // Browser can't display HEIC, clean up and return empty
+    URL.revokeObjectURL(url);
+    return '';
 }
