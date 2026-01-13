@@ -78,4 +78,31 @@ describe('validateImageBatch', () => {
         expect(result.valid).toHaveLength(0);
         expect(result.invalid).toHaveLength(0);
     });
+
+    it('accepts HEIC files without content validation (skips Image load)', async () => {
+        const files = [createImageToUpload('photo.heic', 100)];
+
+        const result = await validateImageBatch(files);
+
+        expect(result.valid).toHaveLength(1);
+        expect(result.invalid).toHaveLength(0);
+    });
+
+    it('accepts HEIF files without content validation', async () => {
+        const files = [createImageToUpload('photo.heif', 100)];
+
+        const result = await validateImageBatch(files);
+
+        expect(result.valid).toHaveLength(1);
+        expect(result.invalid).toHaveLength(0);
+    });
+
+    it('still rejects zero-byte HEIC files', async () => {
+        const files = [createImageToUpload('empty.heic', 0)];
+
+        const result = await validateImageBatch(files);
+
+        expect(result.valid).toHaveLength(0);
+        expect(result.invalid).toEqual(['/2024/01-01/empty.heic']);
+    });
 });

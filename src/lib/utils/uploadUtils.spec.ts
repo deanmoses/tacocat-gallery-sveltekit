@@ -152,4 +152,60 @@ describe('findProcessedUploads', () => {
         expect(result.processed).toEqual(['/2024/01-01/already_done.jpg', '/2024/01-01/also_done.jpg']);
         expect(result.allProcessed).toBe(false);
     });
+
+    //
+    // HEIC→JPG CONVERSION: The backend converts HEIC files to JPG.
+    // The converted JPG has a DIFFERENT versionId than the original HEIC upload,
+    // so we check for existence rather than matching versionId.
+    //
+
+    test('marks HEIC upload as processed when album has converted JPG (different versionId)', () => {
+        // Upload is photo.heic with versionId from S3 upload
+        const uploads = [createUpload('/2024/01-01/photo.heic', UploadState.PROCESSING, 'heic-upload-version')];
+        // Album has the converted JPG with a DIFFERENT versionId (from the conversion process)
+        const getImageVersionId = (path: string) =>
+            path === '/2024/01-01/photo.jpg' ? 'jpg-converted-version' : undefined;
+
+        const result = findProcessedUploads(uploads, getImageVersionId);
+
+        expect(result.processed).toEqual(['/2024/01-01/photo.heic']);
+        expect(result.allProcessed).toBe(true);
+    });
+
+    test('marks HEIF upload as processed when album has converted JPG (different versionId)', () => {
+        // Same behavior for .heif extension
+        const uploads = [createUpload('/2024/01-01/photo.heif', UploadState.PROCESSING, 'heif-upload-version')];
+        const getImageVersionId = (path: string) =>
+            path === '/2024/01-01/photo.jpg' ? 'jpg-converted-version' : undefined;
+
+        const result = findProcessedUploads(uploads, getImageVersionId);
+
+        expect(result.processed).toEqual(['/2024/01-01/photo.heif']);
+        expect(result.allProcessed).toBe(true);
+    });
+
+    test('handles mix of HEIC and JPG uploads correctly', () => {
+        const uploads = [
+            createUpload('/2024/01-01/photo1.heic', UploadState.PROCESSING, 'heic-v1'),
+            createUpload('/2024/01-01/photo2.jpg', UploadState.PROCESSING, 'jpg-v2'),
+            createUpload('/2024/01-01/photo3.heif', UploadState.PROCESSING, 'heif-v3'),
+        ];
+        // Album has converted JPGs for HEIC files (with different versionIds),
+        // and direct match for JPG (with same versionId)
+        const albumVersions: Record<string, string> = {
+            '/2024/01-01/photo1.jpg': 'converted-v1', // Converted from .heic - different versionId
+            '/2024/01-01/photo2.jpg': 'jpg-v2', // Direct JPG - same versionId
+            '/2024/01-01/photo3.jpg': 'converted-v3', // Converted from .heif - different versionId
+        };
+        const getImageVersionId = (path: string) => albumVersions[path];
+
+        const result = findProcessedUploads(uploads, getImageVersionId);
+
+        expect(result.processed).toEqual([
+            '/2024/01-01/photo1.heic',
+            '/2024/01-01/photo2.jpg',
+            '/2024/01-01/photo3.heif',
+        ]);
+        expect(result.allProcessed).toBe(true);
+    });
 });

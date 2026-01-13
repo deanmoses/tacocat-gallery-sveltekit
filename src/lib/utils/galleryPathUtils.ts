@@ -46,7 +46,9 @@ export function isValidDayAlbumName(dayAlbumName: string): boolean {
  * Must be on a day album like /2001/12-31/image.jpg
  */
 export function isValidImagePath(imagePath: string): boolean {
-    return /^\/\d\d\d\d\/(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])\/[a-zA-Z0-9_-]+\.(jpg|jpeg|gif|png)$/i.test(imagePath);
+    return /^\/\d\d\d\d\/(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])\/[a-zA-Z0-9_-]+\.(jpg|jpeg|png|gif|heic|heif)$/i.test(
+        imagePath,
+    );
 }
 
 /**
@@ -239,12 +241,12 @@ export function deduplicateImagePaths(imagePaths: string[]): string[] {
 
 /** Return true if specified filename ends with a supported extension */
 export function hasValidExtension(fileName: string): boolean {
-    return /\.(jpg|jpeg|gif|png)$/i.test(fileName);
+    return /^.+\.(jpg|jpeg|png|gif|heic|heif)$/i.test(fileName);
 }
 
 /** Supported file extensions */
 export function validFileExtensions(): string[] {
-    return ['jpg', 'jpeg', 'png', 'gif'];
+    return ['jpg', 'jpeg', 'png', 'gif', 'heic', 'heif'];
 }
 
 /** Return something like ".jpg, .jpeg, .png, .gif" */

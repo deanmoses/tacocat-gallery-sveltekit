@@ -40,7 +40,9 @@
 
 <div class="thumbnail">
     <a {href}
-        ><img {src} alt={title} />{#if creating}<div class="icon-overlay">
+        >{#if src}<img {src} alt={title} />{:else}<div class="no-image"></div>{/if}{#if creating}<div
+                class="icon-overlay"
+            >
                 <CreateIcon width="10em" height="10em" />
             </div>{:else if deleting}<div class="icon-overlay">
                 <DeleteIcon width="10em" height="10em" />
@@ -81,10 +83,15 @@
         margin-top: 0.3em;
     }
 
-    img {
+    img,
+    .no-image {
         width: var(--thumbnail-width);
         height: var(--thumbnail-height);
         border: var(--default-border);
+    }
+
+    .no-image {
+        background-color: #f0f0f0;
     }
 
     .icon-overlay {
