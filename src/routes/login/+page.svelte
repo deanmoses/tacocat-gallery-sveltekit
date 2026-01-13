@@ -6,10 +6,13 @@
     import { sessionStore } from '$lib/stores/SessionStore.svelte';
 
     let isAdmin = $derived(sessionStore.isAdmin);
+    let isCheckingAuth = $derived(sessionStore.isCheckingAuth);
 </script>
 
-<BlankSearchPageLayout searchTerms="" returnPath="/" title={isAdmin ? 'Logout' : 'Login'}>
-    {#if isAdmin}
+<BlankSearchPageLayout searchTerms="" returnPath="/" title={isCheckingAuth ? '' : isAdmin ? 'Logout' : 'Login'}>
+    {#if isCheckingAuth}
+        <p>Checking authentication...</p>
+    {:else if isAdmin}
         <p>You're logged in</p>
         <p><a href={getLogoutUrl()}><LogoutIcon width="1.4em" height="1.3em" /> Logout</a></p>
     {:else}

@@ -11,6 +11,8 @@ const HasBeenLoggedInIDBKey = 'HasBeenLoggedIn';
 class SessionStore {
     #isAdmin: boolean = $state(false);
     isAdmin: boolean = $derived(this.#isAdmin);
+    #isCheckingAuth: boolean = $state(true);
+    isCheckingAuth: boolean = $derived(this.#isCheckingAuth);
     #hasBeenLoggedIn: boolean = $state(false);
     hasBeenLoggedIn: boolean = $derived(this.#hasBeenLoggedIn);
 
@@ -40,6 +42,12 @@ class SessionStore {
 
     #authenticationSuccess(): void {
         this.#isAdmin = true;
+        this.#isCheckingAuth = false;
+    }
+
+    #authenticationFailure(): void {
+        this.#isAdmin = false;
+        this.#isCheckingAuth = false;
     }
 
     #hasBeenLoggedInSuccess(): void {
@@ -66,7 +74,9 @@ class SessionStore {
         if (fakeAdmin) {
             console.warn('FAKE: setting user to be an admin');
             this.#authenticationSuccess();
-        } else {
+            return;
+        }
+        try {
             const response = await fetch(checkAuthenticationUrl(), {
                 // no-store: the browser fetches from the remote server without first looking in the cache,
                 // and will not update the cache with the downloaded resource
@@ -81,6 +91,7 @@ class SessionStore {
                 if (!this.hasBeenLoggedIn) {
                     await this.#fetchHasBeenLoggedIn();
                 }
+                this.#authenticationFailure();
                 return;
             }
             this.#handleErrors(response);
@@ -90,7 +101,12 @@ class SessionStore {
                 console.log('User is an admin');
                 this.#authenticationSuccess();
                 await setToIdb(HasBeenLoggedInIDBKey, true);
+            } else {
+                this.#authenticationFailure();
             }
+        } catch (error) {
+            console.error('Error checking authentication status:', error);
+            this.#authenticationFailure();
         }
     }
 
