@@ -29,7 +29,7 @@ test-results/
 # temporary editor save files
 *~
 
-# OSX thumnail caches
+# OSX thumbnail caches
 .DS_Store
 
 # log files

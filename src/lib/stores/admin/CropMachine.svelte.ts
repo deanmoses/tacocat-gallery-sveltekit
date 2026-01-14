@@ -1,5 +1,6 @@
 import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
 import { recropThumbnailUrl } from '$lib/utils/config';
+import { adminApi } from '$lib/utils/adminApi';
 import { toast } from '@zerodevx/svelte-toast';
 import { getParentFromPath } from '$lib/utils/galleryPathUtils';
 import { albumState } from '../AlbumState.svelte';
@@ -64,20 +65,12 @@ class CropMachine {
     async #crop(imagePath: string, crop: Crop): Promise<void> {
         try {
             // Make the save request
-            const response = await fetch(recropThumbnailUrl(imagePath), {
-                method: 'PATCH',
-                credentials: 'include',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(crop),
-            });
+            const response = await adminApi.patch(recropThumbnailUrl(imagePath), crop);
 
             // Check for errors
             if (!response.ok) {
-                const msg = (await response.json()).errorMessage || response.statusText;
-                throw new Error(msg);
+                const json = await response.json().catch(() => ({}));
+                throw new Error(json?.errorMessage || response.statusText);
             }
 
             console.log(`Updated thumbnail of [${imagePath}]`);

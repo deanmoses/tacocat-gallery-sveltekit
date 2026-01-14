@@ -5,6 +5,7 @@ import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
 import { getParentFromPath, isValidImagePath, isValidPath } from '$lib/utils/galleryPathUtils';
 import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
 import { updateUrl } from '$lib/utils/config';
+import { adminApi } from '$lib/utils/adminApi';
 import { toast } from '@zerodevx/svelte-toast';
 import { albumState } from '../AlbumState.svelte';
 
@@ -179,21 +180,15 @@ class DraftMachine {
             console.log(`Saving draft [${draft.path}]: `, draft.content);
             this.#saveStart();
             try {
-                const response = await fetch(updateUrl(draft.path), {
-                    method: 'PATCH',
-                    credentials: 'include',
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    cache: 'no-store',
-                    body: JSON.stringify(draft.content),
-                });
-                const json = await response.json();
-                if (!response.ok) throw Error(json?.errorMessage || response.statusText);
+                const response = await adminApi.patch(updateUrl(draft.path), draft.content);
+                if (!response.ok) {
+                    const json = await response.json().catch(() => ({}));
+                    throw new Error(json?.errorMessage || response.statusText);
+                }
             } catch (e) {
                 console.error(`Error saving [${draft.path}]: ${e}`);
                 this.#saveError(e instanceof Error ? e.message : 'Error saving');
+                return;
             }
 
             // UPDATE CLIENT STATE

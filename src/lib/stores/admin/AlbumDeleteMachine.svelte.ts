@@ -1,5 +1,6 @@
 import { DeleteStatus } from '$lib/models/album';
 import { deleteUrl } from '$lib/utils/config';
+import { adminApi } from '$lib/utils/adminApi';
 import { getParentFromPath, isValidAlbumPath } from '$lib/utils/galleryPathUtils';
 import { toast } from '@zerodevx/svelte-toast';
 import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
@@ -61,17 +62,10 @@ class AlbumDeleteMachine {
         try {
             if (!isValidAlbumPath(albumPath)) throw new Error(`Invalid album path [${albumPath}]`);
             this.#deleteStarted(albumPath);
-            const response = await fetch(deleteUrl(albumPath), {
-                method: 'DELETE',
-                credentials: 'include',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-            });
+            const response = await adminApi.delete(deleteUrl(albumPath));
             if (!response.ok) {
-                const msg = (await response.json()).errorMessage || response.statusText;
-                throw new Error(msg);
+                const json = await response.json().catch(() => ({}));
+                throw new Error(json?.errorMessage || response.statusText);
             }
             await albumLoadMachine.removeFromMemoryAndDisk(albumPath);
             await albumLoadMachine.fetchFromServer(getParentFromPath(albumPath)); // reload parent album

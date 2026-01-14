@@ -2,6 +2,7 @@ import { SvelteMap } from 'svelte/reactivity';
 import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
 import { ReloadStatus } from '$lib/models/album';
 import { setThumbnailUrl } from '$lib/utils/config';
+import { adminApi } from '$lib/utils/adminApi';
 import { toast } from '@zerodevx/svelte-toast';
 import { getParentFromPath, isValidYearAlbumPath } from '$lib/utils/galleryPathUtils';
 
@@ -75,7 +76,7 @@ class AlbumThumbnailSetMachine {
 
         if (isValidYearAlbumPath(albumPath)) {
             const year = albumPath.replaceAll('/', '');
-            toast.push(`Thumnbnail set for ${year}`);
+            toast.push(`Thumbnail set for ${year}`);
         }
     }
 
@@ -100,18 +101,12 @@ class AlbumThumbnailSetMachine {
     async #setAlbumThumbnail(albumPath: string, newThumbnailImagePath: string): Promise<void> {
         console.log(`Setting thumbnail of album [${albumPath}] to [${newThumbnailImagePath}]`);
         try {
-            const response = await fetch(setThumbnailUrl(albumPath), {
-                method: 'PATCH',
-                credentials: 'include',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ imagePath: newThumbnailImagePath }),
+            const response = await adminApi.patch(setThumbnailUrl(albumPath), {
+                imagePath: newThumbnailImagePath,
             });
             if (!response.ok) {
-                const msg = (await response.json()).errorMessage || response.statusText;
-                throw new Error(msg);
+                const json = await response.json().catch(() => ({}));
+                throw new Error(json?.errorMessage || response.statusText);
             }
             console.log(`Set thumbnail of album [${albumPath}] to [${newThumbnailImagePath}]`);
             console.log(`Reloading album [${albumPath}] from server`);
