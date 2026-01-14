@@ -19,7 +19,20 @@
     }
     let { album, image }: Props = $props();
     let imageTitle = $derived(image.title);
+
+    // Preload adjacent images for smoother navigation
+    let nextImage = $derived(image.nextHref ? album.getImage(image.nextHref) : undefined);
+    let prevImage = $derived(image.prevHref ? album.getImage(image.prevHref) : undefined);
 </script>
+
+<svelte:head>
+    {#if nextImage}
+        <link rel="preload" as="image" href={nextImage.detailUrl} />
+    {/if}
+    {#if prevImage}
+        <link rel="preload" as="image" href={prevImage.detailUrl} />
+    {/if}
+</svelte:head>
 
 <ImagePageLayout title={imageTitle}>
     {#snippet editControls()}
