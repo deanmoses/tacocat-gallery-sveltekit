@@ -40,7 +40,7 @@
 
 <figure>
     <a {href} aria-hidden="true" tabindex="-1"
-        >{#if src}<img {src} alt="" draggable="false" loading="lazy" decoding="async" />{:else}<div
+        >{#if src}<img {src} alt="" draggable="false" decoding="async" />{:else}<div
                 class="no-image"
             ></div>{/if}{#if creating}<div class="icon-overlay">
                 <CreateIcon width="10em" height="10em" />
