@@ -25,8 +25,8 @@ test.describe('Smoke test', () => {
         await expect(page).toHaveTitle(/Moses|Family/i, { timeout: 15000 });
 
         // Step 2: Wait for year album thumbnails to load (AJAX)
-        // Thumbnails are in .thumbnail divs - scope to these to avoid hero images/logos
-        const yearThumb = page.locator('.thumbnail').first();
+        // Thumbnails are in <figure> elements - scope to these to avoid hero images/logos
+        const yearThumb = page.locator('figure').first();
         await expect(yearThumb).toBeVisible({ timeout: 15000 });
 
         // Verify year album thumbnail image loads
@@ -42,7 +42,7 @@ test.describe('Smoke test', () => {
         await expect(page).toHaveURL(/\/20\d{2}/, { timeout: 15000 });
 
         // Wait for day album thumbnails to load
-        const dayThumb = page.locator('.thumbnail').first();
+        const dayThumb = page.locator('figure').first();
         await expect(dayThumb).toBeVisible({ timeout: 15000 });
 
         // Verify day album thumbnail image loads
@@ -58,7 +58,7 @@ test.describe('Smoke test', () => {
         await expect(page).toHaveURL(/\/\d{2}-\d{2}/, { timeout: 15000 });
 
         // Wait for image thumbnails to load
-        const imageThumb = page.locator('.thumbnail').first();
+        const imageThumb = page.locator('figure').first();
         await expect(imageThumb).toBeVisible({ timeout: 15000 });
 
         // Verify image thumbnail loads
