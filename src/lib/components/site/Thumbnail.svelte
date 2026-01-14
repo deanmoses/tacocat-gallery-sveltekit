@@ -38,11 +38,11 @@
     let unpublished: boolean = $derived(!published);
 </script>
 
-<div class="thumbnail">
-    <a {href}
-        >{#if src}<img {src} alt={title} />{:else}<div class="no-image"></div>{/if}{#if creating}<div
-                class="icon-overlay"
-            >
+<figure>
+    <a {href} aria-hidden="true" tabindex="-1"
+        >{#if src}<img {src} alt="" draggable="false" loading="lazy" decoding="async" />{:else}<div
+                class="no-image"
+            ></div>{/if}{#if creating}<div class="icon-overlay">
                 <CreateIcon width="10em" height="10em" />
             </div>{:else if deleting}<div class="icon-overlay">
                 <DeleteIcon width="10em" height="10em" />
@@ -53,20 +53,17 @@
             </div>{:else if unpublished}<div class="icon-overlay">
                 <UnpublishedIcon width="3em" height="3em" />
             </div>{/if}</a
-    ><a {href}>{title}</a>
-
-    {@render selectionControls?.()}
-    {#if summary}
-        <div class="summary">{summary}</div>
-    {/if}
-</div>
+    >{@render selectionControls?.()}{#if summary}<div class="summary">{summary}</div>{/if}
+    <figcaption><a {href}>{title}</a></figcaption>
+</figure>
 
 <style>
-    .thumbnail {
+    figure {
         display: flex;
         flex-direction: column;
         align-items: center;
         position: relative; /* to support the absolute positioning of my child star, if any */
+        margin: 0;
     }
 
     a {
@@ -74,12 +71,12 @@
         color: black;
     }
 
-    a:nth-of-type(1) {
+    figure > a {
         width: var(--thumbnail-width);
         height: var(--thumbnail-height);
     }
 
-    a:nth-of-type(2) {
+    figcaption {
         margin-top: 0.3em;
     }
 
