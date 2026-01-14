@@ -93,7 +93,7 @@
     div {
         cursor: not-allowed;
     }
-    :global(.thumbnail:hover .notSelected) {
+    :global(figure:hover .notSelected) {
         animation: fadeIn 1400ms;
         display: inherit;
     }
