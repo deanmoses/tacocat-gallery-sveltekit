@@ -12,19 +12,23 @@ This file provides guidance to AI programming agents when working with code in t
 npm run dev          # Start Vite dev server
 npm run build        # Production build
 npm run build-debug  # Build with sourcemaps, no minification
-npm run preview      # Preview built app
-npm run test         # Run all tests (unit + E2E)
 npm run test:unit    # Run Vitest unit tests
 npm run test:e2e     # Run Playwright E2E tests
+npm run test         # Run all tests (unit + E2E)
 npm run check        # Type checking (svelte-check + TypeScript)
 npm run lint         # ESLint + Prettier check
 npm run format       # Auto-format with Prettier
 npm run quality      # Format, lint, and type check
 npm run precommit    # Quality checks + unit tests (for pre-commit/pre-PR)
 npm run agent-docs   # Regenerate CLAUDE.md and AGENTS.md
-npm run deploy-staging  # Deploy to staging (S3 + CloudFront)
-npm run deploy-prod     # Deploy to production
+npm run build && npm run deploy-staging  # Build and deploy to staging
 ```
+
+Do NOT deploy to production. NEVER deploy to production. There's a GitHub Action for that, that runs integration tests and creates a release tag and a release.
+
+Merging to `main` automatically deploys to staging via GitHub Actions.
+
+## Node.js
 
 Requires Node.js >=24.0.0.
 

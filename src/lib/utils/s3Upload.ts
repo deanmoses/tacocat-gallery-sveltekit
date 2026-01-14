@@ -1,4 +1,5 @@
 import { getPresignedUploadUrlGenerationUrl } from './config';
+import { adminApi } from './adminApi';
 
 export type S3UploadResult = { success: true; versionId: string } | { success: false; error: string };
 
@@ -49,15 +50,7 @@ export async function uploadToS3(file: File, presignedUrl: string): Promise<S3Up
  */
 export async function fetchPresignedUrls(albumPath: string, imagePaths: string[]): Promise<PresignedUrlResult> {
     try {
-        const response = await fetch(getPresignedUploadUrlGenerationUrl(albumPath), {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(imagePaths),
-        });
+        const response = await adminApi.post(getPresignedUploadUrlGenerationUrl(albumPath), imagePaths);
 
         if (!response.ok) {
             const body = await response.json().catch(() => ({}));

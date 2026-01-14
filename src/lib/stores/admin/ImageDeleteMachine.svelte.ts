@@ -1,5 +1,6 @@
 import { DeleteStatus } from '$lib/models/album';
 import { deleteUrl } from '$lib/utils/config';
+import { adminApi } from '$lib/utils/adminApi';
 import { getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
 import { toast } from '@zerodevx/svelte-toast';
 import { albumState } from '../AlbumState.svelte';
@@ -59,17 +60,10 @@ class ImageDeleteMachine {
         try {
             if (!isValidImagePath(imagePath)) throw new Error(`Invalid image path [${imagePath}]`);
             this.#deleteStarted(imagePath);
-            const response = await fetch(deleteUrl(imagePath), {
-                method: 'DELETE',
-                credentials: 'include',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-            });
+            const response = await adminApi.delete(deleteUrl(imagePath));
             if (!response.ok) {
-                const msg = (await response.json()).errorMessage || response.statusText;
-                throw new Error(msg);
+                const json = await response.json().catch(() => ({}));
+                throw new Error(json?.errorMessage || response.statusText);
             }
             console.log(`Image [${imagePath}] deleted`);
             // reload the album

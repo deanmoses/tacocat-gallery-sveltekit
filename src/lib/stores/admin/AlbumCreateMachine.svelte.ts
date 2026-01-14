@@ -1,6 +1,7 @@
 import { toast } from '@zerodevx/svelte-toast';
 import { getParentFromPath, isValidAlbumPath } from '$lib/utils/galleryPathUtils';
 import { createUrl } from '$lib/utils/config';
+import { adminApi } from '$lib/utils/adminApi';
 import { albumState } from '../AlbumState.svelte';
 import { CreateStatus } from '$lib/models/album';
 import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
@@ -62,18 +63,10 @@ class AlbumCreateMachine {
         try {
             if (!isValidAlbumPath(albumPath)) throw new Error(`Invalid album path [${albumPath}]`);
             this.#createStarted(albumPath);
-            const response = await fetch(createUrl(albumPath), {
-                method: 'PUT',
-                credentials: 'include',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({}),
-            });
+            const response = await adminApi.put(createUrl(albumPath));
             if (!response.ok) {
-                const msg = (await response.json()).errorMessage || response.statusText;
-                throw new Error(msg);
+                const json = await response.json().catch(() => ({}));
+                throw new Error(json?.errorMessage || response.statusText);
             }
             await albumLoadMachine.fetchFromServer(albumPath); // load newly created album
             this.#success(albumPath);

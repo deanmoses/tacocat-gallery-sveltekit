@@ -1,5 +1,6 @@
 import { RenameStatus } from '$lib/models/album';
 import { renameImageUrl } from '$lib/utils/config';
+import { adminApi } from '$lib/utils/adminApi';
 import { getNameFromPath, getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
 import { toast } from '@zerodevx/svelte-toast';
 import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
@@ -68,18 +69,10 @@ class ImageRenameMachine {
             const newName = getNameFromPath(newImagePath);
             console.log(`Renaming image [${oldImagePath}] to [${newName}]...`);
             this.#renameStarted(oldImagePath, newImagePath);
-            const response = await fetch(renameImageUrl(oldImagePath), {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ newName }),
-            });
+            const response = await adminApi.post(renameImageUrl(oldImagePath), { newName });
             if (!response.ok) {
-                const msg = (await response.json()).errorMessage || response.statusText;
-                throw msg;
+                const json = await response.json().catch(() => ({}));
+                throw new Error(json?.errorMessage || response.statusText);
             }
             await albumLoadMachine.fetchFromServer(albumPath); // update the album
             this.#success(oldImagePath);

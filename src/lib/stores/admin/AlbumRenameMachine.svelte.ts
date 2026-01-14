@@ -1,5 +1,6 @@
 import { RenameStatus } from '$lib/models/album';
 import { renameAlbumUrl } from '$lib/utils/config';
+import { adminApi } from '$lib/utils/adminApi';
 import { getNameFromPath, getParentFromPath, isValidDayAlbumPath } from '$lib/utils/galleryPathUtils';
 import { toast } from '@zerodevx/svelte-toast';
 import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
@@ -67,18 +68,10 @@ class AlbumRenameMachine {
             const newName = getNameFromPath(newAlbumPath);
             console.log(`Renaming album [${oldAlbumPath}] to [${newName}]...`);
             this.#renameStarted(oldAlbumPath, newAlbumPath);
-            const response = await fetch(renameAlbumUrl(oldAlbumPath), {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ newName }),
-            });
+            const response = await adminApi.post(renameAlbumUrl(oldAlbumPath), { newName });
             if (!response.ok) {
-                const msg = (await response.json()).errorMessage || response.statusText;
-                throw msg;
+                const json = await response.json().catch(() => ({}));
+                throw new Error(json?.errorMessage || response.statusText);
             }
             // Fetch parent album to get renamed album added to it
             // Do NOT async await because we want the UI to move to

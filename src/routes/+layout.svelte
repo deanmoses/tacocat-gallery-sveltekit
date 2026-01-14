@@ -35,13 +35,13 @@
 </script>
 
 {@render children?.()}
-{#if sessionStore.isAdmin}
-    <!-- 
-		Lazy / async / dynamic load this component.
-		It's a hint to the bundling system that this code 
-        can be put into a separate bundle, so that non-admins
-		aren't forced to load it.
-	-->
+{#if sessionStore.isAdmin || sessionStore.hasBeenLoggedIn}
+    <!--
+        Toast component for admin notifications.
+        Uses hasBeenLoggedIn so toasts remain visible even after logout
+        (e.g., "session expired" errors). Lazy loaded so users who have
+        never logged in don't pay the bundle cost.
+    -->
     {#await import('@zerodevx/svelte-toast') then { SvelteToast }}
         <SvelteToast />
     {/await}
