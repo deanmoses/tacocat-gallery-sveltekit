@@ -1,6 +1,6 @@
 <!--
-  @component 
-  
+  @component
+
   Paints a full screen drag/drop zone over the day album page.
 -->
 <script lang="ts">
@@ -11,7 +11,7 @@
     import type { ImageToUpload } from '$lib/models/album';
     import { sessionStore } from '$lib/stores/SessionStore.svelte';
     import { albumState } from '$lib/stores/AlbumState.svelte';
-    import { getConvertedJpgPath } from '$lib/utils/uploadUtils';
+    import { enrichWithPreviousVersionIds } from '$lib/utils/uploadUtils';
 
     interface Props {
         albumPath: string;
@@ -33,34 +33,13 @@
         const files = await getDroppedImages(e);
         imagesToUpload = getSanitizedFiles(files, albumPath);
         if (!imagesToUpload || !imagesToUpload.length) return;
-        const filesAlreadyInAlbum = getFilesAlreadyInAlbum(imagesToUpload, albumPath);
-        if (filesAlreadyInAlbum.length > 0) {
-            dialog.show(filesAlreadyInAlbum);
+        const album = albumState.albums.get(albumPath)?.album;
+        const collidingNames = enrichWithPreviousVersionIds(imagesToUpload, album);
+        if (collidingNames.length > 0) {
+            dialog.show(collidingNames);
         } else {
             uploadMachine.uploadImages(albumPath, imagesToUpload);
         }
-    }
-
-    function getFilesAlreadyInAlbum(files: ImageToUpload[], albumPath: string): string[] {
-        const imageNames: string[] = [];
-        const albumEntry = albumState.albums.get(albumPath);
-        if (!albumEntry || !albumEntry.album || !albumEntry.album?.images?.length) return imageNames;
-        for (const file of files) {
-            // Check if exact path exists
-            let image = albumEntry.album?.getImage(file.imagePath);
-            // For HEIC/HEIF, also check if the converted JPG exists (backend converts HEIC→JPG)
-            if (!image) {
-                const convertedPath = getConvertedJpgPath(file.imagePath);
-                if (convertedPath) {
-                    image = albumEntry.album?.getImage(convertedPath);
-                }
-            }
-            if (image) {
-                console.log(`File [${file.imagePath}] is already in album [${albumPath}]`);
-                imageNames.push(file.file.name);
-            }
-        }
-        return imageNames;
     }
 
     function onConfirm(): void {

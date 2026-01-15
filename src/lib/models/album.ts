@@ -62,7 +62,10 @@ export enum CreateStatus {
  */
 export type ImageToUpload = {
     file: File;
-    imagePath: string;
+    /** Path used for S3 upload (e.g., /2024/01-01/photo.heic) */
+    uploadPath: string;
+    /** For replacements: the S3 versionId of the image being replaced */
+    previousVersionId?: string;
 };
 
 /**
@@ -70,10 +73,19 @@ export type ImageToUpload = {
  */
 export type UploadEntry = {
     file: File;
+    /** Path used for S3 upload (e.g., /2024/01-01/photo.heic) */
+    uploadPath: string;
+    /** Expected imagePath in album after server processing (e.g., /2024/01-01/photo.jpg for HEIC) */
     imagePath: string;
     status: UploadState;
-    /** S3 VersionId of newly uploaded image */
+    /** S3 versionId of newly uploaded image.
+     * For file formats that get converted to a different format on the server (like HEIC -> JPG),
+     * this will be the versionId of the pre-conversion image, which is not useful */
     versionId?: string;
+    /** S3 versionId of image being replaced.
+     * For file formats that get converted to a different format on the server (like HEIC -> JPG),
+     * detecting when the versionId is no longer this is how we determine the new image has been converted and is ready to use */
+    previousVersionId?: string;
 };
 
 /**

@@ -81,7 +81,7 @@
             <p>Drop images or a 📁</p>
         {/if}
         {#if uploads?.length}
-            {#each uploads as upload (upload.imagePath)}
+            {#each uploads as upload (upload.uploadPath)}
                 <UploadThumbnail {upload} />
             {/each}
         {/if}

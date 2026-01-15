@@ -66,7 +66,7 @@
                   so that non-admins aren't forced to download the code.
               -->
             {#await import('$lib/components/site/admin/UploadThumbnail.svelte') then { default: UploadThumbnail }}
-                {#each uploads as upload (upload.imagePath)}
+                {#each uploads as upload (upload.uploadPath)}
                     <UploadThumbnail {upload} />
                 {/each}
             {/await}
