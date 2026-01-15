@@ -1,4 +1,21 @@
-import { UploadState, type UploadEntry } from '$lib/models/album';
+import { UploadState, type ImageToUpload, type UploadEntry } from '$lib/models/album';
+import type { Album } from '$lib/models/GalleryItemInterfaces';
+import { getImagePath, isRenamedOnServer } from './fileFormats';
+
+/**
+ * For replacement uploads, returns the upload path to use.
+ * Preserves the base name from the target but uses the extension from the dropped file,
+ * so the backend's format conversion (e.g., HEIC→JPG) runs properly.
+ */
+export function getUploadPathForReplacement(targetPath: string, fileName: string): string {
+    const targetExt = targetPath.split('.').pop()!.toLowerCase();
+    const sourceExt = fileName.split('.').pop()!.toLowerCase();
+    if (targetExt === sourceExt) {
+        return targetPath;
+    }
+    // Replace target extension with source extension
+    return targetPath.replace(/\.[^.]+$/, '.' + sourceExt);
+}
 
 /**
  * Result of checking which uploads have been processed by the server
@@ -11,36 +28,21 @@ export type ProcessedUploadsResult = {
 };
 
 /**
- * Returns true if the file has a HEIC/HEIF extension.
- * The backend converts these to JPG, so we need to check for the converted path.
- */
-function isHeicPath(imagePath: string): boolean {
-    return /\.(heic|heif)$/i.test(imagePath);
-}
-
-/**
- * For HEIC/HEIF files, returns the expected JPG path after backend conversion.
- * For other files, returns undefined.
- */
-export function getConvertedJpgPath(imagePath: string): string | undefined {
-    if (!isHeicPath(imagePath)) {
-        return undefined;
-    }
-    return imagePath.replace(/\.(heic|heif)$/i, '.jpg');
-}
-
-/**
  * Checks which uploads have been processed by comparing upload entries
  * against the current album state.
  *
  * An upload is considered processed when:
  * 1. It has status PROCESSING (meaning it was uploaded to S3)
  * 2. It has a versionId from S3
- * 3. The album contains an image at that path with a matching versionId
+ * 3. The album contains an image at the expected path after server processing
+ *
+ * For files that are renamed on server (e.g., HEIC → JPG), we check that the album has an image
+ * at the expected path. For replacements, we also verify the versionId changed from the previous one.
+ * For non-renamed files, we match versionId exactly.
  *
  * @param uploads - The list of upload entries to check
  * @param getImageVersionId - Function to get the versionId of an image in the album (returns undefined if not found)
- * @returns Object containing array of processed image paths and whether all are done
+ * @returns Object containing array of processed uploadPaths and whether all are done
  */
 export function findProcessedUploads(
     uploads: UploadEntry[],
@@ -57,35 +59,61 @@ export function findProcessedUploads(
             continue;
         }
 
-        // Check if the image is in the album with matching versionId
         const albumVersionId = getImageVersionId(upload.imagePath);
+        const isComplete = isUploadComplete(upload, albumVersionId);
 
-        if (albumVersionId && albumVersionId === upload.versionId) {
-            // Found image with matching versionId. Mark as processed.
-            processed.push(upload.imagePath);
-            continue;
+        if (isComplete) {
+            processed.push(upload.uploadPath);
+        } else {
+            console.log(`Did not find file [${upload.imagePath}] in the album, it must still be processing`);
+            allProcessed = false;
         }
-
-        // For HEIC/HEIF files, check if the converted JPG exists in the album.
-        // The converted JPG will have a different versionId than the original upload,
-        // so we just check for existence rather than matching versionId.
-        const convertedPath = getConvertedJpgPath(upload.imagePath);
-        if (convertedPath) {
-            const convertedVersionId = getImageVersionId(convertedPath);
-            if (convertedVersionId) {
-                // Found converted JPG. Mark as processed.
-                processed.push(upload.imagePath);
-                continue;
-            }
-        }
-
-        console.log(
-            `Did not find file [${upload.imagePath}] version [${upload.versionId}] in the album, it must still be processing`,
-        );
-        allProcessed = false;
     }
     if (allProcessed) {
         console.log(`Found all uploaded files in the album, processing complete!`);
     }
     return { processed, allProcessed };
+}
+
+/**
+ * Determines if a single upload is complete based on the album's current state.
+ */
+function isUploadComplete(upload: UploadEntry, albumVersionId: string | undefined): boolean {
+    if (isRenamedOnServer(upload.uploadPath)) {
+        // File is renamed on server (e.g., HEIC → JPG), so versionId will differ from upload
+        if (upload.previousVersionId) {
+            // Replacement: wait for versionId to change from the previous one
+            return albumVersionId !== undefined && albumVersionId !== upload.previousVersionId;
+        } else {
+            // New upload: just needs to exist in album
+            return albumVersionId !== undefined;
+        }
+    } else {
+        // File keeps same name, so versionId should match exactly
+        return albumVersionId === upload.versionId;
+    }
+}
+
+/**
+ * Check which files already exist in the album.
+ * For colliding files, sets previousVersionId so upload completion detection works correctly.
+ * @param files - Files to check for collisions
+ * @param album - The album to check against (if undefined, returns empty array)
+ * @returns Names of colliding files (for display in confirmation dialog)
+ */
+export function enrichWithPreviousVersionIds(files: ImageToUpload[], album: Album | undefined): string[] {
+    const collidingNames: string[] = [];
+    if (!album || !album.images?.length) return collidingNames;
+    for (const file of files) {
+        // Check both upload path and final path (e.g., HEIC→JPG conversion)
+        const imagePath = getImagePath(file.uploadPath);
+        const image = album.getImage(file.uploadPath) ?? album.getImage(imagePath);
+        if (image) {
+            console.log(`File [${file.uploadPath}] is already in album [${album.path}]`);
+            collidingNames.push(file.file.name);
+            // Set previousVersionId so upload completion detection works for replacements
+            file.previousVersionId = image.versionId;
+        }
+    }
+    return collidingNames;
 }

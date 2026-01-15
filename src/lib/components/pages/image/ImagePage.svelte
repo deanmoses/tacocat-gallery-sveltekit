@@ -59,6 +59,6 @@
 
 {#if sessionStore.isAdmin}
     {#await import('./ImageFullScreenDropZone.svelte') then { default: ImageFullScreenDropZone }}
-        <ImageFullScreenDropZone imagePath={image.path} />
+        <ImageFullScreenDropZone imagePath={image.path} versionId={image.versionId} />
     {/await}
 {/if}

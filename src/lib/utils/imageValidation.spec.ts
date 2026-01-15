@@ -35,7 +35,7 @@ function createMockFile(name: string, size: number): File {
 function createImageToUpload(name: string, size: number): ImageToUpload {
     return {
         file: createMockFile(name, size),
-        imagePath: `/2024/01-01/${name}`,
+        uploadPath: `/2024/01-01/${name}`,
     };
 }
 
@@ -68,7 +68,7 @@ describe('validateImageBatch', () => {
         const result = await validateImageBatch(files);
 
         expect(result.valid).toHaveLength(2);
-        expect(result.valid.map((f) => f.imagePath)).toEqual(['/2024/01-01/valid1.jpg', '/2024/01-01/valid2.jpg']);
+        expect(result.valid.map((f) => f.uploadPath)).toEqual(['/2024/01-01/valid1.jpg', '/2024/01-01/valid2.jpg']);
         expect(result.invalid).toEqual(['/2024/01-01/empty.jpg']);
     });
 

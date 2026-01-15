@@ -1,9 +1,10 @@
 import type { ImageToUpload } from '$lib/models/album';
+import { browserCanDisplay } from './fileFormats';
 
 /** Result of validating a batch of files */
 export type ImageValidationResult = {
     valid: ImageToUpload[];
-    invalid: string[]; // imagePaths that failed validation
+    invalid: string[]; // uploadPaths that failed validation
 };
 
 /**
@@ -23,7 +24,7 @@ export async function validateImageBatch(files: ImageToUpload[]): Promise<ImageV
         if (results[i]) {
             valid.push(files[i]);
         } else {
-            invalid.push(files[i].imagePath);
+            invalid.push(files[i].uploadPath);
         }
     }
 
@@ -31,18 +32,9 @@ export async function validateImageBatch(files: ImageToUpload[]): Promise<ImageV
 }
 
 /**
- * Returns true if the file has a HEIC/HEIF extension.
- * These formats aren't supported by most browsers' Image element,
- * so we skip content validation for them.
- */
-function isHeicFile(fileName: string): boolean {
-    return /\.(heic|heif)$/i.test(fileName);
-}
-
-/**
  * Validates a single file by attempting to load it as an image.
  * Creates a temporary object URL, attempts load, then revokes the URL.
- * HEIC/HEIF files skip browser Image validation since most browsers can't load them.
+ * Some formats (e.g., HEIC) skip browser Image validation since most browsers can't load them.
  *
  * @returns true if valid, false if invalid
  */
@@ -54,9 +46,9 @@ async function validateSingleImage(imageToUpload: ImageToUpload): Promise<boolea
         return false;
     }
 
-    // HEIC/HEIF files can't be loaded by most browsers' Image element,
+    // Some formats (e.g., HEIC) can't be loaded by most browsers' Image element,
     // so skip content validation for them (backend will handle conversion)
-    if (isHeicFile(file.name)) {
+    if (!browserCanDisplay(file.name)) {
         return true;
     }
 
@@ -85,24 +77,24 @@ function loadImage(url: string): Promise<boolean> {
 
 /**
  * Creates an object URL for an image file.
- * For HEIC/HEIF files, tests if the browser can display them first.
+ * For formats that browsers may not support (e.g., HEIC), tests if the browser can display them first.
  * Returns empty string if the browser can't display the file.
  */
 export async function createPreviewUrl(file: File): Promise<string> {
     const url = URL.createObjectURL(file);
 
-    // Non-HEIC files can be displayed by all browsers
-    if (!isHeicFile(file.name)) {
+    // Most files can be displayed by all browsers
+    if (browserCanDisplay(file.name)) {
         return url;
     }
 
-    // Test if browser can load this HEIC file
+    // Test if browser can load this file
     const canLoad = await loadImage(url);
     if (canLoad) {
         return url;
     }
 
-    // Browser can't display HEIC, clean up and return empty
+    // Browser can't display this format, clean up and return empty
     URL.revokeObjectURL(url);
     return '';
 }

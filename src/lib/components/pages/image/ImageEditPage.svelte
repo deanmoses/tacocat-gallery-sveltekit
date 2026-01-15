@@ -60,4 +60,4 @@
         {/key}
     {/snippet}
 </ImagePageLayout>
-<ImageFullScreenDropZone imagePath={image.path} allowDrop={okToNavigate} />
+<ImageFullScreenDropZone imagePath={image.path} versionId={image.versionId} allowDrop={okToNavigate} />

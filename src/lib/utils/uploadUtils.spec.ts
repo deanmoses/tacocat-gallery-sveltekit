@@ -1,17 +1,25 @@
 import { test, expect, describe } from 'vitest';
-import { findProcessedUploads } from './uploadUtils';
+import { findProcessedUploads, getUploadPathForReplacement } from './uploadUtils';
 import { UploadState, type UploadEntry } from '$lib/models/album';
+import { getImagePath } from './fileFormats';
 
 /**
  * Helper to create an UploadEntry for testing.
  * Uses a minimal mock File since we don't need file contents for these tests.
  */
-function createUpload(imagePath: string, status: UploadState, versionId?: string): UploadEntry {
+function createUpload(
+    uploadPath: string,
+    status: UploadState,
+    versionId?: string,
+    previousVersionId?: string,
+): UploadEntry {
     return {
         file: new File([], 'test.jpg'),
-        imagePath,
+        uploadPath,
+        imagePath: getImagePath(uploadPath),
         status,
         versionId,
+        previousVersionId,
     };
 }
 
@@ -207,5 +215,90 @@ describe('findProcessedUploads', () => {
             '/2024/01-01/photo3.heif',
         ]);
         expect(result.allProcessed).toBe(true);
+    });
+
+    //
+    // HEIC REPLACEMENT: When replacing a JPG with a HEIC, we need to detect
+    // when the versionId changes from the previous value (not just exists).
+    //
+
+    test('marks HEIC replacement as pending when album still has old versionId', () => {
+        // Replacing cow_portrait.jpg with a HEIC - upload goes to cow_portrait.heic
+        // The previousVersionId is the old JPG's versionId
+        const uploads = [
+            createUpload(
+                '/2024/01-01/cow_portrait.heic',
+                UploadState.PROCESSING,
+                'heic-upload-version',
+                'old-jpg-version', // previousVersionId - the JPG we're replacing
+            ),
+        ];
+        // Album still has the old JPG (server hasn't processed the HEIC yet)
+        const getImageVersionId = (path: string) =>
+            path === '/2024/01-01/cow_portrait.jpg' ? 'old-jpg-version' : undefined;
+
+        const result = findProcessedUploads(uploads, getImageVersionId);
+
+        // Should NOT be processed yet - versionId hasn't changed
+        expect(result.processed).toEqual([]);
+        expect(result.allProcessed).toBe(false);
+    });
+
+    test('marks HEIC replacement as processed when album has new versionId', () => {
+        // Same scenario, but now the server has processed the HEIC and created a new JPG
+        const uploads = [
+            createUpload(
+                '/2024/01-01/cow_portrait.heic',
+                UploadState.PROCESSING,
+                'heic-upload-version',
+                'old-jpg-version', // previousVersionId - the JPG we're replacing
+            ),
+        ];
+        // Album now has the new JPG with a different versionId
+        const getImageVersionId = (path: string) =>
+            path === '/2024/01-01/cow_portrait.jpg' ? 'new-jpg-version' : undefined;
+
+        const result = findProcessedUploads(uploads, getImageVersionId);
+
+        // Should be processed - versionId changed from old to new
+        expect(result.processed).toEqual(['/2024/01-01/cow_portrait.heic']);
+        expect(result.allProcessed).toBe(true);
+    });
+
+    test('HEIC new upload (not replacement) completes when JPG exists', () => {
+        // New HEIC upload (no previousVersionId) - should complete when JPG exists
+        const uploads = [createUpload('/2024/01-01/photo.heic', UploadState.PROCESSING, 'heic-upload-version')];
+        const getImageVersionId = (path: string) => (path === '/2024/01-01/photo.jpg' ? 'any-version' : undefined);
+
+        const result = findProcessedUploads(uploads, getImageVersionId);
+
+        expect(result.processed).toEqual(['/2024/01-01/photo.heic']);
+        expect(result.allProcessed).toBe(true);
+    });
+});
+
+describe('getUploadPathForReplacement', () => {
+    test('returns same path when extensions match', () => {
+        expect(getUploadPathForReplacement('/2024/01-01/photo.jpg', 'new_photo.jpg')).toBe('/2024/01-01/photo.jpg');
+    });
+
+    test('replaces JPG extension with HEIC when dropping HEIC onto JPG', () => {
+        expect(getUploadPathForReplacement('/2024/01-01/photo.jpg', 'new_photo.heic')).toBe('/2024/01-01/photo.heic');
+    });
+
+    test('replaces JPG extension with HEIF when dropping HEIF onto JPG', () => {
+        expect(getUploadPathForReplacement('/2024/01-01/photo.jpg', 'new_photo.heif')).toBe('/2024/01-01/photo.heif');
+    });
+
+    test('replaces PNG extension with JPG when dropping JPG onto PNG', () => {
+        expect(getUploadPathForReplacement('/2024/01-01/photo.png', 'new_photo.jpg')).toBe('/2024/01-01/photo.jpg');
+    });
+
+    test('handles uppercase extensions in source file', () => {
+        expect(getUploadPathForReplacement('/2024/01-01/photo.jpg', 'new_photo.HEIC')).toBe('/2024/01-01/photo.heic');
+    });
+
+    test('handles uppercase extensions in target path', () => {
+        expect(getUploadPathForReplacement('/2024/01-01/photo.JPG', 'new_photo.heic')).toBe('/2024/01-01/photo.heic');
     });
 });
