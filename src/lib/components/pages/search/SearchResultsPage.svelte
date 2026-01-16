@@ -82,7 +82,12 @@
         <Thumbnails>
             {#if results?.items}
                 {#each results.items as item (item.path)}
-                    <Thumbnail href={item.href} src={item.thumbnailUrl} title={item.title} summary={item.summary} />
+                    <Thumbnail
+                        href={item.href}
+                        thumbnailUrlInfo={item.thumbnailUrlInfo}
+                        title={item.title}
+                        summary={item.summary}
+                    />
                 {/each}
                 {#if moreResultsOnServer || loadingMore}
                     {#if errorLoadingMore}

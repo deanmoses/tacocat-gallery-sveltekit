@@ -1,10 +1,9 @@
 import { albumPathToDate } from '$lib/utils/galleryPathUtils';
 import type { AlbumGalleryItem, AlbumRecord, GalleryRecord, ImageRecord } from './server';
-import type { Album, Image, Thumbable } from '../GalleryItemInterfaces';
+import type { Album, Image, Thumbable, ThumbnailUrlInfo } from '../GalleryItemInterfaces';
 import { ThumbableBaseImpl } from './ThumbableBaseImpl';
 import { ImageImpl } from './ImageImpl';
 import toAlbum from './AlbumCreator';
-import { thumbnailUrl } from '$lib/utils/config';
 
 export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
     override readonly json: AlbumGalleryItem;
@@ -75,9 +74,13 @@ export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
         };
     }
 
-    get thumbnailUrl(): string | undefined {
-        return this.json?.thumbnail?.path
-            ? thumbnailUrl(this.json.thumbnail.path, this.json.thumbnail.versionId, this.json.thumbnail.crop)
+    get thumbnailUrlInfo(): ThumbnailUrlInfo | undefined {
+        return this.json?.thumbnail?.path && this.json.thumbnail.versionId
+            ? {
+                  imagePath: this.json.thumbnail.path,
+                  versionId: this.json.thumbnail.versionId,
+                  crop: this.json.thumbnail.crop,
+              }
             : undefined;
     }
 

@@ -56,7 +56,7 @@
                         title={image.title}
                         summary={image.summary}
                         href={image.path}
-                        src={image.thumbnailUrl}
+                        thumbnailUrlInfo={image.thumbnailUrlInfo}
                     >
                         {#snippet selectionControls()}
                             <SelectableStar
@@ -72,7 +72,7 @@
                             path={image.path}
                             title={image.title}
                             summary={image.summary}
-                            src={image.thumbnailUrl}
+                            thumbnailUrlInfo={image.thumbnailUrlInfo}
                         />
                     </div>
                 {/if}
@@ -93,7 +93,7 @@
     div {
         cursor: not-allowed;
     }
-    :global(figure:hover .notSelected) {
+    :global(.thumbnail:hover .notSelected) {
         animation: fadeIn 1400ms;
         display: inherit;
     }

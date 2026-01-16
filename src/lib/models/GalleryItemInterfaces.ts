@@ -4,11 +4,19 @@
 
 import type { AlbumGalleryItem, Rectangle } from './impl/server';
 
+/**
+ * Info needed to construct a thumbnail URL
+ */
+export interface ThumbnailUrlInfo {
+    readonly imagePath: string;
+    readonly versionId: string;
+    readonly crop?: Rectangle;
+}
+
 export interface Album extends Nextable {
     published: boolean;
     summary: string;
     thumbnailPath: string | undefined;
-    readonly thumbnailUrl: string | undefined;
     readonly json: AlbumGalleryItem; // so that I can save the JSON to disk
     readonly parentHref: string;
     readonly parentTitle: string;
@@ -41,7 +49,7 @@ export interface Thumbable {
     readonly title: string;
     description: string;
     readonly summary: string;
-    readonly thumbnailUrl: string | undefined;
+    readonly thumbnailUrlInfo: ThumbnailUrlInfo | undefined;
     readonly href: string;
     readonly published: boolean;
 }

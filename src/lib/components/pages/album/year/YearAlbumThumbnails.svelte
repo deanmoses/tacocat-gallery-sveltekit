@@ -64,8 +64,8 @@
             {#each month.albums as childAlbum (childAlbum.path)}
                 <AlbumThumbnail
                     path={childAlbum.path}
-                    href={childAlbum.path}
-                    src={childAlbum.thumbnailUrl}
+                    href={childAlbum.href}
+                    thumbnailUrlInfo={childAlbum.thumbnailUrlInfo}
                     title={getTitle(childAlbum.path)}
                     summary={childAlbum.summary}
                     published={childAlbum.published}

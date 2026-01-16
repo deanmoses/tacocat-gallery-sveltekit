@@ -1,7 +1,6 @@
 import type { ImageRecord } from './server';
-import type { Thumbable } from '../GalleryItemInterfaces';
+import type { Thumbable, ThumbnailUrlInfo } from '../GalleryItemInterfaces';
 import { ThumbableBaseImpl } from './ThumbableBaseImpl';
-import { thumbnailUrl } from '$lib/utils/config';
 import { toTitleFromFilename } from '$lib/utils/titleUtils';
 
 export class ImageThumbableImpl extends ThumbableBaseImpl implements Thumbable {
@@ -38,7 +37,11 @@ export class ImageThumbableImpl extends ThumbableBaseImpl implements Thumbable {
         return this.json.versionId;
     }
 
-    get thumbnailUrl(): string {
-        return thumbnailUrl(this.path, this.json.versionId, this.json.thumbnail);
+    get thumbnailUrlInfo(): ThumbnailUrlInfo {
+        return {
+            imagePath: this.path,
+            versionId: this.json.versionId,
+            crop: this.json.thumbnail,
+        };
     }
 }
