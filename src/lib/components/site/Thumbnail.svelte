@@ -92,6 +92,10 @@
 
     a:nth-of-type(2) {
         margin-top: 0.3em;
+        max-width: var(--thumbnail-width);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     img,
