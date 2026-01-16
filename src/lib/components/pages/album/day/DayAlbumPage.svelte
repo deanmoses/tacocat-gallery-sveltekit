@@ -50,7 +50,7 @@
             {#each album.images as image (image.path)}
                 <ImageThumbnail
                     title={image.title}
-                    src={image.thumbnailUrl}
+                    thumbnailUrlInfo={image.thumbnailUrlInfo}
                     summary={image.summary}
                     href={image.href}
                     path={image.path}

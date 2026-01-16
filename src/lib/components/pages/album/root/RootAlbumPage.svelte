@@ -44,8 +44,8 @@
                 {#each sortedAlbums as childAlbum (childAlbum.path)}
                     <AlbumThumbnail
                         path={childAlbum.path}
-                        href={childAlbum.path}
-                        src={childAlbum.thumbnailUrl}
+                        href={childAlbum.href}
+                        thumbnailUrlInfo={childAlbum.thumbnailUrlInfo}
                         title={childAlbum.title}
                     />
                 {/each}

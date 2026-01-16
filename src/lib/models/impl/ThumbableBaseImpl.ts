@@ -1,5 +1,5 @@
 import type { GalleryItemType, GalleryRecord } from './server';
-import type { Thumbable } from '../GalleryItemInterfaces';
+import type { Thumbable, ThumbnailUrlInfo } from '../GalleryItemInterfaces';
 
 export abstract class ThumbableBaseImpl implements Thumbable {
     protected readonly json: GalleryRecord;
@@ -11,7 +11,7 @@ export abstract class ThumbableBaseImpl implements Thumbable {
     abstract get title(): string;
     abstract get summary(): string;
     abstract get href(): string;
-    abstract get thumbnailUrl(): string | undefined;
+    abstract get thumbnailUrlInfo(): ThumbnailUrlInfo | undefined;
 
     get path(): string {
         return this.json.path;
