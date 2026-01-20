@@ -1,7 +1,7 @@
 import { test, expect, describe } from 'vitest';
 import { findProcessedUploads, getUploadPathForReplacement } from './uploadUtils';
 import { UploadState, type UploadEntry } from '$lib/models/album';
-import { getImagePath } from './fileFormats';
+import { getMediaPath } from './fileFormats';
 
 /**
  * Helper to create an UploadEntry for testing.
@@ -16,7 +16,7 @@ function createUpload(
     return {
         file: new File([], 'test.jpg'),
         uploadPath,
-        imagePath: getImagePath(uploadPath),
+        mediaPath: getMediaPath(uploadPath),
         status,
         versionId,
         previousVersionId,

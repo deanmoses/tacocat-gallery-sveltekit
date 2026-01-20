@@ -1,12 +1,12 @@
 <!--
-  @component 
-  
-  Page to crop an image thumbnail
+  @component
+
+  Page to crop the thumbnail of a media item
 -->
 <script lang="ts">
-    import ImagePageLayout from './layouts/ImagePageLayout.svelte';
-    import CropImage from './CropImage.svelte';
-    import type { Image } from '$lib/models/GalleryItemInterfaces';
+    import MediaPageLayout from './layouts/MediaPageLayout.svelte';
+    import CropThumbnail from './CropThumbnail.svelte';
+    import type { Media } from '$lib/models/GalleryItemInterfaces';
     import CancelIcon from '$lib/components/site/icons/CancelIcon.svelte';
     import SaveIcon from '$lib/components/site/icons/SaveIcon.svelte';
     import { goto } from '$app/navigation';
@@ -15,32 +15,32 @@
     import { CropStatus } from '$lib/models/album';
 
     interface Props {
-        image: Image;
+        media: Media;
     }
 
-    let { image }: Props = $props();
-    let imageTitle: string = $derived(image.title);
-    let cropStatus: string = $derived(albumState.crops.get(image.path)?.status ?? 'NOT_CROPPING');
+    let { media }: Props = $props();
+    let mediaTitle: string = $derived(media.title);
+    let cropStatus: string = $derived(albumState.crops.get(media.path)?.status ?? 'NOT_CROPPING');
     let disableButtons: boolean = $derived(cropStatus == CropStatus.IN_PROGRESS);
-    let cropper = $state() as CropImage;
+    let cropper = $state() as CropThumbnail;
 
     function onCancel() {
-        goto(image.path);
+        goto(media.path);
     }
 
     function onSave() {
-        cropMachine.crop(image.path, cropper.getCrop());
-        goto(image.path);
+        cropMachine.crop(media.path, cropper.getCrop());
+        goto(media.path);
     }
 </script>
 
-<ImagePageLayout title={imageTitle}>
+<MediaPageLayout title={mediaTitle}>
     {#snippet caption()}
         <button onclick={onCancel} disabled={disableButtons}><CancelIcon /> Cancel</button>
         <button onclick={onSave} disabled={disableButtons}><SaveIcon /> Save</button>
     {/snippet}
 
     {#snippet imageHtml()}
-        <CropImage bind:this={cropper} {image} />
+        <CropThumbnail bind:this={cropper} {media} />
     {/snippet}
-</ImagePageLayout>
+</MediaPageLayout>

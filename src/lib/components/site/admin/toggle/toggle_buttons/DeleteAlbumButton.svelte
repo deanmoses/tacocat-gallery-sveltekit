@@ -20,7 +20,7 @@
     let show: boolean = $derived(isValidPath && !hasChildren(albumEntry));
 
     function hasChildren(albumEntry: AlbumEntry | undefined): boolean {
-        return !!albumEntry?.album?.albums?.length || !!albumEntry?.album?.images?.length;
+        return !!albumEntry?.album?.albums?.length || !!albumEntry?.album?.media?.length;
     }
 
     function onDeleteButtonClick() {

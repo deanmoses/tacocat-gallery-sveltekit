@@ -7,7 +7,7 @@ import { albumState } from '../AlbumState.svelte';
 import { CropStatus, type Crop } from '$lib/models/album';
 
 /**
- * Image thumbnail crop state machine
+ * Thumbnail crop state machine
  */
 class CropMachine {
     //
@@ -29,25 +29,24 @@ class CropMachine {
     /**
      * Crop the thumbnail
      */
-    crop(imagePath: string, crop: Crop): void {
-        console.log(`Saving crop of image [${imagePath}]`, crop);
-        albumState.crops.set(imagePath, {
-            imagePath,
+    crop(mediaPath: string, crop: Crop): void {
+        console.log(`Saving crop of [${mediaPath}]`, crop);
+        albumState.crops.set(mediaPath, {
+            mediaPath: mediaPath,
             crop,
             status: CropStatus.IN_PROGRESS,
         });
-        this.#crop(imagePath, crop); // call async logic in a fire-and-forget manner
+        this.#crop(mediaPath, crop); // call async logic in a fire-and-forget manner
     }
 
-    #success(imagePath: string) {
-        albumState.crops.delete(imagePath);
+    #success(mediaPath: string) {
+        albumState.crops.delete(mediaPath);
         toast.push(`Thumbnail cropped`);
-        // goto(imagePath); TODO: goto isn't appropriate here
     }
 
-    #error(imagePath: string, errorMessage: string) {
-        console.log(`Error cropping thumbnail for [${imagePath}]: ${errorMessage}`);
-        albumState.crops.delete(imagePath);
+    #error(mediaPath: string, errorMessage: string) {
+        console.log(`Error cropping thumbnail for [${mediaPath}]: ${errorMessage}`);
+        albumState.crops.delete(mediaPath);
         toast.push(`Error cropping thumbnail: ${errorMessage}`);
     }
 
@@ -62,10 +61,10 @@ class CropMachine {
     //  - These don't return values; they return void or Promise<void>
     //
 
-    async #crop(imagePath: string, crop: Crop): Promise<void> {
+    async #crop(mediaPath: string, crop: Crop): Promise<void> {
         try {
             // Make the save request
-            const response = await adminApi.patch(recropThumbnailUrl(imagePath), crop);
+            const response = await adminApi.patch(recropThumbnailUrl(mediaPath), crop);
 
             // Check for errors
             if (!response.ok) {
@@ -73,24 +72,24 @@ class CropMachine {
                 throw new Error(json?.errorMessage || response.statusText);
             }
 
-            console.log(`Updated thumbnail of [${imagePath}]`);
+            console.log(`Updated thumbnail of [${mediaPath}]`);
 
             // Reload parent album to:
-            //  1) get the image's new thumbnail
-            //  2) this image may be the album's thumb
-            const albumPath = getParentFromPath(imagePath);
+            //  1) get the media item's new thumbnail
+            //  2) this media item may be the album's thumb
+            const albumPath = getParentFromPath(mediaPath);
             console.log(`Reloading album [${albumPath}] from server`);
             await albumLoadMachine.fetchFromServer(albumPath); // force reload from server
 
-            // Reload year album because this image may be the year's thumb
+            // Reload year album because this media item may be the year's thumb
             // TODO: not doing yet because back end isn't setting year's thumb yet
             // console.log(`Reloading parent album [${getParentFromPath(albumPath)}] from server`);
             // await albumStore.fetchFromServer(getParentFromPath(albumPath)); // force reload from server
 
-            this.#success(imagePath);
+            this.#success(mediaPath);
         } catch (error) {
             const msg = error instanceof Error ? error.message : String(error);
-            this.#error(imagePath, msg);
+            this.#error(mediaPath, msg);
         }
     }
 }

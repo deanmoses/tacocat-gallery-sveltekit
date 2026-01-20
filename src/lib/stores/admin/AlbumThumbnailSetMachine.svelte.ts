@@ -56,18 +56,18 @@ class AlbumThumbnailSetMachine {
      * Set specified thumbnail as specified album's thumbnail
      *
      * @param albumPath path of album on which to set the thumbnail
-     * @param newThumbnailImagePath path of image, like '/2001/12-31/image.jpg'
+     * @param newThumbnailMediaPath path of a media item, like '/2001/12-31/image.jpg' or '/2001/12-31/video.mp4'
      */
-    setAlbumThumbnail(albumPath: string, newThumbnailImagePath: string): void {
+    setAlbumThumbnail(albumPath: string, newThumbnailMediaPath: string): void {
         this.#state.set(albumPath, {
             albumPath,
-            newThumbnailImagePath,
+            newThumbnailImagePath: newThumbnailMediaPath,
             status: AlbumThumbnailSetStatus.IN_PROGRESS,
         });
         albumLoadMachine.setUpdateStatus(albumPath, ReloadStatus.RELOADING);
 
         // Call the async logic in a fire-and-forget manner
-        this.#setAlbumThumbnail(albumPath, newThumbnailImagePath);
+        this.#setAlbumThumbnail(albumPath, newThumbnailMediaPath);
     }
 
     #success(albumPath: string) {
@@ -98,17 +98,17 @@ class AlbumThumbnailSetMachine {
     //  - These don't return values; they return void or Promise<void>
     //
 
-    async #setAlbumThumbnail(albumPath: string, newThumbnailImagePath: string): Promise<void> {
-        console.log(`Setting thumbnail of album [${albumPath}] to [${newThumbnailImagePath}]`);
+    async #setAlbumThumbnail(albumPath: string, newThumbnailMediaPath: string): Promise<void> {
+        console.log(`Setting thumbnail of album [${albumPath}] to [${newThumbnailMediaPath}]`);
         try {
             const response = await adminApi.patch(setThumbnailUrl(albumPath), {
-                imagePath: newThumbnailImagePath,
+                mediaPath: newThumbnailMediaPath,
             });
             if (!response.ok) {
                 const json = await response.json().catch(() => ({}));
                 throw new Error(json?.errorMessage || response.statusText);
             }
-            console.log(`Set thumbnail of album [${albumPath}] to [${newThumbnailImagePath}]`);
+            console.log(`Set thumbnail of album [${albumPath}] to [${newThumbnailMediaPath}]`);
             console.log(`Reloading album [${albumPath}] from server`);
             await albumLoadMachine.fetchFromServer(albumPath);
             console.log(`Reloading parent album [${getParentFromPath(albumPath)}] from server`);

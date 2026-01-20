@@ -1,7 +1,7 @@
 <!--
   @component
 
-  The base editing controls shared by both images and albums
+  The base editing controls shared by both albums and media items
 -->
 <script lang="ts">
     import type { Snippet } from 'svelte';
@@ -11,7 +11,7 @@
     import StatusMessage from './buttons/StatusMessage.svelte';
     import { DraftStatus } from '$lib/models/draft';
     import { page } from '$app/state';
-    import { isValidImagePath } from '$lib/utils/galleryPathUtils';
+    import { isValidMediaPath } from '$lib/utils/galleryPathUtils';
     import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
     import { editModeMachine } from '$lib/stores/admin/EditModeMachine.svete';
 
@@ -40,7 +40,7 @@
         // I guess the only reason to do it here is that when you're
         // NOT in edit mode, there's no need to listen to it.
         if (path === undefined) throw new Error(`path is undefined`);
-        const backEndPath = isValidImagePath(path) ? path : path + '/';
+        const backEndPath = isValidMediaPath(path) ? path : path + '/';
         draftMachine.init(backEndPath);
     }
 

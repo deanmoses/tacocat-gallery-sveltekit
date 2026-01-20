@@ -5,7 +5,7 @@
     For use when you don't actually have an image to display.
 -->
 <script lang="ts">
-    import ImagePageLayout from './ImagePageLayout.svelte';
+    import MediaPageLayout from './MediaPageLayout.svelte';
     import PrevButton from '$lib/components/site/nav/PrevButton.svelte';
     import UpButton from '$lib/components/site/nav/UpButton.svelte';
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
@@ -20,7 +20,7 @@
     let { title, children }: Props = $props();
 </script>
 
-<ImagePageLayout {title}>
+<MediaPageLayout {title}>
     {#snippet nav()}
         <PrevButton />
         <UpButton />
@@ -32,4 +32,4 @@
             {@render children?.()}
         </FullPageMessage>
     {/snippet}
-</ImagePageLayout>
+</MediaPageLayout>

@@ -16,7 +16,8 @@ Clone this project, `cd` into its directory, install dependencies with `npm inst
 ```bash
 npm run dev          # Start dev server.  It has a proxy API to the staging backend, so you'll get the staging gallery, photos, search
 npm run quality      # Format, lint, and type check
-npm run test:unit    # Run unit tests
+npm test             # Run unit tests
+npm run test:unit    # Run unit tests (verbose)
 npm run test:e2e     # Run end-to-end integration tests
 ```
 

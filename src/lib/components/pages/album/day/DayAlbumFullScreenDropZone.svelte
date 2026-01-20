@@ -6,9 +6,9 @@
 <script lang="ts">
     import FullScreenDropZone from '$lib/components/site/admin/FullScreenDropZone.svelte';
     import UploadReplaceConfirmDialog from '$lib/components/site/admin/toggle/toggle_buttons/UploadReplaceConfirmDialog.svelte';
-    import { getDroppedImages } from '$lib/stores/admin/DragDropUtils';
+    import { getDroppedFiles } from '$lib/stores/admin/DragDropUtils';
     import { uploadMachine, getSanitizedFiles } from '$lib/stores/admin/UploadMachine.svelte';
-    import type { ImageToUpload } from '$lib/models/album';
+    import type { MediaItemToUpload } from '$lib/models/album';
     import { sessionStore } from '$lib/stores/SessionStore.svelte';
     import { albumState } from '$lib/stores/AlbumState.svelte';
     import { enrichWithPreviousVersionIds } from '$lib/utils/uploadUtils';
@@ -23,14 +23,14 @@
 
     let dialog = $state() as UploadReplaceConfirmDialog;
 
-    let imagesToUpload: ImageToUpload[] = $state([]);
+    let imagesToUpload: MediaItemToUpload[] = $state([]);
 
     function isDropAllowed(e: DragEvent): boolean {
         return allowDrop && sessionStore.isAdmin && !!e.dataTransfer?.types.includes('Files');
     }
 
     async function onDrop(e: DragEvent): Promise<void> {
-        const files = await getDroppedImages(e);
+        const files = await getDroppedFiles(e);
         imagesToUpload = getSanitizedFiles(files, albumPath);
         if (!imagesToUpload || !imagesToUpload.length) return;
         const album = albumState.albums.get(albumPath)?.album;
@@ -38,12 +38,12 @@
         if (collidingNames.length > 0) {
             dialog.show(collidingNames);
         } else {
-            uploadMachine.uploadImages(albumPath, imagesToUpload);
+            uploadMachine.uploadMediaItems(albumPath, imagesToUpload);
         }
     }
 
     function onConfirm(): void {
-        uploadMachine.uploadImages(albumPath, imagesToUpload);
+        uploadMachine.uploadMediaItems(albumPath, imagesToUpload);
     }
 </script>
 

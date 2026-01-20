@@ -1,12 +1,13 @@
 <!--
   @component
 
-  A thumbnail of an album or image
+  A thumbnail of an album or image/video
 -->
 <script lang="ts">
     import CreateIcon from './icons/CreateIcon.svelte';
     import CropIcon from './icons/CropIcon.svelte';
     import DeleteIcon from './icons/DeleteIcon.svelte';
+    import PlayIcon from './icons/PlayIcon.svelte';
     import RenameIcon from './icons/RenameIcon.svelte';
     import UnpublishedIcon from './icons/UnpublishedIcon.svelte';
     import { thumbnailUrl } from '$lib/utils/config';
@@ -27,6 +28,8 @@
         deleting?: boolean;
         renaming?: boolean;
         cropping?: boolean;
+        /** Whether this thumbnail represents a video */
+        isVideo?: boolean;
         selectionControls?: Snippet;
     }
     let {
@@ -40,6 +43,7 @@
         deleting = false,
         renaming = false,
         cropping = false,
+        isVideo = false,
         selectionControls,
     }: Props = $props();
 
@@ -66,6 +70,8 @@
                 <CropIcon width="10em" height="10em" />
             </div>{:else if unpublished}<div class="icon-overlay">
                 <UnpublishedIcon width="3em" height="3em" />
+            </div>{/if}{#if isVideo}<div class="play-overlay">
+                <PlayIcon width="3em" height="3em" />
             </div>{/if}</a
     ><a {href}>{title}</a>
     {@render selectionControls?.()}
@@ -103,6 +109,7 @@
         width: var(--thumbnail-width);
         height: var(--thumbnail-height);
         border: var(--default-border);
+        object-fit: cover;
     }
 
     .no-image {
@@ -116,6 +123,20 @@
         right: 0;
         padding: 1em;
         color: red;
+    }
+
+    .play-overlay {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        color: rgba(255, 255, 255, 0.85);
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+        pointer-events: none;
     }
 
     .summary {

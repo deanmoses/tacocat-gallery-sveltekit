@@ -1,54 +1,54 @@
 <!--
   @component
-  
-  Route to the different loading / error / display statuses of a photo
+
+  Route to the different loading / error / display statuses of a media item (image or video)
 -->
 <script lang="ts">
     import { AlbumLoadStatus, DeleteStatus, RenameStatus, UploadState } from '$lib/models/album';
-    import ImageLoadingPage from '$lib/components/pages/image/ImageLoadingPage.svelte';
+    import MediaLoadingPage from './MediaLoadingPage.svelte';
     import HomeIcon from '$lib/components/site/icons/HomeIcon.svelte';
-    import type { Image } from '$lib/models/GalleryItemInterfaces';
-    import ImageProcessingPage from './ImageProcessingPage.svelte';
+    import type { Media } from '$lib/models/GalleryItemInterfaces';
+    import MediaProcessingPage from './MediaProcessingPage.svelte';
     import AlbumErrorPage from '../album/AlbumErrorPage.svelte';
     import type { Snippet } from 'svelte';
     import { albumState, getUpload } from '$lib/stores/AlbumState.svelte';
 
     interface Props {
         albumPath: string;
-        imagePath: string;
-        image: Image | undefined;
+        mediaPath: string;
+        media: Media | undefined;
         loaded?: Snippet;
     }
-    let { albumPath, imagePath, image, loaded }: Props = $props();
+    let { albumPath, mediaPath, media, loaded }: Props = $props();
 
     let albumLoadStatus = $derived(albumState.albums.get(albumPath)?.loadStatus);
-    let uploadStatus = $derived(getUpload(imagePath)?.status);
-    let renameStatus = $derived(albumState.imageRenames.get(imagePath)?.status);
-    let deleteStatus = $derived(albumState.imageDeletes.get(imagePath)?.status);
+    let uploadStatus = $derived(getUpload(mediaPath)?.status);
+    let renameStatus = $derived(albumState.mediaRenames.get(mediaPath)?.status);
+    let deleteStatus = $derived(albumState.mediaDeletes.get(mediaPath)?.status);
 </script>
 
 {#if uploadStatus}
     {#if UploadState.UPLOAD_NOT_STARTED === uploadStatus}
-        <ImageProcessingPage title="Upload Not Started" />
+        <MediaProcessingPage title="Upload Not Started" />
     {:else if UploadState.UPLOADING === uploadStatus}
-        <ImageProcessingPage title="Upload In Progress" />
+        <MediaProcessingPage title="Upload In Progress" />
     {:else if UploadState.PROCESSING === uploadStatus}
-        <ImageProcessingPage title="Upload Processing" />
+        <MediaProcessingPage title="Upload Processing" />
     {/if}
 {:else if RenameStatus.IN_PROGRESS === renameStatus}
-    <ImageProcessingPage title="Rename In Progress" />
+    <MediaProcessingPage title="Rename In Progress" />
 {:else if DeleteStatus.IN_PROGRESS === deleteStatus}
-    <ImageProcessingPage title="Delete In Progress" />
+    <MediaProcessingPage title="Delete In Progress" />
 {:else if AlbumLoadStatus.NOT_LOADED === albumLoadStatus}
-    <ImageLoadingPage />
+    <MediaLoadingPage />
 {:else if AlbumLoadStatus.LOADING === albumLoadStatus}
-    <ImageLoadingPage />
+    <MediaLoadingPage />
 {:else if AlbumLoadStatus.LOADED === albumLoadStatus}
-    {#if image}
+    {#if media}
         {@render loaded?.()}
     {:else}
-        <AlbumErrorPage title="Image Not Found">
-            <p>Image not found</p>
+        <AlbumErrorPage title="Media Not Found">
+            <p>Media not found</p>
             <p><a href="/">Go back <HomeIcon title="Home" />?</a></p>
         </AlbumErrorPage>
     {/if}

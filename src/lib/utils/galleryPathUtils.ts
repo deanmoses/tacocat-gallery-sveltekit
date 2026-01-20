@@ -1,9 +1,48 @@
+/** Supported image extensions */
+export const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'heic', 'heif'];
+
+/** Supported video extensions */
+export const VIDEO_EXTENSIONS = ['mp4', 'mov', 'avi', 'mkv', 'webm', 'm4v', '3gp'];
+
 /**
- * Return true if specified string is a valid album or image path
- * like / or /2001/ or /2001/12-31/ or /2001/12-31/image.jpg
+ * Return true if filename ends with a supported media (image or video) extension
+ */
+export function hasValidMediaExtension(fileName: string): boolean {
+    const extPattern = [...IMAGE_EXTENSIONS, ...VIDEO_EXTENSIONS].join('|');
+    const regex = new RegExp(`^.+\\.(${extPattern})$`, 'i');
+    return regex.test(fileName);
+}
+
+/**
+ * Return string of all valid media extensions, something like ".jpg, .jpeg, .png, .gif, .mov, .avi"
+ */
+export function validMediaExtensionsString(): string {
+    return [...IMAGE_EXTENSIONS, ...VIDEO_EXTENSIONS].map((ext) => `.${ext}`).join(', ');
+}
+
+/**
+ * Return true if specified string is a valid album, image, or video path
+ * like / or /2001/ or /2001/12-31/ or /2001/12-31/image.jpg or /2001/12-31/video.mp4
  */
 export function isValidPath(path: string): boolean {
-    return isValidAlbumPath(path) || isValidImagePath(path);
+    return isValidAlbumPath(path) || isValidMediaPath(path);
+}
+
+/**
+ * Return true if specified string is a valid media path (image or video)
+ * like /2001/12-31/image.jpg or /2001/12-31/video.mp4.
+ *
+ * Cannot be on root album like /image.jpg
+ * Cannot be on year album like /2001/image.jpg
+ * Must be on a day album like /2001/12-31/image.jpg
+ */
+export function isValidMediaPath(path: string): boolean {
+    const extPattern = [...IMAGE_EXTENSIONS, ...VIDEO_EXTENSIONS].join('|');
+    const regex = new RegExp(
+        `^/\\d\\d\\d\\d/(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])/[a-zA-Z0-9_-]+\\.(${extPattern})$`,
+        'i',
+    );
+    return regex.test(path);
 }
 
 /**
@@ -14,95 +53,67 @@ export function isValidAlbumPath(path: string): boolean {
     return /^(\/\d\d\d\d(\/(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))?)?\/$/.test(path);
 }
 
-export function isValidYearAlbumName(yearAlbumName: string): boolean {
-    return /^\d\d\d\d$/.test(yearAlbumName);
-}
-
 /**
  * Return true if specified string is a valid year album path like /2001/
  */
-export function isValidYearAlbumPath(yearAlbumPath: string): boolean {
-    return /^\/\d\d\d\d\/$/.test(yearAlbumPath);
+export function isValidYearAlbumPath(path: string): boolean {
+    return /^\/\d\d\d\d\/$/.test(path);
 }
 
 /**
  * Return true if specified string is a valid day album path like /2001/12-31/
  */
-export function isValidDayAlbumPath(dayAlbumPath: string): boolean {
-    return /^\/\d\d\d\d\/(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])\/$/i.test(dayAlbumPath);
+export function isValidDayAlbumPath(path: string): boolean {
+    return /^\/\d\d\d\d\/(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])\/$/i.test(path);
 }
 
 /**
- * Return true if specified string is a valid day album name like 12-31
- */
-export function isValidDayAlbumName(dayAlbumName: string): boolean {
-    return /^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(dayAlbumName);
-}
-
-/**
- * Return true if specified string is a valid image path like /2001/12-31/image.jpg
- * Cannot be on root album like /image.jpg
- * Cannot be on year album like /2001/image.jpg
- * Must be on a day album like /2001/12-31/image.jpg
- */
-export function isValidImagePath(imagePath: string): boolean {
-    return /^\/\d\d\d\d\/(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])\/[a-zA-Z0-9_-]+\.(jpg|jpeg|png|gif|heic|heif)$/i.test(
-        imagePath,
-    );
-}
-
-/**
- * Return true if specified string is a valid image name like 'image.jpg'
- * Must not have a path.
- *
- * @param imageName name of image
- */
-export function isValidImageName(imageName: string): boolean {
-    return /^[a-zA-Z0-9_-]+\.(jpg|jpeg|gif|png)$/i.test(imageName);
-}
-
-/**
- * Return true if specified string is a valid strict image name.
+ * Return true if specified string is a strictly valid media filename.
  * Must be lower case
  * No hyphens (-) just underscores (_)
- * Must be 'jpg' not 'jpeg'
  * Must not have a path.
- *
- * @param imageName name of image
  */
-export function isValidImageNameStrict(imageName: string): boolean {
-    return /^[a-z0-9]+([a-z0-9_]*[a-z0-9]+)*\.(jpg|gif|png)$/.test(imageName);
-}
-
-export function isValidImageNameWithoutExtensionStrict(imageName: string): boolean {
-    return /^[a-z0-9]+([a-z0-9_]*[a-z0-9]+)*$/.test(imageName);
+export function isValidMediaNameWithoutExtensionStrict(filename: string): boolean {
+    return /^[a-z0-9]+([a-z0-9_]*[a-z0-9]+)*$/.test(filename);
 }
 
 /**
- * Return a sanitized version of the specified image name.
+ * Return sanitized version of the specified extensionless media filename.
+ *
+ * @param name media filename without extension like some-image (no .jpg)
+ */
+export function sanitizeMediaNameWithoutExtension(name: string): string {
+    return (name || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9_]+/g, '_') // any invalid chars to _
+        .replace(/_+/g, '_') // multiple _ to _
+        .replace(/^_/, '') // remove leading underscore
+        .replace(/_$/, ''); // remove trailing underscore
+}
+
+/**
+ * Return sanitized extension: lowercase, jpeg -> jpg
+ */
+function sanitizeMediaExtension(ext: string): string {
+    return (ext || '').toLowerCase().replace(/^jpeg$/, 'jpg');
+}
+
+/**
+ * Return sanitized version of the specified media filename.
  *  - IMAGE.JPG -> image.jpg
  *  - image-1.jpg -> image_1.jpg
  *  - image 1.jpg -> image_1.jpg
- * Does not check whether it's a valid image name for the gallery.
+ * Does not check whether it's a valid media name for the gallery.
  *
- * @param imageName filename like some-image.jpg
+ * @param filename filename like some-image.jpg
  */
-export function sanitizeImageName(imageName: string): string {
-    return (imageName || '')
-        .toLowerCase()
-        .replace(/\.jpeg$/, '.jpg') // jpeg -> jpg
-        .replace(/[^a-z0-9_.]+/g, '_') // any invalid chars to _
-        .replace(/_+/g, '_') // multple underscores to _
-        .replace(/^_/g, '') // remove leading underscore
-        .replace(/(_)\./g, '.'); // remove trailing underscore
-}
-
-export function sanitizeImageNameWithoutExtension(imageName: string): string {
-    return (imageName || '')
-        .toLowerCase()
-        .replace(/[^a-z0-9_]+/g, '_') // any invalid chars to _
-        .replace(/_+/g, '_') // multple _ to _
-        .replace(/^_/g, ''); // remove leading underscore
+export function sanitizeMediaFilename(filename: string): string {
+    if (!filename) return '';
+    const dotIndex = filename.lastIndexOf('.');
+    if (dotIndex === -1) return sanitizeMediaNameWithoutExtension(filename);
+    const name = sanitizeMediaNameWithoutExtension(filename.slice(0, dotIndex));
+    const ext = sanitizeMediaExtension(filename.slice(dotIndex + 1));
+    return `${name}.${ext}`;
 }
 
 export function sanitizeDayAlbumName(albumName: string): string {
@@ -194,25 +205,25 @@ export function albumPathToDate(albumPath: string): Date {
 }
 
 /**
- * De-duplicate image paths by appending _2, _3, etc. to duplicates.
+ * De-duplicate media paths by appending _2, _3, etc. to duplicates.
  * Preserves the order of the original array.
  *
- * @param imagePaths array of image paths like /2024/01-01/photo.jpg
+ * @param mediaPaths array of media paths like /2024/01-01/photo.jpg
  * @returns array with duplicates renamed
  */
-export function deduplicateImagePaths(imagePaths: string[]): string[] {
+export function deduplicateMediaPaths(mediaPaths: string[]): string[] {
     const used = new Set<string>(); // All paths that are used (original or generated)
     const result: string[] = [];
 
     // First pass: mark all original paths as potentially used
-    for (const path of imagePaths) {
+    for (const path of mediaPaths) {
         used.add(path);
     }
 
     // Track how many times we've seen each original path
     const seenCount = new Map<string, number>();
 
-    for (const path of imagePaths) {
+    for (const path of mediaPaths) {
         const count = seenCount.get(path) || 0;
         seenCount.set(path, count + 1);
 
@@ -237,21 +248,4 @@ export function deduplicateImagePaths(imagePaths: string[]): string[] {
     }
 
     return result;
-}
-
-/** Return true if specified filename ends with a supported extension */
-export function hasValidExtension(fileName: string): boolean {
-    return /^.+\.(jpg|jpeg|png|gif|heic|heif)$/i.test(fileName);
-}
-
-/** Supported file extensions */
-export function validFileExtensions(): string[] {
-    return ['jpg', 'jpeg', 'png', 'gif', 'heic', 'heif'];
-}
-
-/** Return something like ".jpg, .jpeg, .png, .gif" */
-export function validExtensionsString(): string {
-    return validFileExtensions()
-        .map((ext) => `.${ext}`)
-        .join(', ');
 }

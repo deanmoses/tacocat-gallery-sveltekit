@@ -1,15 +1,15 @@
 import { RenameStatus } from '$lib/models/album';
-import { renameImageUrl } from '$lib/utils/config';
+import { renameMediaUrl } from '$lib/utils/config';
 import { adminApi } from '$lib/utils/adminApi';
-import { getNameFromPath, getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
+import { getNameFromPath, getParentFromPath, isValidMediaPath } from '$lib/utils/galleryPathUtils';
 import { toast } from '@zerodevx/svelte-toast';
 import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
 import { albumState } from '../AlbumState.svelte';
 
 /**
- * Image rename state machine
+ * Media rename state machine
  */
-class ImageRenameMachine {
+class MediaRenameMachine {
     //
     // STATE TRANSITION METHODS
     // These mutate the store's state.
@@ -26,26 +26,26 @@ class ImageRenameMachine {
     //    To read this store's state, use one of the public $derived() fields
     //
 
-    renameImage(oldImagePath: string, newImagePath: string): void {
-        this.#renameImage(oldImagePath, newImagePath); // call async logic in a fire-and-forget manner
+    renameMediaItem(oldPath: string, newPath: string): void {
+        this.#renameMediaItem(oldPath, newPath); // call async logic in a fire-and-forget manner
     }
 
     #renameStarted(oldPath: string, newPath: string): void {
-        albumState.imageRenames.set(oldPath, {
+        albumState.mediaRenames.set(oldPath, {
             oldPath,
             newPath,
             status: RenameStatus.IN_PROGRESS,
         });
     }
 
-    #success(oldImagePath: string): void {
-        albumState.imageRenames.delete(oldImagePath);
+    #success(oldPath: string): void {
+        albumState.mediaRenames.delete(oldPath);
     }
 
-    #error(oldImagePath: string, newImagePath: string, errorMessage: string): void {
-        console.error(`Error renaming ${oldImagePath} to ${newImagePath}: ${errorMessage}`);
-        albumState.imageRenames.delete(oldImagePath);
-        toast.push(`Error renaming image: ${errorMessage}`);
+    #error(oldPath: string, newPath: string, errorMessage: string): void {
+        console.error(`Error renaming ${oldPath} to ${newPath}: ${errorMessage}`);
+        albumState.mediaRenames.delete(oldPath);
+        toast.push(`Error renaming file: ${errorMessage}`);
     }
 
     //
@@ -59,27 +59,27 @@ class ImageRenameMachine {
     //  - These don't return values; they return void or Promise<void>
     //
 
-    async #renameImage(oldImagePath: string, newImagePath: string) {
+    async #renameMediaItem(oldMediaPath: string, newMediaPath: string) {
         try {
-            if (!isValidImagePath(oldImagePath)) throw new Error(`Invalid image path [${oldImagePath}]`);
-            if (!isValidImagePath(newImagePath)) throw new Error(`Invalid image path [${newImagePath}]`);
-            const albumPath = getParentFromPath(newImagePath);
+            if (!isValidMediaPath(oldMediaPath)) throw new Error(`Invalid media path [${oldMediaPath}]`);
+            if (!isValidMediaPath(newMediaPath)) throw new Error(`Invalid media path [${newMediaPath}]`);
+            const albumPath = getParentFromPath(newMediaPath);
             const album = albumState.albums.get(albumPath)?.album;
             if (!album) throw new Error(`Album [${albumPath}] not loaded`);
-            const newName = getNameFromPath(newImagePath);
-            console.log(`Renaming image [${oldImagePath}] to [${newName}]...`);
-            this.#renameStarted(oldImagePath, newImagePath);
-            const response = await adminApi.post(renameImageUrl(oldImagePath), { newName });
+            const newName = getNameFromPath(newMediaPath);
+            console.log(`Renaming [${oldMediaPath}] to [${newName}]...`);
+            this.#renameStarted(oldMediaPath, newMediaPath);
+            const response = await adminApi.post(renameMediaUrl(oldMediaPath), { newName });
             if (!response.ok) {
                 const json = await response.json().catch(() => ({}));
                 throw new Error(json?.errorMessage || response.statusText);
             }
             await albumLoadMachine.fetchFromServer(albumPath); // update the album
-            this.#success(oldImagePath);
+            this.#success(oldMediaPath);
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
-            this.#error(oldImagePath, newImagePath, msg);
+            this.#error(oldMediaPath, newMediaPath, msg);
         }
     }
 }
-export const imageRenameMachine = new ImageRenameMachine();
+export const mediaRenameMachine = new MediaRenameMachine();

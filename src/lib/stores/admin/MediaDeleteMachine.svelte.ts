@@ -1,15 +1,15 @@
 import { DeleteStatus } from '$lib/models/album';
 import { deleteUrl } from '$lib/utils/config';
 import { adminApi } from '$lib/utils/adminApi';
-import { getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
+import { getParentFromPath, isValidMediaPath } from '$lib/utils/galleryPathUtils';
 import { toast } from '@zerodevx/svelte-toast';
 import { albumState } from '../AlbumState.svelte';
 import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
 
 /**
- * Image delete state machine
+ * Media delete state machine
  */
-class ImageDeleteMachine {
+class MediaDeleteMachine {
     //
     // STATE TRANSITION METHODS
     // These mutate the store's state.
@@ -26,23 +26,23 @@ class ImageDeleteMachine {
     //    To read this store's state, use one of the public $derived() fields
     //
 
-    delete(imagePath: string): void {
-        this.#deleteImage(imagePath); // call async logic in a fire-and-forget manner
+    delete(mediaPath: string): void {
+        this.#deleteMediaItem(mediaPath); // call async logic in a fire-and-forget manner
     }
 
-    #deleteStarted(imagePath: string): void {
-        albumState.imageDeletes.set(imagePath, {
+    #deleteStarted(mediaPath: string): void {
+        albumState.mediaDeletes.set(mediaPath, {
             status: DeleteStatus.IN_PROGRESS,
         });
     }
 
-    #success(imagePath: string): void {
-        albumState.imageDeletes.delete(imagePath);
+    #success(mediaPath: string): void {
+        albumState.mediaDeletes.delete(mediaPath);
     }
 
-    #error(imagePath: string, errorMessage: string): void {
-        albumState.imageDeletes.delete(imagePath);
-        toast.push(`Error deleting ${imagePath}: ${errorMessage}`);
+    #error(mediaPath: string, errorMessage: string): void {
+        albumState.mediaDeletes.delete(mediaPath);
+        toast.push(`Error deleting ${mediaPath}: ${errorMessage}`);
     }
 
     //
@@ -56,23 +56,23 @@ class ImageDeleteMachine {
     //  - These don't return values; they return void or Promise<void>
     //
 
-    async #deleteImage(imagePath: string) {
+    async #deleteMediaItem(mediaPath: string) {
         try {
-            if (!isValidImagePath(imagePath)) throw new Error(`Invalid image path [${imagePath}]`);
-            this.#deleteStarted(imagePath);
-            const response = await adminApi.delete(deleteUrl(imagePath));
+            if (!isValidMediaPath(mediaPath)) throw new Error(`Invalid media path [${mediaPath}]`);
+            this.#deleteStarted(mediaPath);
+            const response = await adminApi.delete(deleteUrl(mediaPath));
             if (!response.ok) {
                 const json = await response.json().catch(() => ({}));
                 throw new Error(json?.errorMessage || response.statusText);
             }
-            console.log(`Image [${imagePath}] deleted`);
+            console.log(`Media [${mediaPath}] deleted`);
             // reload the album
-            await albumLoadMachine.fetchFromServer(getParentFromPath(imagePath));
-            this.#success(imagePath);
+            await albumLoadMachine.fetchFromServer(getParentFromPath(mediaPath));
+            this.#success(mediaPath);
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
-            this.#error(imagePath, msg);
+            this.#error(mediaPath, msg);
         }
     }
 }
-export const imageDeleteMachine = new ImageDeleteMachine();
+export const mediaDeleteMachine = new MediaDeleteMachine();

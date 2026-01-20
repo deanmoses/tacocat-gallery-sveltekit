@@ -1,18 +1,18 @@
 <!--
-    @component 
+    @component
 
-    An image cropper
+    An image cropper to crop the thumbnail of a media item
 -->
 <script lang="ts">
     import Cropper, { type OnCropCompleteEvent } from 'svelte-easy-crop';
-    import type { Image } from '$lib/models/GalleryItemInterfaces';
+    import type { Media } from '$lib/models/GalleryItemInterfaces';
 
     type Crop = { x: number; y: number; height: number; width: number };
     interface Props {
-        image: Image;
+        media: Media;
     }
 
-    let { image }: Props = $props();
+    let { media }: Props = $props();
     export function getCrop(): Crop {
         return newCrop;
     }
@@ -26,7 +26,7 @@
 </script>
 
 <div class="cropContainer">
-    <Cropper image={image.detailUrl} aspect={1} showGrid={false} oncropcomplete={onCropChange} />
+    <Cropper image={media.detailUrl} aspect={1} showGrid={false} oncropcomplete={onCropChange} />
 </div>
 
 <style>

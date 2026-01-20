@@ -1,6 +1,6 @@
-import { UploadState, type ImageToUpload, type UploadEntry } from '$lib/models/album';
+import { UploadState, type MediaItemToUpload, type UploadEntry } from '$lib/models/album';
 import type { Album } from '$lib/models/GalleryItemInterfaces';
-import { getImagePath, isRenamedOnServer } from './fileFormats';
+import { getMediaPath, isRenamedOnServer } from './fileFormats';
 
 /**
  * For replacement uploads, returns the upload path to use.
@@ -59,13 +59,13 @@ export function findProcessedUploads(
             continue;
         }
 
-        const albumVersionId = getImageVersionId(upload.imagePath);
+        const albumVersionId = getImageVersionId(upload.mediaPath);
         const isComplete = isUploadComplete(upload, albumVersionId);
 
         if (isComplete) {
             processed.push(upload.uploadPath);
         } else {
-            console.log(`Did not find file [${upload.imagePath}] in the album, it must still be processing`);
+            console.log(`Did not find file [${upload.mediaPath}] in the album, it must still be processing`);
             allProcessed = false;
         }
     }
@@ -101,18 +101,18 @@ function isUploadComplete(upload: UploadEntry, albumVersionId: string | undefine
  * @param album - The album to check against (if undefined, returns empty array)
  * @returns Names of colliding files (for display in confirmation dialog)
  */
-export function enrichWithPreviousVersionIds(files: ImageToUpload[], album: Album | undefined): string[] {
+export function enrichWithPreviousVersionIds(files: MediaItemToUpload[], album: Album | undefined): string[] {
     const collidingNames: string[] = [];
-    if (!album || !album.images?.length) return collidingNames;
+    if (!album || !album.media?.length) return collidingNames;
     for (const file of files) {
         // Check both upload path and final path (e.g., HEIC→JPG conversion)
-        const imagePath = getImagePath(file.uploadPath);
-        const image = album.getImage(file.uploadPath) ?? album.getImage(imagePath);
-        if (image) {
+        const mediaPath = getMediaPath(file.uploadPath);
+        const media = album.getMedia(file.uploadPath) ?? album.getMedia(mediaPath);
+        if (media) {
             console.log(`File [${file.uploadPath}] is already in album [${album.path}]`);
             collidingNames.push(file.file.name);
             // Set previousVersionId so upload completion detection works for replacements
-            file.previousVersionId = image.versionId;
+            file.previousVersionId = media.versionId;
         }
     }
     return collidingNames;

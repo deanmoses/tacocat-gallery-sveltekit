@@ -1,15 +1,15 @@
 <!--
   @component
 
-  Button to upload multiple images on a day album page
+  Button to upload multiple media items (images or videos) on a day album page
 -->
 <script lang="ts">
     import { page } from '$app/state';
     import UploadIcon from '$lib/components/site/icons/UploadIcon.svelte';
-    import type { ImageToUpload } from '$lib/models/album';
+    import type { MediaItemToUpload } from '$lib/models/album';
     import { albumState } from '$lib/stores/AlbumState.svelte';
     import { getSanitizedFiles, uploadMachine } from '$lib/stores/admin/UploadMachine.svelte';
-    import { isValidDayAlbumPath, validExtensionsString } from '$lib/utils/galleryPathUtils';
+    import { isValidDayAlbumPath, validMediaExtensionsString } from '$lib/utils/galleryPathUtils';
     import { enrichWithPreviousVersionIds } from '$lib/utils/uploadUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import UploadReplaceConfirmDialog from './UploadReplaceConfirmDialog.svelte';
@@ -19,7 +19,7 @@
 
     let fileInput = $state() as HTMLInputElement;
     let dialog = $state() as UploadReplaceConfirmDialog;
-    let imagesToUpload: ImageToUpload[] = $state([]);
+    let imagesToUpload: MediaItemToUpload[] = $state([]);
 
     function onUploadButtonClick() {
         fileInput.click();
@@ -35,12 +35,12 @@
         if (collidingNames.length > 0) {
             dialog.show(collidingNames);
         } else {
-            uploadMachine.uploadImages(albumPath, imagesToUpload);
+            uploadMachine.uploadMediaItems(albumPath, imagesToUpload);
         }
     }
 
     function onConfirm(): void {
-        uploadMachine.uploadImages(albumPath, imagesToUpload);
+        uploadMachine.uploadMediaItems(albumPath, imagesToUpload);
     }
 </script>
 
@@ -51,7 +51,7 @@
         onchange={onFilesSelected}
         type="file"
         multiple
-        accept={validExtensionsString()}
+        accept={validMediaExtensionsString()}
         style="display:none"
     />
     <UploadReplaceConfirmDialog bind:this={dialog} {onConfirm} />

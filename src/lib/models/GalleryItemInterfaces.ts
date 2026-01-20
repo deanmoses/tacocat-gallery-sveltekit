@@ -4,6 +4,12 @@
 
 import type { AlbumGalleryItem, Rectangle } from './impl/server';
 
+/** Type of gallery item */
+export type ItemType = 'album' | 'media';
+
+/** Type of media item */
+export type MediaType = 'image' | 'video';
+
 /**
  * Info needed to construct a thumbnail URL
  */
@@ -20,21 +26,36 @@ export interface Album extends Nextable {
     readonly json: AlbumGalleryItem; // so that I can save the JSON to disk
     readonly parentHref: string;
     readonly parentTitle: string;
-    readonly images: Thumbable[];
+    readonly media: Media[];
     readonly albums: Thumbable[];
-    getImage(imagePath: string): Image | undefined;
+    getMedia(mediaPath: string): Media | undefined;
 }
 
-export interface Image extends Nextable {
+/** Base interface for all media items (images and videos) */
+export interface Media extends Nextable {
+    readonly mediaType: MediaType;
     title: string;
-    readonly originalUrl: string;
-    readonly originalWidth: number;
-    readonly originalHeight: number;
+    readonly versionId: string;
+    readonly thumbnail: Rectangle | undefined;
+    /** Sized image for photos, poster for videos */
     readonly detailUrl: string;
     readonly detailWidth: number;
     readonly detailHeight: number;
-    readonly versionId: string;
-    readonly thumbnail: Rectangle | undefined;
+}
+
+export interface Image extends Media {
+    readonly mediaType: 'image';
+    readonly originalUrl: string;
+    readonly originalWidth: number;
+    readonly originalHeight: number;
+}
+
+export interface Video extends Media {
+    readonly mediaType: 'video';
+    /** URL-safe ID for constructing video playback URL */
+    readonly id: string;
+    /** Duration in seconds */
+    readonly duration: number;
 }
 
 export interface Nextable extends Thumbable {
@@ -45,7 +66,9 @@ export interface Nextable extends Thumbable {
 }
 
 export interface Thumbable {
-    readonly path: string; // TODO: replace with get id() and stop using path in the UI
+    readonly path: string;
+    readonly itemType: ItemType;
+    readonly mediaType?: MediaType;
     readonly title: string;
     description: string;
     readonly summary: string;

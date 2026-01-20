@@ -1,23 +1,23 @@
-import type { ImageToUpload } from '$lib/models/album';
+import type { MediaItemToUpload } from '$lib/models/album';
 import { browserCanDisplay } from './fileFormats';
 
 /** Result of validating a batch of files */
-export type ImageValidationResult = {
-    valid: ImageToUpload[];
+export type MediaValidationResult = {
+    valid: MediaItemToUpload[];
     invalid: string[]; // uploadPaths that failed validation
 };
 
 /**
- * Validates that files are loadable images.
- * Checks file size > 0 and attempts to load via Image element.
+ * Validates that files are valid media.
+ * Checks file size > 0 and attempts to load browser-loadable media.
  *
  * @param files Files to validate (already filtered by extension)
  * @returns Valid files and list of invalid filenames
  */
-export async function validateImageBatch(files: ImageToUpload[]): Promise<ImageValidationResult> {
-    const results = await Promise.all(files.map((file) => validateSingleImage(file)));
+export async function validateMediaBatch(files: MediaItemToUpload[]): Promise<MediaValidationResult> {
+    const results = await Promise.all(files.map((file) => validateMediaItem(file)));
 
-    const valid: ImageToUpload[] = [];
+    const valid: MediaItemToUpload[] = [];
     const invalid: string[] = [];
 
     for (let i = 0; i < files.length; i++) {
@@ -32,14 +32,14 @@ export async function validateImageBatch(files: ImageToUpload[]): Promise<ImageV
 }
 
 /**
- * Validates a single file by attempting to load it as an image.
+ * Validates a single media item by attempting to load it as an image.
  * Creates a temporary object URL, attempts load, then revokes the URL.
  * Some formats (e.g., HEIC) skip browser Image validation since most browsers can't load them.
  *
  * @returns true if valid, false if invalid
  */
-async function validateSingleImage(imageToUpload: ImageToUpload): Promise<boolean> {
-    const file = imageToUpload.file;
+async function validateMediaItem(mediaItemToUpload: MediaItemToUpload): Promise<boolean> {
+    const file = mediaItemToUpload.file;
 
     // Check for empty file
     if (file.size === 0) {

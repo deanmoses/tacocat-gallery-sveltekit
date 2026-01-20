@@ -1,6 +1,6 @@
 import type { Rectangle } from '$lib/models/impl/server';
 import { emulateProdOnLocalhost } from './settings';
-import { isValidAlbumPath, isValidImagePath } from './galleryPathUtils';
+import { isValidAlbumPath, isValidMediaPath } from './galleryPathUtils';
 import { browser } from '$app/environment';
 import type { SearchQuery } from '$lib/models/search';
 
@@ -44,34 +44,52 @@ function cdnDomain(): string {
 }
 
 /**
- * URL to CDN'ed derived images
- * @param imagePath Path to an image like /2001/12-31/image.jpg
- * @param versionId Version of the image
+ * URL to CDN'ed thumbnail images
+ * @param mediaPath Path to the source media like /2001/12-31/image.jpg or /2001/12-31/video.mp4
+ * @param versionId Version of the source media
  * @param crop Optional crop rectangle
  */
-export function thumbnailUrl(imagePath: string, versionId: string, crop?: Rectangle | undefined): string {
+export function thumbnailUrl(mediaPath: string, versionId: string, crop?: Rectangle | undefined): string {
     return (
-        `https://${cdnDomain()}/i${imagePath}?version=${versionId}&size=200x200` +
+        `https://${cdnDomain()}/i${mediaPath}?version=${versionId}&size=200x200` +
         (crop ? `&crop=${crop.x},${crop.y},${crop.width},${crop.height}` : '')
     );
 }
 
 /**
- * URL to optimized image for display on the image detail page
- * @param imagePath Path to an image like /2001/12-31/image.jpg
- * @param versionId Version of the image
+ * URL to image optimized for display on the media detail page
+ * @param mediaPath Path to the source media like /2001/12-31/image.jpg or /2001/12-31/video.mp4
+ * @param versionId Version of the source media
  * @param size size like '1024' (landscape) or 'x1024' (portrait)
  */
-export function detailImageUrl(imagePath: string, versionId: string, size: string): string {
-    return `https://${cdnDomain()}/i${imagePath}?version=${versionId}&size=${size}`;
+export function detailImageUrl(mediaPath: string, versionId: string, size: string): string {
+    return `https://${cdnDomain()}/i${mediaPath}?version=${versionId}&size=${size}`;
 }
 
 /**
- * URL to view the full sized original raw image
- * @param imagePath path to an image like /2001/12-31/image.jpg
+ * URL to view the full sized original raw media.
+ * For some formats (like video), this may not be displayable in a browser.
+ * @param mediaPath path to media like /2001/12-31/image.jpg or /2001/12-31/video.mp4
  */
-export function originalImageUrl(imagePath: string): string {
-    return `https://${cdnDomain()}${imagePath}`;
+export function originalMediaUrl(mediaPath: string): string {
+    return `https://${cdnDomain()}${mediaPath}`;
+}
+
+/**
+ * URL to stream a video
+ * @param path Path to video like /2001/12-31/video.mp4
+ * @param id ID of media item
+ * @param versionId Version of the video
+ */
+export function videoPlaybackUrl(path: string, id: string, versionId: string): string {
+    return `https://${cdnDomain()}/v${path}?id=${id}&version=${versionId}`;
+}
+
+/**
+ * URL to check for media processing errors
+ */
+export function mediaErrorsUrl(): string {
+    return baseApiUrl() + 'errors';
 }
 
 /**
@@ -83,27 +101,27 @@ export function albumUrl(path: string): string {
 }
 
 /**
- * URL to send HTTP PUT to create an album or image
- * @param path path of album or image
+ * URL to send HTTP PUT to create an album
+ * @param path path of album to create
  */
-export function createUrl(path: string): string {
-    return baseApiUrl() + (isValidImagePath(path) ? 'image' : 'album') + path;
+export function createAlbumUrl(path: string): string {
+    return baseApiUrl() + 'album' + path;
 }
 
 /**
- * URL to send HTTP PATCH to update an album or an image
- * @param path path of album or image
+ * URL to send HTTP PATCH to update an album or media item
+ * @param path path of album or media item
  */
 export function updateUrl(path: string): string {
-    return baseApiUrl() + (isValidImagePath(path) ? 'image' : 'album') + path;
+    return baseApiUrl() + (isValidMediaPath(path) ? 'media' : 'album') + path;
 }
 
 /**
- * URL to send HTTP DELETE to delete an album or image
- * @param path path of album or image
+ * URL to send HTTP DELETE to delete an album or media item
+ * @param path path of album or media item
  */
 export function deleteUrl(path: string): string {
-    return baseApiUrl() + (isValidImagePath(path) ? 'image' : 'album') + path;
+    return baseApiUrl() + (isValidMediaPath(path) ? 'media' : 'album') + path;
 }
 
 /**
@@ -123,11 +141,11 @@ export function getPresignedUploadUrlGenerationUrl(albumPath: string): string {
 }
 
 /**
- * URL to send HTTP PATCH to recrop an image thumbnail
- * @param imagePath path to an image like /2001/12-31/image.jpg
+ * URL to send HTTP PATCH to recrop a media thumbnail
+ * @param mediaPath path to media like /2001/12-31/image.jpg or /2001/12-31/video.mp4
  */
-export function recropThumbnailUrl(imagePath: string): string {
-    return baseApiUrl() + 'thumb' + imagePath;
+export function recropThumbnailUrl(mediaPath: string): string {
+    return baseApiUrl() + 'thumb' + mediaPath;
 }
 
 /**
@@ -139,11 +157,11 @@ export function renameAlbumUrl(albumPath: string): string {
 }
 
 /**
- * URL to send HTTP POST to rename an image
- * @param imagePath path to an image like /2001/12-31/image.jpg
+ * URL to send HTTP POST to rename a media item (image or video)
+ * @param mediaPath path to media like /2001/12-31/image.jpg or /2001/12-31/video.mp4
  */
-export function renameImageUrl(imagePath: string): string {
-    return baseApiUrl() + 'image-rename' + imagePath;
+export function renameMediaUrl(mediaPath: string): string {
+    return baseApiUrl() + 'media-rename' + mediaPath;
 }
 
 /**
