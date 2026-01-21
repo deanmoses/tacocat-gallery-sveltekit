@@ -40,10 +40,7 @@
 </script>
 
 {#key video.path}
-    <div
-        class="video-container"
-        style="max-width: {video.detailWidth}px; max-height: {video.detailHeight}px; aspect-ratio: {video.detailWidth} / {video.detailHeight};"
-    >
+    <div class="video-container" style="aspect-ratio: {video.detailWidth} / {video.detailHeight};">
         {#if isPlaying}
             <!-- svelte-ignore a11y_media_has_caption -->
             <video bind:this={videoElement} src={videoUrl} controls autoplay class="video" onended={handleEnded}>
