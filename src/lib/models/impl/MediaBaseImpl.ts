@@ -2,6 +2,7 @@ import type { MediaRecord, Rectangle } from './server';
 import type { Album, Media, MediaType, Thumbable, ThumbnailUrlInfo } from '../GalleryItemInterfaces';
 import { ThumbableBaseImpl } from './ThumbableBaseImpl';
 import { detailImageUrl } from '$lib/utils/config';
+import { getDetailWidth, getDetailHeight } from '$lib/utils/dimensionUtils';
 import { toTitleFromFilename } from '$lib/utils/titleUtils';
 
 /**
@@ -70,27 +71,11 @@ export abstract class MediaBaseImpl extends ThumbableBaseImpl implements Media {
     }
 
     get detailWidth(): number {
-        const width = this.json.dimensions.width;
-        const height = this.json.dimensions.height;
-        if (!width) {
-            return 1024;
-        } else if (!height || width > height) {
-            return width < 1024 ? width : 1024;
-        } else {
-            return Math.round(1024 * (width / height));
-        }
+        return getDetailWidth(this.json.dimensions.width, this.json.dimensions.height);
     }
 
     get detailHeight(): number {
-        const width = this.json.dimensions.width;
-        const height = this.json.dimensions.height;
-        if (!height) {
-            return 1024;
-        } else if (!width || height > width) {
-            return height < 1024 ? height : 1024;
-        } else {
-            return Math.round(1024 * (height / width));
-        }
+        return getDetailHeight(this.json.dimensions.width, this.json.dimensions.height);
     }
 
     // Navigation within album

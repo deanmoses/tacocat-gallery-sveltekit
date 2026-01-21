@@ -44,7 +44,13 @@
     {/snippet}
 
     {#snippet caption()}
-        <EditableHtml htmlContent={album.description} />
+        {#if uploads?.length}
+            {#await import('./UploadStatus.svelte') then { default: UploadStatus }}
+                <UploadStatus {uploads} />
+            {/await}
+        {:else}
+            <EditableHtml htmlContent={album.description} />
+        {/if}
     {/snippet}
 
     {#snippet thumbnails()}

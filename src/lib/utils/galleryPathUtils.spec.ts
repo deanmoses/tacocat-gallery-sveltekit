@@ -112,6 +112,15 @@ describe('hasValidExtension', () => {
         expect(hasValidMediaExtension('photo.Heic')).toBe(true);
     });
 
+    test('accepts video extensions', () => {
+        expect(hasValidMediaExtension('video.mp4')).toBe(true);
+        expect(hasValidMediaExtension('video.mov')).toBe(true);
+        expect(hasValidMediaExtension('video.mpg')).toBe(true);
+        expect(hasValidMediaExtension('video.mpeg')).toBe(true);
+        expect(hasValidMediaExtension('video.MPG')).toBe(true);
+        expect(hasValidMediaExtension('video.MPEG')).toBe(true);
+    });
+
     test('rejects invalid extensions', () => {
         expect(hasValidMediaExtension('photo.txt')).toBe(false);
         expect(hasValidMediaExtension('photo.pdf')).toBe(false);
@@ -140,6 +149,8 @@ describe('isValidMediaPath', () => {
     test('accepts video paths', () => {
         expect(isValidMediaPath('/2024/01-15/video.mp4')).toBe(true);
         expect(isValidMediaPath('/2024/01-15/video.mov')).toBe(true);
+        expect(isValidMediaPath('/2024/01-15/video.mpg')).toBe(true);
+        expect(isValidMediaPath('/2024/01-15/video.mpeg')).toBe(true);
     });
 });
 

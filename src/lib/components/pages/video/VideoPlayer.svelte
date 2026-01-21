@@ -7,7 +7,7 @@
 <script lang="ts">
     import type { Video } from '$lib/models/GalleryItemInterfaces';
     import { videoPlaybackUrl } from '$lib/utils/config';
-    import PlayIcon from '$lib/components/site/icons/PlayIcon.svelte';
+    import PlayButtonIcon from '$lib/components/site/icons/PlayButtonIcon.svelte';
 
     interface Props {
         video: Video;
@@ -15,6 +15,7 @@
 
     let { video }: Props = $props();
     let isPlaying = $state(false);
+    let posterLoaded = $state(false);
     let videoElement: HTMLVideoElement | undefined = $state();
 
     let videoUrl = $derived(videoPlaybackUrl(video.path, video.id, video.versionId));
@@ -50,11 +51,19 @@
             </video>
         {:else}
             <button class="poster-button" onclick={handlePlay} aria-label="Play video: {video.title}">
-                <img src={video.detailUrl} alt={video.title} class="poster" draggable="false" />
-                <div class="play-overlay">
-                    <PlayIcon width="5em" height="5em" />
-                </div>
-                <div class="duration-badge">{formatDuration(video.duration)}</div>
+                <img
+                    src={video.detailUrl}
+                    alt={video.title}
+                    class="poster"
+                    draggable="false"
+                    onload={() => (posterLoaded = true)}
+                />
+                {#if posterLoaded}
+                    <div class="play-overlay">
+                        <PlayButtonIcon size="5em" />
+                    </div>
+                    <div class="duration-badge">{formatDuration(video.duration)}</div>
+                {/if}
             </button>
         {/if}
     </div>
