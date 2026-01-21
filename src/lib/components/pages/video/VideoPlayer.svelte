@@ -43,18 +43,12 @@
     <div class="video-container" style="aspect-ratio: {video.detailWidth} / {video.detailHeight};">
         {#if isPlaying}
             <!-- svelte-ignore a11y_media_has_caption -->
-            <video bind:this={videoElement} src={videoUrl} controls autoplay class="video" onended={handleEnded}>
+            <video bind:this={videoElement} src={videoUrl} controls autoplay onended={handleEnded}>
                 Your browser does not support video playback.
             </video>
         {:else}
-            <button class="poster-button" onclick={handlePlay} aria-label="Play video: {video.title}">
-                <img
-                    src={video.detailUrl}
-                    alt={video.title}
-                    class="poster"
-                    draggable="false"
-                    onload={() => (posterLoaded = true)}
-                />
+            <button onclick={handlePlay} aria-label="Play video: {video.title}">
+                <img src={video.detailUrl} alt={video.title} draggable="false" onload={() => (posterLoaded = true)} />
                 {#if posterLoaded}
                     <div class="play-overlay">
                         <PlayButtonIcon size="5em" />
@@ -73,7 +67,7 @@
         height: 100%;
     }
 
-    .poster-button {
+    button {
         display: block;
         width: 100%;
         height: 100%;
@@ -84,7 +78,7 @@
         position: relative;
     }
 
-    .poster {
+    img {
         object-fit: contain;
         width: 100%;
         height: 100%;
@@ -92,7 +86,7 @@
         background-color: #f0f0f0;
     }
 
-    .video {
+    video {
         object-fit: contain;
         width: 100%;
         height: 100%;
@@ -109,7 +103,7 @@
         transition: transform 0.15s ease;
     }
 
-    .poster-button:hover .play-overlay {
+    button:hover .play-overlay {
         transform: translate(-50%, -50%) scale(1.1);
     }
 
