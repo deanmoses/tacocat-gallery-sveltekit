@@ -55,20 +55,20 @@
 
     {#snippet thumbnails()}
         {#if album.media?.length}
-            {#each album.media as image (image.path)}
+            {#each album.media as media (media.path)}
                 {#if okToNavigate}
                     <MediaThumbnail
-                        path={image.path}
-                        mediaType={image.mediaType}
-                        title={image.title}
-                        summary={image.summary}
-                        href={image.path}
-                        thumbnailUrlInfo={image.thumbnailUrlInfo}
+                        path={media.path}
+                        mediaType={media.mediaType}
+                        title={media.title}
+                        summary={media.summary}
+                        href={media.path}
+                        thumbnailUrlInfo={media.thumbnailUrlInfo}
                     >
                         {#snippet selectionControls()}
                             <SelectableStar
                                 albumThumbPath={album.thumbnailPath}
-                                path={image.path}
+                                path={media.path}
                                 onSelected={albumThumbnailSelected}
                             />
                         {/snippet}
@@ -76,17 +76,17 @@
                 {:else}
                     <div title="💾 Save changes before navigating">
                         <MediaThumbnail
-                            path={image.path}
-                            mediaType={image.mediaType}
-                            title={image.title}
-                            summary={image.summary}
-                            thumbnailUrlInfo={image.thumbnailUrlInfo}
+                            path={media.path}
+                            mediaType={media.mediaType}
+                            title={media.title}
+                            summary={media.summary}
+                            thumbnailUrlInfo={media.thumbnailUrlInfo}
                         />
                     </div>
                 {/if}
             {/each}
         {:else if !album.published && !uploads?.length && okToNavigate}
-            <p>Drop images or a 📁</p>
+            <p>Drop images and videos or a 📁</p>
         {/if}
         {#if uploads?.length}
             {#each uploads as upload (upload.uploadPath)}

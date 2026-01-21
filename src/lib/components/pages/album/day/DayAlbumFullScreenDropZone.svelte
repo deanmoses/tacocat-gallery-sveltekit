@@ -47,5 +47,5 @@
     }
 </script>
 
-<FullScreenDropZone {isDropAllowed} {onDrop}>Drop images or a 📁</FullScreenDropZone>
+<FullScreenDropZone {isDropAllowed} {onDrop}>Drop image and videos or a 📁</FullScreenDropZone>
 <UploadReplaceConfirmDialog bind:this={dialog} {onConfirm} />

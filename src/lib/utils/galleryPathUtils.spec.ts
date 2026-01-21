@@ -8,7 +8,7 @@ import {
     IMAGE_EXTENSIONS,
 } from './galleryPathUtils';
 
-describe('sanitizeImageName', () => {
+describe('sanitizeMediaFilename', () => {
     // Basic transformations
     test('converts to lowercase', () => {
         expect(sanitizeMediaFilename('IMAGE.JPG')).toBe('image.jpg');
@@ -91,7 +91,7 @@ describe('sanitizeImageName', () => {
     });
 });
 
-describe('hasValidExtension', () => {
+describe('hasValidMediaExtension', () => {
     test('accepts standard image extensions', () => {
         expect(hasValidMediaExtension('photo.jpg')).toBe(true);
         expect(hasValidMediaExtension('photo.jpeg')).toBe(true);
@@ -186,7 +186,7 @@ describe('sanitizeMediaNameWithoutExtension', () => {
     });
 });
 
-describe('deduplicateImagePaths', () => {
+describe('deduplicateMediaPaths', () => {
     test('returns paths unchanged when no duplicates', () => {
         expect(deduplicateMediaPaths(['/2024/01-01/a.jpg', '/2024/01-01/b.jpg'])).toEqual([
             '/2024/01-01/a.jpg',

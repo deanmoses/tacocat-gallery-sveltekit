@@ -55,6 +55,12 @@
     );
     let unpublished: boolean = $derived(!published);
     let imageLoaded = $state(false);
+
+    // Reset imageLoaded when imgSrc changes to avoid showing play icon over stale image
+    $effect(() => {
+        void imgSrc;
+        imageLoaded = false;
+    });
 </script>
 
 <div class="thumbnail">

@@ -47,18 +47,18 @@
 
     {#snippet thumbnails()}
         {#if album.media?.length}
-            {#each album.media as image (image.path)}
+            {#each album.media as media (media.path)}
                 <MediaThumbnail
-                    title={image.title}
-                    thumbnailUrlInfo={image.thumbnailUrlInfo}
-                    summary={image.summary}
-                    href={image.href}
-                    path={image.path}
-                    mediaType={image.mediaType}
+                    title={media.title}
+                    thumbnailUrlInfo={media.thumbnailUrlInfo}
+                    summary={media.summary}
+                    href={media.href}
+                    path={media.path}
+                    mediaType={media.mediaType}
                 />
             {/each}
         {:else if !album.published && !uploads?.length}
-            <p>Drop images or a 📁</p>
+            <p>Drop images and videos or a 📁</p>
         {/if}
         {#if uploads?.length}
             <!-- 
