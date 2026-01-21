@@ -124,6 +124,6 @@ export function isVideoRecord(record: GalleryRecord): record is VideoRecord {
 
 export function isImageRecord(record: GalleryRecord): record is ImageRecord {
     if (!isMediaRecord(record)) return false;
-    // Old format: no mediaType field; New format: mediaType === 'image'
-    return !('mediaType' in record) || record.mediaType === 'image';
+    // Old format: no mediaType or falsy; New format: mediaType === 'image'
+    return !record.mediaType || record.mediaType === 'image';
 }

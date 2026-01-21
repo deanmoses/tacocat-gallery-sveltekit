@@ -30,7 +30,10 @@
         isPlaying = true;
         // Wait for video element to be rendered, then play
         setTimeout(() => {
-            videoElement?.play();
+            videoElement?.play().catch(() => {
+                // If autoplay fails (e.g., browser policy), revert to poster state
+                isPlaying = false;
+            });
         }, 0);
     }
 
@@ -47,7 +50,7 @@
                 Your browser does not support video playback.
             </video>
         {:else}
-            <button onclick={handlePlay} aria-label="Play video: {video.title}">
+            <button type="button" onclick={handlePlay} aria-label="Play video: {video.title}">
                 <img src={video.detailUrl} alt={video.title} draggable="false" onload={() => (posterLoaded = true)} />
                 {#if posterLoaded}
                     <div class="play-overlay">

@@ -88,6 +88,14 @@ describe('getDetailWidth and getDetailHeight', () => {
         test('missing height returns maxSize for height', () => {
             expect(getDetailHeight(500, 0)).toBe(1024);
         });
+
+        test('huge width with missing height is clamped to maxSize', () => {
+            expect(getDetailWidth(5000, 0)).toBe(1024);
+        });
+
+        test('huge height with missing width is clamped to maxSize', () => {
+            expect(getDetailHeight(0, 5000)).toBe(1024);
+        });
     });
 
     describe('custom maxSize', () => {
