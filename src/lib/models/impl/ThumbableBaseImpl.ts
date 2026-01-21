@@ -1,5 +1,5 @@
-import type { GalleryItemType, GalleryRecord } from './server';
-import type { Thumbable, ThumbnailUrlInfo } from '../GalleryItemInterfaces';
+import type { GalleryRecord } from './server';
+import type { ItemType, Thumbable, ThumbnailUrlInfo } from '../GalleryItemInterfaces';
 
 export abstract class ThumbableBaseImpl implements Thumbable {
     protected readonly json: GalleryRecord;
@@ -25,8 +25,11 @@ export abstract class ThumbableBaseImpl implements Thumbable {
         return this.json.itemName;
     }
 
-    protected get itemType(): GalleryItemType {
-        return this.json.itemType;
+    get itemType(): ItemType {
+        const serverType = this.json.itemType;
+        if (serverType === 'album') return 'album';
+        if (serverType === 'media' || serverType === 'image') return 'media';
+        throw new Error(`Unknown itemType: ${serverType}`);
     }
 
     get description(): string {

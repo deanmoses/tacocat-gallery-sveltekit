@@ -3,10 +3,12 @@ import type { Search, SearchQuery, SearchResults } from '$lib/models/search';
 import { SearchLoadStatus } from '$lib/models/search';
 import toAlbum from '$lib/models/impl/AlbumCreator';
 import { ImageThumbableImpl } from '$lib/models/impl/ImageThumbableImpl';
+import { VideoThumbableImpl } from '$lib/models/impl/VideoThumbableImpl';
 import { searchUrl } from '$lib/utils/config';
 import { longDate } from '$lib/utils/date-utils';
 import { albumPathToDate, getParentFromPath } from '$lib/utils/galleryPathUtils';
-import type { AlbumRecord, GalleryRecord, ImageRecord } from '$lib/models/impl/server';
+import type { GalleryRecord, ImageRecord, VideoRecord } from '$lib/models/impl/server';
+import { isAlbumRecord, isImageRecord, isVideoRecord } from '$lib/models/impl/server';
 import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
 import { SvelteMap } from 'svelte/reactivity';
 
@@ -187,20 +189,30 @@ class SearchStore {
     }
 
     #toThumbable(json: GalleryRecord): Thumbable {
-        switch (json.itemType) {
-            case 'album':
-                return toAlbum(json as AlbumRecord);
-            case 'image':
-                return this.#toImage(json as ImageRecord);
-            default:
-                throw new Error(`Unknown item type: ${json.itemType}`);
+        if (isAlbumRecord(json)) {
+            return toAlbum(json);
+        } else if (isVideoRecord(json)) {
+            return this.#toVideo(json);
+        } else if (isImageRecord(json)) {
+            return this.#toImage(json);
         }
+        throw new Error(`Unknown item type in ${json}`);
     }
 
     #toImage(json: ImageRecord): ImageThumbableImpl {
         const image = new ImageThumbableImpl(json);
-        image.summary = longDate(albumPathToDate(getParentFromPath(image.path)));
+        image.summary = this.#dateFromPath(image.path);
         return image;
+    }
+
+    #toVideo(json: VideoRecord): VideoThumbableImpl {
+        const video = new VideoThumbableImpl(json);
+        video.summary = this.#dateFromPath(video.path);
+        return video;
+    }
+
+    #dateFromPath(mediaPath: string): string {
+        return longDate(albumPathToDate(getParentFromPath(mediaPath)));
     }
 }
 export const searchStore: SearchStore = new SearchStore();

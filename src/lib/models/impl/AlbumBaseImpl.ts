@@ -1,9 +1,10 @@
 import { albumPathToDate } from '$lib/utils/galleryPathUtils';
-import type { AlbumGalleryItem, AlbumRecord, GalleryRecord, ImageRecord } from './server';
-import type { Album, Image, Thumbable, ThumbnailUrlInfo } from '../GalleryItemInterfaces';
+import type { AlbumGalleryItem, AlbumRecord, GalleryRecord, MediaRecord } from './server';
+import { isAlbumRecord, isMediaRecord } from './server';
+import type { Album, Media, Thumbable, ThumbnailUrlInfo } from '../GalleryItemInterfaces';
 import { ThumbableBaseImpl } from './ThumbableBaseImpl';
-import { ImageImpl } from './ImageImpl';
 import toAlbum from './AlbumCreator';
+import { toMedia } from './GalleryItemCreator';
 
 export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
     override readonly json: AlbumGalleryItem;
@@ -84,20 +85,23 @@ export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
             : undefined;
     }
 
-    get images(): Thumbable[] {
+    get media(): Media[] {
         if (!this.json?.children) return [];
         return this.json?.children
-            .filter((child) => child?.itemType == 'image')
-            .map((i) => new ImageImpl(i as ImageRecord, this));
+            .filter((child) => child && isMediaRecord(child))
+            .map((record) => toMedia(record as MediaRecord, this));
     }
 
     get albums(): Thumbable[] {
         if (!this.json?.children) return [];
-        return this.json?.children.filter((child) => child?.itemType == 'album').map((i) => toAlbum(i as AlbumRecord));
+        return this.json?.children
+            .filter((child) => child && isAlbumRecord(child))
+            .map((record) => toAlbum(record as AlbumRecord));
     }
 
-    getImage(imagePath: string): Image | undefined {
-        const image = this.json?.children?.find((child: GalleryRecord) => child.path === imagePath);
-        return !!image ? new ImageImpl(image as ImageRecord, this) : undefined;
+    getMedia(mediaPath: string): Media | undefined {
+        const record = this.json?.children?.find((child: GalleryRecord) => child.path === mediaPath);
+        if (!record || !isMediaRecord(record)) return undefined;
+        return toMedia(record, this);
     }
 }

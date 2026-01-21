@@ -33,9 +33,10 @@ END_AGENTS
 npm run dev          # Start Vite dev server
 npm run build        # Production build
 npm run build-debug  # Build with sourcemaps, no minification
-npm run test:unit    # Run Vitest unit tests
+npm test             # Run unit tests (quiet output)
+npm run test:unit    # Run unit tests (verbose output)
 npm run test:e2e     # Run Playwright E2E tests
-npm run test         # Run all tests (unit + E2E)
+npm run test:all     # Run all tests (unit + E2E)
 npm run check        # Type checking (svelte-check + TypeScript)
 npm run lint         # ESLint + Prettier check
 npm run format       # Auto-format with Prettier

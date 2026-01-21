@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
     import type { UploadEntry } from '$lib/models/album';
-    import { createPreviewUrl } from '$lib/utils/imageValidation';
+    import { createPreviewUrl } from '$lib/utils/mediaValidation';
     import Thumbnail from '../Thumbnail.svelte';
     import WaitingIcon from '../icons/WaitingIcon.svelte';
 

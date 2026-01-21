@@ -88,7 +88,7 @@ describe('immer produce() integration', () => {
             loadStatus: string;
             album?: {
                 path: string;
-                images: Array<{ path: string; title?: string }>;
+                media: Array<{ path: string; title?: string }>;
             };
         };
 
@@ -96,7 +96,7 @@ describe('immer produce() integration', () => {
             loadStatus: 'LOADED',
             album: {
                 path: '/2024/01-15/',
-                images: [
+                media: [
                     { path: '/2024/01-15/photo1.jpg', title: 'Photo 1' },
                     { path: '/2024/01-15/photo2.jpg', title: 'Photo 2' },
                 ],
@@ -104,20 +104,20 @@ describe('immer produce() integration', () => {
         };
 
         const updated = produce(original, (draft) => {
-            const image = draft.album?.images.find((img) => img.path === '/2024/01-15/photo1.jpg');
+            const image = draft.album?.media.find((img) => img.path === '/2024/01-15/photo1.jpg');
             if (image) {
                 image.title = 'Updated Photo 1';
             }
         });
 
         // Original unchanged
-        expect(original.album?.images[0].title).toBe('Photo 1');
+        expect(original.album?.media[0].title).toBe('Photo 1');
 
         // Updated has new value
-        expect(updated.album?.images[0].title).toBe('Updated Photo 1');
+        expect(updated.album?.media[0].title).toBe('Updated Photo 1');
 
         // Other items unchanged
-        expect(updated.album?.images[1].title).toBe('Photo 2');
+        expect(updated.album?.media[1].title).toBe('Photo 2');
     });
 
     test('sequential produce calls accumulate changes correctly', () => {

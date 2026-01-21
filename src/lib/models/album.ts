@@ -58,38 +58,38 @@ export enum CreateStatus {
 }
 
 /**
- * Input data for uploading images (before upload starts)
+ * Input data for uploading a media item (before upload starts)
  */
-export type ImageToUpload = {
+export type MediaItemToUpload = {
     file: File;
     /** Path used for S3 upload (e.g., /2024/01-01/photo.heic) */
     uploadPath: string;
-    /** For replacements: the S3 versionId of the image being replaced */
+    /** For replacements: the S3 versionId of the media item being replaced */
     previousVersionId?: string;
 };
 
 /**
- * Represents a single image being uploaded
+ * Represents a single media item being uploaded
  */
 export type UploadEntry = {
     file: File;
     /** Path used for S3 upload (e.g., /2024/01-01/photo.heic) */
     uploadPath: string;
-    /** Expected imagePath in album after server processing (e.g., /2024/01-01/photo.jpg for HEIC) */
-    imagePath: string;
+    /** Expected mediaPath in album after server processing (e.g., /2024/01-01/photo.jpg for HEIC) */
+    mediaPath: string;
     status: UploadState;
-    /** S3 versionId of newly uploaded image.
+    /** S3 versionId of newly uploaded media item.
      * For file formats that get converted to a different format on the server (like HEIC -> JPG),
-     * this will be the versionId of the pre-conversion image, which is not useful */
+     * this will be the versionId of the pre-conversion media item, which is not useful */
     versionId?: string;
-    /** S3 versionId of image being replaced.
+    /** S3 versionId of media item being replaced.
      * For file formats that get converted to a different format on the server (like HEIC -> JPG),
-     * detecting when the versionId is no longer this is how we determine the new image has been converted and is ready to use */
+     * detecting when the versionId is no longer this is how we determine the new media item has been converted and is ready to use */
     previousVersionId?: string;
 };
 
 /**
- * Status of of the upload of a single image
+ * Status of of the upload of a single media item
  */
 export enum UploadState {
     UPLOAD_NOT_STARTED = 'Not Started',
@@ -98,7 +98,7 @@ export enum UploadState {
 }
 
 /**
- * Represents a single image or album being renamed
+ * Represents a single album or media item being renamed
  */
 export type RenameEntry = {
     oldPath: string;
@@ -111,7 +111,7 @@ export enum RenameStatus {
 }
 
 /**
- * Represents a single album or image being deleted
+ * Represents a single album or media item being deleted
  */
 export type DeleteEntry = {
     status: DeleteStatus;
@@ -125,7 +125,7 @@ export enum DeleteStatus {
  * Represents the state of a thumbnail being cropped
  */
 export type CropEntry = {
-    imagePath: string;
+    mediaPath: string;
     crop: Crop;
     status: CropStatus;
 };

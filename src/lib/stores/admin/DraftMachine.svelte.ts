@@ -2,7 +2,7 @@ import type { Draft, DraftContent } from '$lib/models/draft';
 import { DraftStatus } from '$lib/models/draft';
 import { produce } from 'immer';
 import { albumLoadMachine } from '../AlbumLoadMachine.svelte';
-import { getParentFromPath, isValidImagePath, isValidPath } from '$lib/utils/galleryPathUtils';
+import { getParentFromPath, isValidMediaPath, isValidPath } from '$lib/utils/galleryPathUtils';
 import type { Thumbable } from '$lib/models/GalleryItemInterfaces';
 import { updateUrl } from '$lib/utils/config';
 import { adminApi } from '$lib/utils/adminApi';
@@ -194,8 +194,8 @@ class DraftMachine {
             // UPDATE CLIENT STATE
             // Update both the album in memory and on the browser's local filesystem
 
-            // If it was an image that was saved...
-            if (isValidImagePath(draft.path)) {
+            // If it was a media item (image or video) that was saved...
+            if (isValidMediaPath(draft.path)) {
                 // Get the album in which the image resides
                 const albumPath = getParentFromPath(draft.path);
                 console.log(`Image save: parent album: [${albumPath}]`);
@@ -207,7 +207,7 @@ class DraftMachine {
                 // Make a copy of the album entry.  Apply changes to the copy
                 const updatedAlbumEntry = produce(albumEntry, (albumEntryCopy) => {
                     if (albumEntryCopy === undefined) throw new Error('albumEntryCopy is undefined');
-                    const image: Thumbable | undefined = albumEntryCopy.album?.images.find(
+                    const image: Thumbable | undefined = albumEntryCopy.album?.media.find(
                         (image: Thumbable) => image.path === draft.path,
                     );
                     if (!image) throw new Error(`Did not find image [${draft.path}] in album [${albumPath}]`);

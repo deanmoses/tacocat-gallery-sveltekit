@@ -1,6 +1,6 @@
 import { toast } from '@zerodevx/svelte-toast';
 import { getParentFromPath, isValidAlbumPath } from '$lib/utils/galleryPathUtils';
-import { createUrl } from '$lib/utils/config';
+import { createAlbumUrl } from '$lib/utils/config';
 import { adminApi } from '$lib/utils/adminApi';
 import { albumState } from '../AlbumState.svelte';
 import { CreateStatus } from '$lib/models/album';
@@ -63,7 +63,7 @@ class AlbumCreateMachine {
         try {
             if (!isValidAlbumPath(albumPath)) throw new Error(`Invalid album path [${albumPath}]`);
             this.#createStarted(albumPath);
-            const response = await adminApi.put(createUrl(albumPath));
+            const response = await adminApi.put(createAlbumUrl(albumPath));
             if (!response.ok) {
                 const json = await response.json().catch(() => ({}));
                 throw new Error(json?.errorMessage || response.statusText);

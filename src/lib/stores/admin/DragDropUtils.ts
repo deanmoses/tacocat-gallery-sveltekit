@@ -1,14 +1,8 @@
 //
-// Below this is code to handle drag and drop, could be separate file
+// code to handle drag and drop
 //
 
-// export async function dropImages(e: DragEvent) {
-//     const files = await getDroppedImages(e);
-//     const albumPath = page.url.pathname + '/';
-//     await upload(files, albumPath);
-// }
-
-export async function getDroppedImages(e: DragEvent): Promise<File[]> {
+export async function getDroppedFiles(e: DragEvent): Promise<File[]> {
     e.preventDefault(); // Prevent default behavior, which is the browser opening the files
     let files: File[] = [];
     if (!e.dataTransfer) {

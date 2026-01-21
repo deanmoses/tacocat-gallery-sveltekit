@@ -8,7 +8,7 @@
     import PrevButton from '$lib/components/site/nav/PrevButton.svelte';
     import UpButton from '$lib/components/site/nav/UpButton.svelte';
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
-    import ImageThumbnail from '$lib/components/site/ImageThumbnail.svelte';
+    import MediaThumbnail from '$lib/components/site/MediaThumbnail.svelte';
     import SelectableStar from '$lib/components/site/admin/SelectableStar.svelte';
     import AlbumEditControls from '$lib/components/site/admin/edit_controls/AlbumEditControls.svelte';
     import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
@@ -27,8 +27,8 @@
     let okToNavigate = $derived(draftMachine.okToNavigate);
     let uploads: UploadEntry[] | undefined = $derived(getUploadsForAlbum(album.path));
 
-    function albumThumbnailSelected(newThumbnailImagePath: string) {
-        albumThumbnailSetMachine.setAlbumThumbnail(album.path, newThumbnailImagePath);
+    function albumThumbnailSelected(newThumbnailMediaPath: string) {
+        albumThumbnailSetMachine.setAlbumThumbnail(album.path, newThumbnailMediaPath);
     }
 </script>
 
@@ -44,41 +44,49 @@
     {/snippet}
 
     {#snippet caption()}
-        <EditableHtml htmlContent={album.description} />
+        {#if uploads?.length}
+            {#await import('./UploadStatus.svelte') then { default: UploadStatus }}
+                <UploadStatus {uploads} />
+            {/await}
+        {:else}
+            <EditableHtml htmlContent={album.description} />
+        {/if}
     {/snippet}
 
     {#snippet thumbnails()}
-        {#if album.images?.length}
-            {#each album.images as image (image.path)}
+        {#if album.media?.length}
+            {#each album.media as media (media.path)}
                 {#if okToNavigate}
-                    <ImageThumbnail
-                        path={image.path}
-                        title={image.title}
-                        summary={image.summary}
-                        href={image.path}
-                        thumbnailUrlInfo={image.thumbnailUrlInfo}
+                    <MediaThumbnail
+                        path={media.path}
+                        mediaType={media.mediaType}
+                        title={media.title}
+                        summary={media.summary}
+                        href={media.path}
+                        thumbnailUrlInfo={media.thumbnailUrlInfo}
                     >
                         {#snippet selectionControls()}
                             <SelectableStar
                                 albumThumbPath={album.thumbnailPath}
-                                path={image.path}
+                                path={media.path}
                                 onSelected={albumThumbnailSelected}
                             />
                         {/snippet}
-                    </ImageThumbnail>
+                    </MediaThumbnail>
                 {:else}
                     <div title="💾 Save changes before navigating">
-                        <ImageThumbnail
-                            path={image.path}
-                            title={image.title}
-                            summary={image.summary}
-                            thumbnailUrlInfo={image.thumbnailUrlInfo}
+                        <MediaThumbnail
+                            path={media.path}
+                            mediaType={media.mediaType}
+                            title={media.title}
+                            summary={media.summary}
+                            thumbnailUrlInfo={media.thumbnailUrlInfo}
                         />
                     </div>
                 {/if}
             {/each}
         {:else if !album.published && !uploads?.length && okToNavigate}
-            <p>Drop images or a 📁</p>
+            <p>Drop images and videos or a 📁</p>
         {/if}
         {#if uploads?.length}
             {#each uploads as upload (upload.uploadPath)}

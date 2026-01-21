@@ -36,9 +36,32 @@ export type AlbumNavInfo = {
 // Doesn't contain information from other records like prev/next or children
 //
 
-export type GalleryRecord = AlbumRecord | ImageRecord;
+/** A gallery record is either an album or a media item (image or video) */
+export type GalleryRecord = AlbumRecord | MediaRecord;
 
-export type ImageRecord = BaseGalleryRecord & {
+/** A media record is either an image or a video */
+export type MediaRecord = ImageRecord | VideoRecord;
+
+export type VideoRecord = BaseMediaRecord & {
+    /** Distinguishes video from image */
+    mediaType: 'video';
+    /** URL-safe ID that's globally unique among all gallery items */
+    id: string;
+    /** Duration in seconds */
+    duration: number;
+};
+
+/**
+ * Images: pre-migration have no mediaType field, post-migration have mediaType: 'image'
+ */
+export type ImageRecord = BaseMediaRecord & {
+    mediaType?: 'image';
+};
+
+/** Base for all media items (images and videos) */
+type BaseMediaRecord = BaseGalleryRecord & {
+    /** 'image' (pre-migration) or 'media' (post-migration) means media item */
+    itemType: 'image' | 'media';
     versionId: string;
     dimensions: Size;
     thumbnail?: Rectangle;
@@ -47,6 +70,7 @@ export type ImageRecord = BaseGalleryRecord & {
 };
 
 export type AlbumRecord = BaseGalleryRecord & {
+    itemType: 'album';
     published?: boolean;
     thumbnail?: AlbumThumbnailRecord;
     summary?: string;
@@ -67,7 +91,7 @@ type BaseGalleryRecord = {
     updatedOn: string;
     description?: string;
 };
-export type GalleryItemType = 'album' | 'image';
+export type GalleryItemType = 'album' | 'image' | 'media';
 
 export type Rectangle = Point & Size;
 
@@ -80,3 +104,26 @@ export type Size = {
     width: number;
     height: number;
 };
+
+//
+// TYPE GUARDS
+//
+
+export function isAlbumRecord(record: GalleryRecord): record is AlbumRecord {
+    return record.itemType === 'album';
+}
+
+export function isMediaRecord(record: GalleryRecord): record is MediaRecord {
+    // 'image' (pre-migration) or 'media' (post-migration) means media item
+    return record.itemType === 'image' || record.itemType === 'media';
+}
+
+export function isVideoRecord(record: GalleryRecord): record is VideoRecord {
+    return isMediaRecord(record) && 'mediaType' in record && record.mediaType === 'video';
+}
+
+export function isImageRecord(record: GalleryRecord): record is ImageRecord {
+    if (!isMediaRecord(record)) return false;
+    // Old format: no mediaType or falsy; New format: mediaType === 'image'
+    return !record.mediaType || record.mediaType === 'image';
+}

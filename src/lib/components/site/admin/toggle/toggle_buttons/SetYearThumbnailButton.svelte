@@ -1,18 +1,18 @@
 <!--
   @component 
   
-  Button to set image as the thumbnail for the year
+  Button to set which media item's thumbnail will be used as the year's thumbnail.
 -->
 <script lang="ts">
     import { page } from '$app/state';
-    import { getParentFromPath, isValidImagePath } from '$lib/utils/galleryPathUtils';
+    import { getParentFromPath, isValidMediaPath } from '$lib/utils/galleryPathUtils';
     import ControlStripButton from '../../edit_controls/buttons/ControlStripButton.svelte';
     import SetYearThumbnailConfirmDialog from './SetYearThumbnailConfirmDialog.svelte';
     import StarIcon from '$lib/components/site/icons/StarIcon.svelte';
     import { albumThumbnailSetMachine } from '$lib/stores/admin/AlbumThumbnailSetMachine.svelte';
 
-    let imagePath: string = $derived(page.url.pathname);
-    let show: boolean = $derived(isValidImagePath(imagePath)); // Show this button only on image pages
+    let path: string = $derived(page.url.pathname);
+    let show: boolean = $derived(isValidMediaPath(path)); // Show this button only on media pages
     let dialog = $state() as SetYearThumbnailConfirmDialog;
 
     function onclick(): void {
@@ -20,9 +20,9 @@
     }
 
     function onConfirm(): void {
-        const dayAlbumPath = getParentFromPath(imagePath);
+        const dayAlbumPath = getParentFromPath(path);
         const yearAlbumPath = getParentFromPath(dayAlbumPath);
-        albumThumbnailSetMachine.setAlbumThumbnail(yearAlbumPath, imagePath);
+        albumThumbnailSetMachine.setAlbumThumbnail(yearAlbumPath, path);
     }
 </script>
 

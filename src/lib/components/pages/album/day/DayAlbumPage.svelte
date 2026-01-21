@@ -9,7 +9,7 @@
     import PrevButton from '$lib/components/site/nav/PrevButton.svelte';
     import UpButton from '$lib/components/site/nav/UpButton.svelte';
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
-    import ImageThumbnail from '$lib/components/site/ImageThumbnail.svelte';
+    import MediaThumbnail from '$lib/components/site/MediaThumbnail.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import type { UploadEntry } from '$lib/models/album';
     import { sessionStore } from '$lib/stores/SessionStore.svelte';
@@ -20,7 +20,7 @@
     }
     let { album }: Props = $props();
     let uploads: UploadEntry[] | undefined = $derived.by(() => {
-        return albumState.uploads.filter((upload) => upload.imagePath.startsWith(album.path));
+        return albumState.uploads.filter((upload) => upload.mediaPath.startsWith(album.path));
     });
 </script>
 
@@ -46,18 +46,19 @@
     {/snippet}
 
     {#snippet thumbnails()}
-        {#if album.images?.length}
-            {#each album.images as image (image.path)}
-                <ImageThumbnail
-                    title={image.title}
-                    thumbnailUrlInfo={image.thumbnailUrlInfo}
-                    summary={image.summary}
-                    href={image.href}
-                    path={image.path}
+        {#if album.media?.length}
+            {#each album.media as media (media.path)}
+                <MediaThumbnail
+                    title={media.title}
+                    thumbnailUrlInfo={media.thumbnailUrlInfo}
+                    summary={media.summary}
+                    href={media.href}
+                    path={media.path}
+                    mediaType={media.mediaType}
                 />
             {/each}
         {:else if !album.published && !uploads?.length}
-            <p>Drop images or a 📁</p>
+            <p>Drop images and videos or a 📁</p>
         {/if}
         {#if uploads?.length}
             <!-- 

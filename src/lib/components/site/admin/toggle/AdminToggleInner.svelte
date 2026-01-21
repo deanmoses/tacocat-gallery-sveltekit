@@ -7,29 +7,29 @@
     import EditButton from './toggle_buttons/EditButton.svelte';
     import CropButton from './toggle_buttons/CropButton.svelte';
     import RenameDayAlbumButton from './toggle_buttons/RenameDayAlbumButton.svelte';
-    import RenameImageButton from './toggle_buttons/RenameImageButton.svelte';
+    import RenameMediaButton from './toggle_buttons/RenameMediaButton.svelte';
     import NewYearAlbumButton from './toggle_buttons/NewYearAlbumButton.svelte';
     import NewDayAlbumButton from './toggle_buttons/NewDayAlbumButton.svelte';
-    import UploadImageButton from './toggle_buttons/UploadImageButton.svelte';
-    import UploadImagesButton from './toggle_buttons/UploadImagesButton.svelte';
+    import UploadMediaItemButton from './toggle_buttons/UploadMediaItemButton.svelte';
+    import UploadMediaItemsButton from './toggle_buttons/UploadMediaItemsButton.svelte';
     import SetYearThumbnailButton from './toggle_buttons/SetYearThumbnailButton.svelte';
     import DeleteAlbumButton from './toggle_buttons/DeleteAlbumButton.svelte';
-    import DeleteImageButton from './toggle_buttons/DeleteImageButton.svelte';
+    import DeleteMediaButton from './toggle_buttons/DeleteMediaButton.svelte';
 </script>
 
 <div>
     <nav class="editing-controls">
         <EditButton />
         <CropButton />
-        <RenameImageButton />
+        <RenameMediaButton />
         <RenameDayAlbumButton />
         <NewYearAlbumButton />
         <NewDayAlbumButton />
-        <UploadImagesButton />
-        <UploadImageButton />
+        <UploadMediaItemsButton />
+        <UploadMediaItemButton />
         <SetYearThumbnailButton />
         <DeleteAlbumButton />
-        <DeleteImageButton />
+        <DeleteMediaButton />
     </nav>
 </div>
 

@@ -87,6 +87,7 @@
                         thumbnailUrlInfo={item.thumbnailUrlInfo}
                         title={item.title}
                         summary={item.summary}
+                        isVideo={item.mediaType === 'video'}
                     />
                 {/each}
                 {#if moreResultsOnServer || loadingMore}
