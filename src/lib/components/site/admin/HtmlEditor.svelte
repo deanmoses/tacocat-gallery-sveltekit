@@ -30,8 +30,43 @@
             // This theme pops up the toolbar when text is selected, rather than displaying it permanently
             theme: 'bubble',
             modules: {
-                // Toolbar buttons
-                toolbar: [['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link']],
+                // Toolbar buttons and custom handlers
+                toolbar: {
+                    container: [['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link']],
+                    handlers: {
+                        // Custom link handler that allows editing existing links
+                        // instead of Quill's default behavior of removing them.
+                        // See: https://github.com/slab/quill/issues/1380
+                        link: function (this: { quill: Quill }, value: boolean) {
+                            const quillInstance = this.quill;
+                            const selection = quillInstance.getSelection();
+                            if (!selection) return;
+
+                            // Check if the selected text already has a link
+                            const format = quillInstance.getFormat(selection);
+                            const existingLink = typeof format.link === 'string' ? format.link : '';
+
+                            if (value || existingLink) {
+                                // Either adding a new link or editing an existing one
+                                const url = prompt('Enter link URL:', existingLink);
+                                if (url === null) {
+                                    // User cancelled - do nothing
+                                    return;
+                                }
+                                if (url === '') {
+                                    // User cleared the URL - remove the link
+                                    quillInstance.format('link', false);
+                                } else {
+                                    // Apply the (new or updated) link
+                                    quillInstance.format('link', url);
+                                }
+                            } else {
+                                // No link and value is false - shouldn't normally happen
+                                quillInstance.format('link', false);
+                            }
+                        },
+                    },
+                },
             },
             // The formatting to allow in content, including pasted-in content
             formats: ['header', 'bold', 'italic', 'underline', 'strike', 'list', 'link'],

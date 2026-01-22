@@ -180,9 +180,12 @@ describe('sanitizeMediaNameWithoutExtension', () => {
         expect(sanitizeMediaNameWithoutExtension('-photo')).toBe('photo');
     });
 
-    test('removes trailing underscores', () => {
-        expect(sanitizeMediaNameWithoutExtension('photo_')).toBe('photo');
-        expect(sanitizeMediaNameWithoutExtension('photo-')).toBe('photo');
+    test('allows trailing underscores (for live typing)', () => {
+        // Trailing underscores are intentionally preserved to allow typing underscores
+        // mid-name. The strict validator will reject trailing underscores on submit.
+        expect(sanitizeMediaNameWithoutExtension('photo_')).toBe('photo_');
+        // Hyphens get converted to underscores
+        expect(sanitizeMediaNameWithoutExtension('photo-')).toBe('photo_');
     });
 });
 
