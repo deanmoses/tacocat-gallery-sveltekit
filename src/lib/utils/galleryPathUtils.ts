@@ -87,8 +87,10 @@ export function sanitizeMediaNameWithoutExtension(name: string): string {
         .toLowerCase()
         .replace(/[^a-z0-9_]+/g, '_') // any invalid chars to _
         .replace(/_+/g, '_') // multiple _ to _
-        .replace(/^_/, '') // remove leading underscore
-        .replace(/_$/, ''); // remove trailing underscore
+        .replace(/^_/, ''); // remove leading underscore
+    // Note: trailing underscores are NOT removed here to allow underscores
+    // while the user is in the middle of typing a new name.
+    //  The strict validator will reject trailing underscores on submit.
 }
 
 /**
@@ -111,7 +113,8 @@ export function sanitizeMediaFilename(filename: string): string {
     if (!filename) return '';
     const dotIndex = filename.lastIndexOf('.');
     if (dotIndex === -1) return sanitizeMediaNameWithoutExtension(filename);
-    const name = sanitizeMediaNameWithoutExtension(filename.slice(0, dotIndex));
+    let name = sanitizeMediaNameWithoutExtension(filename.slice(0, dotIndex));
+    name = name.replace(/_$/, ''); // remove trailing underscore before extension
     const ext = sanitizeMediaExtension(filename.slice(dotIndex + 1));
     return `${name}.${ext}`;
 }
