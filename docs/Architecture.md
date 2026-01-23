@@ -59,7 +59,7 @@ This strategy ensures:
 
 We want the unauthenticated guest experience to be as fast as possible. Therefore we use lazy loading techniques to ensure that guests don't download any of the admin code.
 
-This often looks like this: ` {#await import('$lib/components/site/admin/SomeAdminComponent.svelte') then { default: SomeAdminComponent }}`
+This often looks like this: `{#await import('$lib/components/site/admin/SomeAdminComponent.svelte') then { default: SomeAdminComponent }}`
 
 ## Hidden from Search Engines
 
