@@ -4,13 +4,23 @@ export const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'heic', 'heif'];
 /** Supported video extensions */
 export const VIDEO_EXTENSIONS = ['mp4', 'mov', 'avi', 'mkv', 'webm', 'm4v', '3gp', 'mpg', 'mpeg'];
 
+/** Pattern matching any valid media extension */
+const MEDIA_EXT_PATTERN = [...IMAGE_EXTENSIONS, ...VIDEO_EXTENSIONS].join('|');
+
+/** Regex for validating media file extensions */
+const VALID_MEDIA_EXT_REGEX = new RegExp(`^.+\\.(${MEDIA_EXT_PATTERN})$`, 'i');
+
+/** Regex for validating full media paths like /2001/12-31/image.jpg */
+const VALID_MEDIA_PATH_REGEX = new RegExp(
+    `^/\\d\\d\\d\\d/(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])/[a-zA-Z0-9_-]+\\.(${MEDIA_EXT_PATTERN})$`,
+    'i',
+);
+
 /**
  * Return true if filename ends with a supported media (image or video) extension
  */
 export function hasValidMediaExtension(fileName: string): boolean {
-    const extPattern = [...IMAGE_EXTENSIONS, ...VIDEO_EXTENSIONS].join('|');
-    const regex = new RegExp(`^.+\\.(${extPattern})$`, 'i');
-    return regex.test(fileName);
+    return VALID_MEDIA_EXT_REGEX.test(fileName);
 }
 
 /**
@@ -37,12 +47,7 @@ export function isValidPath(path: string): boolean {
  * Must be on a day album like /2001/12-31/image.jpg
  */
 export function isValidMediaPath(path: string): boolean {
-    const extPattern = [...IMAGE_EXTENSIONS, ...VIDEO_EXTENSIONS].join('|');
-    const regex = new RegExp(
-        `^/\\d\\d\\d\\d/(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])/[a-zA-Z0-9_-]+\\.(${extPattern})$`,
-        'i',
-    );
-    return regex.test(path);
+    return VALID_MEDIA_PATH_REGEX.test(path);
 }
 
 /**
@@ -74,7 +79,10 @@ export function isValidDayAlbumPath(path: string): boolean {
  * Must not have a path.
  */
 export function isValidMediaNameWithoutExtensionStrict(filename: string): boolean {
-    return /^[a-z0-9]+([a-z0-9_]*[a-z0-9]+)*$/.test(filename);
+    // Pattern: alphanumeric start, then optional groups of (single underscore + alphanumeric)
+    // ReDoS-safe because _ and [a-z0-9] are disjoint character classes (no ambiguity)
+    // Old vulnerable pattern: /^[a-z0-9]+([a-z0-9_]*[a-z0-9]+)*$/
+    return /^[a-z0-9]+(_[a-z0-9]+)*$/.test(filename);
 }
 
 /**
@@ -90,7 +98,7 @@ export function sanitizeMediaNameWithoutExtension(name: string): string {
         .replace(/^_/, ''); // remove leading underscore
     // Note: trailing underscores are NOT removed here to allow underscores
     // while the user is in the middle of typing a new name.
-    //  The strict validator will reject trailing underscores on submit.
+    // The strict validator will reject trailing underscores on submit.
 }
 
 /**
