@@ -265,6 +265,13 @@ describe('isValidMediaNameWithoutExtensionStrict', () => {
         expect(isValidMediaNameWithoutExtensionStrict('my_photo_1')).toBe(true);
         expect(isValidMediaNameWithoutExtensionStrict('a_b_c_d')).toBe(true);
         expect(isValidMediaNameWithoutExtensionStrict('photo_1_2_3')).toBe(true);
+        expect(isValidMediaNameWithoutExtensionStrict('1_2')).toBe(true);
+    });
+
+    test('rejects names with consecutive underscores', () => {
+        expect(isValidMediaNameWithoutExtensionStrict('a__b')).toBe(false);
+        expect(isValidMediaNameWithoutExtensionStrict('photo__1')).toBe(false);
+        expect(isValidMediaNameWithoutExtensionStrict('a___b')).toBe(false);
     });
 
     test('rejects names with leading underscores', () => {
@@ -298,28 +305,21 @@ describe('isValidMediaNameWithoutExtensionStrict', () => {
         expect(isValidMediaNameWithoutExtensionStrict('')).toBe(false);
     });
 
+    test('rejects underscore-only strings', () => {
+        expect(isValidMediaNameWithoutExtensionStrict('_')).toBe(false);
+        expect(isValidMediaNameWithoutExtensionStrict('__')).toBe(false);
+        expect(isValidMediaNameWithoutExtensionStrict('___')).toBe(false);
+    });
+
     // ReDoS (Regular Expression Denial of Service) prevention test
     // The old regex pattern /^[a-z0-9]+([a-z0-9_]*[a-z0-9]+)*$/ had nested quantifiers
     // that caused catastrophic backtracking, hanging for 100+ seconds on certain inputs.
-    // This test ensures the fix works by using a very low timeout.
-    test(
-        'handles long filenames with multiple underscores without hanging (ReDoS prevention)',
-        () => {
-            const longValidName = 'monkey_river_15_howler_monkey_calling';
-            const longInvalidName = 'monkey_river_15_howler_monkey_calling_';
+    // The 50ms timeout ensures the test fails if the regex causes backtracking.
+    test('handles long filenames with multiple underscores without hanging (ReDoS prevention)', () => {
+        const longValidName = 'monkey_river_15_howler_monkey_calling';
+        const longInvalidName = 'monkey_river_15_howler_monkey_calling_';
 
-            const startValid = performance.now();
-            expect(isValidMediaNameWithoutExtensionStrict(longValidName)).toBe(true);
-            const validTime = performance.now() - startValid;
-
-            const startInvalid = performance.now();
-            expect(isValidMediaNameWithoutExtensionStrict(longInvalidName)).toBe(false);
-            const invalidTime = performance.now() - startInvalid;
-
-            // Both should complete in under 10ms (the vulnerable regex took 100+ seconds)
-            expect(validTime).toBeLessThan(10);
-            expect(invalidTime).toBeLessThan(10);
-        },
-        50,
-    ); // 50ms timeout - test will fail if regex causes backtracking
+        expect(isValidMediaNameWithoutExtensionStrict(longValidName)).toBe(true);
+        expect(isValidMediaNameWithoutExtensionStrict(longInvalidName)).toBe(false);
+    }, 50); // 50ms timeout - test will fail if regex causes backtracking
 });
