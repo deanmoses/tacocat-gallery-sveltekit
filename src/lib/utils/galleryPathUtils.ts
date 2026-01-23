@@ -74,7 +74,9 @@ export function isValidDayAlbumPath(path: string): boolean {
  * Must not have a path.
  */
 export function isValidMediaNameWithoutExtensionStrict(filename: string): boolean {
-    return /^[a-z0-9]+([a-z0-9_]*[a-z0-9]+)*$/.test(filename);
+    // Pattern avoids nested quantifiers to prevent ReDoS (catastrophic backtracking)
+    // Old vulnerable pattern: /^[a-z0-9]+([a-z0-9_]*[a-z0-9]+)*$/
+    return /^[a-z0-9]([a-z0-9_]*[a-z0-9])?$/.test(filename);
 }
 
 /**

@@ -5,6 +5,7 @@ import {
     deduplicateMediaPaths,
     hasValidMediaExtension,
     isValidMediaPath,
+    isValidMediaNameWithoutExtensionStrict,
     IMAGE_EXTENSIONS,
 } from './galleryPathUtils';
 
@@ -247,4 +248,78 @@ describe('deduplicateMediaPaths', () => {
             deduplicateMediaPaths(['/2024/01-01/photo_2.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg']),
         ).toEqual(['/2024/01-01/photo_2.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo_3.jpg']);
     });
+});
+
+describe('isValidMediaNameWithoutExtensionStrict', () => {
+    test('accepts valid lowercase alphanumeric names', () => {
+        expect(isValidMediaNameWithoutExtensionStrict('photo')).toBe(true);
+        expect(isValidMediaNameWithoutExtensionStrict('photo1')).toBe(true);
+        expect(isValidMediaNameWithoutExtensionStrict('1photo')).toBe(true);
+        expect(isValidMediaNameWithoutExtensionStrict('123')).toBe(true);
+        expect(isValidMediaNameWithoutExtensionStrict('a')).toBe(true);
+        expect(isValidMediaNameWithoutExtensionStrict('1')).toBe(true);
+    });
+
+    test('accepts names with underscores in the middle', () => {
+        expect(isValidMediaNameWithoutExtensionStrict('my_photo')).toBe(true);
+        expect(isValidMediaNameWithoutExtensionStrict('my_photo_1')).toBe(true);
+        expect(isValidMediaNameWithoutExtensionStrict('a_b_c_d')).toBe(true);
+        expect(isValidMediaNameWithoutExtensionStrict('photo_1_2_3')).toBe(true);
+    });
+
+    test('rejects names with leading underscores', () => {
+        expect(isValidMediaNameWithoutExtensionStrict('_photo')).toBe(false);
+        expect(isValidMediaNameWithoutExtensionStrict('__photo')).toBe(false);
+    });
+
+    test('rejects names with trailing underscores', () => {
+        expect(isValidMediaNameWithoutExtensionStrict('photo_')).toBe(false);
+        expect(isValidMediaNameWithoutExtensionStrict('photo__')).toBe(false);
+    });
+
+    test('rejects names with uppercase letters', () => {
+        expect(isValidMediaNameWithoutExtensionStrict('Photo')).toBe(false);
+        expect(isValidMediaNameWithoutExtensionStrict('PHOTO')).toBe(false);
+        expect(isValidMediaNameWithoutExtensionStrict('myPhoto')).toBe(false);
+    });
+
+    test('rejects names with hyphens', () => {
+        expect(isValidMediaNameWithoutExtensionStrict('my-photo')).toBe(false);
+        expect(isValidMediaNameWithoutExtensionStrict('photo-1')).toBe(false);
+    });
+
+    test('rejects names with spaces or special characters', () => {
+        expect(isValidMediaNameWithoutExtensionStrict('my photo')).toBe(false);
+        expect(isValidMediaNameWithoutExtensionStrict('photo@1')).toBe(false);
+        expect(isValidMediaNameWithoutExtensionStrict('photo.jpg')).toBe(false);
+    });
+
+    test('rejects empty string', () => {
+        expect(isValidMediaNameWithoutExtensionStrict('')).toBe(false);
+    });
+
+    // ReDoS (Regular Expression Denial of Service) prevention test
+    // The old regex pattern /^[a-z0-9]+([a-z0-9_]*[a-z0-9]+)*$/ had nested quantifiers
+    // that caused catastrophic backtracking, hanging for 100+ seconds on certain inputs.
+    // This test ensures the fix works by using a very low timeout.
+    test(
+        'handles long filenames with multiple underscores without hanging (ReDoS prevention)',
+        () => {
+            const longValidName = 'monkey_river_15_howler_monkey_calling';
+            const longInvalidName = 'monkey_river_15_howler_monkey_calling_';
+
+            const startValid = performance.now();
+            expect(isValidMediaNameWithoutExtensionStrict(longValidName)).toBe(true);
+            const validTime = performance.now() - startValid;
+
+            const startInvalid = performance.now();
+            expect(isValidMediaNameWithoutExtensionStrict(longInvalidName)).toBe(false);
+            const invalidTime = performance.now() - startInvalid;
+
+            // Both should complete in under 10ms (the vulnerable regex took 100+ seconds)
+            expect(validTime).toBeLessThan(10);
+            expect(invalidTime).toBeLessThan(10);
+        },
+        50,
+    ); // 50ms timeout - test will fail if regex causes backtracking
 });
