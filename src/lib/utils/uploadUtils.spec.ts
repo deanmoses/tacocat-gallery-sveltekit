@@ -1,5 +1,5 @@
 import { test, expect, describe } from 'vitest';
-import { findProcessedUploads, getUploadPathForReplacement } from './uploadUtils';
+import { findProcessedUploads, getReplacementExtensionError, getUploadPathForReplacement } from './uploadUtils';
 import { UploadState, type UploadEntry } from '$lib/models/album';
 import { getMediaPath } from './fileFormats';
 
@@ -300,5 +300,93 @@ describe('getUploadPathForReplacement', () => {
 
     test('handles uppercase extensions in target path', () => {
         expect(getUploadPathForReplacement('/2024/01-01/photo.JPG', 'new_photo.heic')).toBe('/2024/01-01/photo.heic');
+    });
+
+    // JPG/JPEG: keep target path exactly as-is to ensure replacement (not create duplicate)
+    test('keeps target .jpg when dropping jpeg onto jpg', () => {
+        expect(getUploadPathForReplacement('/2024/01-01/photo.jpg', 'new_photo.jpeg')).toBe('/2024/01-01/photo.jpg');
+    });
+
+    test('keeps target .jpeg when dropping jpg onto jpeg', () => {
+        expect(getUploadPathForReplacement('/2024/01-01/photo.jpeg', 'new_photo.jpg')).toBe('/2024/01-01/photo.jpeg');
+    });
+
+    test('keeps target .jpg when dropping JPEG onto jpg', () => {
+        expect(getUploadPathForReplacement('/2024/01-01/photo.jpg', 'new_photo.JPEG')).toBe('/2024/01-01/photo.jpg');
+    });
+
+    test('keeps target .JPG when dropping jpeg onto JPG', () => {
+        expect(getUploadPathForReplacement('/2024/01-01/photo.JPG', 'new_photo.jpeg')).toBe('/2024/01-01/photo.JPG');
+    });
+});
+
+describe('getReplacementExtensionError', () => {
+    // Same extension - always allowed
+    test('returns undefined when extensions match exactly', () => {
+        expect(getReplacementExtensionError('/2024/01-01/photo.jpg', 'new.jpg')).toBeUndefined();
+        expect(getReplacementExtensionError('/2024/01-01/video.mp4', 'new.mp4')).toBeUndefined();
+        expect(getReplacementExtensionError('/2024/01-01/image.png', 'new.png')).toBeUndefined();
+    });
+
+    test('returns undefined when extensions match with different case', () => {
+        expect(getReplacementExtensionError('/2024/01-01/photo.jpg', 'new.JPG')).toBeUndefined();
+        expect(getReplacementExtensionError('/2024/01-01/photo.JPG', 'new.jpg')).toBeUndefined();
+    });
+
+    // JPG/JPEG interchangeable
+    test('returns undefined when replacing jpg with jpeg', () => {
+        expect(getReplacementExtensionError('/2024/01-01/photo.jpg', 'new.jpeg')).toBeUndefined();
+    });
+
+    test('returns undefined when replacing jpeg with jpg', () => {
+        expect(getReplacementExtensionError('/2024/01-01/photo.jpeg', 'new.jpg')).toBeUndefined();
+    });
+
+    // HEIC/HEIF can replace JPG/JPEG (backend converts)
+    test('returns undefined when replacing jpg with heic', () => {
+        expect(getReplacementExtensionError('/2024/01-01/photo.jpg', 'new.heic')).toBeUndefined();
+    });
+
+    test('returns undefined when replacing jpg with heif', () => {
+        expect(getReplacementExtensionError('/2024/01-01/photo.jpg', 'new.heif')).toBeUndefined();
+    });
+
+    test('returns undefined when replacing jpeg with heic', () => {
+        expect(getReplacementExtensionError('/2024/01-01/photo.jpeg', 'new.heic')).toBeUndefined();
+    });
+
+    test('returns undefined when replacing jpeg with heif', () => {
+        expect(getReplacementExtensionError('/2024/01-01/photo.jpeg', 'new.heif')).toBeUndefined();
+    });
+
+    // Incompatible extensions - returns error message
+    test('returns error when replacing jpg with png', () => {
+        expect(getReplacementExtensionError('/2024/01-01/photo.jpg', 'new.png')).toBe(
+            'Cannot replace: file must be JPG/JPEG or HEIC/HEIF',
+        );
+    });
+
+    test('returns error when replacing jpg with mp4', () => {
+        expect(getReplacementExtensionError('/2024/01-01/photo.jpg', 'new.mp4')).toBe(
+            'Cannot replace: file must be JPG/JPEG or HEIC/HEIF',
+        );
+    });
+
+    test('returns error when replacing png with jpg', () => {
+        expect(getReplacementExtensionError('/2024/01-01/image.png', 'new.jpg')).toBe(
+            'Cannot replace: file must be .png',
+        );
+    });
+
+    test('returns error when replacing mp4 with jpg', () => {
+        expect(getReplacementExtensionError('/2024/01-01/video.mp4', 'new.jpg')).toBe(
+            'Cannot replace: file must be .mp4',
+        );
+    });
+
+    test('returns error when replacing gif with png', () => {
+        expect(getReplacementExtensionError('/2024/01-01/anim.gif', 'new.png')).toBe(
+            'Cannot replace: file must be .gif',
+        );
     });
 });

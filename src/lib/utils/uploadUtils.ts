@@ -3,9 +3,29 @@ import type { Album } from '$lib/models/GalleryItemInterfaces';
 import { getMediaPath, isRenamedOnServer } from './fileFormats';
 
 /**
+ * Returns an error message if the new file's extension is incompatible with the existing file,
+ * or undefined if compatible. JPG/JPEG/HEIC/HEIF are interchangeable (backend converts HEIC→JPG).
+ */
+export function getReplacementExtensionError(existingPath: string, newFileName: string): string | undefined {
+    const existingExt = existingPath.split('.').pop()?.toLowerCase() ?? '';
+    const newExt = newFileName.split('.').pop()?.toLowerCase() ?? '';
+
+    if (existingExt === newExt) return undefined;
+
+    const jpgOrHeic = ['jpg', 'jpeg', 'heic', 'heif'];
+    const existingIsJpg = ['jpg', 'jpeg'].includes(existingExt);
+    if (existingIsJpg && jpgOrHeic.includes(newExt)) return undefined;
+
+    if (existingIsJpg) {
+        return 'Cannot replace: file must be JPG/JPEG or HEIC/HEIF';
+    }
+    return `Cannot replace: file must be .${existingExt}`;
+}
+
+/**
  * For replacement uploads, returns the upload path to use.
- * Preserves the base name from the target but uses the extension from the dropped file,
- * so the backend's format conversion (e.g., HEIC→JPG) runs properly.
+ * - JPG/JPEG are equivalent: keeps target path exactly as-is (ensures replacement)
+ * - HEIC/HEIF replacing JPG: uses source extension (backend needs it to convert)
  */
 export function getUploadPathForReplacement(targetPath: string, fileName: string): string {
     const targetExt = targetPath.split('.').pop()!.toLowerCase();
@@ -13,7 +33,12 @@ export function getUploadPathForReplacement(targetPath: string, fileName: string
     if (targetExt === sourceExt) {
         return targetPath;
     }
-    // Replace target extension with source extension
+    // JPG and JPEG are equivalent - keep target path exactly to ensure replacement
+    const jpgExtensions = ['jpg', 'jpeg'];
+    if (jpgExtensions.includes(targetExt) && jpgExtensions.includes(sourceExt)) {
+        return targetPath;
+    }
+    // Replace target extension with source extension (e.g., HEIC replacing JPG)
     return targetPath.replace(/\.[^.]+$/, '.' + sourceExt);
 }
 
