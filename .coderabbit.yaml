@@ -8,6 +8,10 @@ reviews:
         - '!.svelte-kit/**'
         - '!*.min.js'
         - '!test/data/**'
+    tools:
+        languagetool:
+            disabled_rules:
+                - 'EN_COMPOUNDS'
 
 knowledge_base:
     code_guidelines:
