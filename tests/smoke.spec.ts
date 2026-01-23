@@ -25,8 +25,8 @@ test.describe('Smoke test', () => {
         await expect(page).toHaveTitle(/Moses|Family/i, { timeout: 15000 });
 
         // Step 2: Wait for year album thumbnails to load (AJAX)
-        // Thumbnails have class .thumbnail - scope to these to avoid hero images/logos
-        const yearThumb = page.locator('.thumbnail').first();
+        // Scope to .main-content to avoid sidebar's "Latest Album" thumbnail (which is a day album)
+        const yearThumb = page.locator('.main-content .thumbnail').first();
         await expect(yearThumb).toBeVisible({ timeout: 15000 });
 
         // Verify year album thumbnail image loads
@@ -38,8 +38,8 @@ test.describe('Smoke test', () => {
         const yearAlbumLink = yearThumb.locator('a').first();
         await yearAlbumLink.click();
 
-        // Step 3: Verify we're on a year album page (URL contains a year like /2024)
-        await expect(page).toHaveURL(/\/20\d{2}/, { timeout: 15000 });
+        // Step 3: Verify we're on a year album page (URL ends with year, not a deeper path)
+        await expect(page).toHaveURL(/\/\d{4}$/, { timeout: 15000 });
 
         // Wait for day album thumbnails to load
         const dayThumb = page.locator('.thumbnail').first();
@@ -54,8 +54,8 @@ test.describe('Smoke test', () => {
         const dayAlbumLink = dayThumb.locator('a').first();
         await dayAlbumLink.click();
 
-        // Step 4: Verify we're on a day album page (URL contains MM-DD pattern)
-        await expect(page).toHaveURL(/\/\d{2}-\d{2}/, { timeout: 15000 });
+        // Step 4: Verify we're on a day album page (URL ends with MM-DD pattern, not a media file)
+        await expect(page).toHaveURL(/\/\d{2}-\d{2}$/, { timeout: 15000 });
 
         // Wait for image thumbnails to load
         const imageThumb = page.locator('.thumbnail').first();
@@ -72,7 +72,7 @@ test.describe('Smoke test', () => {
 
         // Step 5: Verify we're on an image detail page
         // URL should have an image filename
-        await expect(page).toHaveURL(/\/20\d{2}\/\d{2}-\d{2}\/[^/]+/, { timeout: 15000 });
+        await expect(page).toHaveURL(/\/\d{4}\/\d{2}-\d{2}\/[^/]+/, { timeout: 15000 });
 
         // Verify main image loads
         const mainImage = page.locator('img').first();
@@ -101,7 +101,7 @@ test.describe('Smoke test', () => {
         await page.waitForURL((url) => url.toString() !== firstImageUrl, { timeout: 15000 });
 
         // Verify we're still on an image detail page (different image)
-        await expect(page).toHaveURL(/\/20\d{2}\/\d{2}-\d{2}\/[^/]+/, { timeout: 10000 });
+        await expect(page).toHaveURL(/\/\d{4}\/\d{2}-\d{2}\/[^/]+/, { timeout: 10000 });
 
         // Verify the new image loads
         const nextImage = page.locator('img').first();
