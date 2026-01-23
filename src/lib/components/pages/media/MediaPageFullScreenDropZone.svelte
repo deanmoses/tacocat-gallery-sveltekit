@@ -8,7 +8,7 @@
     import { getDroppedFiles } from '$lib/stores/admin/DragDropUtils';
     import { uploadMachine } from '$lib/stores/admin/UploadMachine.svelte';
     import { sessionStore } from '$lib/stores/SessionStore.svelte';
-    import { getUploadPathForReplacement } from '$lib/utils/uploadUtils';
+    import { getReplacementExtensionError, getUploadPathForReplacement } from '$lib/utils/uploadUtils';
     import { toast } from '@zerodevx/svelte-toast';
 
     interface Props {
@@ -31,8 +31,14 @@
             toast.push('Please drop a single file');
             return;
         }
-        const uploadPath = getUploadPathForReplacement(mediaPath, files[0].name);
-        uploadMachine.uploadMediaItem(uploadPath, files[0], versionId);
+        const file = files[0];
+        const extensionError = getReplacementExtensionError(mediaPath, file.name);
+        if (extensionError) {
+            toast.push(extensionError);
+            return;
+        }
+        const uploadPath = getUploadPathForReplacement(mediaPath, file.name);
+        uploadMachine.uploadMediaItem(uploadPath, file, versionId);
     }
 </script>
 
