@@ -21,10 +21,10 @@
 .site-container[data-year='current'],
 .site-container[data-year='2026'] {
     --body-color: #f0efeb; /* Cloud Dancer */
-    --header-color: #f5ebc7; /* Lemon Icing */
-    --sidebar-color: #ccd4dc; /* Rainy Nimbus Cloud */
-    --button-color: #ddd3dc; /* Orchid Tint */
-    --month-color: #d3e3f2; /* Ice Melt */
+    --header-color: #eee8d7; /* Straw */
+    --sidebar-color: #c7c9c4; /* Cumulus Cloud */
+    --button-color: #e6d08f; /* Marigold */
+    --month-color: #eee8d7; /* Straw */
 }
 
 .site-container[data-year='2025'] {
