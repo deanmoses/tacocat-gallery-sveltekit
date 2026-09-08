@@ -10,7 +10,8 @@ import vitest from '@vitest/eslint-plugin';
 export default ts.config(
     js.configs.recommended,
     ...ts.configs.recommended,
-    ...svelte.configs['flat/prettier'],
+    ...svelte.configs['flat/recommended'],
+    ...svelte.configs['flat/prettier'], // must come after recommended: turns off formatting rules
     {
         languageOptions: {
             globals: {
@@ -32,6 +33,9 @@ export default ts.config(
     {
         rules: {
             'no-extra-boolean-cast': 'off',
+
+            // This app has no paths.base, so resolve() adds nothing
+            'svelte/no-navigation-without-resolve': 'off',
             '@typescript-eslint/no-unused-vars': [
                 'error',
                 {

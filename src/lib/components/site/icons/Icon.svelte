@@ -25,8 +25,6 @@
     let { width = '1em', height = '1em', title = undefined, d, viewBox, bottom = '0.125em' }: Props = $props();
 </script>
 
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
 <svg {width} {height} {viewBox} style:bottom>
     {#if title}<title>{title}</title>{/if}
     <path {d} />

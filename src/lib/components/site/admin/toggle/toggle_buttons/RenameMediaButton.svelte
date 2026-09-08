@@ -53,9 +53,10 @@
         const newMediaPath = mediaNameWithoutExtensionToPath(newMediaName);
         const albumPath = getParentFromPath(newMediaPath);
         const album = albumState.albums.get(albumPath);
-        if (!album || !album.album) return;
+        if (!album || !album.album) return undefined; // album not loaded, cannot check for collision
         const media = album.album.getMedia(newMediaPath);
         if (media) return 'file already exists';
+        return undefined; // name is valid
     }
 
     function mediaNameWithoutExtensionToPath(mediaNameWithoutExtension: string): string {
