@@ -44,6 +44,7 @@
         "@sveltejs/kit": "^2.70.3",
         "@sveltejs/vite-plugin-svelte": "^7.3.0",
         "@types/node": "^24.13.3",
+        "@vitest/eslint-plugin": "^1.6.27",
         "@zerodevx/svelte-toast": "^0.9.6",
         "eslint": "^10.10.0",
         "eslint-plugin-svelte": "^3.23.0",
