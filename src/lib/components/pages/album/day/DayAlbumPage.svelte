@@ -19,9 +19,9 @@
         album: Album;
     }
     let { album }: Props = $props();
-    let uploads: UploadEntry[] | undefined = $derived.by(() => {
-        return albumState.uploads.filter((upload) => upload.mediaPath.startsWith(album.path));
-    });
+    let uploads: UploadEntry[] | undefined = $derived(
+        albumState.uploads.filter((upload) => upload.mediaPath.startsWith(album.path)),
+    );
 </script>
 
 <DayAlbumPageLayout title={album.title} published={album.published}>

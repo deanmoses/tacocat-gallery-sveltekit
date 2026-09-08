@@ -66,6 +66,7 @@ export default ts.config(
             'svelte/no-ignored-unsubscribe': 'error',
             'svelte/no-target-blank': 'error',
             'svelte/no-top-level-browser-globals': 'error',
+            'svelte/prefer-derived-over-derived-by': 'error',
             'svelte/require-event-prefix': 'error',
             'svelte/require-stores-init': 'error',
             'svelte/valid-compile': 'error',
