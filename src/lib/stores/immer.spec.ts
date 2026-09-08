@@ -5,13 +5,13 @@
  * They don't test immer's API - they test that our code's integration with immer
  * produces the expected results.
  */
-import { test, expect, describe } from 'vitest';
+import { it, expect, describe } from 'vitest';
 import { produce } from 'immer';
 import type { Draft } from '$lib/models/draft';
 import { DraftStatus } from '$lib/models/draft';
 
 describe('immer produce() integration', () => {
-    test('updating nested object preserves other properties', () => {
+    it('updating nested object preserves other properties', () => {
         const original: Draft = {
             path: '/2024/01-15/',
             status: DraftStatus.NO_CHANGES,
@@ -41,7 +41,7 @@ describe('immer produce() integration', () => {
         expect(updated.content?.description).toBe('Original Description');
     });
 
-    test('adding new properties to nested object', () => {
+    it('adding new properties to nested object', () => {
         const original: Draft = {
             path: '/2024/',
             status: DraftStatus.NO_CHANGES,
@@ -62,7 +62,7 @@ describe('immer produce() integration', () => {
         expect(updated.content?.published).toBe(true);
     });
 
-    test('produces distinct object references when nested content changes', () => {
+    it('produces distinct object references when nested content changes', () => {
         const original: Draft = {
             path: '/2024/',
             status: DraftStatus.NO_CHANGES,
@@ -82,7 +82,7 @@ describe('immer produce() integration', () => {
         expect(original.content?.title).toBe('Test');
     });
 
-    test('handles deeply nested updates', () => {
+    it('handles deeply nested updates', () => {
         // Simulates AlbumEntry structure with nested album data
         type AlbumEntry = {
             loadStatus: string;
@@ -120,7 +120,7 @@ describe('immer produce() integration', () => {
         expect(updated.album?.media[1].title).toBe('Photo 2');
     });
 
-    test('sequential produce calls accumulate changes correctly', () => {
+    it('sequential produce calls accumulate changes correctly', () => {
         let state: Draft = {
             path: '/2024/',
             status: DraftStatus.NO_CHANGES,

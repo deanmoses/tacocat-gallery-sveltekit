@@ -80,6 +80,10 @@ export default ts.config(
             // Typos and leftovers
             'vitest/no-alias-methods': 'error',
             'vitest/no-test-prefixes': 'error',
+
+            // Default options: `test` at top level, `it` inside `describe`,
+            // which is how this project's test names are phrased
+            'vitest/consistent-test-it': 'error',
         },
     },
     {
