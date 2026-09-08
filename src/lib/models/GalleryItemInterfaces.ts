@@ -28,7 +28,7 @@ export interface Album extends Nextable {
     readonly parentTitle: string;
     readonly media: Media[];
     readonly albums: Thumbable[];
-    getMedia(mediaPath: string): Media | undefined;
+    getMedia: (mediaPath: string) => Media | undefined;
 }
 
 /** Base interface for all media items (images and videos) */
