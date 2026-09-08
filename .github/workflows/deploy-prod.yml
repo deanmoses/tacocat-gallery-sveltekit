@@ -17,6 +17,8 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v7
+              with:
+                  persist-credentials: false
 
             - name: Setup Node.js
               uses: actions/setup-node@v7
@@ -54,6 +56,8 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v7
+              with:
+                  persist-credentials: false
 
             - name: Download build artifacts
               uses: actions/download-artifact@v8
@@ -78,6 +82,8 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v7
+              with:
+                  persist-credentials: false
 
             - name: Setup Node.js
               uses: actions/setup-node@v7
@@ -145,5 +151,3 @@ jobs:
                   tag_name: ${{ steps.tag.outputs.tag }}
                   name: ${{ steps.tag.outputs.tag }}
                   generate_release_notes: true
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
