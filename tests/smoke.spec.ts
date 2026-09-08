@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import type { Locator } from '@playwright/test';
 
 /**
  * Smoke test that navigates through the album hierarchy:
@@ -114,7 +115,7 @@ test.describe('Smoke test', () => {
  * Verify that an image element has actually loaded its source.
  * Checks that naturalWidth > 0, which indicates the image data loaded successfully.
  */
-async function expectImageLoaded(imgLocator: import('@playwright/test').Locator) {
+async function expectImageLoaded(imgLocator: Locator) {
     // Wait for the image to fully load
     await expect(imgLocator).toHaveJSProperty('complete', true);
     // Verify the image has actual dimensions (not a broken image)
