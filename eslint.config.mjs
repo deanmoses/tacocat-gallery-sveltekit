@@ -21,6 +21,28 @@ export default ts.config(
         },
     },
     {
+        // Type-aware linting. Unlocks rules that need a type checker, and also
+        // makes already-enabled rules that degrade gracefully without types
+        // (e.g. svelte/require-event-prefix) actually do their job.
+        languageOptions: {
+            parserOptions: {
+                projectService: {
+                    // Config files and the service worker sit outside the
+                    // SvelteKit tsconfig's `include`, so they need the fallback
+                    // project to be parsed at all
+                    allowDefaultProject: [
+                        'eslint.config.mjs',
+                        'svelte.config.js',
+                        'playwright.config.ts',
+                        'scripts/*.mjs',
+                        'src/service-worker.ts',
+                    ],
+                },
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+    },
+    {
         files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
         languageOptions: {
             parserOptions: {

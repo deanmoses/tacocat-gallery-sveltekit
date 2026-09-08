@@ -12,7 +12,9 @@
         label: string;
         initialValue: string;
         extension?: string;
+        // eslint-disable-next-line svelte/require-event-prefix -- a transform the parent injects, not an event handler
         sanitizor: (n: string) => string;
+        // eslint-disable-next-line svelte/require-event-prefix -- a validation function the parent injects, not an event handler
         validator: (n: string) => Promise<string | undefined>;
         onNewValue: (n: string) => void;
     }
