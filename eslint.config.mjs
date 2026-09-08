@@ -78,6 +78,114 @@ export default ts.config(
             '@typescript-eslint/consistent-type-imports': 'error',
             '@typescript-eslint/array-type': 'error',
             'no-lonely-if': 'error',
+
+            // Bug classes the type checker can't see
+            'array-callback-return': 'error',
+            'no-constructor-return': 'error',
+            'no-self-compare': 'error',
+            'no-template-curly-in-string': 'error',
+            'no-unmodified-loop-condition': 'error',
+            'no-unreachable-loop': 'error',
+            'require-atomic-updates': 'error',
+
+            // Legacy JS constructs with better modern equivalents
+            'logical-assignment-operators': 'error',
+            'no-array-constructor': 'error',
+            'no-multi-assign': 'error',
+            'no-new': 'error',
+            'no-object-constructor': 'error',
+            'no-sequences': 'error',
+            'no-undef-init': 'error',
+            'no-useless-concat': 'error',
+            'no-useless-rename': 'error',
+            'prefer-arrow-callback': 'error',
+            'prefer-exponentiation-operator': 'error',
+            'prefer-object-spread': 'error',
+            'prefer-regex-literals': 'error',
+            'prefer-spread': 'error',
+            radix: 'error',
+            'symbol-description': 'error',
+            'default-case-last': 'error',
+
+            // Footguns that should never appear
+            'no-caller': 'error',
+            'no-extend-native': 'error',
+            'no-labels': 'error',
+            'no-lone-blocks': 'error',
+            'no-new-func': 'error',
+            'no-new-wrappers': 'error',
+            'no-proto': 'error',
+            'no-script-url': 'error',
+
+            // Type-level consistency
+            '@typescript-eslint/adjacent-overload-signatures': 'error',
+            '@typescript-eslint/ban-tslint-comment': 'error',
+            '@typescript-eslint/consistent-generic-constructors': 'error',
+            '@typescript-eslint/consistent-indexed-object-style': 'error',
+            '@typescript-eslint/default-param-last': 'error',
+            '@typescript-eslint/no-confusing-non-null-assertion': 'error',
+            '@typescript-eslint/no-dupe-class-members': 'error',
+            '@typescript-eslint/no-empty-object-type': 'error',
+            '@typescript-eslint/no-extraneous-class': 'error',
+            '@typescript-eslint/no-import-type-side-effects': 'error',
+            '@typescript-eslint/no-loop-func': 'error',
+            '@typescript-eslint/no-require-imports': 'error',
+            '@typescript-eslint/no-unnecessary-parameter-property-assignment': 'error',
+            '@typescript-eslint/no-unnecessary-type-constraint': 'error',
+            '@typescript-eslint/no-unsafe-declaration-merging': 'error',
+            '@typescript-eslint/no-useless-constructor': 'error',
+            '@typescript-eslint/no-useless-empty-export': 'error',
+            '@typescript-eslint/prefer-for-of': 'error',
+            '@typescript-eslint/prefer-function-type': 'error',
+            '@typescript-eslint/prefer-literal-enum-member': 'error',
+        },
+    },
+    {
+        // Type-aware rules. Scoped to files the TS project actually covers;
+        // config files and scripts are linted without type information.
+        files: ['**/*.ts', '**/*.svelte', '**/*.svelte.ts'],
+        rules: {
+            // Async correctness: the highest-value reason to run type-aware
+            // linting in a codebase built on fire-and-forget service methods
+            '@typescript-eslint/await-thenable': 'error',
+            '@typescript-eslint/no-misused-promises': 'error',
+            '@typescript-eslint/no-unsafe-unary-minus': 'error',
+            'prefer-promise-reject-errors': 'off',
+            '@typescript-eslint/prefer-promise-reject-errors': 'error',
+
+            // Runtime errors the checker can prove
+            '@typescript-eslint/no-array-delete': 'error',
+            '@typescript-eslint/no-base-to-string': 'error',
+            '@typescript-eslint/no-for-in-array': 'error',
+            '@typescript-eslint/no-implied-eval': 'error',
+            '@typescript-eslint/no-misused-spread': 'error',
+            '@typescript-eslint/no-mixed-enums': 'error',
+            '@typescript-eslint/restrict-plus-operands': 'error',
+            '@typescript-eslint/unbound-method': 'error',
+
+            // Guardrail against silently inheriting `any` from a dependency
+            '@typescript-eslint/no-unsafe-return': 'error',
+
+            // Catches use of APIs deprecated by a dependency bump
+            '@typescript-eslint/no-deprecated': 'error',
+
+            // Dead type-level code
+            '@typescript-eslint/no-generated-empty-object-type': 'error',
+            '@typescript-eslint/no-redundant-type-constituents': 'error',
+            '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'error',
+            '@typescript-eslint/no-unnecessary-type-arguments': 'error',
+            '@typescript-eslint/no-unnecessary-type-conversion': 'error',
+            '@typescript-eslint/no-unnecessary-type-parameters': 'error',
+
+            // Modern stdlib usage
+            'dot-notation': 'off',
+            '@typescript-eslint/dot-notation': 'error',
+            '@typescript-eslint/prefer-find': 'error',
+            '@typescript-eslint/prefer-includes': 'error',
+            '@typescript-eslint/prefer-reduce-type-parameter': 'error',
+            '@typescript-eslint/prefer-regexp-exec': 'error',
+            '@typescript-eslint/prefer-return-this-type': 'error',
+            '@typescript-eslint/prefer-string-starts-ends-with': 'error',
         },
     },
     {
@@ -100,6 +208,17 @@ export default ts.config(
             'svelte/require-event-prefix': 'error',
             'svelte/require-stores-init': 'error',
             'svelte/valid-compile': 'error',
+            'svelte/no-conflicting-module-names': 'error',
+            'svelte/no-nested-style-tag': 'error',
+            'svelte/valid-style-parse': 'error',
+            'svelte/require-optimized-style-attribute': 'error',
+            'svelte/prefer-class-directive': 'error',
+            'svelte/prefer-attribute-interpolation': 'error',
+            // Legacy-store guardrails: this codebase is all runes, so these
+            // exist to keep it that way rather than to fix anything today
+            'svelte/derived-has-same-inputs-outputs': 'error',
+            'svelte/prefer-destructured-store-props': 'error',
+            'svelte/require-store-callbacks-use-set-param': 'error',
         },
     },
     {
