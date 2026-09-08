@@ -7,6 +7,7 @@ import {
     isValidMediaPath,
     isValidMediaNameWithoutExtensionStrict,
     IMAGE_EXTENSIONS,
+    getParentAndNameFromPath,
 } from './galleryPathUtils';
 
 describe('sanitizeMediaFilename', () => {
@@ -322,4 +323,49 @@ describe('isValidMediaNameWithoutExtensionStrict', () => {
         expect(isValidMediaNameWithoutExtensionStrict(longValidName)).toBe(true);
         expect(isValidMediaNameWithoutExtensionStrict(longInvalidName)).toBe(false);
     }, 50); // 50ms timeout - test will fail if regex causes backtracking
+});
+
+describe('getParentAndNameFromPath', () => {
+    it('splits a media path into day album and filename', () => {
+        expect(getParentAndNameFromPath('/2001/12-31/image.jpg')).toEqual({
+            parent: '/2001/12-31/',
+            name: 'image.jpg',
+        });
+        expect(getParentAndNameFromPath('/2001/12-31/video.mp4')).toEqual({
+            parent: '/2001/12-31/',
+            name: 'video.mp4',
+        });
+    });
+
+    it('splits a day album path into year album and day', () => {
+        expect(getParentAndNameFromPath('/2001/12-31/')).toEqual({ parent: '/2001/', name: '12-31' });
+    });
+
+    it('splits a year album path into root and year', () => {
+        expect(getParentAndNameFromPath('/2001/')).toEqual({ parent: '/', name: '2001' });
+    });
+
+    it('returns empty parent and name for the root album', () => {
+        expect(getParentAndNameFromPath('/')).toEqual({ parent: '', name: '' });
+    });
+
+    it('trims surrounding whitespace', () => {
+        expect(getParentAndNameFromPath('  /2001/12-31/  ')).toEqual({ parent: '/2001/', name: '12-31' });
+    });
+
+    // Album paths are only valid with a trailing slash, so these throw rather
+    // than being treated as /2001/12-31/ and /2001/
+    it('throws on an album path with no trailing slash', () => {
+        expect(() => getParentAndNameFromPath('/2001/12-31')).toThrow('Invalid path: [/2001/12-31]');
+        expect(() => getParentAndNameFromPath('/2001')).toThrow('Invalid path: [/2001]');
+    });
+
+    it('throws on an empty path', () => {
+        expect(() => getParentAndNameFromPath('')).toThrow('Invalid path: cannot be empty');
+        expect(() => getParentAndNameFromPath('   ')).toThrow('Invalid path: cannot be empty');
+    });
+
+    it('throws on a path that is not a gallery path', () => {
+        expect(() => getParentAndNameFromPath('nonsense')).toThrow('Invalid path: [nonsense]');
+    });
 });
