@@ -1,7 +1,7 @@
 /// <reference types="vitest/config" />
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig, type ProxyOptions } from 'vite';
-import { emulateProdOnLocalhost } from './src/lib/utils/settings';
+import { emulateProdOnLocalhost } from './src/lib/utils/settings.js';
 
 // Shared proxy config for both dev server and preview server
 const apiProxy: Record<string, ProxyOptions> = {
