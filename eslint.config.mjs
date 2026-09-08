@@ -66,10 +66,22 @@ export default ts.config(
             'svelte/no-ignored-unsubscribe': 'error',
             'svelte/no-target-blank': 'error',
             'svelte/no-top-level-browser-globals': 'error',
+            // Rune-aware. Core prefer-const is switched off for .svelte.ts below,
+            // so rune files are governed by this rule alone.
+            'svelte/prefer-const': 'error',
             'svelte/prefer-derived-over-derived-by': 'error',
             'svelte/require-event-prefix': 'error',
             'svelte/require-stores-init': 'error',
             'svelte/valid-compile': 'error',
+        },
+    },
+    {
+        // .svelte.ts files can hold module-level runes, which must stay `let`.
+        // Core prefer-const (on for **/*.ts via typescript-eslint) is not
+        // rune-aware, so svelte/prefer-const governs these files instead.
+        files: ['**/*.svelte.ts'],
+        rules: {
+            'prefer-const': 'off',
         },
     },
     {
