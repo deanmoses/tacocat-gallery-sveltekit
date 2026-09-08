@@ -31,6 +31,11 @@ export default ts.config(
         },
     },
     {
+        // Stale eslint-disable comments are themselves an error, so suppressions
+        // can't outlive the problem they were added for
+        linterOptions: {
+            reportUnusedDisableDirectives: 'error',
+        },
         rules: {
             'no-extra-boolean-cast': 'off',
 
@@ -43,6 +48,27 @@ export default ts.config(
                     varsIgnorePattern: '^_',
                 },
             ],
+            // no-var is already on for *.ts upstream; this widens it to .svelte and .mjs
+            'no-var': 'error',
+            'no-unneeded-ternary': 'error',
+        },
+    },
+    {
+        // Svelte 5 correctness rules that sit outside flat/recommended
+        files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
+        rules: {
+            'svelte/block-lang': ['error', { script: 'ts' }],
+            'svelte/no-add-event-listener': 'error',
+            'svelte/no-at-const-tags': 'error',
+            'svelte/no-bind-value-on-checkable-inputs': 'error',
+            'svelte/no-dynamic-slot-name': 'error',
+            'svelte/no-extra-reactive-curlies': 'error',
+            'svelte/no-ignored-unsubscribe': 'error',
+            'svelte/no-target-blank': 'error',
+            'svelte/no-top-level-browser-globals': 'error',
+            'svelte/require-event-prefix': 'error',
+            'svelte/require-stores-init': 'error',
+            'svelte/valid-compile': 'error',
         },
     },
     {
