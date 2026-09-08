@@ -88,7 +88,7 @@ describe('immer produce() integration', () => {
             loadStatus: string;
             album?: {
                 path: string;
-                media: Array<{ path: string; title?: string }>;
+                media: { path: string; title?: string }[];
             };
         };
 

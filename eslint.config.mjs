@@ -51,6 +51,7 @@ export default ts.config(
             // no-var is already on for *.ts upstream; this widens it to .svelte and .mjs
             'no-var': 'error',
             'no-unneeded-ternary': 'error',
+            '@typescript-eslint/array-type': 'error',
             'no-lonely-if': 'error',
         },
     },
