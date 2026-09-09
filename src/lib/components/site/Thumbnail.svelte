@@ -63,7 +63,7 @@
     });
 </script>
 
-<div class="thumbnail">
+<div class="thumbnail" data-testid="thumbnail">
     <a {href} aria-hidden="true" tabindex="-1"
         >{#if imgSrc}<img
                 src={imgSrc}

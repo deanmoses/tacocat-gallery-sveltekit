@@ -50,7 +50,7 @@
                         {@render nav?.()}
                     </Nav>
                 {/if}
-                <section aria-label="Photo">
+                <section aria-label="Media">
                     {@render imageHtml?.()}
                 </section>
             </div>

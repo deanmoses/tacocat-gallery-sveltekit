@@ -50,10 +50,10 @@ test.describe('Smoke test', () => {
         // URL should have a media filename
         await expect(page).toHaveURL(/\/\d{4}\/\d{2}-\d{2}\/[^/]+/, { timeout: 15000 });
 
-        // Scoped to the photo region so the nav arrows can't match. Holds an
-        // image whether the media is a photo or a video (a video renders its
+        // Scoped to the media region so the nav arrows can't match. Holds an
+        // image whether the item is a photo or a video (a video renders its
         // poster frame there).
-        const mainImage = page.getByRole('region', { name: 'Photo' }).getByRole('img');
+        const mainImage = page.getByRole('region', { name: 'Media' }).getByRole('img');
         await expect(mainImage).toBeVisible({ timeout: 10000 });
         await expectImageLoaded(mainImage);
 
@@ -73,7 +73,7 @@ test.describe('Smoke test', () => {
         await expect(page).toHaveURL(/\/\d{4}\/\d{2}-\d{2}\/[^/]+/, { timeout: 10000 });
 
         // Verify the new image loads
-        const nextImage = page.getByRole('region', { name: 'Photo' }).getByRole('img');
+        const nextImage = page.getByRole('region', { name: 'Media' }).getByRole('img');
         await expect(nextImage).toBeVisible({ timeout: 10000 });
         await expectImageLoaded(nextImage);
     });
@@ -83,22 +83,24 @@ test.describe('Smoke test', () => {
  * The newest thumbnail in the page's main content: the link a user would click,
  * and the image displayed above it.
  *
- * Thumbnails are ordered newest first, and each renders two anchors: an
- * aria-hidden one around the image and a visible one holding the title. Only the
- * second has a link role, so there is exactly one link and one image per
- * thumbnail, in matching document order.
+ * Both come from inside a single thumbnail rather than from two page-wide
+ * queries, so they always describe the same album or media item. Querying
+ * separately would pair them by position, which doesn't hold: a day album's
+ * description sits in <main> ahead of the thumbnails and may contain its own
+ * links, and a thumbnail with no thumbnail set renders a placeholder instead of
+ * an <img>.
  *
  * `no-nth-methods` rules out `.first()`, so this waits for the collection to be
  * non-empty and then resolves it. That keeps the auto-waiting the rule is meant
  * to protect: by the time `all()` runs, the thumbnails are already rendered.
  */
 async function newestThumbnail(page: Page): Promise<{ image: Locator; link: Locator }> {
-    const main = page.getByRole('main');
-    const links = main.getByRole('link');
-    await expect(links).not.toHaveCount(0, { timeout: 15000 });
-    const [link] = await links.all();
-    const [image] = await main.getByTestId('thumbnail-image').all();
-    return { image, link };
+    const thumbnails = page.getByRole('main').getByTestId('thumbnail');
+    await expect(thumbnails).not.toHaveCount(0, { timeout: 15000 });
+    // Thumbnails are ordered newest first
+    const [thumbnail] = await thumbnails.all();
+    // The image sits in an aria-hidden anchor, so the titled one is the only link
+    return { image: thumbnail.getByTestId('thumbnail-image'), link: thumbnail.getByRole('link') };
 }
 
 /**
