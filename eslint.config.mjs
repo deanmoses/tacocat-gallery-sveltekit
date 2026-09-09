@@ -271,6 +271,7 @@ export default ts.config(
             'vitest/prefer-to-be': 'error',
             'vitest/prefer-to-contain': 'error',
             'vitest/prefer-to-have-length': 'error',
+            'vitest/prefer-strict-equal': 'error',
             'vitest/prefer-strict-boolean-matchers': 'error',
             'vitest/prefer-expect-type-of': 'error',
 

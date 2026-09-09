@@ -46,7 +46,7 @@ describe(validateMediaBatch, () => {
         const result = await validateMediaBatch(files);
 
         expect(result.valid).toHaveLength(0);
-        expect(result.invalid).toEqual(['/2024/01-01/empty.jpg']);
+        expect(result.invalid).toStrictEqual(['/2024/01-01/empty.jpg']);
     });
 
     it('accepts non-zero files', async () => {
@@ -68,8 +68,11 @@ describe(validateMediaBatch, () => {
         const result = await validateMediaBatch(files);
 
         expect(result.valid).toHaveLength(2);
-        expect(result.valid.map((f) => f.uploadPath)).toEqual(['/2024/01-01/valid1.jpg', '/2024/01-01/valid2.jpg']);
-        expect(result.invalid).toEqual(['/2024/01-01/empty.jpg']);
+        expect(result.valid.map((f) => f.uploadPath)).toStrictEqual([
+            '/2024/01-01/valid1.jpg',
+            '/2024/01-01/valid2.jpg',
+        ]);
+        expect(result.invalid).toStrictEqual(['/2024/01-01/empty.jpg']);
     });
 
     it('returns empty arrays for empty input', async () => {
@@ -103,6 +106,6 @@ describe(validateMediaBatch, () => {
         const result = await validateMediaBatch(files);
 
         expect(result.valid).toHaveLength(0);
-        expect(result.invalid).toEqual(['/2024/01-01/empty.heic']);
+        expect(result.invalid).toStrictEqual(['/2024/01-01/empty.heic']);
     });
 });
