@@ -139,6 +139,11 @@ Comments exist ONLY to explain what the code cannot. Never restate the code.
 - **Don't justify verbosity by ratio.** "It matches the doc-to-code ratio of the rest of
   the project" is not a defense. Write tight, just-enough comments.
 
+## Testing
+
+Unit tests are `src/**/*.spec.ts`, beside the module they cover; Playwright E2E specs are
+`tests/*.spec.ts`. Read `docs/Testing.md` before writing or changing a spec.
+
 ## Tools & CI
 
 - **gh CLI**: Claude (and scripts) have read-write access to the `gh` CLI tool. Use it for GitHub operations instead of the GitHub MCP server.
