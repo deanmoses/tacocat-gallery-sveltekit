@@ -23,7 +23,7 @@ function createUpload(
     };
 }
 
-describe('findProcessedUploads', () => {
+describe(findProcessedUploads, () => {
     it('returns empty arrays when no uploads provided', () => {
         const result = findProcessedUploads([], () => undefined);
 
@@ -277,7 +277,7 @@ describe('findProcessedUploads', () => {
     });
 });
 
-describe('getUploadPathForReplacement', () => {
+describe(getUploadPathForReplacement, () => {
     it('returns same path when extensions match', () => {
         expect(getUploadPathForReplacement('/2024/01-01/photo.jpg', 'new_photo.jpg')).toBe('/2024/01-01/photo.jpg');
     });
@@ -320,7 +320,7 @@ describe('getUploadPathForReplacement', () => {
     });
 });
 
-describe('getReplacementExtensionError', () => {
+describe(getReplacementExtensionError, () => {
     // Same extension - always allowed
     it('returns undefined when extensions match exactly', () => {
         expect(getReplacementExtensionError('/2024/01-01/photo.jpg', 'new.jpg')).toBeUndefined();

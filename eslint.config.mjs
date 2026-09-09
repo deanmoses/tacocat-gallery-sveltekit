@@ -237,6 +237,15 @@ export default ts.config(
         // test-only rules into the rest of the repo.
         files: ['src/**/*.spec.ts'],
         plugins: { vitest },
+        // Tells the plugin it may consult the type checker, which the
+        // type-aware config above already makes available. Four rules change
+        // behaviour, all of them for the better: expect-expect and valid-expect
+        // stop treating `expectTypeOf`/`assertType` as non-assertions (this
+        // config already pushes toward them via prefer-expect-type-of), and
+        // valid-title and prefer-describe-function-title start resolving a
+        // describe title that is a function reference instead of guessing from
+        // the identifier's name.
+        settings: { vitest: { typecheck: true } },
         rules: {
             ...vitest.configs.recommended.rules,
 
@@ -275,6 +284,10 @@ export default ts.config(
             // change what the codebase is held to.
             'vitest/consistent-test-it': ['error', { fn: 'test', withinDescribe: 'it' }],
             'vitest/consistent-test-filename': ['error', { pattern: String.raw`.*\.spec\.ts$` }],
+
+            // Ties a describe title to the function under test, so renaming the
+            // function renames the suite instead of leaving a stale string
+            'vitest/prefer-describe-function-title': 'error',
 
             // Globals are not enabled in vite.config.ts, so a bare `describe`
             // would be undefined at runtime. This keeps the imports honest, and

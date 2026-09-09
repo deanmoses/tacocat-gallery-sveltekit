@@ -10,7 +10,7 @@ import {
     getParentAndNameFromPath,
 } from './galleryPathUtils';
 
-describe('sanitizeMediaFilename', () => {
+describe(sanitizeMediaFilename, () => {
     // Basic transformations
     it('converts to lowercase', () => {
         expect(sanitizeMediaFilename('IMAGE.JPG')).toBe('image.jpg');
@@ -93,7 +93,7 @@ describe('sanitizeMediaFilename', () => {
     });
 });
 
-describe('hasValidMediaExtension', () => {
+describe(hasValidMediaExtension, () => {
     it('accepts standard image extensions', () => {
         expect(hasValidMediaExtension('photo.jpg')).toBe(true);
         expect(hasValidMediaExtension('photo.jpeg')).toBe(true);
@@ -136,7 +136,7 @@ describe('hasValidMediaExtension', () => {
     });
 });
 
-describe('isValidMediaPath', () => {
+describe(isValidMediaPath, () => {
     it('accepts HEIC/HEIF image paths', () => {
         expect(isValidMediaPath('/2024/01-15/photo.heic')).toBe(true);
         expect(isValidMediaPath('/2024/01-15/photo.heif')).toBe(true);
@@ -163,7 +163,7 @@ describe('IMAGE_EXTENSIONS', () => {
     });
 });
 
-describe('sanitizeMediaNameWithoutExtension', () => {
+describe(sanitizeMediaNameWithoutExtension, () => {
     it('converts to lowercase', () => {
         expect(sanitizeMediaNameWithoutExtension('PHOTO')).toBe('photo');
     });
@@ -191,7 +191,7 @@ describe('sanitizeMediaNameWithoutExtension', () => {
     });
 });
 
-describe('deduplicateMediaPaths', () => {
+describe(deduplicateMediaPaths, () => {
     it('returns paths unchanged when no duplicates', () => {
         expect(deduplicateMediaPaths(['/2024/01-01/a.jpg', '/2024/01-01/b.jpg'])).toEqual([
             '/2024/01-01/a.jpg',
@@ -251,7 +251,7 @@ describe('deduplicateMediaPaths', () => {
     });
 });
 
-describe('isValidMediaNameWithoutExtensionStrict', () => {
+describe(isValidMediaNameWithoutExtensionStrict, () => {
     it('accepts valid lowercase alphanumeric names', () => {
         expect(isValidMediaNameWithoutExtensionStrict('photo')).toBe(true);
         expect(isValidMediaNameWithoutExtensionStrict('photo1')).toBe(true);
@@ -325,7 +325,7 @@ describe('isValidMediaNameWithoutExtensionStrict', () => {
     }, 50); // 50ms timeout - test will fail if regex causes backtracking
 });
 
-describe('getParentAndNameFromPath', () => {
+describe(getParentAndNameFromPath, () => {
     it('splits a media path into day album and filename', () => {
         expect(getParentAndNameFromPath('/2001/12-31/image.jpg')).toEqual({
             parent: '/2001/12-31/',

@@ -24,7 +24,7 @@ describe('fileFormats', () => {
         });
     });
 
-    describe('isRenamedOnServer', () => {
+    describe(isRenamedOnServer, () => {
         it('returns true for HEIC', () => {
             expect(isRenamedOnServer('/2024/01-01/photo.heic')).toBe(true);
         });
@@ -42,7 +42,7 @@ describe('fileFormats', () => {
         });
     });
 
-    describe('browserCanDisplay', () => {
+    describe(browserCanDisplay, () => {
         it('returns false for HEIC files', () => {
             expect(browserCanDisplay('photo.heic')).toBe(false);
         });
