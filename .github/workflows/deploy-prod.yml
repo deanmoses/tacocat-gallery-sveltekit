@@ -32,6 +32,10 @@ jobs:
             - name: Lint
               run: npm run lint
 
+            # shellcheck is preinstalled on GitHub's ubuntu runners
+            - name: Lint shell scripts
+              run: npm run lint:shell
+
             - name: Type check
               run: npm run check
 

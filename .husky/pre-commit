@@ -1,3 +1,4 @@
+# shellcheck shell=sh
 set -e
 
 # Check for direct edits to generated agent docs (must run first)
@@ -10,11 +11,19 @@ if git diff --cached --name-only | grep -qE "(docs/AGENTS\.src\.md|scripts/build
 fi
 
 # Scan for secrets (requires installing gitleaks)
-if command -v gitleaks &> /dev/null; then
+if command -v gitleaks >/dev/null 2>&1; then
     gitleaks protect --staged --no-banner
 else
     echo "Warning: gitleaks not installed, skipping secret scan"
     echo "Install with: brew install gitleaks"
+fi
+
+# Lint shell scripts (requires installing shellcheck)
+if command -v shellcheck >/dev/null 2>&1; then
+    npm run lint:shell
+else
+    echo "Warning: shellcheck not installed, skipping shell lint"
+    echo "Install with: brew install shellcheck"
 fi
 
 # Generate SvelteKit types, which type-aware ESLint rules need to resolve

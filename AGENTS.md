@@ -18,7 +18,8 @@ npm run test:coverage # Unit tests + coverage (finds modules with no tests)
 npm run test:e2e      # Run Playwright E2E tests
 npm run test:all      # Run all tests (unit + E2E)
 npm run check         # Type checking (svelte-check + TypeScript)
-npm run lint          # ESLint + Prettier check
+npm run lint          # ESLint + Prettier + markdownlint check
+npm run lint:shell    # Shellcheck the shell scripts
 npm run format        # Auto-format with Prettier
 npm run quality       # Format, lint, and type check
 npm run precommit     # Quality checks + unit tests (for pre-commit/pre-PR)
@@ -142,8 +143,9 @@ Unit tests are `src/**/*.spec.ts`, beside the module they cover; Playwright E2E 
 
 - **gh CLI**: Use the `gh` CLI tool for GitHub operations.
 
-- **Pre-commit hooks**: Husky runs gitleaks (secret scanning), lint-staged, type checking, and unit tests on commit. To bypass when needed: `git commit --no-verify`
+- **Pre-commit hooks**: Husky runs gitleaks (secret scanning), shellcheck, lint-staged, type checking, and unit tests on commit. To bypass when needed: `git commit --no-verify`
 - **Gitleaks**: Secret scanner runs on pre-commit. Install with `brew install gitleaks`. The hook warns but continues if gitleaks is not installed.
+- **Shellcheck**: Shell script linter runs on pre-commit. Install with `brew install shellcheck`. The hook warns but continues if shellcheck is not installed; CI enforces it, since GitHub's runners ship it preinstalled.
 
 ## Git Amend
 

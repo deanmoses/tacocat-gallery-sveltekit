@@ -18,7 +18,8 @@ npm run test:coverage # Unit tests + coverage (finds modules with no tests)
 npm run test:e2e      # Run Playwright E2E tests
 npm run test:all      # Run all tests (unit + E2E)
 npm run check         # Type checking (svelte-check + TypeScript)
-npm run lint          # ESLint + Prettier check
+npm run lint          # ESLint + Prettier + markdownlint check
+npm run lint:shell    # Shellcheck the shell scripts
 npm run format        # Auto-format with Prettier
 npm run quality       # Format, lint, and type check
 npm run precommit     # Quality checks + unit tests (for pre-commit/pre-PR)
@@ -142,8 +143,9 @@ Unit tests are `src/**/*.spec.ts`, beside the module they cover; Playwright E2E 
 
 - **gh CLI**: Claude (and scripts) have read-write access to the `gh` CLI tool. Use it for GitHub operations instead of the GitHub MCP server.
 
-- **Pre-commit hooks**: Husky runs gitleaks (secret scanning), lint-staged, type checking, and unit tests on commit. To bypass when needed: `git commit --no-verify`
+- **Pre-commit hooks**: Husky runs gitleaks (secret scanning), shellcheck, lint-staged, type checking, and unit tests on commit. To bypass when needed: `git commit --no-verify`
 - **Gitleaks**: Secret scanner runs on pre-commit. Install with `brew install gitleaks`. The hook warns but continues if gitleaks is not installed.
+- **Shellcheck**: Shell script linter runs on pre-commit. Install with `brew install shellcheck`. The hook warns but continues if shellcheck is not installed; CI enforces it, since GitHub's runners ship it preinstalled.
 
 - **Pre-PR Review**: Use `/pre-pr-check` to run comprehensive quality checks before creating a PR. This runs 4 specialized review agents (documentation, Svelte 5, clean code, code smells) and guides you through the results.
 
