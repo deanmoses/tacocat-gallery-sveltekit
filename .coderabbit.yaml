@@ -7,7 +7,7 @@ reviews:
         - '!build/**'
         - '!.svelte-kit/**'
         - '!*.min.js'
-        - '!test/data/**'
+        - '!test-images/**'
     tools:
         languagetool:
             disabled_rules:

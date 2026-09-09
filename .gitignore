@@ -16,9 +16,10 @@ node_modules/
 # Target build directory for processed, compiled web app
 dist/
 
-test/temp
 .tmp
 test-results/
+playwright-report/
+blob-report/
 
 # SASS intermediate compile files
 *.scssc
@@ -39,3 +40,6 @@ npm-debug.log*
 # JetBrains editor dir
 .idea/
 
+
+# Coverage reports
+coverage/
