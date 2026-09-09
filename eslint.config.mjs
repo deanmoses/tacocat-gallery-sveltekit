@@ -401,12 +401,13 @@ export default ts.config(
         },
     },
     {
-        // Playwright e2e specs. The vitest block above is scoped to src/ and
-        // this one to tests/, so the two plugins never see each other's files.
-        // Every file under tests/, not just the specs: a locator moved into a
-        // helper is still a locator, and the rules below are the reason to
-        // trust it.
-        files: ['tests/**/*.ts'],
+        // Playwright e2e specs. Both plugins now live under src/, so the split
+        // is by extension: the vitest block takes `.spec.ts` and this one takes
+        // `.e2e.ts`, and the two never see each other's files.
+        // The shared helpers are in scope too, not just the specs: a locator
+        // moved into a helper is still a locator, and the rules below are the
+        // reason to trust it.
+        files: ['src/**/*.e2e.ts', 'src/lib/test-support/e2e/**/*.ts'],
         plugins: { playwright },
         rules: {
             // Destructured rather than spread as a whole config, for the same
@@ -482,7 +483,7 @@ export default ts.config(
         // modules sit on the server types, so `import type` has to be caught
         // too.
         files: ['src/**/*.{ts,svelte}'],
-        ignores: ['src/**/*.spec.ts', 'src/lib/test-support/**'],
+        ignores: ['src/**/*.spec.ts', 'src/**/*.e2e.ts', 'src/lib/test-support/**'],
         rules: {
             '@typescript-eslint/no-restricted-imports': [
                 'error',
@@ -490,7 +491,8 @@ export default ts.config(
                     patterns: [
                         {
                             group: ['$lib/test-support/*', '**/test-support/*'],
-                            message: 'test-support holds spec fixtures; import it only from a .spec.ts file.',
+                            message:
+                                'test-support holds test fixtures; import it only from a .spec.ts or .e2e.ts file.',
                         },
                     ],
                 },

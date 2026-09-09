@@ -4,8 +4,8 @@
 
 |            |                                                                        |
 | ---------- | ---------------------------------------------------------------------- |
-| Unit tests | `src/**/*.spec.ts`, beside the module they cover                       |
-| E2E tests  | `tests/*.spec.ts`, run by Playwright                                   |
+| Unit tests | `src/**/*.spec.ts`, beside the module they cover, run by Vitest        |
+| E2E tests  | `src/**/*.e2e.ts`, beside the route they walk, run by Playwright       |
 | Commands   | `npm test` (quiet), `npm run test:unit` (verbose), `npm run test:e2e`  |
 | Coverage   | `npm run test:coverage` to find gaps, `coverage/index.html` for detail |
 
@@ -142,7 +142,7 @@ const [thumbnail] = await thumbnails.all();
 
 The site is entirely client-rendered, so nothing is present on load and every assertion must wait. Waits are set once in `playwright.config.ts` — `expect.timeout` and `navigationTimeout` — rather than per assertion, so a new spec inherits them and an inline timeout means the spec has a reason.
 
-Shared e2e helpers live in `tests/test-support/`.
+Shared e2e helpers live in `src/lib/test-support/e2e/`.
 
 Wrap a journey in steps: walk through several pages in one test rather than several independent ones, because a later page is usually only reachable by arriving from the earlier one. `test.step` is then what says where it failed.
 
