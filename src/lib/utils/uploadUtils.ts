@@ -3,12 +3,20 @@ import type { Album } from '$lib/models/GalleryItemInterfaces';
 import { getMediaPath, isRenamedOnServer } from './fileFormats';
 
 /**
+ * Lowercased extension without the dot; the whole string when there is no dot
+ * @param pathOrFileName Accepts filename or full path.
+ */
+function extensionOf(pathOrFileName: string): string {
+    return pathOrFileName.slice(pathOrFileName.lastIndexOf('.') + 1).toLowerCase();
+}
+
+/**
  * Returns an error message if the new file's extension is incompatible with the existing file,
  * or undefined if compatible. JPG/JPEG/HEIC/HEIF are interchangeable (backend converts HEIC→JPG).
  */
 export function getReplacementExtensionError(existingPath: string, newFileName: string): string | undefined {
-    const existingExt = existingPath.split('.').pop()?.toLowerCase() ?? '';
-    const newExt = newFileName.split('.').pop()?.toLowerCase() ?? '';
+    const existingExt = extensionOf(existingPath);
+    const newExt = extensionOf(newFileName);
 
     if (existingExt === newExt) return undefined;
 
@@ -28,8 +36,8 @@ export function getReplacementExtensionError(existingPath: string, newFileName: 
  * - HEIC/HEIF replacing JPG: uses source extension (backend needs it to convert)
  */
 export function getUploadPathForReplacement(targetPath: string, fileName: string): string {
-    const targetExt = targetPath.split('.').pop()?.toLowerCase() ?? '';
-    const sourceExt = fileName.split('.').pop()?.toLowerCase() ?? '';
+    const targetExt = extensionOf(targetPath);
+    const sourceExt = extensionOf(fileName);
     if (targetExt === sourceExt) {
         return targetPath;
     }
@@ -128,7 +136,7 @@ function isUploadComplete(upload: UploadEntry, albumVersionId: string | undefine
  */
 export function enrichWithPreviousVersionIds(files: MediaItemToUpload[], album: Album | undefined): string[] {
     const collidingNames: string[] = [];
-    if (!album || !album.media?.length) return collidingNames;
+    if (!album) return collidingNames;
     for (const file of files) {
         // Check both upload path and final path (e.g., HEIC→JPG conversion)
         const mediaPath = getMediaPath(file.uploadPath);

@@ -60,15 +60,17 @@ function hasExtension(fileName: string, extensions: string[]): boolean {
     return regex.test(fileName);
 }
 
-/** Get handler for a file, if any applies */
-function getHandler(fileName: string): FileFormatHandler | undefined {
-    return handlers.find((h) => hasExtension(fileName, h.extensions));
+/**
+ * Get handler for a file, if any applies
+ * @param fileNameOrPath Accepts filename or full path.
+ */
+function getHandler(fileNameOrPath: string): FileFormatHandler | undefined {
+    return handlers.find((h) => hasExtension(fileNameOrPath, h.extensions));
 }
 
 /** Get the expected final mediaPath in the album after the server changes the file format */
 export function getMediaPath(uploadPath: string): string {
-    const fileName = uploadPath.split('/').pop() ?? '';
-    const handler = getHandler(fileName);
+    const handler = getHandler(uploadPath);
     return handler ? handler.getMediaPath(uploadPath) : uploadPath;
 }
 
@@ -83,8 +85,7 @@ export function isRenamedOnServer(uploadPath: string): boolean {
  * @returns true for JPG/PNG, false for HEIC/videos
  */
 export function browserCanDisplay(fileNameOrPath: string): boolean {
-    const fileName = fileNameOrPath.split('/').pop() ?? '';
-    return getHandler(fileName)?.browserCanDisplay ?? true;
+    return getHandler(fileNameOrPath)?.browserCanDisplay ?? true;
 }
 
 /**
@@ -93,9 +94,7 @@ export function browserCanDisplay(fileNameOrPath: string): boolean {
  * @param fileNameOrPath Accepts filename or full path.
  */
 export function getProcessingTimeout(fileNameOrPath: string): number {
-    const fileName = fileNameOrPath.split('/').pop() ?? '';
-    const handler = getHandler(fileName);
-    return handler?.processingTimeoutMs ?? DEFAULT_PROCESSING_TIMEOUT_MS;
+    return getHandler(fileNameOrPath)?.processingTimeoutMs ?? DEFAULT_PROCESSING_TIMEOUT_MS;
 }
 
 /** Default processing timeout for images (15 seconds) */

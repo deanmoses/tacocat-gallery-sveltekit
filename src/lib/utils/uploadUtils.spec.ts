@@ -67,6 +67,11 @@ const REPLACEMENT_CASES: ReplacementCase[] = [
     { targetPath: '/2024/01-01/photo.jpg', fileName: 'new.HEIC', uploadPath: '/2024/01-01/photo.heic' },
     { targetPath: '/2024/01-01/photo.JPG', fileName: 'new.heic', uploadPath: '/2024/01-01/photo.heic' },
 
+    // Only the last dot separates the extension, on either side. A camera export
+    // arrives named this way, and the file being dropped is not sanitized first.
+    { targetPath: '/2024/01-01/photo.2024.jpg', fileName: 'new.jpg', uploadPath: '/2024/01-01/photo.2024.jpg' },
+    { targetPath: '/2024/01-01/photo.jpg', fileName: 'new.2024.heic', uploadPath: '/2024/01-01/photo.heic' },
+
     // The conversion runs one way only: a JPG cannot be replaced by anything
     // else, and nothing else can be replaced by a JPG
     { targetPath: '/2024/01-01/photo.jpg', fileName: 'new.png', error: JPG_ERROR },
