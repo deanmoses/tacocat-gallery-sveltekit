@@ -26,6 +26,14 @@ else
     echo "Install with: brew install shellcheck"
 fi
 
+# Lint GitHub Actions workflows (requires installing actionlint)
+if command -v actionlint >/dev/null 2>&1; then
+    npm run lint:actions
+else
+    echo "Warning: actionlint not installed, skipping workflow lint"
+    echo "Install with: brew install actionlint"
+fi
+
 # Generate SvelteKit types, which type-aware ESLint rules need to resolve
 # $lib and ./$types (npm run check does this too, but runs later)
 npx svelte-kit sync
