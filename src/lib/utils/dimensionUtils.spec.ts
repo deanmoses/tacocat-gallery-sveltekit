@@ -13,11 +13,11 @@ type DimensionCase = {
 
 const CASES: DimensionCase[] = [
     // Media that already fits is returned untouched, whichever side is longer
-    { description: 'small landscape', width: 320, height: 240, expectedWidth: 320, expectedHeight: 240 },
-    { description: 'small landscape', width: 800, height: 600, expectedWidth: 800, expectedHeight: 600 },
-    { description: 'small portrait', width: 240, height: 320, expectedWidth: 240, expectedHeight: 320 },
-    { description: 'small portrait', width: 600, height: 800, expectedWidth: 600, expectedHeight: 800 },
-    { description: 'small square', width: 500, height: 500, expectedWidth: 500, expectedHeight: 500 },
+    { description: 'landscape far below the limit', width: 320, height: 240, expectedWidth: 320, expectedHeight: 240 },
+    { description: 'landscape just below the limit', width: 800, height: 600, expectedWidth: 800, expectedHeight: 600 },
+    { description: 'portrait far below the limit', width: 240, height: 320, expectedWidth: 240, expectedHeight: 320 },
+    { description: 'portrait just below the limit', width: 600, height: 800, expectedWidth: 600, expectedHeight: 800 },
+    { description: 'square below the limit', width: 500, height: 500, expectedWidth: 500, expectedHeight: 500 },
 
     // The long side is compared inclusively, so exactly 1024 does not scale
     {
@@ -37,11 +37,23 @@ const CASES: DimensionCase[] = [
     { description: 'one pixel over the limit', width: 1025, height: 1000, expectedWidth: 1024, expectedHeight: 999 },
 
     // Oversized media scales so the long side lands on the limit
-    { description: 'large landscape', width: 2048, height: 1536, expectedWidth: 1024, expectedHeight: 768 },
-    { description: 'large landscape', width: 4000, height: 3000, expectedWidth: 1024, expectedHeight: 768 },
-    { description: 'large portrait', width: 1536, height: 2048, expectedWidth: 768, expectedHeight: 1024 },
-    { description: 'large portrait', width: 3000, height: 4000, expectedWidth: 768, expectedHeight: 1024 },
-    { description: 'large square', width: 2048, height: 2048, expectedWidth: 1024, expectedHeight: 1024 },
+    {
+        description: 'landscape at twice the limit',
+        width: 2048,
+        height: 1536,
+        expectedWidth: 1024,
+        expectedHeight: 768,
+    },
+    {
+        description: 'landscape far over the limit',
+        width: 4000,
+        height: 3000,
+        expectedWidth: 1024,
+        expectedHeight: 768,
+    },
+    { description: 'portrait at twice the limit', width: 1536, height: 2048, expectedWidth: 768, expectedHeight: 1024 },
+    { description: 'portrait far over the limit', width: 3000, height: 4000, expectedWidth: 768, expectedHeight: 1024 },
+    { description: 'square over the limit', width: 2048, height: 2048, expectedWidth: 1024, expectedHeight: 1024 },
     {
         description: 'long side at the limit, short side over',
         width: 1024,
@@ -102,18 +114,10 @@ describe(getDetailWidth, () => {
     it.each(CASES)('$description $width x $height gives width $expectedWidth', (testCase) => {
         expect(getDetailWidth(testCase.width, testCase.height, testCase.maxSize)).toBe(testCase.expectedWidth);
     });
-
-    it('defaults to a 1024px long side', () => {
-        expect(getDetailWidth(2048, 1536)).toBe(1024);
-    });
 });
 
 describe(getDetailHeight, () => {
     it.each(CASES)('$description $width x $height gives height $expectedHeight', (testCase) => {
         expect(getDetailHeight(testCase.width, testCase.height, testCase.maxSize)).toBe(testCase.expectedHeight);
-    });
-
-    it('defaults to a 1024px long side', () => {
-        expect(getDetailHeight(1536, 2048)).toBe(1024);
     });
 });
