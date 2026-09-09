@@ -1,6 +1,7 @@
 // @ts-check
 
 import js from '@eslint/js';
+import { defineConfig } from 'eslint/config';
 import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
 import ts from 'typescript-eslint';
@@ -8,7 +9,7 @@ import svelteConfig from './svelte.config.js';
 import vitest from '@vitest/eslint-plugin';
 import playwright from 'eslint-plugin-playwright';
 
-export default ts.config(
+export default defineConfig(
     js.configs.recommended,
     ...ts.configs.recommended,
     ...svelte.configs['flat/recommended'],
