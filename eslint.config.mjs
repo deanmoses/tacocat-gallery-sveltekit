@@ -190,6 +190,7 @@ export default ts.config(
             '@typescript-eslint/no-deprecated': 'error',
 
             // Dead type-level code
+            '@typescript-eslint/no-duplicate-type-constituents': 'error',
             '@typescript-eslint/no-generated-empty-object-type': 'error',
             '@typescript-eslint/no-redundant-type-constituents': 'error',
             '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'error',

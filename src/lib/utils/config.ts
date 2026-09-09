@@ -49,7 +49,7 @@ function cdnDomain(): string {
  * @param versionId Version of the source media
  * @param crop Optional crop rectangle
  */
-export function thumbnailUrl(mediaPath: string, versionId: string, crop?: Rectangle | undefined): string {
+export function thumbnailUrl(mediaPath: string, versionId: string, crop?: Rectangle): string {
     return (
         `https://${cdnDomain()}/i${mediaPath}?version=${versionId}&size=200x200` +
         (crop ? `&crop=${crop.x},${crop.y},${crop.width},${crop.height}` : '')
