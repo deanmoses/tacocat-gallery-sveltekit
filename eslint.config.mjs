@@ -168,6 +168,7 @@ export default ts.config(
             '@typescript-eslint/no-unsafe-unary-minus': 'error',
             'prefer-promise-reject-errors': 'off',
             '@typescript-eslint/prefer-promise-reject-errors': 'error',
+            '@typescript-eslint/return-await': 'error',
 
             // Runtime errors the checker can prove
             '@typescript-eslint/no-array-delete': 'error',

@@ -78,7 +78,7 @@ const readAllDirectoryEntries = async (directory: FileSystemDirectoryEntry): Pro
  * Wrap FileSystemDirectoryReader.readEntries() in a promise to enable using await
  */
 const readEntriesPromise = async (directoryReader: FileSystemDirectoryReader): Promise<FileSystemEntry[]> => {
-    return await new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
         directoryReader.readEntries(resolve, reject);
     });
 };
