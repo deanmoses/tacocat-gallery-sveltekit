@@ -443,6 +443,30 @@ export default ts.config(
         },
     },
     {
+        // Spec fixtures sit beside the specs that use them, which puts them in
+        // src/ and so within reach of the app. Nothing ships either way -- a
+        // spec is never in the build graph -- but a relative import compiles
+        // fine, so the boundary is held here rather than by directory layout.
+        // The typescript-eslint variant rather than the core rule: these
+        // modules sit on the server types, so `import type` has to be caught
+        // too.
+        files: ['src/**/*.{ts,svelte}'],
+        ignores: ['src/**/*.spec.ts', 'src/lib/test-support/**'],
+        rules: {
+            '@typescript-eslint/no-restricted-imports': [
+                'error',
+                {
+                    patterns: [
+                        {
+                            group: ['$lib/test-support/*', '**/test-support/*'],
+                            message: 'test-support holds spec fixtures; import it only from a .spec.ts file.',
+                        },
+                    ],
+                },
+            ],
+        },
+    },
+    {
         ignores: ['build/**', '.svelte-kit/**', 'package/**'],
     },
 );
