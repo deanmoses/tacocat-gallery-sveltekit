@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { isMediaRecord, isImageRecord, isVideoRecord } from './server';
 import type { GalleryRecord } from './server';
 
-describe('type guards', () => {
+describe('gallery record type guards', () => {
     // Old format (before migration)
     describe('old format (itemType: image)', () => {
         it('isMediaRecord returns true for old image', () => {

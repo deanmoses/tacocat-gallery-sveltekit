@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { getMediaPath, isRenamedOnServer, browserCanDisplay } from './fileFormats';
 
 describe('fileFormats', () => {
-    describe('getPathAfterServerProcessing', () => {
+    describe(getMediaPath, () => {
         it('converts HEIC to JPG', () => {
             expect(getMediaPath('/2024/01-01/photo.heic')).toBe('/2024/01-01/photo.jpg');
         });

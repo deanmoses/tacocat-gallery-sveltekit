@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { getDetailWidth, getDetailHeight } from './dimensionUtils';
 
-describe('getDetailWidth and getDetailHeight', () => {
+describe('detail dimension scaling', () => {
     describe('small landscape media (width > height, both < 1024)', () => {
         // e.g., 320x240 video - should stay unchanged
         it('320x240 returns unchanged dimensions', () => {
