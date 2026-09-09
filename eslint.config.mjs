@@ -293,6 +293,7 @@ export default ts.config(
             'vitest/consistent-each-for': 'error',
 
             // More mocking correctness
+            'vitest/require-mock-type-parameters': 'error',
             'vitest/prefer-import-in-mock': 'error',
             'vitest/prefer-mock-return-shorthand': 'error',
             'vitest/prefer-called-once': 'error',

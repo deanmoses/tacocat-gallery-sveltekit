@@ -5,8 +5,8 @@ import type { MediaItemToUpload } from '$lib/models/album';
 // Mock browser APIs
 beforeAll(() => {
     vi.stubGlobal('URL', {
-        createObjectURL: vi.fn(() => 'blob:fake-url'),
-        revokeObjectURL: vi.fn(),
+        createObjectURL: vi.fn<(obj: Blob | MediaSource) => string>(() => 'blob:fake-url'),
+        revokeObjectURL: vi.fn<(url: string) => void>(),
     });
 
     // Mock Image - always succeeds for non-zero files (we can't test actual image parsing in Node)
