@@ -13,7 +13,7 @@
     import { page } from '$app/state';
     import { isValidMediaPath } from '$lib/utils/galleryPathUtils';
     import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
-    import { editModeMachine } from '$lib/stores/admin/EditModeMachine.svete';
+    import { editModeMachine } from '$lib/stores/admin/EditModeMachine.svelte';
 
     interface Props {
         rightControls?: Snippet;
