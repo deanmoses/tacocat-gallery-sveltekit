@@ -38,6 +38,20 @@ export default defineConfig({
         // spec, so a new spec inherits the cleanup instead of remembering it.
         restoreMocks: true,
         unstubGlobals: true,
+
+        // Run files and tests in a random order. The suite drives module
+        // singletons and stubs globals, so an order dependency is possible to
+        // write without noticing; shuffling makes one show up as a failure
+        // instead of waiting for an unrelated change to reorder the run.
+        sequence: { shuffle: true },
+
+        expect: {
+            // Fail a test that asserts nothing. eslint's expect-expect cannot
+            // see through a helper holding the assertions, and with vitest's
+            // typecheck setting on it accepts expectTypeOf as an assertion even
+            // though it is a runtime no-op here.
+            requireAssertions: true,
+        },
     },
     server: {
         proxy: apiProxy,
