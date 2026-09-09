@@ -9,8 +9,6 @@
 | Commands   | `npm test` (quiet), `npm run test:unit` (verbose), `npm run test:e2e`  |
 | Coverage   | `npm run test:coverage` to find gaps, `coverage/index.html` for detail |
 
-One spec per module, not per function.
-
 ## Naming
 
 **Give `describe` the function itself, not a string.**
@@ -48,11 +46,10 @@ way that a missing `it()` never is.
 ```typescript
 type FormatCase = {
     uploadPath: string;
-    mediaPath: string;
-    canDisplay: boolean;
+    …
 };
 
-const CASES: FormatCase[] = [ ... ];
+const CASES: FormatCase[] = [ … ];
 
 describe(getMediaPath, () => {
     it.each(CASES)('$uploadPath is stored as $mediaPath', ({ uploadPath, mediaPath }) => {
@@ -70,23 +67,6 @@ wrong:
   from `VIDEO_EXTENSIONS`, so a new extension inherits the contract. Derive the
   _rows_, never the _expectations_ — an expectation computed the way the code
   computes it asserts nothing.
-
-## Assert what gets rejected
-
-Every guard, validator and predicate needs cases it turns down, and they need
-to be near-misses:
-
-```typescript
-const PATH_CASES: PathCase[] = [
-    pathCase('/2001/12-31/', { isPath: true, isAlbum: true, isDay: true }),
-    pathCase('/2001/13-01/'), // month out of range
-    pathCase('/2001/12-31'), // no trailing slash
-    pathCase('/2001/image.jpg'), // media outside a day album
-];
-```
-
-`'nonsense'` fails against almost any implementation. `'/2001/13-01/'` fails
-only against a correct one.
 
 ## Fixtures
 
