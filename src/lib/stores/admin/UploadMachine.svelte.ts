@@ -255,7 +255,7 @@ class UploadMachine {
         const maxTimeoutMs = Math.max(...uploads.map((u) => getProcessingTimeout(u.uploadPath)));
         const maxPollAttempts = Math.ceil(maxTimeoutMs / POLL_INTERVAL_MS);
 
-        let processingComplete = false;
+        let processingComplete: boolean;
         let pollAttemptCount = 0;
         do {
             await sleep(POLL_INTERVAL_MS);

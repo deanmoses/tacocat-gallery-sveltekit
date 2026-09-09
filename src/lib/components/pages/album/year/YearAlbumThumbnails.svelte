@@ -15,10 +15,10 @@
     }
     let { album }: Props = $props();
 
-    type AlbumsByMonth = Array<{
+    type AlbumsByMonth = {
         monthName: string;
         albums: Thumbable[];
-    }>;
+    }[];
 
     /**
      * Group the albums by month

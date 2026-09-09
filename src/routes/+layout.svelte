@@ -19,7 +19,7 @@
         if (event.defaultPrevented) return;
         if (albumState.editMode) return; // in edit mode, arrow keys are needed for editing
 
-        let currentPath = page.url.pathname;
+        const currentPath = page.url.pathname;
         const newPath = handleKeyboardNavigation(event.key, currentPath, getAlbum);
         if (newPath) goto(newPath);
     }

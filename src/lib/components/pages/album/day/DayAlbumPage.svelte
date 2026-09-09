@@ -19,9 +19,9 @@
         album: Album;
     }
     let { album }: Props = $props();
-    let uploads: UploadEntry[] | undefined = $derived.by(() => {
-        return albumState.uploads.filter((upload) => upload.mediaPath.startsWith(album.path));
-    });
+    let uploads: UploadEntry[] | undefined = $derived(
+        albumState.uploads.filter((upload) => upload.mediaPath.startsWith(album.path)),
+    );
 </script>
 
 <DayAlbumPageLayout title={album.title} published={album.published}>
@@ -41,6 +41,7 @@
                 <UploadStatus {uploads} />
             {/await}
         {:else}
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -- Rich text authored by admins via Quill; not user-supplied -->
             {@html album.description}
         {/if}
     {/snippet}

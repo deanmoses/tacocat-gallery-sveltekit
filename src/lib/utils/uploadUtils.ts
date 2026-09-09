@@ -28,8 +28,8 @@ export function getReplacementExtensionError(existingPath: string, newFileName: 
  * - HEIC/HEIF replacing JPG: uses source extension (backend needs it to convert)
  */
 export function getUploadPathForReplacement(targetPath: string, fileName: string): string {
-    const targetExt = targetPath.split('.').pop()!.toLowerCase();
-    const sourceExt = fileName.split('.').pop()!.toLowerCase();
+    const targetExt = targetPath.split('.').pop()?.toLowerCase() ?? '';
+    const sourceExt = fileName.split('.').pop()?.toLowerCase() ?? '';
     if (targetExt === sourceExt) {
         return targetPath;
     }

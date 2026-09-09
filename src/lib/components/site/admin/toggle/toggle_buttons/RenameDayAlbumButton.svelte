@@ -42,6 +42,7 @@
         const newAlbumPath = albumNameToPath(albumName);
         if (!isValidDayAlbumPath(newAlbumPath)) return 'invalid album name';
         if (await albumLoadMachine.albumExists(newAlbumPath)) return 'already exists';
+        return undefined; // name is valid
     }
 
     function albumNameToPath(albumName: string): string {

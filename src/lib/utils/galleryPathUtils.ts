@@ -137,16 +137,19 @@ export function sanitizeDayAlbumName(albumName: string): string {
 
 /**
  * Return the specified path's parent path and leaf item
- *  - /2001/12-31/image.jpg returns  '/2001/12-31/' and 'image.jpg'
- *  - /2001/12-31 returns '/2001/' and '12-31'
- *  - /2001 returns '/' and 2000'
- *  - / returns  '' and undefined
+ *  - /2001/12-31/image.jpg returns '/2001/12-31/' and 'image.jpg'
+ *  - /2001/12-31/ returns '/2001/' and '12-31'
+ *  - /2001/ returns '/' and '2001'
+ *  - / returns '' and ''
+ *
+ *  Album paths must end in a slash: /2001/12-31 (without one) is not a valid
+ *  path and throws.
  *
  *  @param {String} path a path of the format /2001/12-31/image.jpg, or a subset thereof
  */
 export function getParentAndNameFromPath(path: string) {
     if (!path) throw new Error('Invalid path: cannot be empty');
-    path = path.toString().trim();
+    path = path.trim();
     if (!path) throw new Error('Invalid path: cannot be empty');
     if (!isValidPath(path)) throw new Error(`Invalid path: [${path}]`);
     if (path === '/') return { parent: '', name: '' };
@@ -154,8 +157,8 @@ export function getParentAndNameFromPath(path: string) {
     if (!pathParts[pathParts.length - 1]) pathParts.pop(); // if the path ended in a "/", remove the blank path part at the end
     const name = pathParts.pop(); // remove leaf of path
     path = pathParts.join('/');
-    if (path.substr(-1) !== '/') path = path + '/'; // make sure path ends with a "/"
-    if (path.lastIndexOf('/', 0) !== 0) path = '/' + path; // make sure path starts with a "/"
+    if (!path.endsWith('/')) path = path + '/';
+    if (!path.startsWith('/')) path = '/' + path;
     return {
         parent: path,
         name: name,
@@ -166,10 +169,13 @@ export function getParentAndNameFromPath(path: string) {
  * For the given path, return the parent path
  *
  * For example:
- *  - /2001/12-31/image.jpg returns  /2001/12-31/
- *  - /2001/12-31 returns /2001/
- *  - /2001 returns /
- *  - / returns  '' TODO: MAYBE THIS SHOULD BE UNDEFINED
+ *  - /2001/12-31/image.jpg returns /2001/12-31/
+ *  - /2001/12-31/ returns /2001/
+ *  - /2001/ returns /
+ *  - / returns '' TODO: MAYBE THIS SHOULD BE UNDEFINED
+ *
+ * Throws on a path that is not valid, including an album path with no
+ * trailing slash such as /2001/12-31
  *
  * @param {String} path a path of the format /2001/12-31/image.jpg, or a subset thereof
  * @returns {String} parent path
@@ -183,9 +189,12 @@ export function getParentFromPath(path: string): string {
  *
  * For example:
  *  - /2001/12-31/image.jpg returns image.jpg
- *  - /2001/12-31 returns 12-31
- *  - /2001 returns 2001
- *  - / returns  ''
+ *  - /2001/12-31/ returns 12-31
+ *  - /2001/ returns 2001
+ *  - / returns ''
+ *
+ * Throws on a path that is not valid, including an album path with no
+ * trailing slash such as /2001/12-31
  *
  * @param path a path of the format /2001/12-31/image.jpg, or a subset thereof
  * @returns name of leaf, like image.jpg

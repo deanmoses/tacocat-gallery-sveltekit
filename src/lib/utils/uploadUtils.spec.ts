@@ -1,4 +1,4 @@
-import { test, expect, describe } from 'vitest';
+import { it, expect, describe } from 'vitest';
 import { findProcessedUploads, getReplacementExtensionError, getUploadPathForReplacement } from './uploadUtils';
 import { UploadState, type UploadEntry } from '$lib/models/album';
 import { getMediaPath } from './fileFormats';
@@ -24,14 +24,14 @@ function createUpload(
 }
 
 describe('findProcessedUploads', () => {
-    test('returns empty arrays when no uploads provided', () => {
+    it('returns empty arrays when no uploads provided', () => {
         const result = findProcessedUploads([], () => undefined);
 
         expect(result.processed).toEqual([]);
         expect(result.allProcessed).toBe(true);
     });
 
-    test('marks upload as processed when album has matching versionId', () => {
+    it('marks upload as processed when album has matching versionId', () => {
         const uploads = [createUpload('/2024/01-01/photo.jpg', UploadState.PROCESSING, 'version-123')];
         const getImageVersionId = (path: string) => (path === '/2024/01-01/photo.jpg' ? 'version-123' : undefined);
 
@@ -41,7 +41,7 @@ describe('findProcessedUploads', () => {
         expect(result.allProcessed).toBe(true);
     });
 
-    test('marks upload as pending when album does not contain the image', () => {
+    it('marks upload as pending when album does not contain the image', () => {
         const uploads = [createUpload('/2024/01-01/photo.jpg', UploadState.PROCESSING, 'version-123')];
         const getImageVersionId = () => undefined; // Image not in album
 
@@ -51,7 +51,7 @@ describe('findProcessedUploads', () => {
         expect(result.allProcessed).toBe(false);
     });
 
-    test('marks upload as pending when versionId does not match', () => {
+    it('marks upload as pending when versionId does not match', () => {
         const uploads = [createUpload('/2024/01-01/photo.jpg', UploadState.PROCESSING, 'version-123')];
         const getImageVersionId = () => 'different-version'; // Wrong version
 
@@ -61,7 +61,7 @@ describe('findProcessedUploads', () => {
         expect(result.allProcessed).toBe(false);
     });
 
-    test('marks upload as pending when status is UPLOADING (not yet on S3)', () => {
+    it('marks upload as pending when status is UPLOADING (not yet on S3)', () => {
         const uploads = [createUpload('/2024/01-01/photo.jpg', UploadState.UPLOADING, undefined)];
         const getImageVersionId = () => 'version-123';
 
@@ -71,7 +71,7 @@ describe('findProcessedUploads', () => {
         expect(result.allProcessed).toBe(false);
     });
 
-    test('marks upload as pending when status is UPLOAD_NOT_STARTED', () => {
+    it('marks upload as pending when status is UPLOAD_NOT_STARTED', () => {
         const uploads = [createUpload('/2024/01-01/photo.jpg', UploadState.UPLOAD_NOT_STARTED, undefined)];
         const getImageVersionId = () => 'version-123';
 
@@ -81,7 +81,7 @@ describe('findProcessedUploads', () => {
         expect(result.allProcessed).toBe(false);
     });
 
-    test('marks upload as pending when PROCESSING but no versionId yet', () => {
+    it('marks upload as pending when PROCESSING but no versionId yet', () => {
         const uploads = [createUpload('/2024/01-01/photo.jpg', UploadState.PROCESSING, undefined)];
         const getImageVersionId = () => 'version-123';
 
@@ -97,7 +97,7 @@ describe('findProcessedUploads', () => {
     // that ALL uploads are checked, not just the first one.
     //
 
-    test('checks ALL uploads, not just the first one (bug fix)', () => {
+    it('checks ALL uploads, not just the first one (bug fix)', () => {
         const uploads = [
             createUpload('/2024/01-01/a.jpg', UploadState.PROCESSING, 'v1'),
             createUpload('/2024/01-01/b.jpg', UploadState.PROCESSING, 'v2'),
@@ -116,7 +116,7 @@ describe('findProcessedUploads', () => {
         expect(result.allProcessed).toBe(true);
     });
 
-    test('correctly categorizes mix of processed and pending uploads', () => {
+    it('correctly categorizes mix of processed and pending uploads', () => {
         const uploads = [
             createUpload('/2024/01-01/processed1.jpg', UploadState.PROCESSING, 'v1'),
             createUpload('/2024/01-01/pending1.jpg', UploadState.PROCESSING, 'v2'),
@@ -137,7 +137,7 @@ describe('findProcessedUploads', () => {
         expect(result.allProcessed).toBe(false);
     });
 
-    test('identifies processed uploads even when first upload is still pending (bug regression test)', () => {
+    it('identifies processed uploads even when first upload is still pending (bug regression test)', () => {
         // This is the exact scenario that triggered the original bug:
         // First upload is pending, but subsequent ones are processed.
         // The old code would return early and never mark the others as processed.
@@ -167,7 +167,7 @@ describe('findProcessedUploads', () => {
     // so we check for existence rather than matching versionId.
     //
 
-    test('marks HEIC upload as processed when album has converted JPG (different versionId)', () => {
+    it('marks HEIC upload as processed when album has converted JPG (different versionId)', () => {
         // Upload is photo.heic with versionId from S3 upload
         const uploads = [createUpload('/2024/01-01/photo.heic', UploadState.PROCESSING, 'heic-upload-version')];
         // Album has the converted JPG with a DIFFERENT versionId (from the conversion process)
@@ -180,7 +180,7 @@ describe('findProcessedUploads', () => {
         expect(result.allProcessed).toBe(true);
     });
 
-    test('marks HEIF upload as processed when album has converted JPG (different versionId)', () => {
+    it('marks HEIF upload as processed when album has converted JPG (different versionId)', () => {
         // Same behavior for .heif extension
         const uploads = [createUpload('/2024/01-01/photo.heif', UploadState.PROCESSING, 'heif-upload-version')];
         const getImageVersionId = (path: string) =>
@@ -192,7 +192,7 @@ describe('findProcessedUploads', () => {
         expect(result.allProcessed).toBe(true);
     });
 
-    test('handles mix of HEIC and JPG uploads correctly', () => {
+    it('handles mix of HEIC and JPG uploads correctly', () => {
         const uploads = [
             createUpload('/2024/01-01/photo1.heic', UploadState.PROCESSING, 'heic-v1'),
             createUpload('/2024/01-01/photo2.jpg', UploadState.PROCESSING, 'jpg-v2'),
@@ -222,7 +222,7 @@ describe('findProcessedUploads', () => {
     // when the versionId changes from the previous value (not just exists).
     //
 
-    test('marks HEIC replacement as pending when album still has old versionId', () => {
+    it('marks HEIC replacement as pending when album still has old versionId', () => {
         // Replacing cow_portrait.jpg with a HEIC - upload goes to cow_portrait.heic
         // The previousVersionId is the old JPG's versionId
         const uploads = [
@@ -244,7 +244,7 @@ describe('findProcessedUploads', () => {
         expect(result.allProcessed).toBe(false);
     });
 
-    test('marks HEIC replacement as processed when album has new versionId', () => {
+    it('marks HEIC replacement as processed when album has new versionId', () => {
         // Same scenario, but now the server has processed the HEIC and created a new JPG
         const uploads = [
             createUpload(
@@ -265,7 +265,7 @@ describe('findProcessedUploads', () => {
         expect(result.allProcessed).toBe(true);
     });
 
-    test('HEIC new upload (not replacement) completes when JPG exists', () => {
+    it('HEIC new upload (not replacement) completes when JPG exists', () => {
         // New HEIC upload (no previousVersionId) - should complete when JPG exists
         const uploads = [createUpload('/2024/01-01/photo.heic', UploadState.PROCESSING, 'heic-upload-version')];
         const getImageVersionId = (path: string) => (path === '/2024/01-01/photo.jpg' ? 'any-version' : undefined);
@@ -278,113 +278,113 @@ describe('findProcessedUploads', () => {
 });
 
 describe('getUploadPathForReplacement', () => {
-    test('returns same path when extensions match', () => {
+    it('returns same path when extensions match', () => {
         expect(getUploadPathForReplacement('/2024/01-01/photo.jpg', 'new_photo.jpg')).toBe('/2024/01-01/photo.jpg');
     });
 
-    test('replaces JPG extension with HEIC when dropping HEIC onto JPG', () => {
+    it('replaces JPG extension with HEIC when dropping HEIC onto JPG', () => {
         expect(getUploadPathForReplacement('/2024/01-01/photo.jpg', 'new_photo.heic')).toBe('/2024/01-01/photo.heic');
     });
 
-    test('replaces JPG extension with HEIF when dropping HEIF onto JPG', () => {
+    it('replaces JPG extension with HEIF when dropping HEIF onto JPG', () => {
         expect(getUploadPathForReplacement('/2024/01-01/photo.jpg', 'new_photo.heif')).toBe('/2024/01-01/photo.heif');
     });
 
-    test('replaces PNG extension with JPG when dropping JPG onto PNG', () => {
+    it('replaces PNG extension with JPG when dropping JPG onto PNG', () => {
         expect(getUploadPathForReplacement('/2024/01-01/photo.png', 'new_photo.jpg')).toBe('/2024/01-01/photo.jpg');
     });
 
-    test('handles uppercase extensions in source file', () => {
+    it('handles uppercase extensions in source file', () => {
         expect(getUploadPathForReplacement('/2024/01-01/photo.jpg', 'new_photo.HEIC')).toBe('/2024/01-01/photo.heic');
     });
 
-    test('handles uppercase extensions in target path', () => {
+    it('handles uppercase extensions in target path', () => {
         expect(getUploadPathForReplacement('/2024/01-01/photo.JPG', 'new_photo.heic')).toBe('/2024/01-01/photo.heic');
     });
 
     // JPG/JPEG: keep target path exactly as-is to ensure replacement (not create duplicate)
-    test('keeps target .jpg when dropping jpeg onto jpg', () => {
+    it('keeps target .jpg when dropping jpeg onto jpg', () => {
         expect(getUploadPathForReplacement('/2024/01-01/photo.jpg', 'new_photo.jpeg')).toBe('/2024/01-01/photo.jpg');
     });
 
-    test('keeps target .jpeg when dropping jpg onto jpeg', () => {
+    it('keeps target .jpeg when dropping jpg onto jpeg', () => {
         expect(getUploadPathForReplacement('/2024/01-01/photo.jpeg', 'new_photo.jpg')).toBe('/2024/01-01/photo.jpeg');
     });
 
-    test('keeps target .jpg when dropping JPEG onto jpg', () => {
+    it('keeps target .jpg when dropping JPEG onto jpg', () => {
         expect(getUploadPathForReplacement('/2024/01-01/photo.jpg', 'new_photo.JPEG')).toBe('/2024/01-01/photo.jpg');
     });
 
-    test('keeps target .JPG when dropping jpeg onto JPG', () => {
+    it('keeps target .JPG when dropping jpeg onto JPG', () => {
         expect(getUploadPathForReplacement('/2024/01-01/photo.JPG', 'new_photo.jpeg')).toBe('/2024/01-01/photo.JPG');
     });
 });
 
 describe('getReplacementExtensionError', () => {
     // Same extension - always allowed
-    test('returns undefined when extensions match exactly', () => {
+    it('returns undefined when extensions match exactly', () => {
         expect(getReplacementExtensionError('/2024/01-01/photo.jpg', 'new.jpg')).toBeUndefined();
         expect(getReplacementExtensionError('/2024/01-01/video.mp4', 'new.mp4')).toBeUndefined();
         expect(getReplacementExtensionError('/2024/01-01/image.png', 'new.png')).toBeUndefined();
     });
 
-    test('returns undefined when extensions match with different case', () => {
+    it('returns undefined when extensions match with different case', () => {
         expect(getReplacementExtensionError('/2024/01-01/photo.jpg', 'new.JPG')).toBeUndefined();
         expect(getReplacementExtensionError('/2024/01-01/photo.JPG', 'new.jpg')).toBeUndefined();
     });
 
     // JPG/JPEG interchangeable
-    test('returns undefined when replacing jpg with jpeg', () => {
+    it('returns undefined when replacing jpg with jpeg', () => {
         expect(getReplacementExtensionError('/2024/01-01/photo.jpg', 'new.jpeg')).toBeUndefined();
     });
 
-    test('returns undefined when replacing jpeg with jpg', () => {
+    it('returns undefined when replacing jpeg with jpg', () => {
         expect(getReplacementExtensionError('/2024/01-01/photo.jpeg', 'new.jpg')).toBeUndefined();
     });
 
     // HEIC/HEIF can replace JPG/JPEG (backend converts)
-    test('returns undefined when replacing jpg with heic', () => {
+    it('returns undefined when replacing jpg with heic', () => {
         expect(getReplacementExtensionError('/2024/01-01/photo.jpg', 'new.heic')).toBeUndefined();
     });
 
-    test('returns undefined when replacing jpg with heif', () => {
+    it('returns undefined when replacing jpg with heif', () => {
         expect(getReplacementExtensionError('/2024/01-01/photo.jpg', 'new.heif')).toBeUndefined();
     });
 
-    test('returns undefined when replacing jpeg with heic', () => {
+    it('returns undefined when replacing jpeg with heic', () => {
         expect(getReplacementExtensionError('/2024/01-01/photo.jpeg', 'new.heic')).toBeUndefined();
     });
 
-    test('returns undefined when replacing jpeg with heif', () => {
+    it('returns undefined when replacing jpeg with heif', () => {
         expect(getReplacementExtensionError('/2024/01-01/photo.jpeg', 'new.heif')).toBeUndefined();
     });
 
     // Incompatible extensions - returns error message
-    test('returns error when replacing jpg with png', () => {
+    it('returns error when replacing jpg with png', () => {
         expect(getReplacementExtensionError('/2024/01-01/photo.jpg', 'new.png')).toBe(
             'Cannot replace: file must be JPG/JPEG or HEIC/HEIF',
         );
     });
 
-    test('returns error when replacing jpg with mp4', () => {
+    it('returns error when replacing jpg with mp4', () => {
         expect(getReplacementExtensionError('/2024/01-01/photo.jpg', 'new.mp4')).toBe(
             'Cannot replace: file must be JPG/JPEG or HEIC/HEIF',
         );
     });
 
-    test('returns error when replacing png with jpg', () => {
+    it('returns error when replacing png with jpg', () => {
         expect(getReplacementExtensionError('/2024/01-01/image.png', 'new.jpg')).toBe(
             'Cannot replace: file must be .png',
         );
     });
 
-    test('returns error when replacing mp4 with jpg', () => {
+    it('returns error when replacing mp4 with jpg', () => {
         expect(getReplacementExtensionError('/2024/01-01/video.mp4', 'new.jpg')).toBe(
             'Cannot replace: file must be .mp4',
         );
     });
 
-    test('returns error when replacing gif with png', () => {
+    it('returns error when replacing gif with png', () => {
         expect(getReplacementExtensionError('/2024/01-01/anim.gif', 'new.png')).toBe(
             'Cannot replace: file must be .gif',
         );

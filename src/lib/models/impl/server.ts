@@ -9,7 +9,7 @@
 // like Album gallery item contains children
 //
 
-export type GalleryItem = AlbumGalleryItem /*| ImageGalleryItem if I ever need Image-specific fields */;
+export type GalleryItem = AlbumGalleryItem; /*| ImageGalleryItem if I ever need Image-specific fields */
 
 export type AlbumGalleryItem = AlbumRecord & {
     prev?: AlbumNavInfo;

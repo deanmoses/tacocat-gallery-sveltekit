@@ -88,16 +88,14 @@ class LatestAlbumLoadMachine {
             .then((json) => {
                 if (json.error) {
                     this.#handleFetchError(json.error);
+                } else if (!json || !json.path) {
+                    console.warn(`Latest album thumbnail not found on server.  JSON: `, json);
+                    this.#removeFromMemory();
+                    this.#removeFromDisk();
                 } else {
-                    if (!json || !json.path) {
-                        console.warn(`Latest album thumbnail not found on server.  JSON: `, json);
-                        this.#removeFromMemory();
-                        this.#removeFromDisk();
-                    } else {
-                        console.log(`Latest album thumbnail fetched from server`, json);
-                        this.#setLatestAlbumThumbnail(json); // Put thumbnail in Svelte store
-                        this.#writeToDisk(json); // Put thumbnail in browser's local disk cache
-                    }
+                    console.log(`Latest album thumbnail fetched from server`, json);
+                    this.#setLatestAlbumThumbnail(json); // Put thumbnail in Svelte store
+                    this.#writeToDisk(json); // Put thumbnail in browser's local disk cache
                 }
             })
             .catch((error) => {

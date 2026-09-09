@@ -35,6 +35,7 @@
         const newAlbumPath = '/' + albumName + '/';
         if (!isValidYearAlbumPath(newAlbumPath)) return 'not a year, bruh';
         if (await albumLoadMachine.albumExists(newAlbumPath)) return 'already exists';
+        return undefined; // name is valid
     }
 </script>
 
