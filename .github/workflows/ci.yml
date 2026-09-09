@@ -39,6 +39,17 @@ jobs:
                   node-version: '24'
                   cache: 'npm'
 
+            # Ahead of npm ci, whose prepare script installs the browsers:
+            # restoring afterwards would be too late to skip the download
+            - name: Cache Playwright browsers
+              uses: actions/cache@v6
+              with:
+                  path: ~/.cache/ms-playwright
+                  key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+                  # Any lockfile change misses the exact key, so fall back to the
+                  # last browsers cached: a dependency bump rarely moves Playwright
+                  restore-keys: playwright-${{ runner.os }}-
+
             - name: Install dependencies
               run: npm ci
 
@@ -70,14 +81,8 @@ jobs:
             - name: Type check
               run: npm run check
 
-            - name: Cache Playwright browsers
-              uses: actions/cache@v6
-              with:
-                  path: ~/.cache/ms-playwright
-                  key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-
             - name: Install Playwright browsers
-              run: npx playwright install --with-deps chromium
+              run: npx playwright install chromium
 
             - name: Unit tests
               run: npm run test:unit
@@ -119,7 +124,7 @@ jobs:
                   aws-region: us-east-1
 
             - name: Deploy to staging
-              run: ./deploy_staging.sh
+              run: ./scripts/deploy-staging.sh
 
     smoke-test:
         needs: deploy
@@ -137,17 +142,22 @@ jobs:
                   node-version: '24'
                   cache: 'npm'
 
-            - name: Install dependencies
-              run: npm ci
-
+            # Ahead of npm ci, whose prepare script installs the browsers:
+            # restoring afterwards would be too late to skip the download
             - name: Cache Playwright browsers
               uses: actions/cache@v6
               with:
                   path: ~/.cache/ms-playwright
                   key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+                  # Any lockfile change misses the exact key, so fall back to the
+                  # last browsers cached: a dependency bump rarely moves Playwright
+                  restore-keys: playwright-${{ runner.os }}-
+
+            - name: Install dependencies
+              run: npm ci
 
             - name: Install Playwright browsers
-              run: npx playwright install --with-deps chromium
+              run: npx playwright install chromium
 
             - name: Run smoke test against staging
               run: npm run test:e2e:staging
