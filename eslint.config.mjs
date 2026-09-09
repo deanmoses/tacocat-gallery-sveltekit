@@ -190,7 +190,7 @@ export default ts.config(
         },
     },
     {
-        // Svelte 5 correctness rules that sit outside flat/recommended
+        // Svelte correctness rules that sit outside flat/recommended
         files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
         rules: {
             'svelte/block-lang': ['error', { script: 'ts' }],
@@ -215,8 +215,6 @@ export default ts.config(
             'svelte/require-optimized-style-attribute': 'error',
             'svelte/prefer-class-directive': 'error',
             'svelte/prefer-attribute-interpolation': 'error',
-            // Legacy-store guardrails: this codebase is all runes, so these
-            // exist to keep it that way rather than to fix anything today
             'svelte/derived-has-same-inputs-outputs': 'error',
             'svelte/prefer-destructured-store-props': 'error',
             'svelte/require-store-callbacks-use-set-param': 'error',
@@ -236,19 +234,33 @@ export default ts.config(
         // The plugin's recommended config is destructured rather than spread as
         // a whole, so a future version of it can't clobber `files` and leak
         // test-only rules into the rest of the repo.
-        files: ['src/**/*.spec.ts'],
+        // `.test.ts` is matched so consistent-test-filename below can reject it.
+        // Unmatched, such a file is invisible: vite.config.ts wouldn't run it.
+        files: ['src/**/*.{spec,test}.ts'],
         plugins: { vitest },
-        // Tells the plugin it may consult the type checker, which the
-        // type-aware config above already makes available. Four rules change
-        // behaviour, all of them for the better: expect-expect and valid-expect
-        // stop treating `expectTypeOf`/`assertType` as non-assertions (this
-        // config already pushes toward them via prefer-expect-type-of), and
-        // valid-title and prefer-describe-function-title start resolving a
-        // describe title that is a function reference instead of guessing from
-        // the identifier's name.
+        // Declares Vitest's type-testing mode. On for what it does to
+        // prefer-describe-function-title below: the rule resolves a describe
+        // title that is a function reference through the type checker, so it
+        // reports only when it can prove the import is a function or class.
+        //
+        // The cost is that expect-expect accepts `expectTypeOf`/`assertType` as
+        // assertions. Until `test.typecheck` is enabled in vite.config.ts those
+        // are runtime no-ops, so a test whose only assertion is one of them
+        // would pass lint while asserting nothing.
         settings: { vitest: { typecheck: true } },
         rules: {
             ...vitest.configs.recommended.rules,
+
+            // Part of the recommended set ships as warnings. `npm run lint` runs
+            // with --max-warnings 0, so they already fail the build; promoting
+            // them makes the severity honest in editors too. Computed rather
+            // than listed so a plugin bump can't add a warning that slips
+            // through. Same treatment as the playwright block below.
+            ...Object.fromEntries(
+                Object.entries(vitest.configs.recommended.rules)
+                    .filter(([, severity]) => severity === 'warn')
+                    .map(([rule]) => [rule, 'error']),
+            ),
 
             // Weak assertions that pass when they shouldn't
             'vitest/require-to-throw-message': 'error',
@@ -279,12 +291,12 @@ export default ts.config(
             // Typos and leftovers
             'vitest/no-alias-methods': 'error',
             'vitest/no-test-prefixes': 'error',
+            // Pairs with no-disabled-tests: a placeholder should say it's a
+            // placeholder rather than be a skipped test with a body
+            'vitest/prefer-todo': 'error',
 
-            // `test` at top level, `it` inside `describe`, which is how this
-            // project's test names are phrased. Stated explicitly rather than
-            // leaning on the rule's defaults, so a plugin bump can't silently
-            // change what the codebase is held to.
-            'vitest/consistent-test-it': ['error', { fn: 'test', withinDescribe: 'it' }],
+            // Naming
+            'vitest/consistent-test-it': 'error',
             'vitest/consistent-test-filename': ['error', { pattern: String.raw`.*\.spec\.ts$` }],
 
             // Ties a describe title to the function under test, so renaming the
@@ -310,7 +322,7 @@ export default ts.config(
             'vitest/require-top-level-describe': 'error',
 
             // Blank lines around describes, tests, hooks and expect groups.
-            // Subsumes the seven individual padding-around-* rules. Prettier
+            // Subsumes the individual padding-around-* rules. Prettier
             // preserves single blank lines rather than enforcing or collapsing
             // them, so this doesn't fight the formatter.
             'vitest/padding-around-all': 'error',
@@ -322,16 +334,39 @@ export default ts.config(
             'vitest/prefer-called-once': 'error',
             'vitest/prefer-expect-resolves': 'error',
 
-            // Snapshot guardrails. This codebase has no snapshots; these exist
-            // to keep unreviewable ones from creeping in.
+            // Snapshot guardrails: keep them small enough to review, and named
+            // when a test takes more than one. Inline snapshots only; the
+            // `.snap` block below covers external ones.
             'vitest/no-large-snapshots': 'error',
             'vitest/prefer-snapshot-hint': 'error',
-            'vitest/prefer-todo': 'error',
 
             // The vitest variant additionally understands `expect(obj.method)`,
             // so it supersedes the core rule inside test files
             '@typescript-eslint/unbound-method': 'off',
             'vitest/unbound-method': 'error',
+
+            // A floating promise in a test passes regardless: the test finishes
+            // before the assertions run. valid-expect covers a bare
+            // `expect(x).rejects`, but not a call to an async helper holding the
+            // assertions. Left off repo-wide, where fire-and-forget is deliberate.
+            '@typescript-eslint/no-floating-promises': 'error',
+        },
+    },
+    {
+        // External snapshots. eslint lints no `.snap` file unless a block names
+        // one, so without this the no-large-snapshots above reaches only inline
+        // snapshots - and an unreviewably large `.snap` is the case it's for.
+        // These files are generated CommonJS, so they parse without the TS
+        // project and are held to this one rule rather than the repo's.
+        files: ['**/*.snap'],
+        plugins: { vitest },
+        languageOptions: {
+            sourceType: 'commonjs',
+            globals: { ...globals.commonjs },
+            parserOptions: { projectService: false },
+        },
+        rules: {
+            'vitest/no-large-snapshots': 'error',
         },
     },
     {
@@ -347,11 +382,11 @@ export default ts.config(
             // signatures like `async ({}, testInfo)` are legal.
             ...playwright.configs['flat/recommended'].rules,
 
-            // Two thirds of the recommended set ships as warnings. `npm run lint`
-            // runs with --max-warnings 0, so they already fail the build;
-            // promoting them makes the severity honest in editors too.
+            // Part of the recommended set ships as warnings. `npm run lint` runs
+            // with --max-warnings 0, so they already fail the build; promoting
+            // them makes the severity honest in editors too.
             ...Object.fromEntries(
-                Object.entries(playwright.configs['flat/recommended'].rules)
+                Object.entries(playwright.configs['flat/recommended'].rules ?? {})
                     .filter(([, severity]) => severity === 'warn')
                     .map(([rule]) => [rule, 'error']),
             ),
