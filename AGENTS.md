@@ -34,7 +34,9 @@ Merging to `main` automatically deploys to staging via GitHub Actions.
 
 ## Node.js
 
-Requires Node.js >=24.0.0.
+Requires Node.js >=24.0.0, pinned in `.nvmrc` and read from there by CI and by the session-start hook, so the version lives in one place. `nvm use` in a fresh clone picks it up.
+
+Claude Code on the web runs `.claude/hooks/session-start.sh` before the session starts: it selects the pinned version through the image's nvm and installs dependencies. Without it the image's older Node is in charge, `npm ci` refuses to run against `engineStrict`, and forcing it through rewrites `package-lock.json`.
 
 ## Tech Stack
 
