@@ -1,5 +1,5 @@
 import { albumPathToDate } from '$lib/utils/galleryPathUtils';
-import type { AlbumGalleryItem, AlbumRecord, GalleryRecord, MediaRecord } from './server';
+import type { AlbumGalleryItem, GalleryRecord } from './server';
 import { isAlbumRecord, isMediaRecord } from './server';
 import type { Album, Media, Thumbable, ThumbnailUrlInfo } from '../GalleryItemInterfaces';
 import { ThumbableBaseImpl } from './ThumbableBaseImpl';
@@ -93,14 +93,12 @@ export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
         if (!this.json?.children) return [];
         return this.json?.children
             .filter((child) => child && isMediaRecord(child))
-            .map((record) => toMedia(record as MediaRecord, this));
+            .map((record) => toMedia(record, this));
     }
 
     get albums(): Thumbable[] {
         if (!this.json?.children) return [];
-        return this.json?.children
-            .filter((child) => child && isAlbumRecord(child))
-            .map((record) => toAlbum(record as AlbumRecord));
+        return this.json?.children.filter((child) => child && isAlbumRecord(child)).map((record) => toAlbum(record));
     }
 
     getMedia(mediaPath: string): Media | undefined {
