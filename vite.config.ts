@@ -31,6 +31,13 @@ export default defineConfig({
     plugins: [sveltekit()],
     test: {
         include: ['src/**/*.spec.ts'],
+
+        // Undo spies and stubbed globals between tests, so a test that mocks
+        // a browser API the runtime does not provide cannot change what a
+        // later one sees. Configured here rather than as an afterEach in each
+        // spec, so a new spec inherits the cleanup instead of remembering it.
+        restoreMocks: true,
+        unstubGlobals: true,
     },
     server: {
         proxy: apiProxy,
