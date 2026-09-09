@@ -96,14 +96,19 @@ isAdmin = $state(false); // public mutable!
 
 Use `SvelteMap` from `svelte/reactivity` for reactive key-value collections, not plain `Map` or objects.
 
+A `SvelteMap` carries its own reactivity, so it needs no `$state`. Wrapping one is a no-op: `$state` proxies plain objects and arrays, and returns anything else — including a class instance — untouched. Wrap only if the field itself is reassigned to a different map.
+
 ```typescript
 import { SvelteMap } from 'svelte/reactivity';
 
 // GOOD
-albums = $state(new SvelteMap<string, AlbumEntry>());
+albums = new SvelteMap<string, AlbumEntry>();
 
 // BAD - not reactive
 albums = $state(new Map<string, AlbumEntry>());
+
+// BAD - the $state does nothing
+albums = $state(new SvelteMap<string, AlbumEntry>());
 ```
 
 ## Error Handling
