@@ -1,7 +1,8 @@
 // @ts-check
 
+import path from 'node:path';
 import js from '@eslint/js';
-import { defineConfig } from 'eslint/config';
+import { defineConfig, includeIgnoreFile } from 'eslint/config';
 import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
 import ts from 'typescript-eslint';
@@ -9,7 +10,14 @@ import svelteConfig from './svelte.config.js';
 import vitest from '@vitest/eslint-plugin';
 import playwright from 'eslint-plugin-playwright';
 
+const gitignorePath = path.resolve(import.meta.dirname, '.gitignore');
+
 export default defineConfig(
+    // Everything git ignores here is generated -- build output, coverage
+    // reports, test artifacts -- and none of it is in the tsconfig, so the
+    // type-aware parser fails on anything it reaches. Deriving the list from
+    // .gitignore keeps the two from drifting as new artifact directories appear.
+    includeIgnoreFile(gitignorePath),
     js.configs.recommended,
     ...ts.configs.recommended,
     ...svelte.configs['flat/recommended'],
@@ -505,10 +513,5 @@ export default defineConfig(
                 },
             ],
         },
-    },
-    {
-        // coverage/ holds istanbul's own report scripts, which are outside the
-        // tsconfig and fail the type-aware parser
-        ignores: ['build/**', '.svelte-kit/**', 'package/**', 'coverage/**'],
     },
 );
