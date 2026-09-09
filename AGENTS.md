@@ -118,6 +118,26 @@ Album data cached in IndexedDB with network fallback.
 - `.svelte.ts` files for Svelte stores/state machines
 - PascalCase components, camelCase utilities
 
+### Comments
+
+Comments exist ONLY to explain what the code cannot. Never restate the code.
+
+- **No planning ephemera.** Never reference plan docs (`/docs/plans/`, `~/.claude/plans/`)
+  or phase/step labels like "PRE3", "REF1", "phase 2". Future readers have no access to
+  these and no idea what they meant. Describe the actual rationale instead.
+- **No opposition to prior state.** Don't write "This does NOT do X" or "Deliberately not
+  derived from Y" - no future reader knows about X. Exceptions, where prior state is
+  load-bearing: regression tests, and changes a naive reader would plausibly revert.
+- **Don't name consumers.** "Used by Z" is instant doc rot.
+- **Don't restate the signature.** In strict-mode TypeScript,
+  `/** Returns true if the file has one of the given extensions */` above
+  `hasExtension(fileName, extensions): boolean` adds nothing.
+- **Don't repeat project-wide conventions in every file.** The state-transition /
+  service-method split is documented here and in `docs/Svelte.md`; it does not belong
+  as a banner comment in each state machine.
+- **Don't justify verbosity by ratio.** "It matches the doc-to-code ratio of the rest of
+  the project" is not a defense. Write tight, just-enough comments.
+
 ## Tools & CI
 
 - **gh CLI**: Use the `gh` CLI tool for GitHub operations.
