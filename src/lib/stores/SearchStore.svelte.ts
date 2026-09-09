@@ -19,7 +19,7 @@ class SearchStore {
     /**
      * Private writable store of search results
      */
-    #searches = new SvelteMap<SearchQuery, Search>();
+    readonly #searches = new SvelteMap<SearchQuery, Search>();
 
     /**
      * Public read-only version of store

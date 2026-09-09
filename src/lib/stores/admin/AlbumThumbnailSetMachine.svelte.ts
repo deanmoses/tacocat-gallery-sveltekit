@@ -29,7 +29,7 @@ class AlbumThumbnailSetMachine {
     /**
      * Private writable store
      */
-    #state = new SvelteMap<string, AlbumThumbnailSetEntry>();
+    readonly #state = new SvelteMap<string, AlbumThumbnailSetEntry>();
 
     /**
      * Public read-only version of store
