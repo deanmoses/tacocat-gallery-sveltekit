@@ -38,13 +38,13 @@
         </Header>
     {/if}
     <PageContent>
-        <main class="captionAndPhoto">
+        <main>
             {#if caption}
                 <section class="caption" aria-label="Caption">
                     {@render caption?.()}
                 </section>
             {/if}
-            <div class="navAndPhoto">
+            <div class="navAndMedia">
                 {#if nav}
                     <Nav>
                         {@render nav?.()}
@@ -59,7 +59,7 @@
 </SiteLayout>
 
 <style>
-    .captionAndPhoto {
+    main {
         flex: 3;
 
         display: flex;
@@ -70,7 +70,7 @@
     }
 
     @media screen and (max-width: 975px) {
-        .captionAndPhoto {
+        main {
             flex-direction: column;
         }
     }
@@ -79,7 +79,7 @@
         flex: 1;
     }
 
-    .navAndPhoto {
+    .navAndMedia {
         flex: 3;
     }
 </style>
