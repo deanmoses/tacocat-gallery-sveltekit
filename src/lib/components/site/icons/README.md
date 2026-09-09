@@ -1,1 +1,1 @@
-Icons from http://www.entypo.com
+Icons from <http://www.entypo.com>

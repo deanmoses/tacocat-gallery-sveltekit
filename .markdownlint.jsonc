@@ -1,0 +1,19 @@
+{
+    // Nested list indent, matching the 4-space indent used everywhere else
+    "MD007": { "indent": 4 },
+
+    // Prose is written unwrapped, one paragraph per line
+    "MD013": false,
+
+    // Sibling headings repeat across sections in the longer docs
+    "MD024": false,
+
+    // Bold lead-ins like "**Why:**" open a paragraph rather than a section
+    "MD036": false,
+
+    // Files that open with YAML frontmatter or a build marker have no leading heading
+    "MD041": false,
+
+    // Fenced blocks holding output or prose have no language to declare
+    "MD040": false,
+}

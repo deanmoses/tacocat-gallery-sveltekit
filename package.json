@@ -29,7 +29,7 @@
         "test:e2e:prod": "BASE_URL=https://pix.tacocat.com playwright test",
         "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
         "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-        "lint": "svelte-kit sync && prettier --check . && eslint . --max-warnings 0 --concurrency auto",
+        "lint": "svelte-kit sync && prettier --check . && eslint . --max-warnings 0 --concurrency auto && markdownlint-cli2",
         "format": "prettier --write --log-level warn .",
         "quality": "npm run format && npm run lint && npm run check",
         "precommit": "npm run quality && npm run test:unit",
@@ -54,6 +54,7 @@
         "globals": "^17.12.0",
         "husky": "^9.1.7",
         "lint-staged": "^17.5.0",
+        "markdownlint-cli2": "^0.23.2",
         "prettier": "^3.9.6",
         "prettier-plugin-svelte": "^4.1.1",
         "svelte": "^5.57.0",
@@ -81,6 +82,10 @@
             "prettier --write",
             "eslint --fix"
         ],
-        "*.{json,css,html,md,yml,yaml}": "prettier --write"
+        "*.{json,jsonc,css,html,yml,yaml}": "prettier --write",
+        "*.md": [
+            "prettier --write",
+            "markdownlint-cli2 --fix"
+        ]
     }
 }
