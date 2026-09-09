@@ -43,3 +43,6 @@ npm-debug.log*
 
 # Coverage reports
 coverage/
+
+# Vitest browser-mode failure screenshots and attachments
+.vitest

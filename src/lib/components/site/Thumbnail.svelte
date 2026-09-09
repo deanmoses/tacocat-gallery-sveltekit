@@ -82,7 +82,7 @@
                 <CropIcon width="10em" height="10em" />
             </div>{:else if unpublished}<div class="icon-overlay">
                 <UnpublishedIcon width="3em" height="3em" />
-            </div>{/if}{#if isVideo && imageLoaded}<div class="play-overlay">
+            </div>{/if}{#if isVideo && imageLoaded}<div class="play-overlay" data-testid="play-overlay">
                 <PlayButtonIcon size="3em" />
             </div>{/if}</a
     ><a {href}>{title}</a>

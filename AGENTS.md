@@ -138,7 +138,7 @@ Never hard-wrap prose. Write each paragraph and list item as one long line and l
 
 ## Testing
 
-Tests sit beside the code they cover and are told apart by extension: `*.spec.ts` Vitest, `*.e2e.ts` Playwright. Read `docs/Testing.md` before writing or changing a spec.
+Tests sit beside the code they cover and are told apart by extension: `*.spec.ts` Vitest in node, `*.svelte.spec.ts` Vitest in a browser, `*.e2e.ts` Playwright. Read `docs/Testing.md` before writing or changing a spec.
 
 ## Tools & CI
 

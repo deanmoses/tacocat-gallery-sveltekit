@@ -44,5 +44,5 @@ npx lint-staged
 # Type check (runs on all files, but fast)
 npm run check
 
-# Run unit tests (fast, no browser needed)
+# Run unit tests, including browser unit tests
 npm run test:unit

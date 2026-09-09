@@ -252,12 +252,18 @@ export default ts.config(
         },
     },
     {
-        // .svelte.ts files can hold module-level runes, which must stay `let`.
-        // Core prefer-const (on for **/*.ts via typescript-eslint) is not
-        // rune-aware, so svelte/prefer-const governs these files instead.
-        files: ['**/*.svelte.ts'],
+        // The `.svelte.` infix makes the compiler grant a file runes, and a
+        // rune-bound `let` has to stay `let`; core prefer-const is not rune-aware,
+        // so the Svelte one governs instead. Named here rather than inherited
+        // from the Svelte rules block because svelte-eslint-parser script-parses
+        // only the bare `.svelte.ts` suffix -- a `.svelte.spec.ts` gets the
+        // TypeScript parser, under which that block's other rules are inert or
+        // actively wrong: prefer-destructured-store-props reads every rune member
+        // expression, `$state.snapshot` and friends, as a store property access.
+        files: ['**/*.svelte.ts', '**/*.svelte.spec.ts'],
         rules: {
             'prefer-const': 'off',
+            'svelte/prefer-const': 'error',
         },
     },
     {
