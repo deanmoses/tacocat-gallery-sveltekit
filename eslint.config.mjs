@@ -175,6 +175,7 @@ export default ts.config(
             '@typescript-eslint/no-implied-eval': 'error',
             '@typescript-eslint/no-misused-spread': 'error',
             '@typescript-eslint/no-mixed-enums': 'error',
+            '@typescript-eslint/no-unsafe-enum-comparison': 'error',
             '@typescript-eslint/require-array-sort-compare': 'error',
             '@typescript-eslint/restrict-plus-operands': 'error',
             '@typescript-eslint/unbound-method': 'error',
