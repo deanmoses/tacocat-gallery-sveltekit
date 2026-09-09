@@ -307,6 +307,12 @@ export default ts.config(
             'vitest/require-hook': 'error',
             'vitest/require-top-level-describe': 'error',
 
+            // Blank lines around describes, tests, hooks and expect groups.
+            // Subsumes the seven individual padding-around-* rules. Prettier
+            // preserves single blank lines rather than enforcing or collapsing
+            // them, so this doesn't fight the formatter.
+            'vitest/padding-around-all': 'error',
+
             // More mocking correctness
             'vitest/require-mock-type-parameters': 'error',
             'vitest/prefer-import-in-mock': 'error',

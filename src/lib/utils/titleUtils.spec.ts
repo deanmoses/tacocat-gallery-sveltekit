@@ -72,6 +72,7 @@ const titles: { in: string; out: string }[] = [
         out: 'IMAGE',
     },
 ];
+
 describe(toTitleFromFilename, () => {
     it.each(titles)('Title [$in]', ({ in: filename, out }) => {
         expect(toTitleFromFilename(filename)).toBe(out);
