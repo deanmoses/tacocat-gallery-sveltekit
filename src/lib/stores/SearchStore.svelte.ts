@@ -117,6 +117,7 @@ class SearchStore {
                 this.#setLoadStatus(query, SearchLoadStatus.ERROR_LOADING_MORE_RESULTS);
                 break;
             case SearchLoadStatus.ERROR_LOADING:
+            case SearchLoadStatus.ERROR_LOADING_MORE_RESULTS:
                 // already in correct state
                 break;
             default:

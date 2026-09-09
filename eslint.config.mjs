@@ -179,6 +179,7 @@ export default ts.config(
             '@typescript-eslint/no-unsafe-enum-comparison': 'error',
             '@typescript-eslint/require-array-sort-compare': 'error',
             '@typescript-eslint/restrict-plus-operands': 'error',
+            '@typescript-eslint/switch-exhaustiveness-check': 'error',
             '@typescript-eslint/unbound-method': 'error',
 
             // Guardrail against silently inheriting `any` from a dependency
