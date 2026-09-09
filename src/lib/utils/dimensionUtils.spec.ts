@@ -1,107 +1,125 @@
 import { describe, it, expect } from 'vitest';
 import { getDetailWidth, getDetailHeight } from './dimensionUtils';
 
-describe('detail dimension scaling', () => {
-    describe('small landscape media (width > height, both < 1024)', () => {
-        // e.g., 320x240 video - should stay unchanged
-        it('320x240 returns unchanged dimensions', () => {
-            expect(getDetailWidth(320, 240)).toBe(320);
-            expect(getDetailHeight(320, 240)).toBe(240);
-        });
+/**
+ * Both functions answer the same question about the same media item -- how big
+ * to display it -- so they are driven from one table. Splitting the expected
+ * width and height across two sets of examples made it easy to cover an aspect
+ * ratio in one and not the other.
+ */
+type DimensionCase = {
+    description: string;
+    width: number;
+    height: number;
+    /** Left undefined to exercise the default long side */
+    maxSize?: number;
+    expectedWidth: number;
+    expectedHeight: number;
+};
 
-        it('800x600 returns unchanged dimensions', () => {
-            expect(getDetailWidth(800, 600)).toBe(800);
-            expect(getDetailHeight(800, 600)).toBe(600);
-        });
+const CASES: DimensionCase[] = [
+    // Media that already fits is returned untouched, whichever side is longer
+    { description: 'small landscape', width: 320, height: 240, expectedWidth: 320, expectedHeight: 240 },
+    { description: 'small landscape', width: 800, height: 600, expectedWidth: 800, expectedHeight: 600 },
+    { description: 'small portrait', width: 240, height: 320, expectedWidth: 240, expectedHeight: 320 },
+    { description: 'small portrait', width: 600, height: 800, expectedWidth: 600, expectedHeight: 800 },
+    { description: 'small square', width: 500, height: 500, expectedWidth: 500, expectedHeight: 500 },
+
+    // The long side is compared inclusively, so exactly 1024 does not scale
+    {
+        description: 'long side exactly at the limit',
+        width: 1024,
+        height: 768,
+        expectedWidth: 1024,
+        expectedHeight: 768,
+    },
+    {
+        description: 'square exactly at the limit',
+        width: 1024,
+        height: 1024,
+        expectedWidth: 1024,
+        expectedHeight: 1024,
+    },
+    { description: 'one pixel over the limit', width: 1025, height: 1000, expectedWidth: 1024, expectedHeight: 999 },
+
+    // Oversized media scales so the long side lands on the limit
+    { description: 'large landscape', width: 2048, height: 1536, expectedWidth: 1024, expectedHeight: 768 },
+    { description: 'large landscape', width: 4000, height: 3000, expectedWidth: 1024, expectedHeight: 768 },
+    { description: 'large portrait', width: 1536, height: 2048, expectedWidth: 768, expectedHeight: 1024 },
+    { description: 'large portrait', width: 3000, height: 4000, expectedWidth: 768, expectedHeight: 1024 },
+    { description: 'large square', width: 2048, height: 2048, expectedWidth: 1024, expectedHeight: 1024 },
+    {
+        description: 'long side at the limit, short side over',
+        width: 1024,
+        height: 2048,
+        expectedWidth: 512,
+        expectedHeight: 1024,
+    },
+
+    // Ratios whose short side does not divide evenly, so the result is rounded
+    // rather than truncated or raised. Every case above scales by a whole
+    // number, which left rounding unverified in either direction.
+    { description: 'landscape rounding down', width: 3000, height: 1999, expectedWidth: 1024, expectedHeight: 682 },
+    { description: 'landscape rounding up', width: 3000, height: 2015, expectedWidth: 1024, expectedHeight: 688 },
+    { description: 'portrait rounding down', width: 1999, height: 3000, expectedWidth: 682, expectedHeight: 1024 },
+    { description: 'portrait rounding up', width: 2015, height: 3000, expectedWidth: 688, expectedHeight: 1024 },
+
+    // A caller-supplied limit replaces the default on both axes
+    { description: 'custom maxSize', width: 2000, height: 1000, maxSize: 500, expectedWidth: 500, expectedHeight: 250 },
+    {
+        description: 'custom maxSize, already fits',
+        width: 400,
+        height: 300,
+        maxSize: 500,
+        expectedWidth: 400,
+        expectedHeight: 300,
+    },
+    {
+        description: 'custom maxSize with rounding',
+        width: 3000,
+        height: 1999,
+        maxSize: 500,
+        expectedWidth: 500,
+        expectedHeight: 333,
+    },
+
+    // Media whose dimensions the server never recorded. The known side is used
+    // if it fits, and the limit stands in for whatever is missing or too big.
+    { description: 'missing width', width: 0, height: 500, expectedWidth: 1024, expectedHeight: 500 },
+    { description: 'missing height', width: 500, height: 0, expectedWidth: 500, expectedHeight: 1024 },
+    {
+        description: 'missing height, oversized width',
+        width: 5000,
+        height: 0,
+        expectedWidth: 1024,
+        expectedHeight: 1024,
+    },
+    {
+        description: 'missing width, oversized height',
+        width: 0,
+        height: 5000,
+        expectedWidth: 1024,
+        expectedHeight: 1024,
+    },
+    { description: 'both dimensions missing', width: 0, height: 0, expectedWidth: 1024, expectedHeight: 1024 },
+];
+
+describe(getDetailWidth, () => {
+    it.each(CASES)('$description $width x $height gives width $expectedWidth', (testCase) => {
+        expect(getDetailWidth(testCase.width, testCase.height, testCase.maxSize)).toBe(testCase.expectedWidth);
     });
 
-    describe('small portrait media (height > width, both < 1024)', () => {
-        it('240x320 returns unchanged dimensions', () => {
-            expect(getDetailWidth(240, 320)).toBe(240);
-            expect(getDetailHeight(240, 320)).toBe(320);
-        });
+    it('defaults to a 1024px long side', () => {
+        expect(getDetailWidth(2048, 1536)).toBe(1024);
+    });
+});
 
-        it('600x800 returns unchanged dimensions', () => {
-            expect(getDetailWidth(600, 800)).toBe(600);
-            expect(getDetailHeight(600, 800)).toBe(800);
-        });
+describe(getDetailHeight, () => {
+    it.each(CASES)('$description $width x $height gives height $expectedHeight', (testCase) => {
+        expect(getDetailHeight(testCase.width, testCase.height, testCase.maxSize)).toBe(testCase.expectedHeight);
     });
 
-    describe('large landscape media (width > height, width > 1024)', () => {
-        // e.g., 2048x1536 image - should scale down to 1024x768
-        it('2048x1536 scales to 1024x768', () => {
-            expect(getDetailWidth(2048, 1536)).toBe(1024);
-            expect(getDetailHeight(2048, 1536)).toBe(768);
-        });
-
-        it('4000x3000 scales to 1024x768', () => {
-            expect(getDetailWidth(4000, 3000)).toBe(1024);
-            expect(getDetailHeight(4000, 3000)).toBe(768);
-        });
-    });
-
-    describe('large portrait media (height > width, height > 1024)', () => {
-        // e.g., 1536x2048 image - should scale down to 768x1024
-        it('1536x2048 scales to 768x1024', () => {
-            expect(getDetailWidth(1536, 2048)).toBe(768);
-            expect(getDetailHeight(1536, 2048)).toBe(1024);
-        });
-
-        it('3000x4000 scales to 768x1024', () => {
-            expect(getDetailWidth(3000, 4000)).toBe(768);
-            expect(getDetailHeight(3000, 4000)).toBe(1024);
-        });
-    });
-
-    describe('square media', () => {
-        it('small square 500x500 returns unchanged', () => {
-            expect(getDetailWidth(500, 500)).toBe(500);
-            expect(getDetailHeight(500, 500)).toBe(500);
-        });
-
-        it('exact 1024x1024 returns unchanged', () => {
-            expect(getDetailWidth(1024, 1024)).toBe(1024);
-            expect(getDetailHeight(1024, 1024)).toBe(1024);
-        });
-
-        it('large square 2048x2048 scales to 1024x1024', () => {
-            expect(getDetailWidth(2048, 2048)).toBe(1024);
-            expect(getDetailHeight(2048, 2048)).toBe(1024);
-        });
-    });
-
-    describe('edge cases', () => {
-        it('exactly 1024 on long side stays unchanged', () => {
-            expect(getDetailWidth(1024, 768)).toBe(1024);
-            expect(getDetailHeight(1024, 768)).toBe(768);
-        });
-
-        it('exactly 1024 on short side with larger height scales', () => {
-            expect(getDetailWidth(1024, 2048)).toBe(512);
-            expect(getDetailHeight(1024, 2048)).toBe(1024);
-        });
-
-        it('missing width returns maxSize for width', () => {
-            expect(getDetailWidth(0, 500)).toBe(1024);
-        });
-
-        it('missing height returns maxSize for height', () => {
-            expect(getDetailHeight(500, 0)).toBe(1024);
-        });
-
-        it('huge width with missing height is clamped to maxSize', () => {
-            expect(getDetailWidth(5000, 0)).toBe(1024);
-        });
-
-        it('huge height with missing width is clamped to maxSize', () => {
-            expect(getDetailHeight(0, 5000)).toBe(1024);
-        });
-    });
-
-    describe('custom maxSize', () => {
-        it('scales to custom maxSize', () => {
-            expect(getDetailWidth(2000, 1000, 500)).toBe(500);
-            expect(getDetailHeight(2000, 1000, 500)).toBe(250);
-        });
+    it('defaults to a 1024px long side', () => {
+        expect(getDetailHeight(1536, 2048)).toBe(1024);
     });
 });
