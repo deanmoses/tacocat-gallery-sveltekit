@@ -23,9 +23,7 @@
     let dialog = $state() as TextDialog;
 
     function originalName(): string {
-        const albumName = getNameFromPath(albumPath);
-        if (!albumName) throw 'no albumName';
-        return albumName;
+        return getNameFromPath(albumPath);
     }
 
     function onButtonClick() {

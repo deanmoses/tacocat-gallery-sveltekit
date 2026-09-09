@@ -23,11 +23,11 @@ function createUpload(
     };
 }
 
-describe('findProcessedUploads', () => {
+describe(findProcessedUploads, () => {
     it('returns empty arrays when no uploads provided', () => {
         const result = findProcessedUploads([], () => undefined);
 
-        expect(result.processed).toEqual([]);
+        expect(result.processed).toStrictEqual([]);
         expect(result.allProcessed).toBe(true);
     });
 
@@ -37,7 +37,7 @@ describe('findProcessedUploads', () => {
 
         const result = findProcessedUploads(uploads, getImageVersionId);
 
-        expect(result.processed).toEqual(['/2024/01-01/photo.jpg']);
+        expect(result.processed).toStrictEqual(['/2024/01-01/photo.jpg']);
         expect(result.allProcessed).toBe(true);
     });
 
@@ -47,7 +47,7 @@ describe('findProcessedUploads', () => {
 
         const result = findProcessedUploads(uploads, getImageVersionId);
 
-        expect(result.processed).toEqual([]);
+        expect(result.processed).toStrictEqual([]);
         expect(result.allProcessed).toBe(false);
     });
 
@@ -57,7 +57,7 @@ describe('findProcessedUploads', () => {
 
         const result = findProcessedUploads(uploads, getImageVersionId);
 
-        expect(result.processed).toEqual([]);
+        expect(result.processed).toStrictEqual([]);
         expect(result.allProcessed).toBe(false);
     });
 
@@ -67,7 +67,7 @@ describe('findProcessedUploads', () => {
 
         const result = findProcessedUploads(uploads, getImageVersionId);
 
-        expect(result.processed).toEqual([]);
+        expect(result.processed).toStrictEqual([]);
         expect(result.allProcessed).toBe(false);
     });
 
@@ -77,7 +77,7 @@ describe('findProcessedUploads', () => {
 
         const result = findProcessedUploads(uploads, getImageVersionId);
 
-        expect(result.processed).toEqual([]);
+        expect(result.processed).toStrictEqual([]);
         expect(result.allProcessed).toBe(false);
     });
 
@@ -87,7 +87,7 @@ describe('findProcessedUploads', () => {
 
         const result = findProcessedUploads(uploads, getImageVersionId);
 
-        expect(result.processed).toEqual([]);
+        expect(result.processed).toStrictEqual([]);
         expect(result.allProcessed).toBe(false);
     });
 
@@ -112,7 +112,7 @@ describe('findProcessedUploads', () => {
 
         const result = findProcessedUploads(uploads, getImageVersionId);
 
-        expect(result.processed).toEqual(['/2024/01-01/a.jpg', '/2024/01-01/b.jpg', '/2024/01-01/c.jpg']);
+        expect(result.processed).toStrictEqual(['/2024/01-01/a.jpg', '/2024/01-01/b.jpg', '/2024/01-01/c.jpg']);
         expect(result.allProcessed).toBe(true);
     });
 
@@ -133,7 +133,7 @@ describe('findProcessedUploads', () => {
         const result = findProcessedUploads(uploads, getImageVersionId);
 
         // Should find processed1, skip pending1 (not in album), find processed2, skip pending2 (still uploading)
-        expect(result.processed).toEqual(['/2024/01-01/processed1.jpg', '/2024/01-01/processed2.jpg']);
+        expect(result.processed).toStrictEqual(['/2024/01-01/processed1.jpg', '/2024/01-01/processed2.jpg']);
         expect(result.allProcessed).toBe(false);
     });
 
@@ -157,7 +157,7 @@ describe('findProcessedUploads', () => {
 
         // The key assertion: we should find the processed ones even though
         // the first one in the list is still pending
-        expect(result.processed).toEqual(['/2024/01-01/already_done.jpg', '/2024/01-01/also_done.jpg']);
+        expect(result.processed).toStrictEqual(['/2024/01-01/already_done.jpg', '/2024/01-01/also_done.jpg']);
         expect(result.allProcessed).toBe(false);
     });
 
@@ -176,7 +176,7 @@ describe('findProcessedUploads', () => {
 
         const result = findProcessedUploads(uploads, getImageVersionId);
 
-        expect(result.processed).toEqual(['/2024/01-01/photo.heic']);
+        expect(result.processed).toStrictEqual(['/2024/01-01/photo.heic']);
         expect(result.allProcessed).toBe(true);
     });
 
@@ -188,7 +188,7 @@ describe('findProcessedUploads', () => {
 
         const result = findProcessedUploads(uploads, getImageVersionId);
 
-        expect(result.processed).toEqual(['/2024/01-01/photo.heif']);
+        expect(result.processed).toStrictEqual(['/2024/01-01/photo.heif']);
         expect(result.allProcessed).toBe(true);
     });
 
@@ -209,7 +209,7 @@ describe('findProcessedUploads', () => {
 
         const result = findProcessedUploads(uploads, getImageVersionId);
 
-        expect(result.processed).toEqual([
+        expect(result.processed).toStrictEqual([
             '/2024/01-01/photo1.heic',
             '/2024/01-01/photo2.jpg',
             '/2024/01-01/photo3.heif',
@@ -240,7 +240,7 @@ describe('findProcessedUploads', () => {
         const result = findProcessedUploads(uploads, getImageVersionId);
 
         // Should NOT be processed yet - versionId hasn't changed
-        expect(result.processed).toEqual([]);
+        expect(result.processed).toStrictEqual([]);
         expect(result.allProcessed).toBe(false);
     });
 
@@ -261,7 +261,7 @@ describe('findProcessedUploads', () => {
         const result = findProcessedUploads(uploads, getImageVersionId);
 
         // Should be processed - versionId changed from old to new
-        expect(result.processed).toEqual(['/2024/01-01/cow_portrait.heic']);
+        expect(result.processed).toStrictEqual(['/2024/01-01/cow_portrait.heic']);
         expect(result.allProcessed).toBe(true);
     });
 
@@ -272,12 +272,12 @@ describe('findProcessedUploads', () => {
 
         const result = findProcessedUploads(uploads, getImageVersionId);
 
-        expect(result.processed).toEqual(['/2024/01-01/photo.heic']);
+        expect(result.processed).toStrictEqual(['/2024/01-01/photo.heic']);
         expect(result.allProcessed).toBe(true);
     });
 });
 
-describe('getUploadPathForReplacement', () => {
+describe(getUploadPathForReplacement, () => {
     it('returns same path when extensions match', () => {
         expect(getUploadPathForReplacement('/2024/01-01/photo.jpg', 'new_photo.jpg')).toBe('/2024/01-01/photo.jpg');
     });
@@ -320,7 +320,7 @@ describe('getUploadPathForReplacement', () => {
     });
 });
 
-describe('getReplacementExtensionError', () => {
+describe(getReplacementExtensionError, () => {
     // Same extension - always allowed
     it('returns undefined when extensions match exactly', () => {
         expect(getReplacementExtensionError('/2024/01-01/photo.jpg', 'new.jpg')).toBeUndefined();

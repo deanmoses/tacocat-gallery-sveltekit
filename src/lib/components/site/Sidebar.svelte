@@ -13,12 +13,12 @@
     let { children }: Props = $props();
 </script>
 
-<div class="sidebar hidden-sm">
+<aside class="hidden-sm">
     {@render children?.()}
-</div>
+</aside>
 
 <style>
-    .sidebar {
+    aside {
         flex: 1;
         min-width: 8em;
         padding: calc(var(--default-padding) * 4) calc(var(--default-padding) * 2);

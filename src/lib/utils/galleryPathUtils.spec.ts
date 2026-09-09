@@ -10,7 +10,7 @@ import {
     getParentAndNameFromPath,
 } from './galleryPathUtils';
 
-describe('sanitizeMediaFilename', () => {
+describe(sanitizeMediaFilename, () => {
     // Basic transformations
     it('converts to lowercase', () => {
         expect(sanitizeMediaFilename('IMAGE.JPG')).toBe('image.jpg');
@@ -93,7 +93,7 @@ describe('sanitizeMediaFilename', () => {
     });
 });
 
-describe('hasValidMediaExtension', () => {
+describe(hasValidMediaExtension, () => {
     it('accepts standard image extensions', () => {
         expect(hasValidMediaExtension('photo.jpg')).toBe(true);
         expect(hasValidMediaExtension('photo.jpeg')).toBe(true);
@@ -136,7 +136,7 @@ describe('hasValidMediaExtension', () => {
     });
 });
 
-describe('isValidMediaPath', () => {
+describe(isValidMediaPath, () => {
     it('accepts HEIC/HEIF image paths', () => {
         expect(isValidMediaPath('/2024/01-15/photo.heic')).toBe(true);
         expect(isValidMediaPath('/2024/01-15/photo.heif')).toBe(true);
@@ -163,7 +163,7 @@ describe('IMAGE_EXTENSIONS', () => {
     });
 });
 
-describe('sanitizeMediaNameWithoutExtension', () => {
+describe(sanitizeMediaNameWithoutExtension, () => {
     it('converts to lowercase', () => {
         expect(sanitizeMediaNameWithoutExtension('PHOTO')).toBe('photo');
     });
@@ -191,20 +191,20 @@ describe('sanitizeMediaNameWithoutExtension', () => {
     });
 });
 
-describe('deduplicateMediaPaths', () => {
+describe(deduplicateMediaPaths, () => {
     it('returns paths unchanged when no duplicates', () => {
-        expect(deduplicateMediaPaths(['/2024/01-01/a.jpg', '/2024/01-01/b.jpg'])).toEqual([
+        expect(deduplicateMediaPaths(['/2024/01-01/a.jpg', '/2024/01-01/b.jpg'])).toStrictEqual([
             '/2024/01-01/a.jpg',
             '/2024/01-01/b.jpg',
         ]);
     });
 
     it('returns empty array for empty input', () => {
-        expect(deduplicateMediaPaths([])).toEqual([]);
+        expect(deduplicateMediaPaths([])).toStrictEqual([]);
     });
 
     it('renames second duplicate with _2 suffix', () => {
-        expect(deduplicateMediaPaths(['/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg'])).toEqual([
+        expect(deduplicateMediaPaths(['/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg'])).toStrictEqual([
             '/2024/01-01/photo.jpg',
             '/2024/01-01/photo_2.jpg',
         ]);
@@ -213,24 +213,24 @@ describe('deduplicateMediaPaths', () => {
     it('renames third duplicate with _3 suffix', () => {
         expect(
             deduplicateMediaPaths(['/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg']),
-        ).toEqual(['/2024/01-01/photo.jpg', '/2024/01-01/photo_2.jpg', '/2024/01-01/photo_3.jpg']);
+        ).toStrictEqual(['/2024/01-01/photo.jpg', '/2024/01-01/photo_2.jpg', '/2024/01-01/photo_3.jpg']);
     });
 
     it('handles multiple different duplicates', () => {
         expect(
             deduplicateMediaPaths(['/2024/01-01/a.jpg', '/2024/01-01/b.jpg', '/2024/01-01/a.jpg', '/2024/01-01/b.jpg']),
-        ).toEqual(['/2024/01-01/a.jpg', '/2024/01-01/b.jpg', '/2024/01-01/a_2.jpg', '/2024/01-01/b_2.jpg']);
+        ).toStrictEqual(['/2024/01-01/a.jpg', '/2024/01-01/b.jpg', '/2024/01-01/a_2.jpg', '/2024/01-01/b_2.jpg']);
     });
 
     it('handles different extensions', () => {
-        expect(deduplicateMediaPaths(['/2024/01-01/photo.png', '/2024/01-01/photo.png'])).toEqual([
+        expect(deduplicateMediaPaths(['/2024/01-01/photo.png', '/2024/01-01/photo.png'])).toStrictEqual([
             '/2024/01-01/photo.png',
             '/2024/01-01/photo_2.png',
         ]);
     });
 
     it('does not dedupe different files with same base name but different extensions', () => {
-        expect(deduplicateMediaPaths(['/2024/01-01/photo.jpg', '/2024/01-01/photo.png'])).toEqual([
+        expect(deduplicateMediaPaths(['/2024/01-01/photo.jpg', '/2024/01-01/photo.png'])).toStrictEqual([
             '/2024/01-01/photo.jpg',
             '/2024/01-01/photo.png',
         ]);
@@ -240,18 +240,18 @@ describe('deduplicateMediaPaths', () => {
         // photo_2.jpg already exists, so the duplicate of photo.jpg should become photo_3.jpg
         expect(
             deduplicateMediaPaths(['/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo_2.jpg']),
-        ).toEqual(['/2024/01-01/photo.jpg', '/2024/01-01/photo_3.jpg', '/2024/01-01/photo_2.jpg']);
+        ).toStrictEqual(['/2024/01-01/photo.jpg', '/2024/01-01/photo_3.jpg', '/2024/01-01/photo_2.jpg']);
     });
 
     it('avoids collision when existing file comes before duplicates', () => {
         // photo_2.jpg comes first, then duplicates of photo.jpg should skip _2
         expect(
             deduplicateMediaPaths(['/2024/01-01/photo_2.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg']),
-        ).toEqual(['/2024/01-01/photo_2.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo_3.jpg']);
+        ).toStrictEqual(['/2024/01-01/photo_2.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo_3.jpg']);
     });
 });
 
-describe('isValidMediaNameWithoutExtensionStrict', () => {
+describe(isValidMediaNameWithoutExtensionStrict, () => {
     it('accepts valid lowercase alphanumeric names', () => {
         expect(isValidMediaNameWithoutExtensionStrict('photo')).toBe(true);
         expect(isValidMediaNameWithoutExtensionStrict('photo1')).toBe(true);
@@ -325,32 +325,32 @@ describe('isValidMediaNameWithoutExtensionStrict', () => {
     }, 50); // 50ms timeout - test will fail if regex causes backtracking
 });
 
-describe('getParentAndNameFromPath', () => {
+describe(getParentAndNameFromPath, () => {
     it('splits a media path into day album and filename', () => {
-        expect(getParentAndNameFromPath('/2001/12-31/image.jpg')).toEqual({
+        expect(getParentAndNameFromPath('/2001/12-31/image.jpg')).toStrictEqual({
             parent: '/2001/12-31/',
             name: 'image.jpg',
         });
-        expect(getParentAndNameFromPath('/2001/12-31/video.mp4')).toEqual({
+        expect(getParentAndNameFromPath('/2001/12-31/video.mp4')).toStrictEqual({
             parent: '/2001/12-31/',
             name: 'video.mp4',
         });
     });
 
     it('splits a day album path into year album and day', () => {
-        expect(getParentAndNameFromPath('/2001/12-31/')).toEqual({ parent: '/2001/', name: '12-31' });
+        expect(getParentAndNameFromPath('/2001/12-31/')).toStrictEqual({ parent: '/2001/', name: '12-31' });
     });
 
     it('splits a year album path into root and year', () => {
-        expect(getParentAndNameFromPath('/2001/')).toEqual({ parent: '/', name: '2001' });
+        expect(getParentAndNameFromPath('/2001/')).toStrictEqual({ parent: '/', name: '2001' });
     });
 
     it('returns empty parent and name for the root album', () => {
-        expect(getParentAndNameFromPath('/')).toEqual({ parent: '', name: '' });
+        expect(getParentAndNameFromPath('/')).toStrictEqual({ parent: '', name: '' });
     });
 
     it('trims surrounding whitespace', () => {
-        expect(getParentAndNameFromPath('  /2001/12-31/  ')).toEqual({ parent: '/2001/', name: '12-31' });
+        expect(getParentAndNameFromPath('  /2001/12-31/  ')).toStrictEqual({ parent: '/2001/', name: '12-31' });
     });
 
     // Album paths are only valid with a trailing slash, so these throw rather

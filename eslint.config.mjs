@@ -6,6 +6,7 @@ import globals from 'globals';
 import ts from 'typescript-eslint';
 import svelteConfig from './svelte.config.js';
 import vitest from '@vitest/eslint-plugin';
+import playwright from 'eslint-plugin-playwright';
 
 export default ts.config(
     js.configs.recommended,
@@ -231,9 +232,21 @@ export default ts.config(
         },
     },
     {
-        // Vitest unit tests only; tests/ holds Playwright e2e specs
+        // Vitest unit tests only; tests/ holds Playwright e2e specs.
+        // The plugin's recommended config is destructured rather than spread as
+        // a whole, so a future version of it can't clobber `files` and leak
+        // test-only rules into the rest of the repo.
         files: ['src/**/*.spec.ts'],
-        ...vitest.configs.recommended,
+        plugins: { vitest },
+        // Tells the plugin it may consult the type checker, which the
+        // type-aware config above already makes available. Four rules change
+        // behaviour, all of them for the better: expect-expect and valid-expect
+        // stop treating `expectTypeOf`/`assertType` as non-assertions (this
+        // config already pushes toward them via prefer-expect-type-of), and
+        // valid-title and prefer-describe-function-title start resolving a
+        // describe title that is a function reference instead of guessing from
+        // the identifier's name.
+        settings: { vitest: { typecheck: true } },
         rules: {
             ...vitest.configs.recommended.rules,
 
@@ -259,6 +272,7 @@ export default ts.config(
             'vitest/prefer-to-be': 'error',
             'vitest/prefer-to-contain': 'error',
             'vitest/prefer-to-have-length': 'error',
+            'vitest/prefer-strict-equal': 'error',
             'vitest/prefer-strict-boolean-matchers': 'error',
             'vitest/prefer-expect-type-of': 'error',
 
@@ -266,9 +280,128 @@ export default ts.config(
             'vitest/no-alias-methods': 'error',
             'vitest/no-test-prefixes': 'error',
 
-            // Default options: `test` at top level, `it` inside `describe`,
-            // which is how this project's test names are phrased
-            'vitest/consistent-test-it': 'error',
+            // `test` at top level, `it` inside `describe`, which is how this
+            // project's test names are phrased. Stated explicitly rather than
+            // leaning on the rule's defaults, so a plugin bump can't silently
+            // change what the codebase is held to.
+            'vitest/consistent-test-it': ['error', { fn: 'test', withinDescribe: 'it' }],
+            'vitest/consistent-test-filename': ['error', { pattern: String.raw`.*\.spec\.ts$` }],
+
+            // Ties a describe title to the function under test, so renaming the
+            // function renames the suite instead of leaving a stale string
+            'vitest/prefer-describe-function-title': 'error',
+
+            // Globals are not enabled in vite.config.ts, so a bare `describe`
+            // would be undefined at runtime. This keeps the imports honest, and
+            // keeps `vi` and `vitest` from being used interchangeably.
+            'vitest/prefer-importing-vitest-globals': 'error',
+            'vitest/consistent-vitest-vi': 'error',
+
+            // Test structure: no conditionally-defined tests, no callback-style
+            // async, hooks first and in lifecycle order
+            'vitest/no-conditional-tests': 'error',
+            'vitest/no-done-callback': 'error',
+            'vitest/prefer-hooks-on-top': 'error',
+            'vitest/prefer-hooks-in-order': 'error',
+            'vitest/max-nested-describe': 'error',
+            'vitest/prefer-each': 'error',
+            'vitest/consistent-each-for': 'error',
+            'vitest/require-hook': 'error',
+            'vitest/require-top-level-describe': 'error',
+
+            // Blank lines around describes, tests, hooks and expect groups.
+            // Subsumes the seven individual padding-around-* rules. Prettier
+            // preserves single blank lines rather than enforcing or collapsing
+            // them, so this doesn't fight the formatter.
+            'vitest/padding-around-all': 'error',
+
+            // More mocking correctness
+            'vitest/require-mock-type-parameters': 'error',
+            'vitest/prefer-import-in-mock': 'error',
+            'vitest/prefer-mock-return-shorthand': 'error',
+            'vitest/prefer-called-once': 'error',
+            'vitest/prefer-expect-resolves': 'error',
+
+            // Snapshot guardrails. This codebase has no snapshots; these exist
+            // to keep unreviewable ones from creeping in.
+            'vitest/no-large-snapshots': 'error',
+            'vitest/prefer-snapshot-hint': 'error',
+            'vitest/prefer-todo': 'error',
+
+            // The vitest variant additionally understands `expect(obj.method)`,
+            // so it supersedes the core rule inside test files
+            '@typescript-eslint/unbound-method': 'off',
+            'vitest/unbound-method': 'error',
+        },
+    },
+    {
+        // Playwright e2e specs. The vitest block above is scoped to src/ and
+        // this one to tests/, so the two plugins never see each other's files.
+        files: ['tests/**/*.spec.ts'],
+        plugins: { playwright },
+        rules: {
+            // Destructured rather than spread as a whole config, for the same
+            // reason as the vitest block: a future version of the plugin can't
+            // clobber `files` and leak test-only rules into the rest of the repo.
+            // Carries `no-empty-pattern: off`, which Playwright needs so fixture
+            // signatures like `async ({}, testInfo)` are legal.
+            ...playwright.configs['flat/recommended'].rules,
+
+            // Two thirds of the recommended set ships as warnings. `npm run lint`
+            // runs with --max-warnings 0, so they already fail the build;
+            // promoting them makes the severity honest in editors too.
+            ...Object.fromEntries(
+                Object.entries(playwright.configs['flat/recommended'].rules)
+                    .filter(([, severity]) => severity === 'warn')
+                    .map(([rule]) => [rule, 'error']),
+            ),
+
+            // Weak assertions that pass when they shouldn't
+            'playwright/require-to-throw-message': 'error',
+            'playwright/require-to-pass-timeout': 'error',
+            'playwright/no-restricted-matchers': [
+                'error',
+                {
+                    toBeFalsy: 'Assert the actual expected state, e.g. toBeHidden() or toBe(false).',
+                    toBeTruthy: 'Assert the actual expected state, e.g. toBeVisible() or toBe(true).',
+                },
+            ],
+
+            // Matchers that produce a useful diff on failure
+            'playwright/prefer-comparison-matcher': 'error',
+            'playwright/prefer-equality-matcher': 'error',
+            'playwright/prefer-strict-equal': 'error',
+            'playwright/prefer-to-be': 'error',
+            'playwright/prefer-to-contain': 'error',
+
+            // Test structure, mirroring the vitest block
+            'playwright/no-commented-out-tests': 'error',
+            'playwright/require-top-level-describe': 'error',
+            // Its `allowedFunctionCalls` option only matches bare identifiers, so
+            // it can't exempt `test.setTimeout()`. Describe-level configuration
+            // goes through `test.describe.configure()`, which the rule allows.
+            'playwright/require-hook': 'error',
+
+            // Assertions made inside a helper still count as assertions, so
+            // tests that delegate to one aren't reported as assertion-less
+            'playwright/expect-expect': ['error', { assertFunctionPatterns: ['^expect[A-Z]'] }],
+
+            // Locators. These push tests toward what a user can actually perceive
+            // - roles, names, labels - instead of CSS coupled to markup, so a
+            // restyle stops silently breaking the suite.
+            'playwright/prefer-native-locators': 'error',
+            'playwright/no-nth-methods': 'error',
+            // getByTitle relies on a tooltip attribute users can't see on touch
+            // devices; the nav buttons carry one, so keep tests off it
+            'playwright/no-get-by-title': 'error',
+            'playwright/no-raw-locators': [
+                'error',
+                {
+                    // A <meta> tag has no role, name or text, so there is no
+                    // native locator for it. It's the one honest exception.
+                    allowed: ['meta[name="robots"][content="noindex"]'],
+                },
+            ],
         },
     },
     {

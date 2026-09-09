@@ -41,12 +41,10 @@
     </Nav>
     <PageContent>
         <MainContent>
-            <section class="caption">
-                <h2 style="display:none">Album Description</h2>
+            <section class="caption" aria-label="Album description">
                 {@render caption?.()}
             </section>
-            <section>
-                <h2 style="display:none">Thumbnails</h2>
+            <section aria-label="Thumbnails">
                 <Thumbnails>
                     {@render thumbnails?.()}
                 </Thumbnails>

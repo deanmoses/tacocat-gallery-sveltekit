@@ -27,7 +27,7 @@
 {:else if AlbumLoadStatus.LOADED == status && !thumb}
     <!-- display nothing if album thumb is undefined -->
 {:else if AlbumLoadStatus.LOADED == status && !!thumb}
-    <aside>
+    <div>
         <h2>Latest Album</h2>
         <Thumbnail
             title={thumb.title}
@@ -35,19 +35,19 @@
             href={thumb.href}
             thumbnailUrlInfo={thumb.thumbnailUrlInfo}
         />
-    </aside>
+    </div>
 {:else}
     <!-- display nothing if I don't understand what's going on -->
 {/if}
 
 <style>
-    aside {
+    div {
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 0.7em;
     }
-    aside h2 {
+    div h2 {
         font-size: 16px;
         font-weight: bold;
         color: var(--default-text-color);
