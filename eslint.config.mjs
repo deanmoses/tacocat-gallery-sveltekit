@@ -6,6 +6,7 @@ import globals from 'globals';
 import ts from 'typescript-eslint';
 import svelteConfig from './svelte.config.js';
 import vitest from '@vitest/eslint-plugin';
+import playwright from 'eslint-plugin-playwright';
 
 export default ts.config(
     js.configs.recommended,
@@ -331,6 +332,66 @@ export default ts.config(
             // so it supersedes the core rule inside test files
             '@typescript-eslint/unbound-method': 'off',
             'vitest/unbound-method': 'error',
+        },
+    },
+    {
+        // Playwright e2e specs. The vitest block above is scoped to src/ and
+        // this one to tests/, so the two plugins never see each other's files.
+        files: ['tests/**/*.spec.ts'],
+        plugins: { playwright },
+        rules: {
+            // Destructured rather than spread as a whole config, for the same
+            // reason as the vitest block: a future version of the plugin can't
+            // clobber `files` and leak test-only rules into the rest of the repo.
+            // Carries `no-empty-pattern: off`, which Playwright needs so fixture
+            // signatures like `async ({}, testInfo)` are legal.
+            ...playwright.configs['flat/recommended'].rules,
+
+            // Two thirds of the recommended set ships as warnings. `npm run lint`
+            // runs with --max-warnings 0, so they already fail the build;
+            // promoting them makes the severity honest in editors too.
+            ...Object.fromEntries(
+                Object.entries(playwright.configs['flat/recommended'].rules)
+                    .filter(([, severity]) => severity === 'warn')
+                    .map(([rule]) => [rule, 'error']),
+            ),
+
+            // Weak assertions that pass when they shouldn't
+            'playwright/require-to-throw-message': 'error',
+            'playwright/require-to-pass-timeout': 'error',
+            'playwright/no-restricted-matchers': [
+                'error',
+                {
+                    toBeFalsy: 'Assert the actual expected state, e.g. toBeHidden() or toBe(false).',
+                    toBeTruthy: 'Assert the actual expected state, e.g. toBeVisible() or toBe(true).',
+                },
+            ],
+
+            // Matchers that produce a useful diff on failure
+            'playwright/prefer-comparison-matcher': 'error',
+            'playwright/prefer-equality-matcher': 'error',
+            'playwright/prefer-strict-equal': 'error',
+            'playwright/prefer-to-be': 'error',
+            'playwright/prefer-to-contain': 'error',
+
+            // Test structure, mirroring the vitest block
+            'playwright/no-commented-out-tests': 'error',
+            'playwright/require-top-level-describe': 'error',
+            // Its `allowedFunctionCalls` option only matches bare identifiers, so
+            // it can't exempt `test.setTimeout()`. Describe-level configuration
+            // goes through `test.describe.configure()`, which the rule allows.
+            'playwright/require-hook': 'error',
+
+            // Assertions made inside a helper still count as assertions, so
+            // tests that delegate to one aren't reported as assertion-less
+            'playwright/expect-expect': ['error', { assertFunctionPatterns: ['^expect[A-Z]'] }],
+
+            // Deliberately left off for now: no-raw-locators, prefer-native-locators,
+            // no-nth-methods and no-get-by-title. They're the strongest rules here,
+            // but the app can't satisfy them yet - <main> wraps both the sidebar and
+            // the content, the thumbnail grid is an unlabelled div, and a smoke test
+            // that walks "the first album" needs .first(). Turning them on means
+            // adding accessible hooks to the markup first; worth doing separately.
         },
     },
     {

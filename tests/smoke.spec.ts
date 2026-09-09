@@ -10,7 +10,7 @@ import type { Locator } from '@playwright/test';
  */
 test.describe('Smoke test', () => {
     // Increase timeout for live environment with multiple network hops
-    test.setTimeout(60000);
+    test.describe.configure({ timeout: 60000 });
 
     test('page includes noindex meta tag', async ({ page }) => {
         await page.goto('/');
@@ -81,22 +81,13 @@ test.describe('Smoke test', () => {
         await expectImageLoaded(mainImage);
 
         // Step 6: Test next navigation
-        // Since we clicked the first image, "next" should be available
         const firstImageUrl = page.url();
 
-        // Find and click the next button/link
-        // Look for common next navigation patterns
-        const nextButton = page
-            .locator('a[href*="next"], a:has-text("Next"), a:has-text("›"), [aria-label*="next" i], a[rel="next"]')
-            .first();
-
-        // If no explicit next button, try keyboard navigation
-        if (await nextButton.isVisible({ timeout: 2000 }).catch(() => false)) {
-            await nextButton.click();
-        } else {
-            // Try right arrow key for image navigation
-            await page.keyboard.press('ArrowRight');
-        }
+        // The media page always renders a Next button, and it has an href here
+        // because we navigated into the first image of the album. Its accessible
+        // name comes from the anchor's title attribute, since the label span is
+        // empty when no title is passed.
+        await page.getByRole('link', { name: 'Next', exact: true }).click();
 
         // Wait for navigation to complete - URL should change
         await page.waitForURL((url) => url.toString() !== firstImageUrl, { timeout: 15000 });
