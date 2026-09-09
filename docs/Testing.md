@@ -20,6 +20,9 @@ describe(getMediaPath, …);
 
 // ❌ No
 describe('getMediaPath', …);
+
+// ✅ A store's methods are not importable, so nest strings instead
+describe('draftMachine', () => describe('init', …));
 ```
 
 **Say what the code does, not what it "should" do.**
@@ -86,12 +89,16 @@ only against a correct one.
 
 ## Fixtures
 
+Shared fixtures live in `src/lib/test-support/`: the record builders and the
+canonical album paths. Spell a path out instead where the path is the subject
+rather than the setting.
+
 Build them complete, so the compiler checks them too.
 
 ```typescript
-// ✅ Yes — a new required field on the server types breaks this file
-function imageRecord(fields: Pick<ImageRecord, 'itemType' | 'mediaType'>): ImageRecord {
-    return { ...MEDIA_FIELDS, ...fields };
+// ✅ Yes — a new required field on the server types breaks one file
+export function imageRecord(fields: Partial<ImageRecord> & Pick<ImageRecord, 'itemType'>): ImageRecord {
+    return { ...BASE_MEDIA, ...fields };
 }
 
 // ❌ No — asserts a shape the server never sends, and keeps compiling
@@ -128,8 +135,7 @@ await validateMediaBatch([mediaItem('corrupt.jpg')]);
 contract: that every object URL created was released, or that an `<img>` was
 never pointed at a HEIC file.
 
-`restoreMocks` and `unstubGlobals` are on in `vite.config.ts`. No `afterEach`
-needed.
+`restoreMocks` and `unstubGlobals` are on in `vite.config.ts`; no `afterEach` needed.
 
 ## Comment the why, never the what
 
@@ -185,10 +191,11 @@ the collection to be non-empty, then resolve it, so auto-waiting survives:
 
 ```typescript
 const thumbnails = page.getByRole('main').getByTestId('thumbnail');
-await expect(thumbnails).not.toHaveCount(0, { timeout: 15000 });
+await expect(thumbnails).not.toHaveCount(0);
 const [thumbnail] = await thumbnails.all();
 ```
 
-The site is entirely client-rendered, so nothing is present on load. And an
-image in the DOM is not an image that loaded, which is why `expectImageLoaded()`
-checks `naturalWidth`.
+The site is entirely client-rendered, so nothing is present on load and every
+assertion must wait. Waits are set once in `playwright.config.ts` —
+`expect.timeout` and `navigationTimeout` — rather than per assertion, so a new
+spec inherits them and an inline timeout means the spec has a reason.
