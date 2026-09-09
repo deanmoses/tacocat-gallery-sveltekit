@@ -1,7 +1,13 @@
 import { it, expect, describe } from 'vitest';
-import { findProcessedUploads, getReplacementExtensionError, getUploadPathForReplacement } from './uploadUtils';
-import { UploadState, type UploadEntry } from '$lib/models/album';
+import {
+    enrichWithPreviousVersionIds,
+    findProcessedUploads,
+    getReplacementExtensionError,
+    getUploadPathForReplacement,
+} from './uploadUtils';
+import { UploadState, type MediaItemToUpload, type UploadEntry } from '$lib/models/album';
 import { getMediaPath } from './fileFormats';
+import { dayAlbum, imageRecord, mediaPath, videoRecord } from '$lib/test-support/records';
 
 /**
  * Replacing a media item asks two questions of the same pair of paths: whether
@@ -33,9 +39,15 @@ const REPLACEMENT_CASES: ReplacementCase[] = [
     { targetPath: '/2024/01-01/image.png', fileName: 'new.png', uploadPath: '/2024/01-01/image.png' },
     { targetPath: '/2024/01-01/video.mp4', fileName: 'new.mp4', uploadPath: '/2024/01-01/video.mp4' },
 
-    // Extensions are compared case-insensitively, on either side
+    // Extensions are compared case-insensitively, on either side. The target
+    // path keeps the case it has: the upload has to land on the file being
+    // replaced, and S3 paths are case-sensitive, so lowercasing it would create
+    // a second file beside the original instead.
     { targetPath: '/2024/01-01/photo.jpg', fileName: 'new.JPG', uploadPath: '/2024/01-01/photo.jpg' },
     { targetPath: '/2024/01-01/photo.JPG', fileName: 'new.jpg', uploadPath: '/2024/01-01/photo.JPG' },
+    // Asserted outside the JPG family too, where a different branch answers it
+    { targetPath: '/2024/01-01/image.PNG', fileName: 'new.png', uploadPath: '/2024/01-01/image.PNG' },
+    { targetPath: '/2024/01-01/video.MOV', fileName: 'new.mov', uploadPath: '/2024/01-01/video.MOV' },
 
     // jpg and jpeg name one format. The target path is kept exactly as it is,
     // rather than taking the source's spelling, so the upload lands on the file
@@ -164,6 +176,16 @@ const UPLOAD_CASES: UploadCase[] = [
         upload: upload({ uploadPath: '/2024/01-01/photo.heif', status: UploadState.PROCESSING, versionId: 'heif-v1' }),
         albumVersionId: 'converted-v1',
         processed: true,
+    },
+    // A renamed file is matched on existence alone, so the check that S3
+    // returned a version has to happen before that: without it, an upload that
+    // never got a versionId is reported as finished the moment anything is
+    // sitting at the destination.
+    {
+        description: 'HEIC in processing but S3 returned no version',
+        upload: upload({ uploadPath: '/2024/01-01/photo.heic', status: UploadState.PROCESSING }),
+        albumVersionId: 'converted-v1',
+        processed: false,
     },
     {
         description: 'HEIC converted to JPG, conversion has not landed yet',
@@ -304,5 +326,81 @@ describe(findProcessedUploads, () => {
         const result = findProcessedUploads([entry], () => 'converted-v1');
 
         expect(result.processed).toStrictEqual(['/2024/01-01/photo.heic']);
+    });
+});
+
+/**
+ * Before an upload starts, the batch is checked against the album so the admin
+ * can be warned about overwrites. The function does two things at once: it
+ * returns the colliding names for that warning, and it writes previousVersionId
+ * onto the entries it matched, which is what findProcessedUploads later reads to
+ * tell a converted replacement apart from the file it replaced.
+ */
+function mediaToUpload(fileName: string): MediaItemToUpload {
+    return { file: new File([], fileName), uploadPath: mediaPath(fileName) };
+}
+
+/** The media already in the album, under the names an upload might collide with */
+const albumWithPhotoAndClip = () =>
+    dayAlbum([
+        imageRecord({
+            itemType: 'media',
+            mediaType: 'image',
+            path: mediaPath('photo.jpg'),
+            itemName: 'photo.jpg',
+            versionId: 'photo-v1',
+        }),
+        videoRecord({
+            itemType: 'media',
+            path: mediaPath('clip.mp4'),
+            itemName: 'clip.mp4',
+            versionId: 'clip-v1',
+        }),
+    ]);
+
+describe(enrichWithPreviousVersionIds, () => {
+    it('reports nothing for a batch that collides with nothing', () => {
+        const files = [mediaToUpload('new.jpg')];
+
+        expect(enrichWithPreviousVersionIds(files, albumWithPhotoAndClip())).toStrictEqual([]);
+        expect(files[0].previousVersionId).toBeUndefined();
+    });
+
+    // The name is what the admin is shown in the confirmation dialog, so it is
+    // the file's own name rather than the path it is going to
+    it('names a colliding file and records the version it is replacing', () => {
+        const files = [mediaToUpload('photo.jpg')];
+
+        expect(enrichWithPreviousVersionIds(files, albumWithPhotoAndClip())).toStrictEqual(['photo.jpg']);
+        expect(files[0].previousVersionId).toBe('photo-v1');
+    });
+
+    // A HEIC is stored as a JPG, so it collides with a JPG already in the album
+    // even though no path in the batch matches one. Missing this is what leaves
+    // an overwrite unannounced and its completion undetectable.
+    it('matches a HEIC upload against the JPG the server will store it as', () => {
+        const files = [mediaToUpload('photo.heic')];
+
+        expect(enrichWithPreviousVersionIds(files, albumWithPhotoAndClip())).toStrictEqual(['photo.heic']);
+        expect(files[0].previousVersionId).toBe('photo-v1');
+    });
+
+    it('checks every file in the batch, and leaves the ones that collide with nothing alone', () => {
+        const files = [mediaToUpload('new.jpg'), mediaToUpload('photo.jpg'), mediaToUpload('clip.mp4')];
+
+        expect(enrichWithPreviousVersionIds(files, albumWithPhotoAndClip())).toStrictEqual(['photo.jpg', 'clip.mp4']);
+        expect(files.map((file) => file.previousVersionId)).toStrictEqual([undefined, 'photo-v1', 'clip-v1']);
+    });
+
+    // The check can run before the album has loaded, so an absent or empty album
+    // means no collisions rather than an error
+    it.each([
+        { description: 'no album loaded', album: undefined },
+        { description: 'an empty album', album: dayAlbum([]) },
+    ])('reports no collisions against $description', ({ album }) => {
+        const files = [mediaToUpload('photo.jpg')];
+
+        expect(enrichWithPreviousVersionIds(files, album)).toStrictEqual([]);
+        expect(files[0].previousVersionId).toBeUndefined();
     });
 });
