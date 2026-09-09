@@ -37,6 +37,7 @@
         "precommit": "npm run quality && npm run test:unit",
         "deploy-staging": "./scripts/deploy-staging.sh",
         "deploy-prod": "./scripts/deploy-prod.sh",
+        "perf": "node scripts/measure-perf.mjs",
         "agent-docs": "node scripts/build-agent-docs.mjs",
         "prepare": "husky && playwright install chromium && svelte-kit sync"
     },
