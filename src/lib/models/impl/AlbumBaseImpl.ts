@@ -65,7 +65,11 @@ export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
         return this.json?.thumbnail?.path;
     }
 
-    set thumbnailPath(imagePath: string) {
+    set thumbnailPath(imagePath: string | undefined) {
+        if (imagePath === undefined) {
+            this.json.thumbnail = undefined;
+            return;
+        }
         // TODO: fix TypeScript error - thumbnail.versionId is required
         // The Drafts system should probably not be saving to this object,
         // but instead some intermediate object...

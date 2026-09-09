@@ -198,6 +198,7 @@ export default ts.config(
             // Consistency rules the checker has to resolve
             '@typescript-eslint/consistent-return': 'error',
             '@typescript-eslint/consistent-type-exports': 'error',
+            '@typescript-eslint/related-getter-setter-pairs': 'error',
 
             // Modern stdlib usage
             'dot-notation': 'off',
