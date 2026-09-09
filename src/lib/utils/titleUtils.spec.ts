@@ -72,8 +72,6 @@ const titles: { in: string; out: string }[] = [
         out: 'IMAGE',
     },
 ];
-titles.forEach((title) => {
-    test(`Title [${title.in}]`, () => {
-        expect(toTitleFromFilename(title.in)).toBe(title.out);
-    });
+test.each(titles)('Title [$in]', ({ in: filename, out }) => {
+    expect(toTitleFromFilename(filename)).toBe(out);
 });
