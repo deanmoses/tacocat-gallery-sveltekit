@@ -2,31 +2,6 @@ import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import { validateMediaBatch } from './mediaValidation';
 import type { MediaItemToUpload } from '$lib/models/album';
 
-// Mock browser APIs
-beforeAll(() => {
-    vi.stubGlobal('URL', {
-        createObjectURL: vi.fn<(obj: Blob | MediaSource) => string>(() => 'blob:fake-url'),
-        revokeObjectURL: vi.fn<(url: string) => void>(),
-    });
-
-    // Mock Image - always succeeds for non-zero files (we can't test actual image parsing in Node)
-    vi.stubGlobal(
-        'Image',
-        class {
-            onload: (() => void) | null = null;
-            onerror: (() => void) | null = null;
-            set src(_url: string) {
-                // Simulate async image load success
-                setTimeout(() => this.onload?.(), 0);
-            }
-        },
-    );
-});
-
-afterAll(() => {
-    vi.unstubAllGlobals();
-});
-
 function createMockFile(name: string, size: number): File {
     const content = size > 0 ? new Uint8Array(size) : new Uint8Array(0);
     return new File([content], name, { type: 'image/jpeg' });
@@ -39,7 +14,32 @@ function createImageToUpload(name: string, size: number): MediaItemToUpload {
     };
 }
 
-describe('validateImageBatch', () => {
+describe(validateMediaBatch, () => {
+    // Mock browser APIs
+    beforeAll(() => {
+        vi.stubGlobal('URL', {
+            createObjectURL: vi.fn<(obj: Blob | MediaSource) => string>(() => 'blob:fake-url'),
+            revokeObjectURL: vi.fn<(url: string) => void>(),
+        });
+
+        // Mock Image - always succeeds for non-zero files (we can't test actual image parsing in Node)
+        vi.stubGlobal(
+            'Image',
+            class {
+                onload: (() => void) | null = null;
+                onerror: (() => void) | null = null;
+                set src(_url: string) {
+                    // Simulate async image load success
+                    setTimeout(() => this.onload?.(), 0);
+                }
+            },
+        );
+    });
+
+    afterAll(() => {
+        vi.unstubAllGlobals();
+    });
+
     it('rejects zero-byte files', async () => {
         const files = [createImageToUpload('empty.jpg', 0)];
 

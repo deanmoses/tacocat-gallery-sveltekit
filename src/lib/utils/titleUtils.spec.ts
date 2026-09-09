@@ -1,4 +1,4 @@
-import { test, expect } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { toTitleFromFilename } from './titleUtils';
 
 const titles: { in: string; out: string }[] = [
@@ -72,6 +72,8 @@ const titles: { in: string; out: string }[] = [
         out: 'IMAGE',
     },
 ];
-test.each(titles)('Title [$in]', ({ in: filename, out }) => {
-    expect(toTitleFromFilename(filename)).toBe(out);
+describe(toTitleFromFilename, () => {
+    it.each(titles)('Title [$in]', ({ in: filename, out }) => {
+        expect(toTitleFromFilename(filename)).toBe(out);
+    });
 });

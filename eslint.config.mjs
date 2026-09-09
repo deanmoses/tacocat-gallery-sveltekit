@@ -305,6 +305,7 @@ export default ts.config(
             'vitest/prefer-each': 'error',
             'vitest/consistent-each-for': 'error',
             'vitest/require-hook': 'error',
+            'vitest/require-top-level-describe': 'error',
 
             // More mocking correctness
             'vitest/require-mock-type-parameters': 'error',
