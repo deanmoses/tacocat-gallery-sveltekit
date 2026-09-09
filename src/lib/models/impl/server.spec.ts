@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { isAlbumRecord, isMediaRecord, isImageRecord, isVideoRecord } from './server';
-import type { AlbumRecord, GalleryRecord, ImageRecord, VideoRecord } from './server';
+import type { GalleryRecord } from './server';
+import { albumRecord, imageRecord, videoRecord } from '$lib/test-support/records';
 
 /**
  * The four guards partition every record the server can send, across a
@@ -12,6 +13,11 @@ import type { AlbumRecord, GalleryRecord, ImageRecord, VideoRecord } from './ser
  * table rather than as a handful of positive cases. A guard that stops
  * excluding something is as much a bug as one that stops including it, and
  * only the table catches the first kind.
+ *
+ * isVideoRecord's leading isMediaRecord() check is the one thing the table
+ * cannot reach: a record with mediaType 'video' and a non-media itemType is not
+ * constructible through the types. It is defensive against JSON read back from
+ * disk, and no row here can hold it to account.
  */
 type GuardCase = {
     /** The kind of record, in the terms the migration uses */
@@ -22,38 +28,6 @@ type GuardCase = {
     isImage: boolean;
     isVideo: boolean;
 };
-
-/**
- * Records are built complete rather than cast from a partial literal, so that
- * a new required field on the server types breaks this file at compile time
- * instead of leaving it asserting against a shape the server never sends.
- */
-const MEDIA_FIELDS = {
-    path: '/2024/01-01/item',
-    parentPath: '/2024/01-01/',
-    itemName: 'item',
-    updatedOn: '2024-01-01T00:00:00.000Z',
-    versionId: 'version-1',
-    dimensions: { width: 4032, height: 3024 },
-};
-
-function albumRecord(): AlbumRecord {
-    return {
-        itemType: 'album',
-        path: '/2024/',
-        parentPath: '/',
-        itemName: '2024',
-        updatedOn: '2024-01-01T00:00:00.000Z',
-    };
-}
-
-function imageRecord(fields: Pick<ImageRecord, 'itemType' | 'mediaType'>): ImageRecord {
-    return { ...MEDIA_FIELDS, ...fields };
-}
-
-function videoRecord(fields: Pick<VideoRecord, 'itemType'>): VideoRecord {
-    return { ...MEDIA_FIELDS, mediaType: 'video', id: 'video-1', duration: 12, ...fields };
-}
 
 const CASES: GuardCase[] = [
     {
