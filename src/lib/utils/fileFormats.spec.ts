@@ -56,6 +56,9 @@ const HEIC_CASES: FormatCase[] = [
     // Cameras write the extension in either case; the rename always lands on .jpg
     { uploadPath: '/2024/01-01/photo.HEIC', mediaPath: '/2024/01-01/photo.jpg' },
     { uploadPath: '/2024/01-01/photo.HEIF', mediaPath: '/2024/01-01/photo.jpg' },
+    // The rename replaces the last extension only, so a name that carries the
+    // format twice keeps the first one
+    { uploadPath: '/2024/01-01/photo.heic.heic', mediaPath: '/2024/01-01/photo.heic.jpg' },
 ].map((paths) => ({ ...paths, renamed: true, canDisplay: false, timeoutMs: IMAGE_TIMEOUT_MS }));
 
 /**

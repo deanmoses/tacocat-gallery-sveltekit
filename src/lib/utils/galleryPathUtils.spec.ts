@@ -258,6 +258,24 @@ describe(sanitizeMediaFilename, () => {
         { in: 'DSC_0001.jpeg', out: 'dsc_0001.jpg' },
         { in: 'Photo 2024-01-15.jpg', out: 'photo_2024_01_15.jpg' },
 
+        // The extension is lowercased and jpeg is respelled, and nothing else
+        // about it is touched: the whole word has to match, and invalid
+        // characters survive into the result the way they never do in the name.
+        // Pinned as the behaviour that is, not the behaviour anyone would have
+        // chosen -- a filename reaching either of these is rejected downstream.
+        { in: 'photo.jpeg2000', out: 'photo.jpeg2000' },
+        { in: 'photo.j pg', out: 'photo.j pg' },
+
+        // With no dot there is no extension to split off, so the whole string
+        // is a name. A trailing underscore therefore survives here, where a
+        // dotted filename loses it.
+        { in: 'My Photo', out: 'my_photo' },
+        { in: 'my photo_', out: 'my_photo_' },
+
+        // Degenerate dots: nothing before it, and nothing after it
+        { in: '.jpg', out: '.jpg' },
+        { in: 'photo.', out: 'photo.' },
+
         { in: '', out: '' },
     ])('[$in] sanitizes to [$out]', ({ in: filename, out }) => {
         expect(sanitizeMediaFilename(filename)).toBe(out);
