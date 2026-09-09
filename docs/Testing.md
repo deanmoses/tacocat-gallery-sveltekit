@@ -1,391 +1,194 @@
 # Testing Guide
 
-Best practices and patterns for writing tests in this project.
+## Layout
 
-## Test Organization
+|            |                                                                       |
+| ---------- | --------------------------------------------------------------------- |
+| Unit tests | `src/**/*.spec.ts`, beside the module they cover                      |
+| E2E tests  | `tests/*.spec.ts`, run by Playwright                                  |
+| Commands   | `npm test` (quiet), `npm run test:unit` (verbose), `npm run test:e2e` |
 
-### Group Related Functionality
+One spec per module, not per function.
+
+## Naming
+
+**Give `describe` the function itself, not a string.**
 
 ```typescript
-describe('ComponentOrModule', () => {
-    describe('primaryMethod', () => {
-        // All tests for primaryMethod grouped together
+// ✅ Yes
+describe(getMediaPath, …);
+
+// ❌ No
+describe('getMediaPath', …);
+```
+
+**Say what the code does, not what it "should" do.**
+
+```typescript
+// ✅ Yes
+it('returns false for HEIC files', …);
+
+// ❌ No
+it('should return false...', …);
+```
+
+**Name the behaviour, not its history.** `it('checks all uploads, not just the
+first (bug fix)')` means nothing to a reader who doesn't remember the bug.
+
+## Table-driven tests
+
+Anything with more than two or three examples belongs in a table, driven with
+`it.each`. **A table makes the gaps visible** — an empty cell is obvious in a
+way that a missing `it()` never is.
+
+```typescript
+type FormatCase = {
+    uploadPath: string;
+    mediaPath: string;
+    canDisplay: boolean;
+};
+
+const CASES: FormatCase[] = [ ... ];
+
+describe(getMediaPath, () => {
+    it.each(CASES)('$uploadPath is stored as $mediaPath', ({ uploadPath, mediaPath }) => {
+        expect(getMediaPath(uploadPath)).toBe(mediaPath);
     });
-
-    describe('secondaryMethod', () => {
-        // All tests for secondaryMethod grouped together
-    });
 });
 ```
 
-### Test Naming Convention
+`fileFormats.spec.ts` is the worked example. Two things that are easy to get
+wrong:
 
-Use the `it('should...')` format for test descriptions:
+- **One table, many functions.** Separate example sets are how a case ends up
+  covered on one axis and not the other.
+- **Derive rows from a shared constant** when one exists: the video rows come
+  from `VIDEO_EXTENSIONS`, so a new extension inherits the contract. Derive the
+  _rows_, never the _expectations_ — an expectation computed the way the code
+  computes it asserts nothing.
+
+## Assert what gets rejected
+
+Every guard, validator and predicate needs cases it turns down, and they need
+to be near-misses:
 
 ```typescript
-// ✅ Good: Clear, descriptive test names
-it('should return formatted title when given valid filename', () => { ... });
-it('should throw error when input is invalid', () => { ... });
-it('should handle async operations correctly', async () => { ... });
-
-// ❌ Bad: Vague or non-descriptive names
-it('works', () => { ... });
-it('test title function', () => { ... });
-it('handles errors', () => { ... });
+const PATH_CASES: PathCase[] = [
+    pathCase('/2001/12-31/', { isPath: true, isAlbum: true, isDay: true }),
+    pathCase('/2001/13-01/'), // month out of range
+    pathCase('/2001/12-31'), // no trailing slash
+    pathCase('/2001/image.jpg'), // media outside a day album
+];
 ```
 
-## Helper Functions
+`'nonsense'` fails against almost any implementation. `'/2001/13-01/'` fails
+only against a correct one.
 
-### Common Assertions
+## Fixtures
 
-Extract frequently used assertions into reusable helper functions:
+Build them complete, so the compiler checks them too.
 
 ```typescript
-function expectApiCalledWith(path: string) {
-    expect(mockApi).toHaveBeenCalled();
-    expect(mockApi.mock.calls.some((call) => call[0].includes(path))).toBe(true);
+// ✅ Yes — a new required field on the server types breaks this file
+function imageRecord(fields: Pick<ImageRecord, 'itemType' | 'mediaType'>): ImageRecord {
+    return { ...MEDIA_FIELDS, ...fields };
 }
 
-function expectElementVisible(element: HTMLElement) {
-    expect(element).toBeInTheDocument();
-    expect(element).toBeVisible();
-}
+// ❌ No — asserts a shape the server never sends, and keeps compiling
+const record = { itemType: 'image', path: '/2024/01-01/photo.jpg' } as GalleryRecord;
 ```
 
-### Mock Setup Helpers
+Pass a factory only the fields the test is about; keep the rest in a shared
+constant. What varies between rows is what the test is saying.
 
-Create helper functions for common mock configurations:
+## Mocking
 
 ```typescript
-function mockApiSuccess(response: ApiResponse) {
-    mockApi.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(response),
-    });
-}
+// ✅ URL.createObjectURL exists in Node, so replace just the method
+vi.spyOn(URL, 'createObjectURL').mockImplementation(...);
 
-function mockApiError(status: number, message: string) {
-    mockApi.mockResolvedValueOnce({
-        ok: false,
-        status,
-        json: () => Promise.resolve({ error: message }),
-    });
-}
+// ✅ Image does not exist in Node at all
+vi.stubGlobal('Image', FakeImage);
+
+// ❌ replaces the whole global, URL constructor included, for every module
+vi.stubGlobal('URL', { createObjectURL, revokeObjectURL });
 ```
 
-**Benefits:**
-
-- Reduces code duplication
-- Improves test readability
-- Centralizes mock configuration
-- Makes tests more maintainable
-
-## Async Testing
-
-### Use vi.waitFor() Instead of Delays
+**Let the fixture decide the outcome, not the mock.** A stub that always
+succeeds means the failure path is never tested, which is usually the path that
+matters. Key the outcome off the input:
 
 ```typescript
-// ✅ Good: Wait for specific condition
-await vi.waitFor(
-    () => {
-        expect(element).toBeVisible();
-    },
-    { timeout: TEST_TIMEOUT },
-);
+const CORRUPT = 'corrupt'; // a file named corrupt.jpg fails to decode
 
-// ❌ Bad: Arbitrary delay
-await new Promise((resolve) => setTimeout(resolve, 100));
+await validateMediaBatch([mediaItem('corrupt.jpg')]);
 ```
 
-### Test Async Error Conditions
+**Record what the mock was asked to do**, when the interaction is part of the
+contract: that every object URL created was released, or that an `<img>` was
+never pointed at a HEIC file.
+
+`restoreMocks` and `unstubGlobals` are on in `vite.config.ts`. No `afterEach`
+needed.
+
+## Comment the why, never the what
+
+`expect(getDetailWidth(1024, 768)).toBe(1024)` already says what it does. It
+doesn't say that 1024 is the boundary and the comparison is inclusive. That's
+the comment worth writing.
+
+## Check a test by breaking the code
+
+A test earns its place by failing when the code is wrong. That is not the same
+as running the code — a suite can be green, fast, readable and prove almost
+nothing.
+
+When you doubt a test earns its place, break the code on purpose: invert a
+comparison, delete a branch, change a constant. If the suite stays green, the
+test is decorative.
+
+## Testing a store
+
+Stores split into state transition methods and service methods (see
+`CLAUDE.md`), and the split matters for testing:
+
+- **State transition methods** are synchronous and are the only way state
+  changes. They need no mocking — runes work outside a component, so a
+  `.svelte.ts` store can be imported and driven directly. Cover these first.
+- **Service methods** are async and reach into the API and other stores.
+  Covering them means standing those up: worth doing, but a different size of
+  job. Say so in the file rather than leaving it looking overlooked.
+
+Stores are exported as singletons, so a spec resets in `beforeEach` rather than
+constructing one. `DraftMachine.svelte.spec.ts` is the worked example.
+
+## End-to-End tests with Playwright
+
+E2E specs run against a real deployment — localhost by default, staging or prod
+via `BASE_URL`. They walk real album data, so they cover integration and can't
+make claims about specific content.
+
+Which locator API to use is settled by lint. The judgment it leaves you is when
+to fall back to `getByTestId`.
+
+Use it only where the markup offers nothing a user could perceive. Here that is
+the thumbnail grid: a thumbnail is an unlabelled `<div>`, and its image is
+decorative (`alt=""`) inside an `aria-hidden` anchor, so `getByRole` cannot
+reach either. Both carry a testid. The media region and the Next link have real
+roles and accessible names, so neither does.
+
+A testid on something that could carry a role or a label buys a passing test
+and leaves the markup no more navigable than it was.
+
+`no-nth-methods` rules out `.first()` without saying what replaces it. Wait for
+the collection to be non-empty, then resolve it, so auto-waiting survives:
 
 ```typescript
-it('should handle async errors gracefully', async () => {
-    // Arrange: Set up error condition
-    mockApiError(500, 'Server error');
-
-    // Act: Trigger async operation
-    const promise = asyncFunction();
-
-    // Assert: Wait for error handling
-    await expect(promise).rejects.toThrow('Server error');
-});
+const thumbnails = page.getByRole('main').getByTestId('thumbnail');
+await expect(thumbnails).not.toHaveCount(0, { timeout: 15000 });
+const [thumbnail] = await thumbnails.all();
 ```
 
-## Error Testing
-
-### Synchronous Errors
-
-```typescript
-it('should throw error for invalid input', () => {
-    const invalidInput = 'invalid-input';
-
-    expect(() => {
-        processInput(invalidInput);
-    }).toThrow(`Invalid input: ${invalidInput}`);
-});
-```
-
-### Asynchronous Errors
-
-```typescript
-it('should reject promise for invalid async operation', async () => {
-    const invalidPath = 'invalid-path';
-
-    await expect(asyncOperation(invalidPath)).rejects.toThrow(`Invalid path: ${invalidPath}`);
-});
-```
-
-## Mocking Strategies
-
-### Consistent Mock Patterns
-
-```typescript
-// ✅ Good: Use mockResolvedValueOnce for single-use mocks
-mockApi.mockResolvedValueOnce({ ok: true, data: mockData });
-
-// ✅ Good: Use mockResolvedValue for reusable mocks
-function mockApiSuccess() {
-    mockApi.mockResolvedValue({ ok: true, data: mockData });
-}
-
-// ❌ Avoid: Mixing patterns inconsistently
-mockApi.mockResolvedValueOnce({ ok: true }); // Sometimes
-mockApi.mockResolvedValue({ ok: false }); // Sometimes
-```
-
-### Mock Cleanup
-
-```typescript
-beforeEach(() => {
-    vi.clearAllMocks();
-    // Clear any other state as needed
-});
-```
-
-## Anti-Patterns to Avoid
-
-### 1. Inconsistent Test Structure
-
-Follow the Arrange-Act-Assert (AAA) pattern:
-
-```typescript
-// ❌ Bad: Inconsistent arrangement
-it('should do something', async () => {
-    const data = createData();
-    setup(data);
-    const result = await processData(data);
-    expect(result).toBe(true);
-});
-
-// ✅ Good: Clear AAA pattern
-it('should do something', async () => {
-    // Arrange
-    const data = createData();
-    setup(data);
-
-    // Act
-    const result = await processData(data);
-
-    // Assert
-    expect(result).toBe(true);
-});
-```
-
-### 2. Undocumented "Magic" Numbers
-
-```typescript
-// ❌ Bad: Undocumented magic number
-const TEST_TIMEOUT = 1000;
-
-// ✅ Good: Documented timeout with explanation
-const TEST_TIMEOUT = 1000; // 1 second timeout for async operations
-```
-
-### 3. Missing Test Documentation
-
-```typescript
-// ❌ Bad: No explanation of what's being tested
-it('should handle loading', async () => { ... });
-
-// ✅ Good: Clear test description
-it('should show loading spinner while data is being fetched', async () => { ... });
-```
-
-### 4. Testing Implementation Details
-
-```typescript
-// ❌ Bad: Testing internal implementation
-expect(component['privateMethod']).toHaveBeenCalled();
-
-// ✅ Good: Testing public behavior
-expect(screen.getByText('Expected output')).toBeInTheDocument();
-```
-
-## Testing Templates
-
-### Basic Template
-
-```typescript
-it('should EXPECTED_BEHAVIOR when CONDITION', () => {
-    // Arrange: Set up test data and environment
-    const input = 'test-input';
-    const expected = 'expected-output';
-
-    // Act: Execute the functionality
-    const result = functionUnderTest(input);
-
-    // Assert: Verify the outcome
-    expect(result).toBe(expected);
-});
-```
-
-### Async Template
-
-```typescript
-it('should EXPECTED_BEHAVIOR when CONDITION', async () => {
-    // Arrange: Set up test data and mocks
-    const input = 'test-input';
-    mockApiSuccess(mockResponse);
-
-    // Act: Execute async functionality
-    const result = await asyncFunction(input);
-
-    // Assert: Verify the outcome
-    expect(result).toBeDefined();
-    expect(mockApi).toHaveBeenCalledWith(input);
-});
-```
-
-### Error Testing Template
-
-```typescript
-it('should throw ERROR_TYPE when INVALID_INPUT', () => {
-    // Arrange: Set up invalid input
-    const invalidInput = 'invalid-input';
-
-    // Act & Assert: Verify error is thrown
-    expect(() => {
-        functionUnderTest(invalidInput);
-    }).toThrow(`Expected error message: ${invalidInput}`);
-});
-```
-
-### Async Error Testing Template
-
-```typescript
-it('should handle async error when CONDITION', async () => {
-    // Arrange: Set up error condition
-    const input = 'test-input';
-    mockApiError(500, 'Server error');
-
-    // Act & Assert: Verify error handling
-    await expect(asyncFunction(input)).rejects.toThrow('Server error');
-});
-```
-
-## End-to-End Testing with Playwright
-
-### Before Writing E2E Tests
-
-**ALWAYS examine the actual DOM structure** before writing Playwright tests. Avoid assumptions about CSS classes, element hierarchy, or component structure.
-
-#### 1. Inspect Components First
-
-Before writing selectors, examine the actual components:
-
-```bash
-# Look at page components to understand routing
-find src/lib/components/pages -name "*.svelte" | head -5
-
-# Look at site components for UI structure
-find src/lib/components/site -name "*.svelte" | head -10
-
-# Check routes for available URLs
-ls src/routes/
-```
-
-#### 2. Use Browser DevTools
-
-- Navigate to pages manually in browser
-- Inspect actual DOM elements and their attributes
-- Note CSS classes, `data-*` attributes, ARIA labels
-- Test responsive behavior at different viewport sizes
-
-#### 3. Look for Test-Friendly Attributes
-
-Prioritize selectors in this order:
-
-```typescript
-// ✅ Best: Test-specific attributes
-page.getByTestId('album-thumbnail');
-page.getByRole('button', { name: 'Upload Photo' });
-
-// ✅ Good: Semantic attributes
-page.getByRole('link', { name: /home/i });
-page.getByLabel('Search photos');
-
-// ⚠️ Okay: Stable CSS classes (if semantic attributes unavailable)
-page.locator('.album-grid');
-
-// ❌ Avoid: Generic or implementation-specific selectors
-page.locator('div.css-xyz123');
-page.locator('button:nth-child(3)');
-```
-
-#### 4. Verify Routes Exist
-
-Check routing structure before writing navigation tests:
-
-```typescript
-// Check actual routes in src/routes/ directory
-// Don't assume URLs like '/albums/123' exist without verification
-```
-
-### E2E Test Structure
-
-#### Arrange-Act-Assert for E2E
-
-```typescript
-test('should navigate through photo gallery', async ({ page }) => {
-    // Arrange: Set up initial state
-    await page.goto('/');
-
-    // Act: Perform user interactions
-    await page.getByRole('link', { name: /albums/i }).click();
-    await page.getByTestId('album-thumbnail').first().click();
-
-    // Assert: Verify expected outcomes
-    await expect(page).toHaveURL(/\/album\/\d+/);
-    await expect(page.getByRole('heading')).toBeVisible();
-});
-```
-
-#### Wait for Dynamic Content
-
-```typescript
-// ✅ Good: Wait for specific content
-await page.waitForLoadState('networkidle');
-await expect(page.getByTestId('photo-grid')).toBeVisible();
-
-// ✅ Good: Wait for API calls to complete
-await page.waitForResponse((response) => response.url().includes('/api/albums'));
-
-// ❌ Bad: Arbitrary waits
-await page.waitForTimeout(2000);
-```
-
-#### Mobile-Responsive Testing
-
-```typescript
-test('should work on mobile devices', async ({ page }) => {
-    // Set mobile viewport
-    await page.setViewportSize({ width: 375, height: 667 });
-
-    await page.goto('/');
-
-    // Test mobile-specific UI elements
-    await expect(page.getByTestId('mobile-menu-toggle')).toBeVisible();
-    await expect(page.getByTestId('desktop-nav')).not.toBeVisible();
-});
-```
+The site is entirely client-rendered, so nothing is present on load. And an
+image in the DOM is not an image that loaded, which is why `expectImageLoaded()`
+checks `naturalWidth`.
