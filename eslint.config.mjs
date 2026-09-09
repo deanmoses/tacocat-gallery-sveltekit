@@ -151,6 +151,7 @@ export default ts.config(
             '@typescript-eslint/no-useless-constructor': 'error',
             '@typescript-eslint/no-useless-empty-export': 'error',
             '@typescript-eslint/parameter-properties': 'error',
+            '@typescript-eslint/prefer-enum-initializers': 'error',
             '@typescript-eslint/prefer-for-of': 'error',
             '@typescript-eslint/prefer-function-type': 'error',
             '@typescript-eslint/prefer-literal-enum-member': 'error',
