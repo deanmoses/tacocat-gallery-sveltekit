@@ -19,7 +19,7 @@ class SearchStore {
     /**
      * Private writable store of search results
      */
-    #searches = new SvelteMap<SearchQuery, Search>();
+    readonly #searches = new SvelteMap<SearchQuery, Search>();
 
     /**
      * Public read-only version of store
@@ -30,11 +30,7 @@ class SearchStore {
      * Do the search
      */
     search(query: SearchQuery): void {
-        // Remove any undefined keys, simply to make logging cleaner
-        for (const key in query) {
-            const k = key as keyof SearchQuery;
-            if (query[k] === undefined) delete query[k];
-        }
+        this.#removeUndefinedKeys(query);
         // Get or create the writable version of the search
         const searchEntry = this.#getOrCreateWritableStore(query);
         // I don't have a copy in memory.  Go get it
@@ -50,11 +46,7 @@ class SearchStore {
      * @param startAt The number result from which to start fetching
      */
     getMore(query: SearchQuery, startAt: number): void {
-        // Remove any undefined keys, simply to make logging cleaner
-        for (const key in query) {
-            const k = key as keyof SearchQuery;
-            if (query[k] === undefined) delete query[k];
-        }
+        this.#removeUndefinedKeys(query);
         console.log(`Getting more results...`, query, startAt);
         this.#getOrCreateWritableStore(query);
         this.#setLoadStatus(query, SearchLoadStatus.LOADING_MORE_RESULTS);
@@ -62,11 +54,23 @@ class SearchStore {
     }
 
     /**
+     * Drop keys that are present but undefined, simply to make logging cleaner.
+     *
+     * Mutates in place rather than returning a copy: the query object itself is
+     * the key a search is stored under, so a copy would never find the search again.
+     */
+    #removeUndefinedKeys(query: SearchQuery): void {
+        if (query.oldestYear === undefined) delete query.oldestYear;
+        if (query.newestYear === undefined) delete query.newestYear;
+        if (query.oldestFirst === undefined) delete query.oldestFirst;
+    }
+
+    /**
      * Fetch search results from server
      *
      * @param startAt The number result from which to start fetching
      */
-    #fetchFromServer(query: SearchQuery, startAt: number = 0): void {
+    #fetchFromServer(query: SearchQuery, startAt = 0): void {
         const pageSize = 30;
         fetch(searchUrl(query, startAt, pageSize))
             .then((response: Response) => {
@@ -117,6 +121,7 @@ class SearchStore {
                 this.#setLoadStatus(query, SearchLoadStatus.ERROR_LOADING_MORE_RESULTS);
                 break;
             case SearchLoadStatus.ERROR_LOADING:
+            case SearchLoadStatus.ERROR_LOADING_MORE_RESULTS:
                 // already in correct state
                 break;
             default:

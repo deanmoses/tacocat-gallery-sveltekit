@@ -5,7 +5,7 @@ import {
     YEAR_ALBUM_URL,
     expectImageLoaded,
     openNewestThumbnail,
-} from './test-support/gallery';
+} from '$lib/test-support/e2e/gallery';
 
 test.describe('Smoke test', () => {
     test('page includes noindex meta tag', async ({ page }) => {

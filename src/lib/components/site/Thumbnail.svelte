@@ -82,7 +82,7 @@
                 <CropIcon width="10em" height="10em" />
             </div>{:else if unpublished}<div class="icon-overlay">
                 <UnpublishedIcon width="3em" height="3em" />
-            </div>{/if}{#if isVideo && imageLoaded}<div class="play-overlay">
+            </div>{/if}{#if isVideo && imageLoaded}<div class="play-overlay" data-testid="play-overlay">
                 <PlayButtonIcon size="3em" />
             </div>{/if}</a
     ><a {href}>{title}</a>
@@ -142,12 +142,9 @@
         align-items: center;
         justify-content: center;
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        color: rgba(255, 255, 255, 0.85);
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+        inset: 0;
+        color: rgb(255 255 255 / 85%);
+        filter: drop-shadow(0 2px 4px rgb(0 0 0 / 50%));
         pointer-events: none;
     }
 

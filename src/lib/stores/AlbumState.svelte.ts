@@ -14,11 +14,11 @@ import { SvelteMap } from 'svelte/reactivity';
  */
 class AlbumState {
     editMode = $state(false);
-    albums = $state(new SvelteMap<string, AlbumEntry>());
+    albums = new SvelteMap<string, AlbumEntry>();
     albumUpdates = new SvelteMap<string, ReloadStatus>();
     albumCreates = new SvelteMap<string, CreateEntry>();
     albumRenames = new SvelteMap<string, RenameEntry>();
-    albumDeletes = $state(new SvelteMap<string, DeleteEntry>());
+    albumDeletes = new SvelteMap<string, DeleteEntry>();
     mediaRenames = new SvelteMap<string, RenameEntry>();
     mediaDeletes = new SvelteMap<string, DeleteEntry>();
     crops = new SvelteMap<string, CropEntry>();

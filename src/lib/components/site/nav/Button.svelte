@@ -26,15 +26,13 @@
 
     span {
         height: 100%;
-
         display: flex;
         justify-content: center;
         align-items: center;
         column-gap: 0.2em;
-
         background-color: var(--button-color);
         color: var(--default-text-color);
-        border: 1px solid #ccc;
+        border: 1px solid #cccccc;
         text-decoration: none;
         padding: 6px 12px;
     }
@@ -44,7 +42,7 @@
     }
 
     a[aria-disabled] span {
-        color: #ccc;
+        color: #cccccc;
         cursor: not-allowed;
         opacity: 0.65;
     }

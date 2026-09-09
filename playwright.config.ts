@@ -10,7 +10,11 @@ import { defineConfig, devices } from '@playwright/test';
  * Set BASE_URL env var to override the target URL.
  */
 export default defineConfig({
-    testDir: './tests',
+    // E2E specs sit beside the code they exercise and are identified by
+    // extension, not location: `.e2e.ts` for Playwright, `.spec.ts` for Vitest.
+    // testDir only narrows the scan; the extension is what selects.
+    testDir: './src',
+    testMatch: '**/*.e2e.{ts,js}',
 
     // Generous, because a live environment means several network hops and the
     // specs walk real album data

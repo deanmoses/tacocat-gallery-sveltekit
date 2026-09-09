@@ -20,10 +20,8 @@
 <style>
     div {
         text-align: center;
-
         padding-top: 5em;
         padding-bottom: 5em;
-
         background-color: white;
         color: var(--default-text-color);
     }

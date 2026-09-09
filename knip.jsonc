@@ -1,0 +1,12 @@
+{
+    "$schema": "https://unpkg.com/knip@6/schema.json",
+
+    // System tools, deliberately not npm dependencies
+    "ignoreBinaries": ["shellcheck", "actionlint"],
+
+    // Exported types here name the shape of a public member -- the element type
+    // of a store's `state` map, the interface an Album extends -- or describe
+    // the server contract in models/impl/server.ts. Being imported nowhere says
+    // nothing about whether they should be exported.
+    "exclude": ["types"],
+}

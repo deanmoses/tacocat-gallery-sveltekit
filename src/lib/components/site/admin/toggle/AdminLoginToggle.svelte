@@ -27,8 +27,8 @@
         padding: 0.5em;
         border-bottom: 1px solid black;
         border-bottom-right-radius: 8px;
-        background-color: rgb(65, 64, 64);
-        color: rgb(211, 211, 211);
+        background-color: rgb(65 64 64);
+        color: rgb(211 211 211);
         display: none; /* will be overridden on hover */
     }
 
@@ -43,6 +43,7 @@
         0% {
             opacity: 0;
         }
+
         100% {
             opacity: 1;
         }

@@ -29,6 +29,7 @@
             height: 1em;
             width: 1em;
         }
+
         100% {
             height: 2em;
             width: 2em;
@@ -36,6 +37,6 @@
     }
 
     path {
-        fill: currentcolor;
+        fill: currentColor;
     }
 </style>

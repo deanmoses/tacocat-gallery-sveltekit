@@ -79,31 +79,38 @@ private async fetchUserStatusInternal(): Promise<void> { }
 
 ### State and Derived Exposure
 
-- Use `$state()` for mutable internal state
-- Never expose `$state` fields directly
-- Always expose via `$derived()` for public read access
+Hold state in a `#`-private `$state` field and expose it through a public `$derived`. This keeps the writable surface inside the class, so the state transition methods are the obvious way to change anything.
 
 ```typescript
 // GOOD
 #isAdmin = $state(false);
 isAdmin = $derived(this.#isAdmin);
 
-// BAD - exposes mutable state
-isAdmin = $state(false); // public mutable!
+// BAD - no separation between the readable and the writable surface
+isAdmin = $state(false);
 ```
+
+A convention, not a guarantee: deriveds are writable since Svelte 5.25, so `sessionStore.isAdmin = true` compiles and holds until a dependency changes. Enforcing it would take `readonly` (caught by `svelte-check` only) or a `get` accessor over a private field (caught at runtime too), and neither stops mutation through the returned reference — so we don't.
+
+`AlbumState` is outside this rule. It is a plain container of shared state that the machines write to directly, not a store with its own transition methods.
 
 ### Collections with SvelteMap
 
 Use `SvelteMap` from `svelte/reactivity` for reactive key-value collections, not plain `Map` or objects.
 
+A `SvelteMap` carries its own reactivity, so it needs no `$state`. Wrapping one is a no-op: `$state` proxies plain objects and arrays, and returns anything else — including a class instance — untouched. Wrap only if the field itself is reassigned to a different map.
+
 ```typescript
 import { SvelteMap } from 'svelte/reactivity';
 
 // GOOD
-albums = $state(new SvelteMap<string, AlbumEntry>());
+albums = new SvelteMap<string, AlbumEntry>();
 
 // BAD - not reactive
 albums = $state(new Map<string, AlbumEntry>());
+
+// BAD - the $state does nothing
+albums = $state(new SvelteMap<string, AlbumEntry>());
 ```
 
 ## Error Handling

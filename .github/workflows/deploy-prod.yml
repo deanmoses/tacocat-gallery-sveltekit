@@ -32,8 +32,21 @@ jobs:
             - name: Lint
               run: npm run lint
 
+            # shellcheck is preinstalled on GitHub's ubuntu runners
+            - name: Lint shell scripts
+              run: npm run lint:shell
+
             - name: Type check
               run: npm run check
+
+            - name: Cache Playwright browsers
+              uses: actions/cache@v6
+              with:
+                  path: ~/.cache/ms-playwright
+                  key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+            - name: Install Playwright browsers
+              run: npx playwright install --with-deps chromium
 
             - name: Unit tests
               run: npm run test:unit
@@ -142,13 +155,13 @@ jobs:
                       new_tag="${year}v1"
                   else
                       # Extract version number and increment
-                      version_num=${latest_tag#${year}v}
+                      version_num=${latest_tag#"${year}"v}
                       new_version=$((version_num + 1))
                       new_tag="${year}v${new_version}"
                   fi
 
                   echo "Creating tag: $new_tag"
-                  echo "tag=$new_tag" >> $GITHUB_OUTPUT
+                  echo "tag=$new_tag" >> "$GITHUB_OUTPUT"
 
                   git config user.name "github-actions[bot]"
                   git config user.email "github-actions[bot]@users.noreply.github.com"

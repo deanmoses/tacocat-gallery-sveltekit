@@ -1,0 +1,5 @@
+{
+    // Rules live in .markdownlint.json so the editor extension reads them too.
+    "globs": ["**/*.md"],
+    "ignores": [".git", "node_modules", "build", ".svelte-kit", "coverage", "playwright-report", "test-results"],
+}

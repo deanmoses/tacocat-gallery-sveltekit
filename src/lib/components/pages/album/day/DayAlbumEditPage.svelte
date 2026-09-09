@@ -101,17 +101,21 @@
     div {
         cursor: not-allowed;
     }
+
     :global(.thumbnail:hover .notSelected) {
         animation: fadeIn 1400ms;
         display: inherit;
     }
+
     @keyframes fadeIn {
         0% {
             opacity: 0;
         }
+
         25% {
             opacity: 0;
         }
+
         100% {
             opacity: 1;
         }

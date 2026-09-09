@@ -93,7 +93,7 @@
         object-fit: contain;
         width: 100%;
         height: 100%;
-        background-color: #000;
+        background-color: #000000;
     }
 
     .play-overlay {
@@ -101,8 +101,8 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        color: rgba(255, 255, 255, 0.9);
-        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+        color: rgb(255 255 255 / 90%);
+        filter: drop-shadow(0 2px 8px rgb(0 0 0 / 60%));
         transition: transform 0.15s ease;
     }
 
@@ -114,7 +114,7 @@
         position: absolute;
         bottom: 0.5em;
         right: 0.5em;
-        background: rgba(0, 0, 0, 0.75);
+        background: rgb(0 0 0 / 75%);
         color: white;
         padding: 0.2em 0.5em;
         border-radius: 0.25em;

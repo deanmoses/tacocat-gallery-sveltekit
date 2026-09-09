@@ -15,9 +15,9 @@ import type { Album } from '$lib/models/GalleryItemInterfaces';
 import type { AlbumGalleryItem, ImageRecord, MediaRecord, VideoRecord } from '$lib/models/impl/server';
 
 /** The album every fixture sits in, unless a spec is about paths themselves */
-export const ROOT_ALBUM_PATH = '/';
-export const YEAR_ALBUM_PATH = '/2001/';
-export const DAY_ALBUM_PATH = '/2001/12-31/';
+const ROOT_ALBUM_PATH = '/';
+const YEAR_ALBUM_PATH = '/2001/';
+const DAY_ALBUM_PATH = '/2001/12-31/';
 
 export function mediaPath(fileName: string): string {
     return `${DAY_ALBUM_PATH}${fileName}`;

@@ -112,23 +112,28 @@
         background-color: white;
         padding: var(--default-padding);
     }
+
     section.noResults {
         display: flex;
         justify-content: center;
     }
+
     label {
         white-space: nowrap;
     }
+
     .yearInput {
         width: 8em;
     }
+
     .result-count {
-        color: var(--muted-text-color, #666);
+        color: var(--muted-text-color, #666666);
     }
+
     .load-status {
         width: 100%;
         text-align: center;
         padding: 1em;
-        color: var(--muted-text-color, #666);
+        color: var(--muted-text-color, #666666);
     }
 </style>

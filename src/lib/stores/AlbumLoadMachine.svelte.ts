@@ -284,7 +284,7 @@ class AlbumLoadMachine {
      * @returns key of the album in IndexedDB
      */
     #idbKey(path: string): string {
-        return `${path}`;
+        return path;
     }
 
     /**

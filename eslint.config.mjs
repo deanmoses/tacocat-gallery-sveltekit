@@ -1,6 +1,8 @@
 // @ts-check
 
+import path from 'node:path';
 import js from '@eslint/js';
+import { defineConfig, includeIgnoreFile } from 'eslint/config';
 import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
 import ts from 'typescript-eslint';
@@ -8,7 +10,14 @@ import svelteConfig from './svelte.config.js';
 import vitest from '@vitest/eslint-plugin';
 import playwright from 'eslint-plugin-playwright';
 
-export default ts.config(
+const gitignorePath = path.resolve(import.meta.dirname, '.gitignore');
+
+export default defineConfig(
+    // Everything git ignores here is generated -- build output, coverage
+    // reports, test artifacts -- and none of it is in the tsconfig, so the
+    // type-aware parser fails on anything it reaches. Deriving the list from
+    // .gitignore keeps the two from drifting as new artifact directories appear.
+    includeIgnoreFile(gitignorePath),
     js.configs.recommended,
     ...ts.configs.recommended,
     ...svelte.configs['flat/recommended'],
@@ -34,7 +43,9 @@ export default ts.config(
                     allowDefaultProject: [
                         'eslint.config.mjs',
                         'svelte.config.js',
+                        'stylelint.config.js',
                         'playwright.config.ts',
+                        'prettier.config.ts',
                         'scripts/*.mjs',
                         'src/service-worker.ts',
                     ],
@@ -123,22 +134,38 @@ export default ts.config(
             '@typescript-eslint/ban-tslint-comment': 'error',
             '@typescript-eslint/consistent-generic-constructors': 'error',
             '@typescript-eslint/consistent-indexed-object-style': 'error',
+            '@typescript-eslint/consistent-type-assertions': 'error',
             '@typescript-eslint/default-param-last': 'error',
+            '@typescript-eslint/init-declarations': 'error',
+            '@typescript-eslint/max-params': 'error',
             '@typescript-eslint/no-confusing-non-null-assertion': 'error',
             '@typescript-eslint/no-dupe-class-members': 'error',
+            '@typescript-eslint/no-empty-function': 'error',
             '@typescript-eslint/no-empty-object-type': 'error',
             '@typescript-eslint/no-extraneous-class': 'error',
             '@typescript-eslint/no-import-type-side-effects': 'error',
+            '@typescript-eslint/no-inferrable-types': 'error',
+            '@typescript-eslint/no-invalid-this': 'error',
+            '@typescript-eslint/no-dynamic-delete': 'error',
+            '@typescript-eslint/no-invalid-void-type': 'error',
             '@typescript-eslint/no-loop-func': 'error',
+            '@typescript-eslint/no-non-null-asserted-nullish-coalescing': 'error',
+            'no-redeclare': 'off',
+            '@typescript-eslint/no-redeclare': 'error',
             '@typescript-eslint/no-require-imports': 'error',
             '@typescript-eslint/no-unnecessary-parameter-property-assignment': 'error',
             '@typescript-eslint/no-unnecessary-type-constraint': 'error',
             '@typescript-eslint/no-unsafe-declaration-merging': 'error',
+            'no-unused-private-class-members': 'off',
+            '@typescript-eslint/no-unused-private-class-members': 'error',
             '@typescript-eslint/no-useless-constructor': 'error',
             '@typescript-eslint/no-useless-empty-export': 'error',
+            '@typescript-eslint/parameter-properties': 'error',
+            '@typescript-eslint/prefer-enum-initializers': 'error',
             '@typescript-eslint/prefer-for-of': 'error',
             '@typescript-eslint/prefer-function-type': 'error',
             '@typescript-eslint/prefer-literal-enum-member': 'error',
+            '@typescript-eslint/unified-signatures': 'error',
         },
     },
     {
@@ -153,6 +180,7 @@ export default ts.config(
             '@typescript-eslint/no-unsafe-unary-minus': 'error',
             'prefer-promise-reject-errors': 'off',
             '@typescript-eslint/prefer-promise-reject-errors': 'error',
+            '@typescript-eslint/return-await': 'error',
 
             // Runtime errors the checker can prove
             '@typescript-eslint/no-array-delete': 'error',
@@ -161,7 +189,10 @@ export default ts.config(
             '@typescript-eslint/no-implied-eval': 'error',
             '@typescript-eslint/no-misused-spread': 'error',
             '@typescript-eslint/no-mixed-enums': 'error',
+            '@typescript-eslint/no-unsafe-enum-comparison': 'error',
+            '@typescript-eslint/require-array-sort-compare': 'error',
             '@typescript-eslint/restrict-plus-operands': 'error',
+            '@typescript-eslint/switch-exhaustiveness-check': 'error',
             '@typescript-eslint/unbound-method': 'error',
 
             // Guardrail against silently inheriting `any` from a dependency
@@ -171,17 +202,27 @@ export default ts.config(
             '@typescript-eslint/no-deprecated': 'error',
 
             // Dead type-level code
+            '@typescript-eslint/no-duplicate-type-constituents': 'error',
             '@typescript-eslint/no-generated-empty-object-type': 'error',
             '@typescript-eslint/no-redundant-type-constituents': 'error',
             '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'error',
+            '@typescript-eslint/no-unnecessary-qualifier': 'error',
+            '@typescript-eslint/no-unnecessary-template-expression': 'error',
+            '@typescript-eslint/no-unnecessary-type-assertion': 'error',
             '@typescript-eslint/no-unnecessary-type-arguments': 'error',
             '@typescript-eslint/no-unnecessary-type-conversion': 'error',
             '@typescript-eslint/no-unnecessary-type-parameters': 'error',
+
+            // Consistency rules the checker has to resolve
+            '@typescript-eslint/consistent-return': 'error',
+            '@typescript-eslint/consistent-type-exports': 'error',
+            '@typescript-eslint/related-getter-setter-pairs': 'error',
 
             // Modern stdlib usage
             'dot-notation': 'off',
             '@typescript-eslint/dot-notation': 'error',
             '@typescript-eslint/prefer-find': 'error',
+            '@typescript-eslint/prefer-readonly': 'error',
             '@typescript-eslint/prefer-includes': 'error',
             '@typescript-eslint/prefer-reduce-type-parameter': 'error',
             '@typescript-eslint/prefer-regexp-exec': 'error',
@@ -221,12 +262,18 @@ export default ts.config(
         },
     },
     {
-        // .svelte.ts files can hold module-level runes, which must stay `let`.
-        // Core prefer-const (on for **/*.ts via typescript-eslint) is not
-        // rune-aware, so svelte/prefer-const governs these files instead.
-        files: ['**/*.svelte.ts'],
+        // The `.svelte.` infix makes the compiler grant a file runes, and a
+        // rune-bound `let` has to stay `let`; core prefer-const is not rune-aware,
+        // so the Svelte one governs instead. Named here rather than inherited
+        // from the Svelte rules block because svelte-eslint-parser script-parses
+        // only the bare `.svelte.ts` suffix -- a `.svelte.spec.ts` gets the
+        // TypeScript parser, under which that block's other rules are inert or
+        // actively wrong: prefer-destructured-store-props reads every rune member
+        // expression, `$state.snapshot` and friends, as a store property access.
+        files: ['**/*.svelte.ts', '**/*.svelte.spec.ts'],
         rules: {
             'prefer-const': 'off',
+            'svelte/prefer-const': 'error',
         },
     },
     {
@@ -370,12 +417,13 @@ export default ts.config(
         },
     },
     {
-        // Playwright e2e specs. The vitest block above is scoped to src/ and
-        // this one to tests/, so the two plugins never see each other's files.
-        // Every file under tests/, not just the specs: a locator moved into a
-        // helper is still a locator, and the rules below are the reason to
-        // trust it.
-        files: ['tests/**/*.ts'],
+        // Playwright e2e specs. Both plugins now live under src/, so the split
+        // is by extension: the vitest block takes `.spec.ts` and this one takes
+        // `.e2e.ts`, and the two never see each other's files.
+        // The shared helpers are in scope too, not just the specs: a locator
+        // moved into a helper is still a locator, and the rules below are the
+        // reason to trust it.
+        files: ['src/**/*.e2e.ts', 'src/lib/test-support/e2e/**/*.ts'],
         plugins: { playwright },
         rules: {
             // Destructured rather than spread as a whole config, for the same
@@ -451,7 +499,7 @@ export default ts.config(
         // modules sit on the server types, so `import type` has to be caught
         // too.
         files: ['src/**/*.{ts,svelte}'],
-        ignores: ['src/**/*.spec.ts', 'src/lib/test-support/**'],
+        ignores: ['src/**/*.spec.ts', 'src/**/*.e2e.ts', 'src/lib/test-support/**'],
         rules: {
             '@typescript-eslint/no-restricted-imports': [
                 'error',
@@ -459,16 +507,12 @@ export default ts.config(
                     patterns: [
                         {
                             group: ['$lib/test-support/*', '**/test-support/*'],
-                            message: 'test-support holds spec fixtures; import it only from a .spec.ts file.',
+                            message:
+                                'test-support holds test fixtures; import it only from a .spec.ts or .e2e.ts file.',
                         },
                     ],
                 },
             ],
         },
-    },
-    {
-        // coverage/ holds istanbul's own report scripts, which are outside the
-        // tsconfig and fail the type-aware parser
-        ignores: ['build/**', '.svelte-kit/**', 'package/**', 'coverage/**'],
     },
 );

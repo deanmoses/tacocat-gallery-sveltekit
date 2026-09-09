@@ -1,0 +1,47 @@
+# The main CI workflow ignores markdown paths, so a docs-only change skips it
+# entirely. Linting docs there instead would mean a typo fix triggering a
+# staging deploy, so markdown gets this separate, build-free workflow.
+name: Lint docs
+
+on:
+    push:
+        branches: [main]
+        paths:
+            - '**.md'
+            - '.markdownlint.jsonc'
+            - '.markdownlint-cli2.jsonc'
+    pull_request:
+        branches: [main]
+        paths:
+            - '**.md'
+            - '.markdownlint.jsonc'
+            - '.markdownlint-cli2.jsonc'
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+env:
+    HUSKY: 0
+
+jobs:
+    markdownlint:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v7
+              with:
+                  persist-credentials: false
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version: '24'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci --ignore-scripts
+
+            - name: Lint markdown
+              run: npx markdownlint-cli2

@@ -47,14 +47,17 @@
         top: 10px;
         left: 10px;
     }
+
     .selected,
     .selecting {
         color: yellow;
     }
+
     .notSelected {
         color: white;
         display: none;
     }
+
     .notSelected:hover {
         color: yellow;
     }

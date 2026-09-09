@@ -29,7 +29,7 @@
 
 <style>
     .editing-controls-container {
-        background-color: rgb(65, 64, 64);
+        background-color: rgb(65 64 64);
         border-bottom: 1px solid black;
     }
 
@@ -39,7 +39,7 @@
         align-items: center;
         gap: 1em;
         padding: 0.5em;
-        color: rgb(211, 211, 211);
+        color: rgb(211 211 211);
         animation: fadeIn 600ms;
     }
 
@@ -47,6 +47,7 @@
         0% {
             opacity: 0;
         }
+
         100% {
             opacity: 1;
         }

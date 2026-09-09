@@ -54,6 +54,6 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: rgba(255, 255, 255, 0.5);
+        background-color: rgb(255 255 255 / 50%);
     }
 </style>

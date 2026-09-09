@@ -58,8 +58,8 @@ function getUrlToNavigateTo(key: KeyboardEvent['key'], path: string, getAlbum: G
 }
 
 enum Direction {
-    Next,
-    Prev,
+    Next = 'Next',
+    Prev = 'Prev',
 }
 
 /**

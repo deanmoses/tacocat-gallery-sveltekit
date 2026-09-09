@@ -2,12 +2,15 @@
 
 ## Layout
 
-|            |                                                                        |
-| ---------- | ---------------------------------------------------------------------- |
-| Unit tests | `src/**/*.spec.ts`, beside the module they cover                       |
-| E2E tests  | `tests/*.spec.ts`, run by Playwright                                   |
-| Commands   | `npm test` (quiet), `npm run test:unit` (verbose), `npm run test:e2e`  |
-| Coverage   | `npm run test:coverage` to find gaps, `coverage/index.html` for detail |
+|               |                                                                        |
+| ------------- | ---------------------------------------------------------------------- |
+| Unit tests    | `src/**/*.spec.ts`, run by Vitest in node                              |
+| Browser tests | `src/**/*.svelte.spec.ts`, run by Vitest in headless Chromium          |
+| E2E tests     | `src/**/*.e2e.ts`, run by Playwright                                   |
+| Commands      | `npm test` (quiet), `npm run test:unit` (verbose), `npm run test:e2e`  |
+| Coverage      | `npm run test:coverage` to find gaps, `coverage/index.html` for detail |
+
+`.svelte.` in a spec name means the spec itself compiles runes and needs the client build. Use the cheapest runtime that can run a test. A `Foo.svelte.ts` might get two files, `Foo.spec.ts` for transitions and `Foo.svelte.spec.ts` for reactivity. Testing `$effect` requires browser.
 
 ## Naming
 
@@ -120,7 +123,7 @@ Stores split into state transition methods and service methods (see `CLAUDE.md`)
 - **State transition methods** are synchronous and are the only way state changes. They need no mocking — runes work outside a component, so a `.svelte.ts` store can be imported and driven directly. Cover these first.
 - **Service methods** are async and reach into the API and other stores. Covering them means standing those up: worth doing, but a different size of job. Say so in the file rather than leaving it looking overlooked.
 
-Stores are exported as singletons, so a spec resets in `beforeEach` rather than constructing one. `DraftMachine.svelte.spec.ts` is the worked example.
+Stores are exported as singletons, so a spec resets in `beforeEach` rather than constructing one. `DraftMachine.spec.ts` is the worked example.
 
 ## End-to-End tests with Playwright
 
@@ -142,7 +145,7 @@ const [thumbnail] = await thumbnails.all();
 
 The site is entirely client-rendered, so nothing is present on load and every assertion must wait. Waits are set once in `playwright.config.ts` — `expect.timeout` and `navigationTimeout` — rather than per assertion, so a new spec inherits them and an inline timeout means the spec has a reason.
 
-Shared e2e helpers live in `tests/test-support/`.
+Shared e2e helpers live in `src/lib/test-support/e2e/`.
 
 Wrap a journey in steps: walk through several pages in one test rather than several independent ones, because a later page is usually only reachable by arriving from the earlier one. `test.step` is then what says where it failed.
 

@@ -20,8 +20,8 @@
 
     let { media }: Props = $props();
     let mediaTitle: string = $derived(media.title);
-    let cropStatus: string = $derived(albumState.crops.get(media.path)?.status ?? 'NOT_CROPPING');
-    let disableButtons: boolean = $derived(cropStatus == CropStatus.IN_PROGRESS);
+    let cropStatus: CropStatus | undefined = $derived(albumState.crops.get(media.path)?.status);
+    let disableButtons: boolean = $derived(cropStatus === CropStatus.IN_PROGRESS);
     let cropper = $state() as CropThumbnail;
 
     function onCancel() {
