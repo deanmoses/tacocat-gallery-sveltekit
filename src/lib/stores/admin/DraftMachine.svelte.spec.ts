@@ -122,6 +122,18 @@ describe('draftMachine', () => {
             expect(draftMachine.draft.content).toStrictEqual({});
             expect(draftMachine.status).toBe(DraftStatus.NO_CHANGES);
         });
+
+        // Cancelling resets to the module's initial state, placeholder path and
+        // all, so it forgets what was being edited rather than returning that
+        // draft to untouched. Nothing breaks today because cancelling leaves
+        // edit mode, and re-entering it re-inits on the current URL -- but an
+        // edit made between the two would be saved against /1800. Asserted as
+        // the behaviour that is, not the behaviour that was intended.
+        it('forgets the path it was editing', () => {
+            draftMachine.cancel();
+
+            expect(draftMachine.draft.path).not.toBe(ALBUM_PATH);
+        });
     });
 
     describe('okToNavigate', () => {
