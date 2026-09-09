@@ -45,6 +45,7 @@ export default defineConfig(
                         'svelte.config.js',
                         'stylelint.config.js',
                         'playwright.config.ts',
+                        'prettier.config.ts',
                         'scripts/*.mjs',
                         'src/service-worker.ts',
                     ],
