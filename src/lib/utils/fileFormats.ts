@@ -61,7 +61,7 @@ function hasExtension(fileName: string, extensions: string[]): boolean {
 }
 
 /** Get handler for a file, if any applies */
-export function getHandler(fileName: string): FileFormatHandler | undefined {
+function getHandler(fileName: string): FileFormatHandler | undefined {
     return handlers.find((h) => hasExtension(fileName, h.extensions));
 }
 
