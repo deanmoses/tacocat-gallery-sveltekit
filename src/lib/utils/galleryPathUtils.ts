@@ -147,7 +147,7 @@ export function sanitizeDayAlbumName(albumName: string): string {
  *
  *  @param {String} path a path of the format /2001/12-31/image.jpg, or a subset thereof
  */
-export function getParentAndNameFromPath(path: string) {
+export function getParentAndNameFromPath(path: string): { parent: string; name: string } {
     if (!path) throw new Error('Invalid path: cannot be empty');
     path = path.trim();
     if (!path) throw new Error('Invalid path: cannot be empty');
@@ -156,6 +156,13 @@ export function getParentAndNameFromPath(path: string) {
     const pathParts = path.split('/'); // split the path apart
     if (!pathParts[pathParts.length - 1]) pathParts.pop(); // if the path ended in a "/", remove the blank path part at the end
     const name = pathParts.pop(); // remove leaf of path
+    // Unreachable. Every valid path starts with a slash, so split() yields a
+    // leading '' plus at least one segment: 3 parts minimum for a non-root path
+    // ('/' having returned above), leaving 2 after the trailing-blank pop. So
+    // this pop always finds one. A throw rather than a fallback because that
+    // guarantee lives in isValidPath(), not here, and loosening it there should
+    // fail loudly instead of quietly yielding an empty name.
+    if (name === undefined) throw new Error(`Invalid path: [${path}]`);
     path = pathParts.join('/');
     if (!path.endsWith('/')) path = path + '/';
     if (!path.startsWith('/')) path = '/' + path;
@@ -199,7 +206,7 @@ export function getParentFromPath(path: string): string {
  * @param path a path of the format /2001/12-31/image.jpg, or a subset thereof
  * @returns name of leaf, like image.jpg
  */
-export function getNameFromPath(path: string): string | undefined {
+export function getNameFromPath(path: string): string {
     return getParentAndNameFromPath(path).name;
 }
 

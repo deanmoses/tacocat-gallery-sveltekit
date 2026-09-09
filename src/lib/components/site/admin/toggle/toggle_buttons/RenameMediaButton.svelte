@@ -25,14 +25,12 @@
 
     function originalMediaName(): string {
         const mediaName = getNameFromPath(mediaPath);
-        if (!mediaName) throw 'no mediaName';
         const mediaNameWithoutExtension = mediaName.split('.')[0];
         return mediaNameWithoutExtension;
     }
 
     function fileExtension(): string {
         const mediaName = getNameFromPath(mediaPath);
-        if (!mediaName) throw 'no mediaName';
         const extension = '.' + mediaName.split('.')[1];
         return extension;
     }
