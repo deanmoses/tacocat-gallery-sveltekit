@@ -13,135 +13,55 @@ import {
     isValidMediaPath,
     isValidMediaNameWithoutExtensionStrict,
     IMAGE_EXTENSIONS,
+    VIDEO_EXTENSIONS,
     albumPathToDate,
     getParentAndNameFromPath,
     getParentFromPath,
     getNameFromPath,
 } from './galleryPathUtils';
 
-describe(sanitizeMediaFilename, () => {
-    // Basic transformations
-    it('converts to lowercase', () => {
-        expect(sanitizeMediaFilename('IMAGE.JPG')).toBe('image.jpg');
-        expect(sanitizeMediaFilename('Photo.PNG')).toBe('photo.png');
+/** Every extension the gallery accepts, in the order the module lists them */
+const MEDIA_EXTENSIONS = [...IMAGE_EXTENSIONS, ...VIDEO_EXTENSIONS];
+
+describe(hasValidMediaExtension, () => {
+    // Derived from the extension lists, so an extension added to either one is
+    // held to this contract rather than being accepted untested
+    it.each(MEDIA_EXTENSIONS)('accepts .%s', (ext) => {
+        expect(hasValidMediaExtension(`photo.${ext}`)).toBe(true);
     });
 
-    it('converts .jpeg to .jpg', () => {
-        expect(sanitizeMediaFilename('photo.jpeg')).toBe('photo.jpg');
-        expect(sanitizeMediaFilename('PHOTO.JPEG')).toBe('photo.jpg');
+    it.each(MEDIA_EXTENSIONS)('accepts .%s spelled in upper case', (ext) => {
+        expect(hasValidMediaExtension(`photo.${ext.toUpperCase()}`)).toBe(true);
     });
 
-    // Invalid character handling
-    it('converts spaces to underscores', () => {
-        expect(sanitizeMediaFilename('my photo.jpg')).toBe('my_photo.jpg');
-        expect(sanitizeMediaFilename('my  photo.jpg')).toBe('my_photo.jpg');
-    });
-
-    it('converts hyphens to underscores', () => {
-        expect(sanitizeMediaFilename('my-photo.jpg')).toBe('my_photo.jpg');
-        expect(sanitizeMediaFilename('my--photo.jpg')).toBe('my_photo.jpg');
-    });
-
-    it('converts special characters to underscores', () => {
-        expect(sanitizeMediaFilename('photo@home.jpg')).toBe('photo_home.jpg');
-        expect(sanitizeMediaFilename('photo#1.jpg')).toBe('photo_1.jpg');
-        expect(sanitizeMediaFilename('photo (1).jpg')).toBe('photo_1.jpg');
-        expect(sanitizeMediaFilename("photo's.jpg")).toBe('photo_s.jpg');
-    });
-
-    // Multiple underscore handling
-    it('collapses multiple underscores to single', () => {
-        expect(sanitizeMediaFilename('my___photo.jpg')).toBe('my_photo.jpg');
-        expect(sanitizeMediaFilename('my - photo.jpg')).toBe('my_photo.jpg');
-    });
-
-    // Leading/trailing underscore handling
-    it('removes leading underscores', () => {
-        expect(sanitizeMediaFilename('_photo.jpg')).toBe('photo.jpg');
-        expect(sanitizeMediaFilename('__photo.jpg')).toBe('photo.jpg');
-        expect(sanitizeMediaFilename('-photo.jpg')).toBe('photo.jpg');
-    });
-
-    it('removes trailing underscores before extension', () => {
-        expect(sanitizeMediaFilename('photo_.jpg')).toBe('photo.jpg');
-        expect(sanitizeMediaFilename('photo__.jpg')).toBe('photo.jpg');
-        expect(sanitizeMediaFilename('photo-.jpg')).toBe('photo.jpg');
-    });
-
-    // Edge cases
-    it('handles empty string', () => {
-        expect(sanitizeMediaFilename('')).toBe('');
-    });
-
-    it('handles already valid names', () => {
-        expect(sanitizeMediaFilename('photo.jpg')).toBe('photo.jpg');
-        expect(sanitizeMediaFilename('my_photo_1.jpg')).toBe('my_photo_1.jpg');
-    });
-
-    it('preserves numbers', () => {
-        expect(sanitizeMediaFilename('photo123.jpg')).toBe('photo123.jpg');
-        expect(sanitizeMediaFilename('123photo.jpg')).toBe('123photo.jpg');
-        expect(sanitizeMediaFilename('photo_1_2_3.jpg')).toBe('photo_1_2_3.jpg');
-    });
-
-    it('handles various extensions', () => {
-        expect(sanitizeMediaFilename('photo.png')).toBe('photo.png');
-        expect(sanitizeMediaFilename('photo.gif')).toBe('photo.gif');
-        expect(sanitizeMediaFilename('photo.PNG')).toBe('photo.png');
-        expect(sanitizeMediaFilename('photo.GIF')).toBe('photo.gif');
-    });
-
-    // Real-world examples from uploads
-    it('handles typical camera/phone filenames', () => {
-        expect(sanitizeMediaFilename('IMG_1234.JPG')).toBe('img_1234.jpg');
-        expect(sanitizeMediaFilename('DSC_0001.jpeg')).toBe('dsc_0001.jpg');
-        expect(sanitizeMediaFilename('Photo 2024-01-15.jpg')).toBe('photo_2024_01_15.jpg');
-        expect(sanitizeMediaFilename('Screenshot 2024-01-15 at 10.30.45 AM.png')).toBe(
-            'screenshot_2024_01_15_at_10_30_45_am.png',
-        );
+    it.each([
+        // Formats the gallery does not take, including one it plausibly might
+        'photo.txt',
+        'photo.pdf',
+        'photo.webp',
+        // An extension is not a filename: something has to precede the dot
+        '.jpg',
+        '.png',
+        '.heic',
+        // A supported extension has to be the last one
+        'photo.jpg.txt',
+        // and has to be an extension at all
+        'photo',
+        'jpg',
+        '',
+    ])('rejects %s', (fileName) => {
+        expect(hasValidMediaExtension(fileName)).toBe(false);
     });
 });
 
-describe(hasValidMediaExtension, () => {
-    it('accepts standard image extensions', () => {
-        expect(hasValidMediaExtension('photo.jpg')).toBe(true);
-        expect(hasValidMediaExtension('photo.jpeg')).toBe(true);
-        expect(hasValidMediaExtension('photo.png')).toBe(true);
-        expect(hasValidMediaExtension('photo.gif')).toBe(true);
-    });
-
-    it('accepts HEIC/HEIF extensions', () => {
-        expect(hasValidMediaExtension('photo.heic')).toBe(true);
-        expect(hasValidMediaExtension('photo.heif')).toBe(true);
-        expect(hasValidMediaExtension('photo.HEIC')).toBe(true);
-        expect(hasValidMediaExtension('photo.HEIF')).toBe(true);
-    });
-
-    it('is case insensitive', () => {
-        expect(hasValidMediaExtension('photo.JPG')).toBe(true);
-        expect(hasValidMediaExtension('photo.PNG')).toBe(true);
-        expect(hasValidMediaExtension('photo.Heic')).toBe(true);
-    });
-
-    it('accepts video extensions', () => {
-        expect(hasValidMediaExtension('video.mp4')).toBe(true);
-        expect(hasValidMediaExtension('video.mov')).toBe(true);
-        expect(hasValidMediaExtension('video.mpg')).toBe(true);
-        expect(hasValidMediaExtension('video.mpeg')).toBe(true);
-        expect(hasValidMediaExtension('video.MPG')).toBe(true);
-        expect(hasValidMediaExtension('video.MPEG')).toBe(true);
-    });
-
-    it('rejects invalid extensions', () => {
-        expect(hasValidMediaExtension('photo.txt')).toBe(false);
-        expect(hasValidMediaExtension('photo.pdf')).toBe(false);
-        expect(hasValidMediaExtension('photo.webp')).toBe(false);
-    });
-
-    it('rejects extension-only filenames', () => {
-        expect(hasValidMediaExtension('.jpg')).toBe(false);
-        expect(hasValidMediaExtension('.png')).toBe(false);
-        expect(hasValidMediaExtension('.heic')).toBe(false);
+describe(validMediaExtensionsString, () => {
+    // Shown to admins when an upload is rejected, so it is pinned as the exact
+    // user-facing string. Adding an extension is meant to fail this test: the
+    // message changes, and someone should see how it reads.
+    it('lists every supported extension, dotted and comma-separated', () => {
+        expect(validMediaExtensionsString()).toBe(
+            '.jpg, .jpeg, .png, .gif, .heic, .heif, .mp4, .mov, .avi, .mkv, .webm, .m4v, .3gp, .mpg, .mpeg',
+        );
     });
 });
 
@@ -175,10 +95,13 @@ const PATH_CASES: PathCase[] = [
     pathCase('/2001/', { isPath: true, isAlbum: true, isYear: true }),
     pathCase('/2001/12-31/', { isPath: true, isAlbum: true, isDay: true }),
 
-    // Media, which lives only in day albums
-    pathCase('/2001/12-31/image.jpg', { isPath: true, isMedia: true }),
-    pathCase('/2001/12-31/image.HEIC', { isPath: true, isMedia: true }),
-    pathCase('/2001/12-31/video.mp4', { isPath: true, isMedia: true }),
+    // Media, which lives only in day albums. Every supported extension is
+    // exercised, derived from the lists rather than spelled out, so a new one
+    // cannot be added to a format list and left out of path validation.
+    ...MEDIA_EXTENSIONS.map((ext) => pathCase(`/2001/12-31/media.${ext}`, { isPath: true, isMedia: true })),
+    ...MEDIA_EXTENSIONS.map((ext) =>
+        pathCase(`/2001/12-31/media.${ext.toUpperCase()}`, { isPath: true, isMedia: true }),
+    ),
     pathCase('/2001/12-31/my_image_1.jpg', { isPath: true, isMedia: true }),
     pathCase('/2001/12-31/my-image.jpg', { isPath: true, isMedia: true }),
 
@@ -246,277 +169,99 @@ describe(isValidMediaPath, () => {
     });
 });
 
-describe('IMAGE_EXTENSIONS', () => {
-    it('includes heic and heif', () => {
-        expect(IMAGE_EXTENSIONS).toContain('heic');
-        expect(IMAGE_EXTENSIONS).toContain('heif');
-    });
-});
-
+/**
+ * The two sanitizers are the same transformation seen at two scopes:
+ * sanitizeMediaFilename splits off the extension and hands the stem to
+ * sanitizeMediaNameWithoutExtension. They are tabled separately because they
+ * deliberately disagree on one point -- a trailing underscore, which the stem
+ * keeps and a whole filename does not -- and a shared table would have to
+ * carry that exception in every row.
+ */
 describe(sanitizeMediaNameWithoutExtension, () => {
-    it('converts to lowercase', () => {
-        expect(sanitizeMediaNameWithoutExtension('PHOTO')).toBe('photo');
-    });
-
-    it('converts invalid chars to underscores', () => {
-        expect(sanitizeMediaNameWithoutExtension('my photo')).toBe('my_photo');
-        expect(sanitizeMediaNameWithoutExtension('my-photo')).toBe('my_photo');
-    });
-
-    it('collapses multiple underscores', () => {
-        expect(sanitizeMediaNameWithoutExtension('my___photo')).toBe('my_photo');
-    });
-
-    it('removes leading underscores', () => {
-        expect(sanitizeMediaNameWithoutExtension('_photo')).toBe('photo');
-        expect(sanitizeMediaNameWithoutExtension('-photo')).toBe('photo');
-    });
-
-    it('allows trailing underscores (for live typing)', () => {
-        // Trailing underscores are intentionally preserved to allow typing underscores
-        // mid-name. The strict validator will reject trailing underscores on submit.
-        expect(sanitizeMediaNameWithoutExtension('photo_')).toBe('photo_');
-        // Hyphens get converted to underscores
-        expect(sanitizeMediaNameWithoutExtension('photo-')).toBe('photo_');
-    });
-});
-
-describe(deduplicateMediaPaths, () => {
-    it('returns paths unchanged when no duplicates', () => {
-        expect(deduplicateMediaPaths(['/2024/01-01/a.jpg', '/2024/01-01/b.jpg'])).toStrictEqual([
-            '/2024/01-01/a.jpg',
-            '/2024/01-01/b.jpg',
-        ]);
-    });
-
-    it('returns empty array for empty input', () => {
-        expect(deduplicateMediaPaths([])).toStrictEqual([]);
-    });
-
-    it('renames second duplicate with _2 suffix', () => {
-        expect(deduplicateMediaPaths(['/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg'])).toStrictEqual([
-            '/2024/01-01/photo.jpg',
-            '/2024/01-01/photo_2.jpg',
-        ]);
-    });
-
-    it('renames third duplicate with _3 suffix', () => {
-        expect(
-            deduplicateMediaPaths(['/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg']),
-        ).toStrictEqual(['/2024/01-01/photo.jpg', '/2024/01-01/photo_2.jpg', '/2024/01-01/photo_3.jpg']);
-    });
-
-    it('handles multiple different duplicates', () => {
-        expect(
-            deduplicateMediaPaths(['/2024/01-01/a.jpg', '/2024/01-01/b.jpg', '/2024/01-01/a.jpg', '/2024/01-01/b.jpg']),
-        ).toStrictEqual(['/2024/01-01/a.jpg', '/2024/01-01/b.jpg', '/2024/01-01/a_2.jpg', '/2024/01-01/b_2.jpg']);
-    });
-
-    it('handles different extensions', () => {
-        expect(deduplicateMediaPaths(['/2024/01-01/photo.png', '/2024/01-01/photo.png'])).toStrictEqual([
-            '/2024/01-01/photo.png',
-            '/2024/01-01/photo_2.png',
-        ]);
-    });
-
-    it('does not dedupe different files with same base name but different extensions', () => {
-        expect(deduplicateMediaPaths(['/2024/01-01/photo.jpg', '/2024/01-01/photo.png'])).toStrictEqual([
-            '/2024/01-01/photo.jpg',
-            '/2024/01-01/photo.png',
-        ]);
-    });
-
-    it('avoids collision when generated name matches existing file', () => {
-        // photo_2.jpg already exists, so the duplicate of photo.jpg should become photo_3.jpg
-        expect(
-            deduplicateMediaPaths(['/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo_2.jpg']),
-        ).toStrictEqual(['/2024/01-01/photo.jpg', '/2024/01-01/photo_3.jpg', '/2024/01-01/photo_2.jpg']);
-    });
-
-    it('avoids collision when existing file comes before duplicates', () => {
-        // photo_2.jpg comes first, then duplicates of photo.jpg should skip _2
-        expect(
-            deduplicateMediaPaths(['/2024/01-01/photo_2.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg']),
-        ).toStrictEqual(['/2024/01-01/photo_2.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo_3.jpg']);
-    });
-});
-
-describe(isValidMediaNameWithoutExtensionStrict, () => {
-    it('accepts valid lowercase alphanumeric names', () => {
-        expect(isValidMediaNameWithoutExtensionStrict('photo')).toBe(true);
-        expect(isValidMediaNameWithoutExtensionStrict('photo1')).toBe(true);
-        expect(isValidMediaNameWithoutExtensionStrict('1photo')).toBe(true);
-        expect(isValidMediaNameWithoutExtensionStrict('123')).toBe(true);
-        expect(isValidMediaNameWithoutExtensionStrict('a')).toBe(true);
-        expect(isValidMediaNameWithoutExtensionStrict('1')).toBe(true);
-    });
-
-    it('accepts names with underscores in the middle', () => {
-        expect(isValidMediaNameWithoutExtensionStrict('my_photo')).toBe(true);
-        expect(isValidMediaNameWithoutExtensionStrict('my_photo_1')).toBe(true);
-        expect(isValidMediaNameWithoutExtensionStrict('a_b_c_d')).toBe(true);
-        expect(isValidMediaNameWithoutExtensionStrict('photo_1_2_3')).toBe(true);
-        expect(isValidMediaNameWithoutExtensionStrict('1_2')).toBe(true);
-    });
-
-    it('rejects names with consecutive underscores', () => {
-        expect(isValidMediaNameWithoutExtensionStrict('a__b')).toBe(false);
-        expect(isValidMediaNameWithoutExtensionStrict('photo__1')).toBe(false);
-        expect(isValidMediaNameWithoutExtensionStrict('a___b')).toBe(false);
-    });
-
-    it('rejects names with leading underscores', () => {
-        expect(isValidMediaNameWithoutExtensionStrict('_photo')).toBe(false);
-        expect(isValidMediaNameWithoutExtensionStrict('__photo')).toBe(false);
-    });
-
-    it('rejects names with trailing underscores', () => {
-        expect(isValidMediaNameWithoutExtensionStrict('photo_')).toBe(false);
-        expect(isValidMediaNameWithoutExtensionStrict('photo__')).toBe(false);
-    });
-
-    it('rejects names with uppercase letters', () => {
-        expect(isValidMediaNameWithoutExtensionStrict('Photo')).toBe(false);
-        expect(isValidMediaNameWithoutExtensionStrict('PHOTO')).toBe(false);
-        expect(isValidMediaNameWithoutExtensionStrict('myPhoto')).toBe(false);
-    });
-
-    it('rejects names with hyphens', () => {
-        expect(isValidMediaNameWithoutExtensionStrict('my-photo')).toBe(false);
-        expect(isValidMediaNameWithoutExtensionStrict('photo-1')).toBe(false);
-    });
-
-    it('rejects names with spaces or special characters', () => {
-        expect(isValidMediaNameWithoutExtensionStrict('my photo')).toBe(false);
-        expect(isValidMediaNameWithoutExtensionStrict('photo@1')).toBe(false);
-        expect(isValidMediaNameWithoutExtensionStrict('photo.jpg')).toBe(false);
-    });
-
-    it('rejects empty string', () => {
-        expect(isValidMediaNameWithoutExtensionStrict('')).toBe(false);
-    });
-
-    it('rejects underscore-only strings', () => {
-        expect(isValidMediaNameWithoutExtensionStrict('_')).toBe(false);
-        expect(isValidMediaNameWithoutExtensionStrict('__')).toBe(false);
-        expect(isValidMediaNameWithoutExtensionStrict('___')).toBe(false);
-    });
-
-    // ReDoS (Regular Expression Denial of Service) prevention test
-    // The old regex pattern /^[a-z0-9]+([a-z0-9_]*[a-z0-9]+)*$/ had nested quantifiers
-    // that caused catastrophic backtracking, hanging for 100+ seconds on certain inputs.
-    // The 50ms timeout ensures the test fails if the regex causes backtracking.
-    it('handles long filenames with multiple underscores without hanging (ReDoS prevention)', () => {
-        const longValidName = 'monkey_river_15_howler_monkey_calling';
-        const longInvalidName = 'monkey_river_15_howler_monkey_calling_';
-
-        expect(isValidMediaNameWithoutExtensionStrict(longValidName)).toBe(true);
-        expect(isValidMediaNameWithoutExtensionStrict(longInvalidName)).toBe(false);
-    }, 50); // 50ms timeout - test will fail if regex causes backtracking
-});
-
-describe(getParentAndNameFromPath, () => {
-    it('splits a media path into day album and filename', () => {
-        expect(getParentAndNameFromPath('/2001/12-31/image.jpg')).toStrictEqual({
-            parent: '/2001/12-31/',
-            name: 'image.jpg',
-        });
-        expect(getParentAndNameFromPath('/2001/12-31/video.mp4')).toStrictEqual({
-            parent: '/2001/12-31/',
-            name: 'video.mp4',
-        });
-    });
-
-    it('splits a day album path into year album and day', () => {
-        expect(getParentAndNameFromPath('/2001/12-31/')).toStrictEqual({ parent: '/2001/', name: '12-31' });
-    });
-
-    it('splits a year album path into root and year', () => {
-        expect(getParentAndNameFromPath('/2001/')).toStrictEqual({ parent: '/', name: '2001' });
-    });
-
-    it('returns empty parent and name for the root album', () => {
-        expect(getParentAndNameFromPath('/')).toStrictEqual({ parent: '', name: '' });
-    });
-
-    it('trims surrounding whitespace', () => {
-        expect(getParentAndNameFromPath('  /2001/12-31/  ')).toStrictEqual({ parent: '/2001/', name: '12-31' });
-    });
-
-    // Album paths are only valid with a trailing slash, so these throw rather
-    // than being treated as /2001/12-31/ and /2001/
-    it('throws on an album path with no trailing slash', () => {
-        expect(() => getParentAndNameFromPath('/2001/12-31')).toThrow('Invalid path: [/2001/12-31]');
-        expect(() => getParentAndNameFromPath('/2001')).toThrow('Invalid path: [/2001]');
-    });
-
-    it('throws on an empty path', () => {
-        expect(() => getParentAndNameFromPath('')).toThrow('Invalid path: cannot be empty');
-        expect(() => getParentAndNameFromPath('   ')).toThrow('Invalid path: cannot be empty');
-    });
-
-    it('throws on a path that is not a gallery path', () => {
-        expect(() => getParentAndNameFromPath('nonsense')).toThrow('Invalid path: [nonsense]');
-    });
-});
-
-describe(getParentFromPath, () => {
     it.each([
-        { path: '/2001/12-31/image.jpg', parent: '/2001/12-31/' },
-        { path: '/2001/12-31/', parent: '/2001/' },
-        { path: '/2001/', parent: '/' },
-        // The root album has no parent. Represented as empty rather than
-        // undefined, which the module's own docs flag as questionable.
-        { path: '/', parent: '' },
-    ])('$path has parent [$parent]', ({ path, parent }) => {
-        expect(getParentFromPath(path)).toBe(parent);
-    });
+        // Already-valid names survive untouched
+        { in: 'photo', out: 'photo' },
+        { in: 'my_photo_1', out: 'my_photo_1' },
+        { in: '123', out: '123' },
 
-    it('throws on a path that is not valid', () => {
-        expect(() => getParentFromPath('/2001/12-31')).toThrow('Invalid path: [/2001/12-31]');
+        { in: 'PHOTO', out: 'photo' },
+
+        // Anything outside [a-z0-9_] becomes an underscore, and a run of them
+        // collapses to one
+        { in: 'my photo', out: 'my_photo' },
+        { in: 'my-photo', out: 'my_photo' },
+        { in: 'my  photo', out: 'my_photo' },
+        { in: 'my___photo', out: 'my_photo' },
+        { in: 'my - photo', out: 'my_photo' },
+        { in: "photo's", out: 'photo_s' },
+        { in: 'photo@home', out: 'photo_home' },
+
+        { in: '_photo', out: 'photo' },
+        { in: '__photo', out: 'photo' },
+        { in: '-photo', out: 'photo' },
+
+        // A trailing underscore is kept, unlike in a full filename, so that
+        // typing an underscore part-way through a name is possible. The strict
+        // validator rejects it on submit.
+        { in: 'photo_', out: 'photo_' },
+        { in: 'photo-', out: 'photo_' },
+
+        { in: '', out: '' },
+    ])('[$in] sanitizes to [$out]', ({ in: name, out }) => {
+        expect(sanitizeMediaNameWithoutExtension(name)).toBe(out);
     });
 });
 
-describe(getNameFromPath, () => {
+describe(sanitizeMediaFilename, () => {
     it.each([
-        { path: '/2001/12-31/image.jpg', name: 'image.jpg' },
-        { path: '/2001/12-31/', name: '12-31' },
-        { path: '/2001/', name: '2001' },
-        { path: '/', name: '' },
-    ])('$path has name [$name]', ({ path, name }) => {
-        expect(getNameFromPath(path)).toBe(name);
+        // Already-valid names survive untouched
+        { in: 'photo.jpg', out: 'photo.jpg' },
+        { in: 'my_photo_1.jpg', out: 'my_photo_1.jpg' },
+
+        // The name and the extension are both lowercased
+        { in: 'IMAGE.JPG', out: 'image.jpg' },
+        { in: 'Photo.PNG', out: 'photo.png' },
+        { in: 'photo.GIF', out: 'photo.gif' },
+
+        // jpeg is spelled jpg
+        { in: 'photo.jpeg', out: 'photo.jpg' },
+        { in: 'PHOTO.JPEG', out: 'photo.jpg' },
+
+        // Invalid characters become underscores, and runs collapse
+        { in: 'my photo.jpg', out: 'my_photo.jpg' },
+        { in: 'my  photo.jpg', out: 'my_photo.jpg' },
+        { in: 'my-photo.jpg', out: 'my_photo.jpg' },
+        { in: 'my--photo.jpg', out: 'my_photo.jpg' },
+        { in: 'my___photo.jpg', out: 'my_photo.jpg' },
+        { in: 'my - photo.jpg', out: 'my_photo.jpg' },
+        { in: 'photo@home.jpg', out: 'photo_home.jpg' },
+        { in: 'photo#1.jpg', out: 'photo_1.jpg' },
+        { in: 'photo (1).jpg', out: 'photo_1.jpg' },
+        { in: "photo's.jpg", out: 'photo_s.jpg' },
+
+        // Underscores at either end of the name are removed. The trailing one
+        // is the point of difference from sanitizeMediaNameWithoutExtension.
+        { in: '_photo.jpg', out: 'photo.jpg' },
+        { in: '__photo.jpg', out: 'photo.jpg' },
+        { in: '-photo.jpg', out: 'photo.jpg' },
+        { in: 'photo_.jpg', out: 'photo.jpg' },
+        { in: 'photo__.jpg', out: 'photo.jpg' },
+        { in: 'photo-.jpg', out: 'photo.jpg' },
+
+        { in: 'photo123.jpg', out: 'photo123.jpg' },
+        { in: '123photo.jpg', out: '123photo.jpg' },
+
+        // Only the last dot separates the extension, so earlier ones are
+        // sanitized as part of the name
+        { in: 'Screenshot 2024-01-15 at 10.30.45 AM.png', out: 'screenshot_2024_01_15_at_10_30_45_am.png' },
+        { in: 'IMG_1234.JPG', out: 'img_1234.jpg' },
+        { in: 'DSC_0001.jpeg', out: 'dsc_0001.jpg' },
+        { in: 'Photo 2024-01-15.jpg', out: 'photo_2024_01_15.jpg' },
+
+        { in: '', out: '' },
+    ])('[$in] sanitizes to [$out]', ({ in: filename, out }) => {
+        expect(sanitizeMediaFilename(filename)).toBe(out);
     });
-
-    it('throws on a path that is not valid', () => {
-        expect(() => getNameFromPath('/2001/12-31')).toThrow('Invalid path: [/2001/12-31]');
-    });
-});
-
-describe(albumPathToDate, () => {
-    // Compared as local-time components rather than against a constructed Date,
-    // so the assertion says which year, month and day is meant and does not
-    // restate the implementation's own call.
-    it.each([
-        // Albums are sorted by date, so the root needs one. It is the date of
-        // the first surviving photograph, which sorts before any real album.
-        { albumPath: '/', year: 1826, month: 0, day: 1 },
-        // A year album stands at its first day
-        { albumPath: '/2001/', year: 2001, month: 0, day: 1 },
-        { albumPath: '/2001/12-31/', year: 2001, month: 11, day: 31 },
-        { albumPath: '/2001/01-01/', year: 2001, month: 0, day: 1 },
-        { albumPath: '/2001/06-15/', year: 2001, month: 5, day: 15 },
-    ])('$albumPath is $year-$month-$day', ({ albumPath, year, month, day }) => {
-        const date = albumPathToDate(albumPath);
-
-        expect([date.getFullYear(), date.getMonth(), date.getDate()]).toStrictEqual([year, month, day]);
-    });
-
-    it.each(['/2001/12-31/image.jpg', '/2001/12-31', '/2001', '/2001/13-01/', '', 'nonsense'])(
-        'throws on %s, which is not an album path',
-        (albumPath) => {
-            expect(() => albumPathToDate(albumPath)).toThrow(`Invalid album path: [${albumPath}]`);
-        },
-    );
 });
 
 describe(sanitizeDayAlbumName, () => {
@@ -550,13 +295,264 @@ describe(sanitizeDayAlbumName, () => {
     });
 });
 
-describe(validMediaExtensionsString, () => {
-    // Shown to admins when an upload is rejected, so it is pinned as the exact
-    // user-facing string. Adding an extension is meant to fail this test: the
-    // message changes, and someone should see how it reads.
-    it('lists every supported extension, dotted and comma-separated', () => {
-        expect(validMediaExtensionsString()).toBe(
-            '.jpg, .jpeg, .png, .gif, .heic, .heif, .mp4, .mov, .avi, .mkv, .webm, .m4v, .3gp, .mpg, .mpeg',
-        );
+describe(isValidMediaNameWithoutExtensionStrict, () => {
+    it.each([
+        // Lower-case alphanumerics, with single underscores between them
+        { name: 'photo', valid: true },
+        { name: 'photo1', valid: true },
+        { name: '1photo', valid: true },
+        { name: '123', valid: true },
+        { name: 'a', valid: true },
+        { name: '1', valid: true },
+        { name: 'my_photo', valid: true },
+        { name: 'my_photo_1', valid: true },
+        { name: 'a_b_c_d', valid: true },
+        { name: 'photo_1_2_3', valid: true },
+        { name: '1_2', valid: true },
+
+        // An underscore has to separate two things, so it cannot double up or
+        // sit at either end
+        { name: 'a__b', valid: false },
+        { name: 'photo__1', valid: false },
+        { name: 'a___b', valid: false },
+        { name: '_photo', valid: false },
+        { name: '__photo', valid: false },
+        { name: 'photo_', valid: false },
+        { name: 'photo__', valid: false },
+        { name: '_', valid: false },
+        { name: '__', valid: false },
+        { name: '_photo_', valid: false },
+
+        // Everything sanitizeMediaNameWithoutExtension would have removed
+        { name: 'Photo', valid: false },
+        { name: 'PHOTO', valid: false },
+        { name: 'myPhoto', valid: false },
+        { name: 'my-photo', valid: false },
+        { name: 'photo-1', valid: false },
+        { name: 'my photo', valid: false },
+        { name: 'photo@1', valid: false },
+
+        // The name is the part before the extension, so it carries no dot
+        { name: 'photo.jpg', valid: false },
+
+        { name: '', valid: false },
+    ])('[$name]: $valid', ({ name, valid }) => {
+        expect(isValidMediaNameWithoutExtensionStrict(name)).toBe(valid);
+    });
+
+    /**
+     * A timing assertion, not a correctness one. The pattern this replaced --
+     * /^[a-z0-9]+([a-z0-9_]*[a-z0-9]+)*$/ -- nests quantifiers over overlapping
+     * character classes, so a name that fails only at its last character makes
+     * it backtrack catastrophically. This exact input hangs it for over two
+     * minutes; the current pattern separates the classes and returns at once.
+     *
+     * The timeout is generous next to a hang of that size, so it distinguishes
+     * the two without being able to fail on a loaded machine.
+     */
+    it('rejects a long underscored name promptly rather than backtracking over it', () => {
+        expect(isValidMediaNameWithoutExtensionStrict('monkey_river_15_howler_monkey_calling')).toBe(true);
+        expect(isValidMediaNameWithoutExtensionStrict('monkey_river_15_howler_monkey_calling_')).toBe(false);
+    }, 1000);
+});
+
+/**
+ * getParentFromPath and getNameFromPath are the two halves of
+ * getParentAndNameFromPath, so all three answer one table. Given separate
+ * examples they drifted: trimming and the empty-path error were asserted only
+ * against the combined function, and would have gone on passing if either half
+ * had stopped delegating.
+ */
+type SplitCase = { path: string; parent: string; name: string };
+
+const SPLIT_CASES: SplitCase[] = [
+    { path: '/2001/12-31/image.jpg', parent: '/2001/12-31/', name: 'image.jpg' },
+    { path: '/2001/12-31/video.mp4', parent: '/2001/12-31/', name: 'video.mp4' },
+    { path: '/2001/12-31/', parent: '/2001/', name: '12-31' },
+    { path: '/2001/', parent: '/', name: '2001' },
+    // The root album has no parent and no name. Both are empty rather than
+    // undefined, which the module's own docs flag as questionable.
+    { path: '/', parent: '', name: '' },
+    // Surrounding whitespace is trimmed before the path is judged
+    { path: '  /2001/12-31/  ', parent: '/2001/', name: '12-31' },
+];
+
+/** Paths the splitters refuse, and what they say about them */
+const INVALID_SPLIT_CASES = [
+    // Album paths are only valid with a trailing slash, so these throw rather
+    // than being read as /2001/12-31/ and /2001/
+    { path: '/2001/12-31', error: 'Invalid path: [/2001/12-31]' },
+    { path: '/2001', error: 'Invalid path: [/2001]' },
+    { path: 'nonsense', error: 'Invalid path: [nonsense]' },
+    { path: '/2001/13-01/', error: 'Invalid path: [/2001/13-01/]' },
+    { path: '/2001/image.jpg', error: 'Invalid path: [/2001/image.jpg]' },
+    // An empty path is called out separately, since there is no path to name
+    { path: '', error: 'Invalid path: cannot be empty' },
+    { path: '   ', error: 'Invalid path: cannot be empty' },
+];
+
+describe(getParentAndNameFromPath, () => {
+    it.each(SPLIT_CASES)('[$path] splits into [$parent] and [$name]', ({ path, parent, name }) => {
+        expect(getParentAndNameFromPath(path)).toStrictEqual({ parent, name });
+    });
+
+    it.each(INVALID_SPLIT_CASES)('refuses [$path]', ({ path, error }) => {
+        expect(() => getParentAndNameFromPath(path)).toThrow(error);
+    });
+});
+
+describe(getParentFromPath, () => {
+    it.each(SPLIT_CASES)('[$path] has parent [$parent]', ({ path, parent }) => {
+        expect(getParentFromPath(path)).toBe(parent);
+    });
+
+    it.each(INVALID_SPLIT_CASES)('refuses [$path]', ({ path, error }) => {
+        expect(() => getParentFromPath(path)).toThrow(error);
+    });
+});
+
+describe(getNameFromPath, () => {
+    it.each(SPLIT_CASES)('[$path] has name [$name]', ({ path, name }) => {
+        expect(getNameFromPath(path)).toBe(name);
+    });
+
+    it.each(INVALID_SPLIT_CASES)('refuses [$path]', ({ path, error }) => {
+        expect(() => getNameFromPath(path)).toThrow(error);
+    });
+});
+
+describe(albumPathToDate, () => {
+    // Compared as local-time components rather than against a constructed Date,
+    // so the assertion says which year, month and day is meant and does not
+    // restate the implementation's own call.
+    it.each([
+        // Albums are sorted by date, so the root needs one. It is the date of
+        // the first surviving photograph, which sorts before any real album.
+        { albumPath: '/', year: 1826, month: 0, day: 1 },
+        // A year album stands at its first day
+        { albumPath: '/2001/', year: 2001, month: 0, day: 1 },
+        { albumPath: '/2001/12-31/', year: 2001, month: 11, day: 31 },
+        { albumPath: '/2001/01-01/', year: 2001, month: 0, day: 1 },
+        { albumPath: '/2001/06-15/', year: 2001, month: 5, day: 15 },
+    ])('$albumPath is $year-$month-$day', ({ albumPath, year, month, day }) => {
+        const date = albumPathToDate(albumPath);
+
+        expect([date.getFullYear(), date.getMonth(), date.getDate()]).toStrictEqual([year, month, day]);
+    });
+
+    it.each(['/2001/12-31/image.jpg', '/2001/12-31', '/2001', '/2001/13-01/', '', 'nonsense'])(
+        'throws on %s, which is not an album path',
+        (albumPath) => {
+            expect(() => albumPathToDate(albumPath)).toThrow(`Invalid album path: [${albumPath}]`);
+        },
+    );
+});
+
+/**
+ * A drag-and-drop can hand the same filename over twice, and two files cannot
+ * share a path. The renamed one takes the lowest free suffix, which means
+ * looking at the whole batch: a name a suffix would collide with may not have
+ * been reached yet.
+ */
+describe(deduplicateMediaPaths, () => {
+    it.each([
+        { description: 'nothing to do', in: [], out: [] },
+        {
+            description: 'no duplicates',
+            in: ['/2024/01-01/a.jpg', '/2024/01-01/b.jpg'],
+            out: ['/2024/01-01/a.jpg', '/2024/01-01/b.jpg'],
+        },
+
+        // The first occurrence keeps the name; the rest are numbered from _2
+        {
+            description: 'one duplicate',
+            in: ['/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg'],
+            out: ['/2024/01-01/photo.jpg', '/2024/01-01/photo_2.jpg'],
+        },
+        {
+            description: 'two duplicates',
+            in: ['/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg'],
+            out: ['/2024/01-01/photo.jpg', '/2024/01-01/photo_2.jpg', '/2024/01-01/photo_3.jpg'],
+        },
+        {
+            description: 'two names duplicated independently',
+            in: ['/2024/01-01/a.jpg', '/2024/01-01/b.jpg', '/2024/01-01/a.jpg', '/2024/01-01/b.jpg'],
+            out: ['/2024/01-01/a.jpg', '/2024/01-01/b.jpg', '/2024/01-01/a_2.jpg', '/2024/01-01/b_2.jpg'],
+        },
+
+        // The suffix goes before the extension, whatever the extension is
+        {
+            description: 'duplicate png',
+            in: ['/2024/01-01/photo.png', '/2024/01-01/photo.png'],
+            out: ['/2024/01-01/photo.png', '/2024/01-01/photo_2.png'],
+        },
+        {
+            description: 'duplicate video',
+            in: ['/2024/01-01/clip.mp4', '/2024/01-01/clip.mp4'],
+            out: ['/2024/01-01/clip.mp4', '/2024/01-01/clip_2.mp4'],
+        },
+        // Paths collide, not names: the same stem under two extensions is two
+        // different files
+        {
+            description: 'same name, different extensions',
+            in: ['/2024/01-01/photo.jpg', '/2024/01-01/photo.png'],
+            out: ['/2024/01-01/photo.jpg', '/2024/01-01/photo.png'],
+        },
+        // and the same name in two albums likewise
+        {
+            description: 'same name in two day albums',
+            in: ['/2024/01-01/photo.jpg', '/2024/01-02/photo.jpg'],
+            out: ['/2024/01-01/photo.jpg', '/2024/01-02/photo.jpg'],
+        },
+
+        // A suffix skips any name the batch already contains, whether that name
+        // arrives before or after the duplicate that would have taken it
+        {
+            description: 'the name a suffix wants is later in the batch',
+            in: ['/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo_2.jpg'],
+            out: ['/2024/01-01/photo.jpg', '/2024/01-01/photo_3.jpg', '/2024/01-01/photo_2.jpg'],
+        },
+        {
+            description: 'the name a suffix wants is earlier in the batch',
+            in: ['/2024/01-01/photo_2.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg'],
+            out: ['/2024/01-01/photo_2.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo_3.jpg'],
+        },
+        {
+            description: 'two suffixes in a row are already taken',
+            in: [
+                '/2024/01-01/photo.jpg',
+                '/2024/01-01/photo.jpg',
+                '/2024/01-01/photo_2.jpg',
+                '/2024/01-01/photo_3.jpg',
+            ],
+            out: [
+                '/2024/01-01/photo.jpg',
+                '/2024/01-01/photo_4.jpg',
+                '/2024/01-01/photo_2.jpg',
+                '/2024/01-01/photo_3.jpg',
+            ],
+        },
+    ])('$description', ({ in: mediaPaths, out }) => {
+        expect(deduplicateMediaPaths(mediaPaths)).toStrictEqual(out);
+    });
+
+    it('returns a result of the same length as its input', () => {
+        const mediaPaths = ['/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg', '/2024/01-01/photo.jpg'];
+
+        expect(deduplicateMediaPaths(mediaPaths)).toHaveLength(mediaPaths.length);
+    });
+
+    it('produces no duplicate paths, whatever it was given', () => {
+        const mediaPaths = [
+            '/2024/01-01/photo.jpg',
+            '/2024/01-01/photo.jpg',
+            '/2024/01-01/photo_2.jpg',
+            '/2024/01-01/photo_2.jpg',
+            '/2024/01-01/photo.jpg',
+        ];
+
+        const result = deduplicateMediaPaths(mediaPaths);
+
+        expect(new Set(result).size).toBe(mediaPaths.length);
     });
 });
