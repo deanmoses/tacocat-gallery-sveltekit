@@ -136,6 +136,7 @@ export default ts.config(
             '@typescript-eslint/no-import-type-side-effects': 'error',
             '@typescript-eslint/no-inferrable-types': 'error',
             '@typescript-eslint/no-invalid-this': 'error',
+            '@typescript-eslint/no-dynamic-delete': 'error',
             '@typescript-eslint/no-invalid-void-type': 'error',
             '@typescript-eslint/no-loop-func': 'error',
             '@typescript-eslint/no-non-null-asserted-nullish-coalescing': 'error',
