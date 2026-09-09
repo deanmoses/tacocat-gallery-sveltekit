@@ -51,7 +51,7 @@ jobs:
               run: npm run check
 
             - name: Install Playwright browsers
-              run: npx playwright install --with-deps chromium
+              run: npx playwright install chromium
 
             - name: Unit tests
               run: npm run test:unit
@@ -124,7 +124,7 @@ jobs:
               run: npm ci
 
             - name: Install Playwright browsers
-              run: npx playwright install --with-deps chromium
+              run: npx playwright install chromium
 
             - name: Run smoke test against production
               run: npm run test:e2e:prod
