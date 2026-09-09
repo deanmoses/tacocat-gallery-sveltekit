@@ -231,9 +231,12 @@ export default ts.config(
         },
     },
     {
-        // Vitest unit tests only; tests/ holds Playwright e2e specs
+        // Vitest unit tests only; tests/ holds Playwright e2e specs.
+        // The plugin's recommended config is destructured rather than spread as
+        // a whole, so a future version of it can't clobber `files` and leak
+        // test-only rules into the rest of the repo.
         files: ['src/**/*.spec.ts'],
-        ...vitest.configs.recommended,
+        plugins: { vitest },
         rules: {
             ...vitest.configs.recommended.rules,
 
@@ -266,9 +269,45 @@ export default ts.config(
             'vitest/no-alias-methods': 'error',
             'vitest/no-test-prefixes': 'error',
 
-            // Default options: `test` at top level, `it` inside `describe`,
-            // which is how this project's test names are phrased
-            'vitest/consistent-test-it': 'error',
+            // `test` at top level, `it` inside `describe`, which is how this
+            // project's test names are phrased. Stated explicitly rather than
+            // leaning on the rule's defaults, so a plugin bump can't silently
+            // change what the codebase is held to.
+            'vitest/consistent-test-it': ['error', { fn: 'test', withinDescribe: 'it' }],
+            'vitest/consistent-test-filename': ['error', { pattern: String.raw`.*\.spec\.ts$` }],
+
+            // Globals are not enabled in vite.config.ts, so a bare `describe`
+            // would be undefined at runtime. This keeps the imports honest, and
+            // keeps `vi` and `vitest` from being used interchangeably.
+            'vitest/prefer-importing-vitest-globals': 'error',
+            'vitest/consistent-vitest-vi': 'error',
+
+            // Test structure: no conditionally-defined tests, no callback-style
+            // async, hooks first and in lifecycle order
+            'vitest/no-conditional-tests': 'error',
+            'vitest/no-done-callback': 'error',
+            'vitest/prefer-hooks-on-top': 'error',
+            'vitest/prefer-hooks-in-order': 'error',
+            'vitest/max-nested-describe': 'error',
+            'vitest/prefer-each': 'error',
+            'vitest/consistent-each-for': 'error',
+
+            // More mocking correctness
+            'vitest/prefer-import-in-mock': 'error',
+            'vitest/prefer-mock-return-shorthand': 'error',
+            'vitest/prefer-called-once': 'error',
+            'vitest/prefer-expect-resolves': 'error',
+
+            // Snapshot guardrails. This codebase has no snapshots; these exist
+            // to keep unreviewable ones from creeping in.
+            'vitest/no-large-snapshots': 'error',
+            'vitest/prefer-snapshot-hint': 'error',
+            'vitest/prefer-todo': 'error',
+
+            // The vitest variant additionally understands `expect(obj.method)`,
+            // so it supersedes the core rule inside test files
+            '@typescript-eslint/unbound-method': 'off',
+            'vitest/unbound-method': 'error',
         },
     },
     {
