@@ -116,7 +116,17 @@ jobs:
                   key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
             - name: Install Playwright browsers
-              run: npx playwright install chromium
+              run: npx playwright install --with-deps chromium
 
             - name: Run smoke test against staging
               run: npm run test:e2e:staging
+
+            # Uploaded on success too: a run that only passed on retry is
+            # exactly the one worth looking at, and failure() would skip it.
+            - name: Upload Playwright report
+              if: ${{ !cancelled() }}
+              uses: actions/upload-artifact@v7
+              with:
+                  name: playwright-report
+                  path: playwright-report/
+                  retention-days: 7

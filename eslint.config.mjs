@@ -372,7 +372,10 @@ export default ts.config(
     {
         // Playwright e2e specs. The vitest block above is scoped to src/ and
         // this one to tests/, so the two plugins never see each other's files.
-        files: ['tests/**/*.spec.ts'],
+        // Every file under tests/, not just the specs: a locator moved into a
+        // helper is still a locator, and the rules below are the reason to
+        // trust it.
+        files: ['tests/**/*.ts'],
         plugins: { playwright },
         rules: {
             // Destructured rather than spread as a whole config, for the same

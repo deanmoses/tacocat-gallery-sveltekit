@@ -199,3 +199,13 @@ The site is entirely client-rendered, so nothing is present on load and every
 assertion must wait. Waits are set once in `playwright.config.ts` —
 `expect.timeout` and `navigationTimeout` — rather than per assertion, so a new
 spec inherits them and an inline timeout means the spec has a reason.
+
+Shared e2e helpers live in `tests/test-support/`.
+
+Wrap a journey in steps: walk through several pages in one test rather than
+several independent ones, because a later page is usually only reachable by
+arriving from the earlier one. `test.step` is then what says where it failed.
+
+A failure leaves an HTML report in `playwright-report/`, trace included
+(`npx playwright show-report`). CI uploads it as an artifact, on green runs too:
+a test that only passed on its second attempt is the one worth opening.

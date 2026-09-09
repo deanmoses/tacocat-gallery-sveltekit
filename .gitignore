@@ -18,6 +18,8 @@ dist/
 
 .tmp
 test-results/
+playwright-report/
+blob-report/
 
 # SASS intermediate compile files
 *.scssc
