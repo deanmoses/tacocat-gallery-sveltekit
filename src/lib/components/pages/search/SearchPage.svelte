@@ -80,7 +80,6 @@
     header {
         display: flex;
         align-items: center;
-
         padding: var(--default-padding);
         padding-left: calc(var(--default-padding) * 2);
         background-color: var(--header-color);

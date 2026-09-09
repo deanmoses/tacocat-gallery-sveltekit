@@ -98,17 +98,19 @@
 <div use:createEditorOnMount></div>
 
 <style>
-    @import 'https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.bubble.css';
+    @import url('https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.bubble.css');
 
     /* Undo styling added by Quill's style sheet */
     :global(.ql-container) {
         font-family: unset;
         font-size: unset;
     }
+
     :global(.ql-editor) {
         line-height: unset;
         padding: unset;
     }
+
     :global(.ql-tooltip) {
         z-index: 3;
     }

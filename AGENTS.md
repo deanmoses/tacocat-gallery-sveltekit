@@ -18,7 +18,7 @@ npm run test:coverage # Unit tests + coverage (finds modules with no tests)
 npm run test:e2e      # Run Playwright E2E tests
 npm run test:all      # Run all tests (unit + E2E)
 npm run check         # Type checking (svelte-check + TypeScript)
-npm run lint          # ESLint + Prettier + markdownlint check
+npm run lint          # ESLint + Prettier + markdownlint + stylelint check
 npm run lint:shell    # Shellcheck the shell scripts
 npm run lint:actions  # Actionlint the GitHub Actions workflows
 npm run format        # Auto-format with Prettier

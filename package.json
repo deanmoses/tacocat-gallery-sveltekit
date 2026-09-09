@@ -29,7 +29,7 @@
         "test:e2e:prod": "BASE_URL=https://pix.tacocat.com playwright test",
         "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
         "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-        "lint": "svelte-kit sync && prettier --check . && eslint . --max-warnings 0 --concurrency auto && markdownlint-cli2",
+        "lint": "svelte-kit sync && prettier --check . && eslint . --max-warnings 0 --concurrency auto && markdownlint-cli2 && stylelint \"src/**/*.{css,svelte}\"",
         "lint:shell": "shellcheck deploy_staging.sh deploy_prod.sh scripts/*.sh .husky/pre-commit",
         "lint:actions": "actionlint",
         "format": "prettier --write --log-level warn .",
@@ -57,8 +57,12 @@
         "husky": "^9.1.7",
         "lint-staged": "^17.5.0",
         "markdownlint-cli2": "^0.23.2",
+        "postcss-html": "^2.0.0",
         "prettier": "^3.9.6",
         "prettier-plugin-svelte": "^4.1.1",
+        "stylelint": "^17.15.0",
+        "stylelint-config-html": "^2.0.0",
+        "stylelint-config-standard": "^40.0.0",
         "svelte": "^5.57.0",
         "svelte-check": "^4.7.6",
         "svelte-eslint-parser": "^1.8.1",
@@ -80,11 +84,20 @@
     },
     "type": "module",
     "lint-staged": {
-        "*.{js,mjs,ts,svelte}": [
+        "*.{js,mjs,ts}": [
             "prettier --write",
             "eslint --fix"
         ],
-        "*.{json,jsonc,css,html,yml,yaml}": "prettier --write",
+        "*.svelte": [
+            "prettier --write",
+            "eslint --fix",
+            "stylelint --fix"
+        ],
+        "*.css": [
+            "prettier --write",
+            "stylelint --fix"
+        ],
+        "*.{json,jsonc,html,yml,yaml}": "prettier --write",
         "*.md": [
             "prettier --write",
             "markdownlint-cli2 --fix"

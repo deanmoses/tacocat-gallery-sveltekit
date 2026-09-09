@@ -57,15 +57,13 @@
         margin: 0;
         padding: 3em;
         z-index: 5;
-
         display: flex;
         align-items: center;
         justify-content: center;
-
-        background-color: rgb(255, 255, 255, 0.8);
+        background-color: rgb(255 255 255 / 80%);
         font-size: 3em;
-        color: rgb(78, 78, 78);
-        border-color: rgb(78, 78, 78);
+        color: rgb(78 78 78);
+        border-color: rgb(78 78 78);
         border-style: dashed;
         border-width: 3px;
     }

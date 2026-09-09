@@ -47,6 +47,7 @@
         align-items: center;
         gap: 0.7em;
     }
+
     div h2 {
         font-size: 16px;
         font-weight: bold;

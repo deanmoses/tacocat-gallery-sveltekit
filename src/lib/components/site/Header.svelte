@@ -53,7 +53,6 @@
     header {
         display: flex;
         align-items: center;
-
         padding: var(--default-padding);
         padding-left: calc(var(--default-padding) * 2);
         background-color: var(--header-color);
@@ -71,7 +70,6 @@
 
     div {
         margin-left: auto;
-
         display: flex;
         align-items: center;
         gap: 0.7em;

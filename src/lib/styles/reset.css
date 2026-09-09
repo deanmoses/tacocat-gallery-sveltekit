@@ -75,7 +75,9 @@ h6 {
 /*
     Create a root stacking context
 */
+/* stylelint-disable selector-id-pattern -- framework root ids, named by the frameworks */
 #root,
 #__next {
     isolation: isolate;
 }
+/* stylelint-enable selector-id-pattern */

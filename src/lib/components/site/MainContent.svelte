@@ -20,11 +20,9 @@
 <style>
     main {
         flex: 3;
-
         display: flex;
         flex-direction: column;
         gap: calc(var(--default-padding) * 2);
-
         padding: calc(var(--default-padding) * 2);
         background-color: white;
     }

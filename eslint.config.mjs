@@ -34,6 +34,7 @@ export default ts.config(
                     allowDefaultProject: [
                         'eslint.config.mjs',
                         'svelte.config.js',
+                        'stylelint.config.js',
                         'playwright.config.ts',
                         'scripts/*.mjs',
                         'src/service-worker.ts',

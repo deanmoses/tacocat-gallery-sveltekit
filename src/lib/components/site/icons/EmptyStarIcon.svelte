@@ -23,6 +23,6 @@
 
 <style>
     path {
-        fill: currentcolor;
+        fill: currentColor;
     }
 </style>

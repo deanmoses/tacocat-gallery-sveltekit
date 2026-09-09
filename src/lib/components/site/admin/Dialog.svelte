@@ -61,7 +61,7 @@
         box-shadow: #00000029 2px 2px 5px 2px;
         border-radius: 8px;
         padding: 0.5em;
-        background-color: rgb(143, 143, 143);
+        background-color: rgb(143 143 143);
         position: absolute;
         top: 50%;
         left: 50%;

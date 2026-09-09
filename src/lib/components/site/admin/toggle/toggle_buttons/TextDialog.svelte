@@ -100,6 +100,6 @@
 
     .errorMsg {
         font-style: italic;
-        color: rgb(58, 59, 59);
+        color: rgb(58 59 59);
     }
 </style>

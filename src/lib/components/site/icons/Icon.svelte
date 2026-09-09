@@ -36,7 +36,8 @@
         position: relative;
         vertical-align: middle;
     }
+
     path {
-        fill: currentcolor;
+        fill: currentColor;
     }
 </style>
