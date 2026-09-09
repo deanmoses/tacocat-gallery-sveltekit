@@ -1,24 +1,8 @@
-import type { Album, Media, Thumbable } from '../GalleryItemInterfaces';
+import type { Album, Media } from '../GalleryItemInterfaces';
 import { ImageImpl } from './ImageImpl';
 import { VideoImpl } from './VideoImpl';
-import toAlbum from './AlbumCreator';
-import type { GalleryRecord, MediaRecord } from './server';
-import { isAlbumRecord, isImageRecord, isMediaRecord, isVideoRecord } from './server';
-
-/**
- * Instantiate a Thumbable (Album or Media) from the specified record
- * @param record Gallery record from server or stored in idb
- * @param album Parent album (required for media items, ignored for albums)
- */
-export function toThumbable(record: GalleryRecord, album: Album): Thumbable {
-    if (isAlbumRecord(record)) {
-        return toAlbum(record);
-    }
-    if (isMediaRecord(record)) {
-        return toMedia(record, album);
-    }
-    throw new Error(`Unknown gallery item type: ${JSON.stringify(record)}`);
-}
+import type { MediaRecord } from './server';
+import { isImageRecord, isVideoRecord } from './server';
 
 /**
  * Instantiate a Media (Image or Video) from the specified record
