@@ -2,11 +2,12 @@
 
 ## Layout
 
-|            |                                                                       |
-| ---------- | --------------------------------------------------------------------- |
-| Unit tests | `src/**/*.spec.ts`, beside the module they cover                      |
-| E2E tests  | `tests/*.spec.ts`, run by Playwright                                  |
-| Commands   | `npm test` (quiet), `npm run test:unit` (verbose), `npm run test:e2e` |
+|            |                                                                        |
+| ---------- | ---------------------------------------------------------------------- |
+| Unit tests | `src/**/*.spec.ts`, beside the module they cover                       |
+| E2E tests  | `tests/*.spec.ts`, run by Playwright                                   |
+| Commands   | `npm test` (quiet), `npm run test:unit` (verbose), `npm run test:e2e`  |
+| Coverage   | `npm run test:coverage` to find gaps, `coverage/index.html` for detail |
 
 One spec per module, not per function.
 

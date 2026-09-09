@@ -467,6 +467,8 @@ export default ts.config(
         },
     },
     {
-        ignores: ['build/**', '.svelte-kit/**', 'package/**'],
+        // coverage/ holds istanbul's own report scripts, which are outside the
+        // tsconfig and fail the type-aware parser
+        ignores: ['build/**', '.svelte-kit/**', 'package/**', 'coverage/**'],
     },
 );

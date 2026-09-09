@@ -40,3 +40,6 @@ npm-debug.log*
 # JetBrains editor dir
 .idea/
 
+
+# Coverage reports
+coverage/

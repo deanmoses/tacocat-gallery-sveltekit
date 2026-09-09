@@ -30,19 +30,20 @@ END_AGENTS
 ## Build & Development Commands
 
 ```bash
-npm run dev          # Start Vite dev server
-npm run build        # Production build
-npm run build-debug  # Build with sourcemaps, no minification
-npm test             # Run unit tests (quiet output)
-npm run test:unit    # Run unit tests (verbose output)
-npm run test:e2e     # Run Playwright E2E tests
-npm run test:all     # Run all tests (unit + E2E)
-npm run check        # Type checking (svelte-check + TypeScript)
-npm run lint         # ESLint + Prettier check
-npm run format       # Auto-format with Prettier
-npm run quality      # Format, lint, and type check
-npm run precommit    # Quality checks + unit tests (for pre-commit/pre-PR)
-npm run agent-docs   # Regenerate CLAUDE.md and AGENTS.md
+npm run dev           # Start Vite dev server
+npm run build         # Production build
+npm run build-debug   # Build with sourcemaps, no minification
+npm test              # Run unit tests (quiet output)
+npm run test:unit     # Run unit tests (verbose output)
+npm run test:coverage # Unit tests + coverage (finds modules with no tests)
+npm run test:e2e      # Run Playwright E2E tests
+npm run test:all      # Run all tests (unit + E2E)
+npm run check         # Type checking (svelte-check + TypeScript)
+npm run lint          # ESLint + Prettier check
+npm run format        # Auto-format with Prettier
+npm run quality       # Format, lint, and type check
+npm run precommit     # Quality checks + unit tests (for pre-commit/pre-PR)
+npm run agent-docs    # Regenerate CLAUDE.md and AGENTS.md
 npm run build && npm run deploy-staging  # Build and deploy to staging
 ```
 
