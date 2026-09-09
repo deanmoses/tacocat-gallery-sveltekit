@@ -4,20 +4,14 @@ import type { GalleryRecord } from './server';
 import { albumRecord, imageRecord, videoRecord } from '$lib/test-support/records';
 
 /**
- * The four guards partition every record the server can send, across a
- * migration that changed how media identifies itself: pre-migration records
- * carry itemType 'image' and mark videos with mediaType, post-migration ones
- * carry itemType 'media' and always state mediaType.
- *
- * Both formats are in the wild, so the guards are asserted as a full truth
- * table rather than as a handful of positive cases. A guard that stops
- * excluding something is as much a bug as one that stops including it, and
- * only the table catches the first kind.
+ * A migration changed how media identifies itself: pre-migration records carry
+ * itemType 'image' and mark videos with mediaType, post-migration ones carry
+ * itemType 'media' and always state mediaType. Both are still in the wild,
+ * which is why the guards read the way they do.
  *
  * isVideoRecord's leading isMediaRecord() check is the one thing the table
- * cannot reach: a record with mediaType 'video' and a non-media itemType is not
- * constructible through the types. It is defensive against JSON read back from
- * disk, and no row here can hold it to account.
+ * cannot reach: a record with mediaType 'video' and a non-media itemType is
+ * not constructible through the types.
  */
 type GuardCase = {
     /** The kind of record, in the terms the migration uses */

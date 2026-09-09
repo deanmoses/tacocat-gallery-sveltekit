@@ -1,12 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { getDetailWidth, getDetailHeight } from './dimensionUtils';
 
-/**
- * Both functions answer the same question about the same media item -- how big
- * to display it -- so they are driven from one table. Splitting the expected
- * width and height across two sets of examples made it easy to cover an aspect
- * ratio in one and not the other.
- */
 type DimensionCase = {
     description: string;
     width: number;

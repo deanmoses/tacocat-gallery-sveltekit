@@ -4,12 +4,6 @@ import { toTitleFromFilename } from './titleUtils';
 /**
  * A media item with no title of its own is displayed under one made from its
  * filename, so this runs over whatever a camera, a phone or an export wrote.
- * The transformation is a pipeline -- drop the extension, separate words,
- * discard digits, capitalise -- and the rows below are grouped by the stage
- * each one is about, since a stage that stops running shows up in only one
- * group.
- *
- * The function takes a bare filename: callers pass itemName, never a path.
  */
 type TitleCase = { fileName: string; title: string };
 

@@ -169,14 +169,6 @@ describe(isValidMediaPath, () => {
     });
 });
 
-/**
- * The two sanitizers are the same transformation seen at two scopes:
- * sanitizeMediaFilename splits off the extension and hands the stem to
- * sanitizeMediaNameWithoutExtension. They are tabled separately because they
- * deliberately disagree on one point -- a trailing underscore, which the stem
- * keeps and a whole filename does not -- and a shared table would have to
- * carry that exception in every row.
- */
 describe(sanitizeMediaNameWithoutExtension, () => {
     it.each([
         // Already-valid names survive untouched

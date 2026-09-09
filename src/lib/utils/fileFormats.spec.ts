@@ -2,13 +2,6 @@ import { describe, it, expect } from 'vitest';
 import { browserCanDisplay, getMediaPath, getProcessingTimeout, isRenamedOnServer } from './fileFormats';
 import { VIDEO_EXTENSIONS } from './galleryPathUtils';
 
-/**
- * fileFormats is a registry: a file either matches a handler or falls through
- * to the defaults. Every exported function is a different view of that same
- * lookup, so they share one table of formats rather than each growing its own
- * set of examples. A format that gains a handler without gaining coverage
- * shows up as a missing row instead of as a silently untested branch.
- */
 type FormatCase = {
     /** Path as uploaded, before the server processes it */
     uploadPath: string;
