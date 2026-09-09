@@ -1,10 +1,7 @@
 import adapter from '@sveltejs/adapter-static';
-import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-    preprocess: vitePreprocess(),
-
     compilerOptions: {
         // A component that uses no runes at all -- most of the icons, several
         // layouts -- is otherwise compiled in the mode-ambiguous default, where
