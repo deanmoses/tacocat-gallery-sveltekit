@@ -386,12 +386,22 @@ export default ts.config(
             // tests that delegate to one aren't reported as assertion-less
             'playwright/expect-expect': ['error', { assertFunctionPatterns: ['^expect[A-Z]'] }],
 
-            // Deliberately left off for now: no-raw-locators, prefer-native-locators,
-            // no-nth-methods and no-get-by-title. They're the strongest rules here,
-            // but the app can't satisfy them yet - <main> wraps both the sidebar and
-            // the content, the thumbnail grid is an unlabelled div, and a smoke test
-            // that walks "the first album" needs .first(). Turning them on means
-            // adding accessible hooks to the markup first; worth doing separately.
+            // Locators. These push tests toward what a user can actually perceive
+            // - roles, names, labels - instead of CSS coupled to markup, so a
+            // restyle stops silently breaking the suite.
+            'playwright/prefer-native-locators': 'error',
+            'playwright/no-nth-methods': 'error',
+            // getByTitle relies on a tooltip attribute users can't see on touch
+            // devices; the nav buttons carry one, so keep tests off it
+            'playwright/no-get-by-title': 'error',
+            'playwright/no-raw-locators': [
+                'error',
+                {
+                    // A <meta> tag has no role, name or text, so there is no
+                    // native locator for it. It's the one honest exception.
+                    allowed: ['meta[name="robots"][content="noindex"]'],
+                },
+            ],
         },
     },
     {

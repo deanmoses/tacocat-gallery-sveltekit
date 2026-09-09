@@ -43,14 +43,12 @@
     </Nav>
     <PageContent>
         <Sidebar>
-            <section class="caption">
-                <h2>Year In Review</h2>
+            <section class="caption" aria-label="Year in review">
                 {@render caption?.()}
             </section>
         </Sidebar>
         <MainContent>
-            <section class="months">
-                <h2>Thumbnails</h2>
+            <section class="months" aria-label="Thumbnails">
                 {@render thumbnails?.()}
             </section>
         </MainContent>
@@ -58,10 +56,6 @@
 </SiteLayout>
 
 <style>
-    h2 {
-        display: none;
-    }
-
     .months {
         display: flex;
         flex-direction: column;

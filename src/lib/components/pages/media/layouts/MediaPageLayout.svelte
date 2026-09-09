@@ -38,10 +38,9 @@
         </Header>
     {/if}
     <PageContent>
-        <div class="captionAndPhoto">
+        <main class="captionAndPhoto">
             {#if caption}
-                <section class="caption">
-                    <h2 style="display:none">Caption</h2>
+                <section class="caption" aria-label="Caption">
                     {@render caption?.()}
                 </section>
             {/if}
@@ -51,12 +50,11 @@
                         {@render nav?.()}
                     </Nav>
                 {/if}
-                <section>
-                    <h2 style="display:none">Photo</h2>
+                <section aria-label="Photo">
                     {@render imageHtml?.()}
                 </section>
             </div>
-        </div>
+        </main>
     </PageContent>
 </SiteLayout>
 

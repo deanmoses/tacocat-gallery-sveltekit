@@ -13,12 +13,12 @@
     let { children }: Props = $props();
 </script>
 
-<main>
+<div>
     {@render children?.()}
-</main>
+</div>
 
 <style>
-    main {
+    div {
         flex: 1;
         display: flex;
     }

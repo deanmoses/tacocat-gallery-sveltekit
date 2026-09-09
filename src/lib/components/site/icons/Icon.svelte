@@ -25,7 +25,7 @@
     let { width = '1em', height = '1em', title = undefined, d, viewBox, bottom = '0.125em' }: Props = $props();
 </script>
 
-<svg {width} {height} {viewBox} style:bottom>
+<svg {width} {height} {viewBox} style:bottom aria-hidden={title ? undefined : true}>
     {#if title}<title>{title}</title>{/if}
     <path {d} />
 </svg>
