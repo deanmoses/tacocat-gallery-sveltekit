@@ -134,6 +134,7 @@ export default ts.config(
             '@typescript-eslint/no-empty-object-type': 'error',
             '@typescript-eslint/no-extraneous-class': 'error',
             '@typescript-eslint/no-import-type-side-effects': 'error',
+            '@typescript-eslint/no-inferrable-types': 'error',
             '@typescript-eslint/no-invalid-this': 'error',
             '@typescript-eslint/no-invalid-void-type': 'error',
             '@typescript-eslint/no-loop-func': 'error',

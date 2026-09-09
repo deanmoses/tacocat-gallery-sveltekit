@@ -66,7 +66,7 @@ class SearchStore {
      *
      * @param startAt The number result from which to start fetching
      */
-    #fetchFromServer(query: SearchQuery, startAt: number = 0): void {
+    #fetchFromServer(query: SearchQuery, startAt = 0): void {
         const pageSize = 30;
         fetch(searchUrl(query, startAt, pageSize))
             .then((response: Response) => {
