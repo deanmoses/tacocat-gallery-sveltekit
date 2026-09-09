@@ -119,7 +119,7 @@ jobs:
                   aws-region: us-east-1
 
             - name: Deploy to staging
-              run: ./deploy_staging.sh
+              run: ./scripts/deploy-staging.sh
 
     smoke-test:
         needs: deploy

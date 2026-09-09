@@ -86,7 +86,7 @@ jobs:
                   aws-region: us-east-1
 
             - name: Deploy to production
-              run: ./deploy_prod.sh
+              run: ./scripts/deploy-prod.sh
 
     smoke-test:
         needs: deploy
