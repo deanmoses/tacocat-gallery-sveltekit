@@ -191,6 +191,7 @@ export default ts.config(
             '@typescript-eslint/no-redundant-type-constituents': 'error',
             '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'error',
             '@typescript-eslint/no-unnecessary-qualifier': 'error',
+            '@typescript-eslint/no-unnecessary-template-expression': 'error',
             '@typescript-eslint/no-unnecessary-type-arguments': 'error',
             '@typescript-eslint/no-unnecessary-type-conversion': 'error',
             '@typescript-eslint/no-unnecessary-type-parameters': 'error',
