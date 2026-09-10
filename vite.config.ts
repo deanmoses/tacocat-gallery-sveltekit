@@ -78,6 +78,8 @@ export default defineConfig({
                 test: {
                     name: 'browser',
                     include: ['src/**/*.svelte.spec.ts'],
+                    // The site's stylesheet, so toBeVisible() means what it says
+                    setupFiles: ['./src/lib/test-support/globalStyles.ts'],
                     // expect.element and locator actions retry until the test's
                     // own deadline rather than a poll timeout of their own, and
                     // the browser default deadline is 15s: a wrong assertion sits
@@ -89,6 +91,10 @@ export default defineConfig({
                         headless: true,
                         provider: playwright(),
                         instances: [{ browser: 'chromium' }],
+                        // The default is a phone width, at which the site hides
+                        // headers and navigation. A spec about what a phone
+                        // reader gets sets its own viewport and says so.
+                        viewport: { width: 1280, height: 800 },
                     },
                 },
             },

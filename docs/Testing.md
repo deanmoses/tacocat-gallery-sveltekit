@@ -127,7 +127,7 @@ IndexedDB needs no setup at all: `fake-indexeddb/auto` is a setup file for the n
 
 ### Testing a component
 
-`render` from `vitest-browser-svelte` mounts the component and hands back locators. `expect.element` retries a locator assertion until it holds; a plain `expect` checks once. Each is right somewhere: `render` flushes before it resolves, so a title set through `<svelte:head>` is already in `document.title` and is asserted plainly, while an overlay gated on an image firing `load` arrives whenever the browser gets to it and is asserted with `expect.element`.
+`render` from `vitest-browser-svelte` mounts the component and hands back locators. `expect.element` retries a locator assertion until it holds; a plain `expect` checks once. Each is right somewhere: `render` flushes before it resolves, so a title set through `<svelte:head>` is already in `document.title` and is asserted plainly, while an overlay gated on an image firing `load` arrives whenever the browser gets to it and is asserted with `expect.element`. The browser project loads the site's stylesheet and runs at a desktop width, so `toBeVisible` reflects what the site does; a spec about what a phone reader gets sets its own viewport and says so.
 
 Seed the store the component reads rather than mocking it. The read is part of what the test covers, and `resetAlbumState()` in `beforeEach` is the whole of the setup.
 
