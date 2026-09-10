@@ -87,15 +87,17 @@ jobs:
             - name: Unit tests
               run: npm run test:unit
 
+            # Staging build: app.html's preconnect hints are substituted at build time, so the
+            # artifact is specific to one environment rather than promoted between them.
             - name: Build
-              run: npm run build
+              run: npm run build -- --mode staging
 
             # Upload build artifacts for deploy job
             - name: Upload build artifacts
               if: github.event_name == 'push' && github.ref == 'refs/heads/main'
               uses: actions/upload-artifact@v7
               with:
-                  name: build
+                  name: build-staging
                   path: build/
                   retention-days: 1
 
@@ -113,7 +115,7 @@ jobs:
             - name: Download build artifacts
               uses: actions/download-artifact@v8
               with:
-                  name: build
+                  name: build-staging
                   path: build/
 
             - name: Configure AWS credentials

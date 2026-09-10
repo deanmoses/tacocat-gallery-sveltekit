@@ -67,7 +67,9 @@ export default defineConfig({
     webServer: process.env.BASE_URL
         ? undefined
         : {
-              command: 'npm run build && npm run preview',
+              // Staging mode because the preview server proxies to staging: a prod-mode build
+              // would warm hosts this run never talks to.
+              command: 'npm run build -- --mode staging && npm run preview',
               port: 4173,
               reuseExistingServer: !process.env.CI,
           },

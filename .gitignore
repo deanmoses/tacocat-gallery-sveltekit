@@ -4,6 +4,11 @@
 .env
 .env.*
 !.env.example
+# Unignored: a public hostname, and app.html's preconnect hints substitute an unset
+# variable to an empty string rather than failing the build.
+!.env.development
+!.env.production
+!.env.staging
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
