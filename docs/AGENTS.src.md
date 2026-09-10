@@ -291,6 +291,14 @@ Use labels on pull requests. Apply all labels that fit. Only use these labels:
 
 END_AGENTS
 
+## Observabiltiy
+
+See `docs/Observability.md`:
+
+- [`npm run perf`](docs/Observability.md#npm-run-perf): live perf of a particular staging or prod URL
+- [Grafana](docs/Observability.md#grafana-cloud): uptime & perf monitoring from multiple geos
+- [AWS](docs/Observability.md#aws): production logs
+
 ## AI Assistant Configuration
 
 This repository uses `docs/AGENTS.src.md` as the single source of truth for AI assistant instructions. Two files are auto-generated from it:
