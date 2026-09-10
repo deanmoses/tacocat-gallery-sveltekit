@@ -1,6 +1,6 @@
 # Testing Guide
 
-## Layout
+## Where a test lives
 
 |               |                                                                        |
 | ------------- | ---------------------------------------------------------------------- |
@@ -10,9 +10,11 @@
 | Commands      | `npm test` (quiet), `npm run test:unit` (verbose), `npm run test:e2e`  |
 | Coverage      | `npm run test:coverage` to find gaps, `coverage/index.html` for detail |
 
-`.svelte.` in a spec name means the spec itself compiles runes and needs the client build. Use the cheapest runtime that can run a test. A `Foo.svelte.ts` might get two files, `Foo.spec.ts` for transitions and `Foo.svelte.spec.ts` for reactivity. Testing `$effect` requires browser.
+Use the cheapest runtime that can run a test. `.svelte.` in a spec name means the spec itself compiles runes and needs the client build: a `Foo.svelte.ts` might get two files, `Foo.spec.ts` for transitions and `Foo.svelte.spec.ts` for reactivity. Testing `$effect` needs the browser, and so does rendering a component, since there is no jsdom project.
 
-## Naming
+## Writing a test
+
+### Naming
 
 **Give `describe` the function itself, not a string.**
 
@@ -39,7 +41,7 @@ it('should return false...', …);
 
 **Name the behaviour, not its history.** `it('checks all uploads, not just the first (bug fix)')` means nothing to a reader who doesn't remember the bug.
 
-## Table-driven tests
+### Table-driven tests
 
 Anything with more than two or three examples belongs in a table, driven with `it.each`. **A table makes the gaps visible** — an empty cell is obvious in a way that a missing `it()` never is.
 
@@ -63,7 +65,7 @@ describe(getMediaPath, () => {
 - **One table, many functions.** Separate example sets are how a case ends up covered on one axis and not the other.
 - **Derive rows from a shared constant** when one exists: the video rows come from `VIDEO_EXTENSIONS`, so a new extension inherits the contract. Derive the _rows_, never the _expectations_ — an expectation computed the way the code computes it asserts nothing.
 
-## Fixtures
+### Fixtures
 
 Shared fixtures live in `src/lib/test-support/`: the record builders and the canonical album paths. Spell a path out instead where the path is the subject rather than the setting.
 
@@ -81,7 +83,7 @@ const record = { itemType: 'image', path: '/2024/01-01/photo.jpg' } as GalleryRe
 
 Pass a factory only the fields the test is about; keep the rest in a shared constant. What varies between rows is what the test is saying.
 
-## Mocking
+### Mocking
 
 ```typescript
 // ✅ URL.createObjectURL exists in Node, so replace just the method
@@ -106,17 +108,7 @@ await validateMediaBatch([mediaItem('corrupt.jpg')]);
 
 `restoreMocks` and `unstubGlobals` are on in `vite.config.ts`; no `afterEach` needed.
 
-## Comment the why, never the what
-
-`expect(getDetailWidth(1024, 768)).toBe(1024)` already says what it does. It doesn't say that 1024 is the boundary and the comparison is inclusive. That's the comment worth writing.
-
-## Check a test by breaking the code
-
-A test earns its place by failing when the code is wrong. That is not the same as running the code — a suite can be green, fast, readable and prove almost nothing.
-
-When you doubt a test earns its place, break the code on purpose: invert a comparison, delete a branch, change a constant. If the suite stays green, the test is decorative.
-
-## Testing a store
+### Testing a store
 
 Stores split into state transition methods and service methods (see `CLAUDE.md`), and the split matters for testing:
 
@@ -125,15 +117,75 @@ Stores split into state transition methods and service methods (see `CLAUDE.md`)
 
 Stores are exported as singletons, so a spec resets in `beforeEach` rather than constructing one. `DraftMachine.spec.ts` is the worked example.
 
-## End-to-End tests with Playwright
+### Standing in for the network and the disk
 
-E2E specs run against a real deployment — localhost by default, staging or prod via `BASE_URL`. They walk real album data, so they cover integration and can't make claims about specific content.
+Neither exists in node, and both have a stand-in in `src/lib/test-support/`. `fakeServer()` replaces `fetch`, keyed by method and pathname, with `jsonResponse()`, `notFound()` and `serverError()` for the replies. `resetAlbumState()` and `seedLoadedAlbum()` handle the one `AlbumState` singleton every store writes to. Read their doc comments before reaching for them — the sharp edges are written down there.
 
-Which locator API to use is settled by lint. The judgment it leaves you is when to fall back to `getByTestId`.
+IndexedDB needs no setup at all: `fake-indexeddb/auto` is a setup file for the node project, so `idb-keyval` itself runs. Drive the cache through `idb-keyval` directly.
+
+`AlbumLoadMachine.spec.ts` is the worked example.
+
+### Testing a component
+
+`render` from `vitest-browser-svelte` mounts the component and hands back locators. `expect.element` retries a locator assertion until it holds; a plain `expect` checks once. Each is right somewhere: `render` flushes before it resolves, so a title set through `<svelte:head>` is already in `document.title` and is asserted plainly, while an overlay gated on an image firing `load` arrives whenever the browser gets to it and is asserted with `expect.element`. The browser project loads the site's stylesheet and runs at a desktop width, so `toBeVisible` reflects what the site does; a spec about what a phone reader gets sets its own viewport and says so.
+
+Seed the store the component reads rather than mocking it. The read is part of what the test covers, and `resetAlbumState()` in `beforeEach` is the whole of the setup.
+
+A page the component only routes to is stood in for by a `createRawSnippet` rendering a sentinel string. The router is the subject; the sentinel says whether it rendered the page without dragging the real one in.
+
+The library unmounts the last render in a `beforeEach` of its own. `document.title` is not part of that, so a spec that asserts it resets it by hand, or a component that sets none passes on the previous test's value.
+
+A table split by what a page puts on the screen (nothing, a heading, a message) is not a violation of one table, many functions: a row with optional columns needs a conditional in the test, which lint forbids.
+
+`DayAlbumRouting.svelte.spec.ts` is the worked example for routing off store state. `Thumbnail.svelte.spec.ts` covers what only a browser does, an `<img>` firing `load`, and a prop change through `rerender` reaching an `$effect`.
+
+### Comment the why, never the what
+
+`expect(getDetailWidth(1024, 768)).toBe(1024)` already says what it does. It doesn't say that 1024 is the boundary and the comparison is inclusive. That's the comment worth writing.
+
+### Wait on the end state, never on a span of time
+
+A state transition method starts its service work without awaiting it, and a component's image loads whenever the browser gets to it, so a spec has to wait before asserting on the result.
+
+```typescript
+// ✅ Finishes as soon as the work lands, however long it took
+await vi.waitFor(() => expect(loadStatus()).toBe(AlbumLoadStatus.LOADED));
+
+// ❌ Encodes a guess about how many event-loop turns the work takes
+await new Promise((resolve) => setTimeout(resolve, 0));
+```
+
+The guess is what rots. A single macrotask was enough to drain a disk read back when the disk was an in-memory map; once it became a real IndexedDB, an open plus a transaction outran it and the test failed about one run in six — green often enough to survive review and CI, which is the worst way for a test to be wrong. Nothing about the assertion looked stale, and that is the point: the assumption lived in the waiting, not in the assertion.
+
+A fixed drain is sound in exactly one case — asserting that something **did not** happen. Arriving too early there can only pass when it should pass, so the failure mode is a false pass rather than a flake. Say so at the call site, because the next reader will not be able to tell the two uses apart.
+
+## Trusting a test
+
+### Check a test by breaking the code
+
+A test earns its place by failing when the code is wrong. That is not the same as running the code — a suite can be green, fast, readable and prove almost nothing.
+
+When you doubt a test earns its place, break the code on purpose: invert a comparison, delete a branch, change a constant. If the suite stays green, the test is decorative.
+
+### One green run says nothing about a test that waits
+
+A race shows up as a pass most of the time by definition. Anything asynchronous is worth running twenty times before you believe it: `for i in $(seq 1 20); do npx vitest run --project node <spec>; done`.
+
+### Finding out what the code does
+
+`toMatchInlineSnapshot()` with no argument makes vitest write the actual value into the spec on the next run. Reach for it when the question is what the code returns rather than whether a test holds — it beats asserting a value you know is wrong to read the answer off the diff.
+
+## Finding things on a page
+
+Which locator API to use is settled by lint for Playwright, and the browser project follows the same rule by convention: `getByRole` first. The judgment either leaves you is when to fall back to `getByTestId`.
 
 Use it only where the markup offers nothing a user could perceive. Here that is the thumbnail grid: a thumbnail is an unlabelled `<div>`, and its image is decorative (`alt=""`) inside an `aria-hidden` anchor, so `getByRole` cannot reach either. Both carry a testid. The media region and the Next link have real roles and accessible names, so neither does.
 
 A testid on something that could carry a role or a label buys a passing test and leaves the markup no more navigable than it was.
+
+## End-to-end tests with Playwright
+
+E2E specs run against a real deployment — localhost by default, staging or prod via `BASE_URL`. They walk real album data, so they cover integration and can't make claims about specific content.
 
 `no-nth-methods` rules out `.first()` without saying what replaces it. Wait for the collection to be non-empty, then resolve it, so auto-waiting survives:
 

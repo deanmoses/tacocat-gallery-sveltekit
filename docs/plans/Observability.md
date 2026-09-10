@@ -144,6 +144,143 @@ A second alarm on Lambda `Errors` was considered and dropped. It would not have 
 
 Not observability, but cheap and adjacent: set retention on the 69 log groups (30 days for dev and test, 90 for production), and create one AWS Budget at a threshold that would be surprising. Enable CloudFront standard logging to S3 on the two production distributions with a 90-day lifecycle rule — delivery is free, storage is pennies, and logs cannot be created retroactively.
 
+## Changes to `tacocat-gallery-sam`
+
+Everything the back end repo needs to do, written to be actionable from a session rooted in that repo without this document's surrounding context. Ordered by measured value per line changed, not by total value.
+
+All numbers below were measured on 2026-09-09 against production: the prod image distribution is `E3R19YIU3JKJRK` (`img.pix.tacocat.com`) and the API is `api.pix.tacocat.com`. Everything lives in one 1,253-line `template.yaml`. Deploy to dev (`sam deploy`), then test (`sam deploy --config-env test`); prod goes through GitHub Actions and must not be deployed by hand.
+
+Make one change at a time and run `npm run perf` in `tacocat-gallery-sveltekit` after each. The current production baseline to beat:
+
+```
+Shell 139ms  |  Album JSON 562ms  |  Thumbnails (65) 394ms      LCP 800ms, settled 1095ms
+```
+
+### 1. Make the API and image origins measurable — do this first
+
+The perf script currently reports `protocol: unknown, kb: 0` for both `api.` and `img.`, because neither origin sends `Timing-Allow-Origin`. Two of the three origins are invisible to any browser-side measurement, including every measurement of the changes below. This is two one-line edits:
+
+In `app/src/lib/lambda_utils/ApiGatewayResponseHelpers.ts`, add one header to the object in `respondHttp`. Every API response goes through that one function, so this covers the whole API:
+
+```ts
+'Timing-Allow-Origin': `https://${getGalleryAppDomain()}`,
+```
+
+And add one item to `ImmutableResponseHeadersPolicy`'s `CustomHeadersConfig.Items` at `template.yaml:346`:
+
+```yaml
+- Header: Timing-Allow-Origin
+  Value: !Sub https://${GalleryAppDomain}
+  Override: true
+```
+
+That policy is attached to the `/i/*` and `/v/*` behaviours, which is where thumbnails and video posters come from, so it does not need to go on `DefaultCacheBehavior`.
+
+Verify: the host table at the end of `npm run perf` should show a real protocol and a non-zero KB figure for all three hosts.
+
+### 2. `HttpVersion: http2and3` on `ImageDistribution`
+
+`ImageDistribution` (`template.yaml:251`) has no `HttpVersion` property, so CloudFormation defaults it to `http1.1`. Confirmed by curl and by `aws cloudfront list-distributions` — all three `img.` distributions report `HTTP1_1`, while both SPA distributions report `HTTP2`. Sixty-five thumbnails against a six-connection-per-origin limit is 394ms of the warm root album load.
+
+Add one line beside `Comment`:
+
+```yaml
+HttpVersion: http2and3
+```
+
+Verify: `curl -sI https://img.staging-pix.tacocat.com/ -o /dev/null -w '%{http_version}\n'` should report 2 rather than 1.1.
+
+Note that `tacocat-gallery-sveltekit` may separately add `loading="lazy"` to its thumbnail component, which drops the root album's initial thumbnail count from 65 to the 17 actually on screen. That reduces how much this change is worth on a first paint but does not remove the case for it: day albums are larger, and scrolling still pulls the rest.
+
+### 3. `MemorySize: 1024` on `GetAlbumFunction`
+
+`GetAlbumFunction` (`template.yaml:693`) inherits `MemorySize: 256` from `Globals.Function` (`template.yaml:105`), which is roughly 0.14 vCPU. The album leg is the largest segment of the page load at 562ms, and a curl breakdown puts about 161ms of that in DNS, TCP and TLS and about 280ms in server time before the first byte. That 280ms is a DynamoDB query plus marshalling and stringifying 28KB of JSON on a seventh of a core.
+
+Set it on the function, not in `Globals` — a Globals change moves forty-odd functions at once and makes the result unattributable.
+
+Whether CPU is actually the binding constraint here is a hypothesis, not a measurement. It is one line, so test it rather than arguing about it, and revert if the album segment does not move.
+
+### 4. `MinimumCompressionSize` in `Globals.Api`
+
+There is no explicit `AWS::Serverless::Api`; the API is the implicit one created from the `Type: Api` function events, configured through `Globals.Api` (`template.yaml:114`), which sets `Name`, `Domain` and `Cors` but not `MinimumCompressionSize`. So nothing is compressed: the root album is 28,135 bytes with and without `Accept-Encoding`. Compressed it is 8,108 bytes under gzip and 6,957 under brotli.
+
+```yaml
+MinimumCompressionSize: 1000
+```
+
+Set expectations low: the 20KB saved is worth roughly 30ms on a slow mobile link and close to nothing on broadband, where the measured transfer tail after first byte is under a millisecond. It earns its place by being one line, not by being large.
+
+### 5. `GenerateDerivedImageFunction` memory, or pre-generation
+
+`GenerateDerivedImageFunction` (`template.yaml:459`) also inherits 256MB and averages 3,768ms. Another function in this template already carries `MemorySize: 1024` with a comment about HEIC conversion needing 400–600MB, which suggests 256MB here is an oversight rather than a decision. Raising it is one line; pre-generating the 200x200 thumbnail size during upload processing is the thorough fix and a real feature. Only the first viewer of an uncached size pays this, which in practice means whoever opens a new album first.
+
+### 6. The outage alarm needs a different shape than proposed above
+
+The proposal earlier in this document — CloudFront `4xxErrorRate` above 10% for 15 minutes — does not survive contact with the metric. Measured over the three quietest recent days on the prod image distribution, **23 of 65 fifteen-minute windows exceed 10%**, with individual windows at 75%, 66.7%, 60% and 50%. Those are days whose daily averages are 0.66%, 1.66% and 4.6%.
+
+The cause is the denominator. Most 15-minute windows on this distribution contain one to three requests. A single 404 in a one-request window is a 100% error rate. Widening the period does not rescue it either: two of the last ten days contain a six-hour window at exactly 100.0%. The 10% threshold was derived from daily averages and then applied to a fifteen-minute period, which is a different statistic.
+
+A rate metric is only meaningful above some volume, so guard it with one. Metric math, gated on the existing `IsProd` condition (`template.yaml:97`):
+
+```yaml
+ImageDistribution4xxAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: IsProd
+    Properties:
+        AlarmName: !Sub ${AWS::StackName}-image-cdn-4xx
+        AlarmDescription: Most image requests are failing during a period when people are actually browsing
+        ComparisonOperator: GreaterThanThreshold
+        Threshold: 25
+        EvaluationPeriods: 1
+        TreatMissingData: notBreaching
+        AlarmActions:
+            - !Ref ErrorsTopic
+        Metrics:
+            - Id: guarded
+              Expression: IF(requests > 200, errorRate, 0)
+              Label: 4xx rate when traffic is high enough to mean anything
+              ReturnData: true
+            - Id: requests
+              ReturnData: false
+              MetricStat:
+                  Period: 3600
+                  Stat: Sum
+                  Metric:
+                      Namespace: AWS/CloudFront
+                      MetricName: Requests
+                      Dimensions:
+                          - Name: DistributionId
+                            Value: !Ref ImageDistribution
+                          - Name: Region
+                            Value: Global
+            - Id: errorRate
+              ReturnData: false
+              MetricStat:
+                  Period: 3600
+                  Stat: Average
+                  Metric:
+                      Namespace: AWS/CloudFront
+                      MetricName: 4xxErrorRate
+                      Dimensions:
+                          - Name: DistributionId
+                            Value: !Ref ImageDistribution
+                          - Name: Region
+                            Value: Global
+```
+
+Traffic is bursty rather than steady — quiet 15-minute windows hold one or two requests while the busiest hold 1,308 — so a 200-request floor over an hour means the alarm is only evaluated during an actual browsing session, which is exactly when a broken image CDN matters. Ten days of metrics is not enough to tune that floor properly; start there and check `aws cloudwatch describe-alarm-history` after a few weeks before trusting it.
+
+Two things that will bite:
+
+- CloudFront metric alarms need `Region: Global` as a second dimension alongside `DistributionId`, and must live in `us-east-1`. Everything here already does.
+- The alarm and its SNS topic both need defining in this template. Today's alarm is named "Email Moses on Tacocat Gallery - dev error" and points at `arn:aws:sns:us-east-1:010410881828:Tacocat_Gallery_dev_Errors_Topic`; neither appears in any template in any of the four repos, so both were created by hand in the console. That is precisely the drift the fifth requirement above warns about. A CloudFormation-created email subscription sends a confirmation email that has to be clicked, and until it is, the alarm fires into nothing.
+
+### 7. Housekeeping
+
+**Log retention.** 73 of the 74 log groups in the account have no retention set, up from the 69 counted when this document was first written. `AWS::Serverless::Function` has no retention property — `LoggingConfig` covers format and level only — so doing this as code means an explicit `AWS::Logs::LogGroup` per function, named `/aws/lambda/${FunctionName}`. That is forty-odd resources and several hundred lines of YAML for a housekeeping task, which fails the value-per-line test badly enough to justify a deliberate exception to the fifth requirement: sweep the existing groups with a one-off `aws logs put-retention-policy` loop, and accept that new functions will need the same sweep again. 30 days for dev and test, 90 for prod.
+
+**CloudFront access logs.** `Logging.Enabled` is absent on all five distributions. Enabling standard logging to S3 on the prod image distribution needs a log bucket, a `Logging` block, and a 90-day lifecycle rule — around 25 lines. It is the only item here that cannot be done retroactively: the September incident cannot be diagnosed now because no logs were ever written, and the same will be true of the next one for every day this stays off.
+
 ## Options
 
 Grouped by the decision each set of alternatives was competing to answer.

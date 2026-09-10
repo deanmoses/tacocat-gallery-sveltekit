@@ -33,7 +33,14 @@ describe(Thumbnail, () => {
         await expect.element(screen.getByTestId('play-overlay')).not.toBeInTheDocument();
     });
 
-    it('leaves the play overlay off a still image whose thumbnail has loaded', async () => {
+    /**
+     * Rendered as a video first, so the overlay coming up proves the image's
+     * `load` handler has run before the flag flips. Rendered as a still from
+     * the start, the overlay is absent before the image loads as well as after,
+     * and `complete` turns true before the handler runs, so its absence would
+     * prove nothing.
+     */
+    it('takes the play overlay down when the thumbnail stops being a video', async () => {
         const screen = await render(Thumbnail, { src: LOADABLE_IMAGE, isVideo: true });
 
         await expect.element(screen.getByTestId('play-overlay')).toBeVisible();
@@ -43,6 +50,12 @@ describe(Thumbnail, () => {
         await expect.element(screen.getByTestId('play-overlay')).not.toBeInTheDocument();
     });
 
+    /**
+     * The replacement is a broken image on purpose. A loadable one would fire
+     * `load` again, and the overlay could be back up before the assertion saw
+     * it down, so the reset could not be told apart from the reload. Broken, the
+     * only thing that can take the overlay down is the reset.
+     */
     it('takes the play overlay back down when the thumbnail is replaced', async () => {
         const screen = await render(Thumbnail, { src: LOADABLE_IMAGE, isVideo: true });
 

@@ -152,9 +152,13 @@ Comments exist ONLY to explain what the code cannot. Never restate the code.
 - **Don't repeat project-wide conventions in every file.** The state-transition / service-method split is documented here and in `docs/Svelte.md`; it does not belong as a banner comment in each state machine.
 - **Don't justify verbosity by ratio.** "It matches the doc-to-code ratio of the rest of the project" is not a defense. Write tight, just-enough comments.
 
-### Markdown
+### Don't wrap Markdown
 
-Never hard-wrap prose. Write each paragraph and list item as one long line and let the viewer soft-wrap it to its own width; wrapping at ~80 columns turns into choppy short lines on a narrow screen. Tables, code blocks and YAML frontmatter keep their own line structure.
+Never hard-wrap prose in Markdown. Write each paragraph and list item as one long line and let the viewer soft-wrap it to its own width; wrapping at ~80 columns turns into choppy short lines on a narrow screen. Tables, code blocks and YAML frontmatter keep their own line structure.
+
+## All production behavior changes must have tests
+
+**NEVER** change production behavior without a test that fails without the change.
 
 ## Testing
 

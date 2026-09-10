@@ -34,11 +34,15 @@
         <MediaProcessingPage title="Upload In Progress" />
     {:else if UploadState.PROCESSING === uploadStatus}
         <MediaProcessingPage title="Upload Processing" />
+    {:else}
+        <AlbumErrorPage>Unknown upload status: [{uploadStatus}]</AlbumErrorPage>
     {/if}
 {:else if RenameStatus.IN_PROGRESS === renameStatus}
     <MediaProcessingPage title="Rename In Progress" />
 {:else if DeleteStatus.IN_PROGRESS === deleteStatus}
     <MediaProcessingPage title="Delete In Progress" />
+{:else if !albumLoadStatus}
+    <MediaLoadingPage />
 {:else if AlbumLoadStatus.NOT_LOADED === albumLoadStatus}
     <MediaLoadingPage />
 {:else if AlbumLoadStatus.LOADING === albumLoadStatus}
@@ -63,5 +67,5 @@
         <p><a href="/">Go back <HomeIcon title="Home" />?</a></p>
     </AlbumErrorPage>
 {:else}
-    Unknown status: [{albumLoadStatus}]
+    <AlbumErrorPage>Unknown status: [{albumLoadStatus}]</AlbumErrorPage>
 {/if}

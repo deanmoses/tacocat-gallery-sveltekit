@@ -24,7 +24,7 @@
 </script>
 
 {#if CreateStatus.IN_PROGRESS === createStatus}
-    <AlbumErrorPage>Creating...</AlbumErrorPage>
+    <AlbumProcessingPage title="Create in progress" />
 {:else if DeleteStatus.IN_PROGRESS === deleteStatus}
     <AlbumProcessingPage title="Delete in progress" />
 {:else if RenameStatus.IN_PROGRESS === renameStatus}
@@ -42,8 +42,8 @@
 {:else if AlbumLoadStatus.DOES_NOT_EXIST === loadStatus}
     <AlbumErrorPage title="Album Not Found">
         <p>Album does not exist.</p>
-        <p><a href="/">Go back <HomeIcon />?</a></p>
+        <p><a href="/">Go back <HomeIcon title="Home" />?</a></p>
     </AlbumErrorPage>
 {:else}
-    Unknown album status: {loadStatus}
+    <AlbumErrorPage>Unknown album status: {loadStatus}</AlbumErrorPage>
 {/if}
