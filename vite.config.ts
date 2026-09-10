@@ -78,6 +78,12 @@ export default defineConfig({
                 test: {
                     name: 'browser',
                     include: ['src/**/*.svelte.spec.ts'],
+                    // expect.element and locator actions retry until the test's
+                    // own deadline rather than a poll timeout of their own, and
+                    // the browser default deadline is 15s: a wrong assertion sits
+                    // for 15s before it reports. Nothing here loads slower than a
+                    // data URI, so 3s is room for a slow runner, not a real wait.
+                    testTimeout: 3000,
                     browser: {
                         enabled: true,
                         headless: true,
