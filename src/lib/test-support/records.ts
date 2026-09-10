@@ -12,6 +12,7 @@
  */
 import toAlbum from '$lib/models/impl/AlbumCreator';
 import type { Album } from '$lib/models/GalleryItemInterfaces';
+import type { RenameEntry, RenameStatus, UploadEntry } from '$lib/models/album';
 import type { AlbumGalleryItem, ImageRecord, MediaRecord, VideoRecord } from '$lib/models/impl/server';
 
 /** The album every fixture sits in, unless a spec is about paths themselves */
@@ -54,6 +55,25 @@ export function videoRecord(fields: Partial<VideoRecord> & Pick<VideoRecord, 'it
 
 export function albumRecord(fields: Partial<AlbumGalleryItem> = {}): AlbumGalleryItem {
     return { ...BASE_ALBUM, ...fields };
+}
+
+/**
+ * An upload in flight. The File is a real one carrying no bytes: what an upload
+ * fixture is asked about is its path and its status, never its contents.
+ */
+export function uploadEntry(fields: Partial<UploadEntry> & Pick<UploadEntry, 'status'>): UploadEntry {
+    const fileName = fields.mediaPath?.split('/').pop() ?? 'item.jpg';
+    return {
+        file: new File([], fileName, { type: 'image/jpeg' }),
+        uploadPath: mediaPath(fileName),
+        mediaPath: mediaPath(fileName),
+        ...fields,
+    };
+}
+
+/** A rename in flight, from a path to the same path under a new name */
+export function renameEntry(oldPath: string, newName: string, status: RenameStatus): RenameEntry {
+    return { oldPath, newPath: oldPath.replace(/[^/]+\/?$/, newName), status };
 }
 
 /** Built through the app's own factory, so specs get the album a caller is handed */
