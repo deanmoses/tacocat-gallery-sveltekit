@@ -48,6 +48,8 @@ Everything below this is AI-generated and I do not vouch for it.
 
 Everything below comes from three sources, none of which required changing any infrastructure: `curl` against production, CloudWatch metrics and Lambda logs that were already being collected, and a headless browser driven by the Playwright that this repo already installs. That last one is now checked in as `scripts/measure-perf.mjs`.
 
+The script discards a warm-up run and prints the spread behind every median, both of which it earned the hard way. Three back-to-back invocations drifted downwards on every metric — LCP 736ms, then 688ms, then 668ms — because repeated runs keep the edge cache warm that 85 views a day let go cold. Without the warm-up discard, an "after" measured later in a session beats a "before" measured earlier whether or not anything improved. And the spread separates what the tool can prove from what it cannot: across those same invocations the album and thumbnail segments held to within 24ms and 8ms, while LCP moved by 68ms — wider than several of the wins being attributed to it.
+
 ### Traffic
 
 Production is small. Over the seven days ending 2026-09-09: 9,758 requests to the SPA distribution, 6,909 to the image distribution, and 624 `GetAlbum` invocations — roughly 85 album views a day.
@@ -56,47 +58,168 @@ That number drives most of what follows. It means CDN log analysis has little si
 
 ### Where the time goes
 
-Root album, median of five runs against production, warm:
+Root album, median of five runs against production after a discarded warm-up, 2026-09-10:
 
-| Segment                                         | Starts | Done   | Took  |
-| ----------------------------------------------- | ------ | ------ | ----- |
-| Shell (HTML, JS, CSS — 38 requests over HTTP/2) | 0ms    | 143ms  | 143ms |
-| Album JSON                                      | 143ms  | 784ms  | 641ms |
-| Thumbnails (65)                                 | 784ms  | 1174ms | 390ms |
+| Segment                                                | Starts | Done  | Took  | Spread of "done" |
+| ------------------------------------------------------ | ------ | ----- | ----- | ---------------- |
+| Shell (HTML, JS, CSS — 37 requests over HTTP/2 and /3) | 0ms    | 122ms | 122ms | 102–147ms        |
+| Album JSON                                             | 122ms  | 463ms | 341ms | 446–483ms        |
+| Thumbnails on screen (16 of 65)                        | 463ms  | 628ms | 165ms | 596–721ms        |
 
-LCP lands at ~884ms warm. The shell is not the problem; everything after it is waiting on the album JSON.
+LCP lands at 568ms (548–668).
 
-Breaking the 641ms album leg down further, using `curl` and the Lambda logs: roughly 130ms of DNS, TCP and TLS to a second origin, ~334ms of Lambda, and ~135ms of API Gateway plus transferring 28KB of uncompressed JSON.
+Breaking the album leg down further with `curl`: roughly 155ms of DNS, TCP and TLS to a second origin, then the API's own time. Now that `GetAlbum` executes in a median of 22ms, that handshake is the largest single item left in the leg, and the case for consolidating the origins has nothing competing with it any more.
+
+The thumbnail segment counts only the thumbnails inside the opening viewport, which is why it cannot be compared against figures recorded before 2026-09-10. Timing all 65 made the number depend on how many the album happens to have below the fold, and would have collapsed on its own the first time the grid loaded offscreen images lazily — a large apparent win with nothing having got faster for the person looking at the page.
 
 ### Cold starts
 
-From the `platform.report` records in the `GetAlbum` log group over the same window:
+From the `platform.report` records in the `GetAlbum` log group, after the arm64 deploy:
 
 ```
-invocations  624      coldStarts  129 (21%)
-avgInitMs    318      maxInitMs   371      avgDurationMs  334
+invocations  37       coldStarts  2 (5%)
+medianInitMs 323      medianDurationMs  22      avgDurationMs  30      maxDurationMs  216
+maxMemoryUsedMB  100-117 of 1024
 ```
 
-A fifth of visitors pay an extra ~318ms. Real, but a fifth the size of an early estimate made by comparing a cold browser run against a warm one — that gap also contained cold DNS, cold TLS and a cold edge.
+A cold request costs roughly 490ms more than a warm one: ~320ms of init, plus a cold execution of around 191ms against the 22ms warm median. Both halves count. Quoting init alone is the easy mistake, and it understates the penalty by more than a third.
 
-### Findings
+**Init did not move**, and it is worth stating plainly rather than as a suspicion. It was ~330ms at 256MB on x86 with source maps and is ~322ms at 1024MB on arm64 with a bundle a quarter of the size (614KB to 162KB). Across both environments:
+
+| Sample      | n   | avg init | p50   | p90   |
+| ----------- | --- | -------- | ----- | ----- |
+| dev before  | 50  | 314ms    |       |       |
+| dev after   | 64  | 296ms    | 303ms | 319ms |
+| prod before | 142 | 321ms    |       |       |
+| prod after  | 2   | 322ms    |       |       |
+
+Six percent in dev, nothing in prod. Init is dominated by sandbox and runtime bootstrap, which neither more CPU nor a smaller zip touches. The dev cold starts were forced with a synthetic concurrency burst rather than drawn from organic traffic, and concurrent cold starts need not behave like isolated ones — but the answer does not wobble between two environments and two collection methods.
+
+The prediction this falsifies was that init and execution were both CPU-bound, and that raising memory would therefore cut them together. Neither half held: init is not CPU-bound at all, and execution turned out to be bound by something else again — see the DynamoDB connection timings below. It is the third time in this document that a plausible mechanism survived until someone measured it, which is the argument for the measuring in the first place.
+
+### Findings still open
 
 Ranked by measured contribution to a warm page load:
 
-1. **Three origins instead of one.** `pix.`, `api.` and `img.` each cost a fresh DNS+TCP+TLS handshake, and because they are discovered in sequence — the API is not known until the JS boots, the images not until the API returns — each handshake sits squarely on the critical path rather than overlapping anything. Serving everything from one distribution with path-based behaviours removes two handshakes and lets the thumbnails reuse the HTTP/2 connection already open for the HTML. Domain sharding was an HTTP/1.1 workaround; under HTTP/2 it costs more than it saves.
-2. **The image CDN negotiates HTTP/1.1.** `HttpVersion` is absent from the SAM template and CloudFormation defaults to `http1.1`. 65 thumbnails against a 6-connection-per-origin limit is ~390ms of the warm load. Consolidation makes this moot; setting `http2and3` fixes it independently.
-3. **The API does not compress.** The root album is 28,135 bytes with or without `Accept-Encoding`. There is no explicit `AWS::Serverless::Api`, so `MinimumCompressionSize` is unset.
-4. **`GetAlbum` runs at 256MB.** That is roughly 0.14 vCPU, and both init and execution are CPU-bound. More memory buys proportionally more CPU.
-5. **Cold thumbnails take 3.6s.** Derived images are generated on demand through a CloudFront origin group that fails over from S3 to a Lambda function URL on 403/404. `GenerateDerivedImage` also runs at 256MB and averages 3,768ms. Only the first viewer of an uncached size pays it, which in practice means whoever opens a new album first.
-6. **No `Cache-Control` on `index.html`.**
+1. **Four origins, and the expensive one is not behind a CDN.** A page load touches `pix.`, `api.`, `img.` and `auth.`, each costing its own DNS, TCP and TLS. They are not equal:
 
-### The one thing we cannot currently see
+    | Origin                             | TLS complete, 5 runs |
+    | ---------------------------------- | -------------------- |
+    | `pix.tacocat.com` (CloudFront)     | 42–61ms              |
+    | `img.pix.tacocat.com` (CloudFront) | 43–78ms              |
+    | **`api.pix.tacocat.com`**          | **152–160ms**        |
 
-`nextHopProtocol` and `transferSize` come back empty for the API and image origins, because neither sends a `Timing-Allow-Origin` header. Segment timings are unaffected, but per-resource protocol and byte counts are invisible to any browser-side measurement — including any real-user monitoring added later. It is a one-line response-header change and worth making before it is needed.
+    `api.` and `auth.` are **REGIONAL** API Gateway custom domains, so their TLS terminates in us-east-1 rather than at an edge. Every visitor pays a transcontinental round trip for a connection the other two get locally. With `GetAlbum` now executing in 22ms, that ~155ms handshake is the largest single item left in the page load.
+
+    The usual argument for consolidating — that domain sharding is an obsolete HTTP/1.1 workaround — is true but does no work here. These are not shards of one asset class; they are functionally distinct origins, and serving an API from its own hostname is a defensible architecture. The case rests on the measurement above, not on the principle.
+
+2. **Thumbnails are JPEG, and far heavier than their size suggests.** A 200x200 thumbnail costs 18–30KB. A day album of 32 of them is 709KB of image transfer, and Lighthouse puts ~460KB of that as recoverable by encoding WebP or AVIF instead. That is larger than every latency win recorded in this document combined, and it is a change to `GenerateDerivedImage` rather than to the front end. Serving a modern format also has to survive browsers that cannot read it, so it needs either content negotiation on `Accept` at the edge or a `<picture>` element with a JPEG fallback — neither of which exists today.
+
+3. **Every thumbnail loads eagerly.** At 1440x900 the root album puts 16 of its 65 thumbnails on screen and fetches all 65 — roughly 560KB nobody looks at, contending with the ones they do. `Thumbnail.svelte` sets `decoding="async"` but no `loading`. In-viewport images are still fetched immediately under `loading="lazy"`, so there is no LCP cost to weigh against it. One attribute, in this repo, with no deploy.
+4. **No `Cache-Control` on `index.html`.** Confirmed absent entirely, and CloudFront's `CachingOptimized` default TTL means a deploy can serve stale HTML for up to 24 hours. A correctness problem more than a performance one.
+
+### What shipped on 2026-09-10, and what it bought
+
+Four of the five back end performance changes went out in one `sam deploy`. Verified against production by `curl`, `aws cloudfront list-distributions` and `aws lambda list-functions`:
+
+| Change                 | Before                   | After                                  |
+| ---------------------- | ------------------------ | -------------------------------------- |
+| Image CDN HTTP version | `http1.1`                | `http2and3`, on all five distributions |
+| Root album on the wire | 28,135 bytes             | 8,140 bytes                            |
+| `Timing-Allow-Origin`  | absent                   | present on the API and image origins   |
+| `GenerateDerivedImage` | 256MB, averaging 3,768ms | 1024MB, 680–1,421ms                    |
+
+Measured with the pre-change script, so the before and after are like for like:
+
+| Segment         | Before | After | Δ      |
+| --------------- | ------ | ----- | ------ |
+| Shell           | 139ms  | 144ms | +5ms   |
+| Album JSON      | 562ms  | 467ms | −95ms  |
+| Thumbnails (65) | 394ms  | 232ms | −162ms |
+| LCP             | 800ms  | 736ms | −64ms  |
+| Fully settled   | 1095ms | 843ms | −252ms |
+
+Two things are worth keeping from that.
+
+The compression estimate in this document was wrong, and wrong in an instructive direction. It predicted roughly 30ms on a slow mobile link and close to nothing on broadband, reasoning from bandwidth: 20KB saved is sub-millisecond at broadband speed, and the measured transfer tail after first byte was indeed under a millisecond. It delivered 95ms. The mechanism it ignored is TCP slow start — a 28KB response needs several round trips before the congestion window opens, while an 8KB one largely fits the first burst. Payload size buys latency, not just bandwidth.
+
+The `GenerateDerivedImage` figures also confirm why the memory was raised. Peak memory used across those invocations was 167–189MB, nowhere near the 1024MB allocated: the memory was bought for the CPU that comes with it, exactly as the template comment claims. Only three invocations, so hold the range loosely — and the next full vCPU boundary is 1769MB if it ever looks worth testing.
+
+### The second deploy on 2026-09-10, and what it bought
+
+The back end followed with four more changes in one release: source maps off for the API lambdas (a sixfold drop in bundle size), memory from 256MB to 1024MB across the board, a move to arm64, and AWS SDK clients hoisted so they are reused across invocations.
+
+| Segment              | Before | After | Δ      |
+| -------------------- | ------ | ----- | ------ |
+| Shell                | 130ms  | 122ms | −8ms   |
+| Album JSON           | 452ms  | 341ms | −111ms |
+| Thumbnails on screen | 161ms  | 165ms | +4ms   |
+| LCP                  | 688ms  | 568ms | −120ms |
+| Settled              | 743ms  | 628ms | −115ms |
+
+The album leg's spread was 446–483ms, 37ms wide against a 111ms change, so this is the first result the instrument's own error bars comfortably support.
+
+The window is clean: the earlier release went out at 08:59 UTC, this "before" was taken at 09:23, and this release landed at 10:09. The 111ms on the album leg belongs to this change alone.
+
+`GetAlbum`'s median execution fell from 170ms to 22ms, and **the mechanism is connection reuse, not CPU**. Holding code, memory and architecture constant and varying only how long the function sat idle:
+
+| Idle before request | `GetAlbum` duration                           |
+| ------------------- | --------------------------------------------- |
+| sustained           | 8–15ms                                        |
+| 60s                 | 15ms                                          |
+| 120s                | 18ms                                          |
+| 240s                | 104ms                                         |
+| 480s                | 157ms, plus 234ms init — environment recycled |
+
+The step between two and four minutes is the DynamoDB connection dropping and being renegotiated, which puts the handshake at about 85ms on its own. Before this release `getAlbumAndChildren` constructed three or four `DynamoDBClient`s per invocation, each with its own pool, so a single request paid that several times over. Peak memory is 100–117MB of the 1024MB allocated and the handler does a couple of DynamoDB round trips and some JSON: there was never 150ms of CPU in it to reclaim.
+
+That distinction decides what to do next. The CPU story predicts more memory would keep helping; the connection story predicts it will not.
+
+It got cheaper anyway: 0.25GB for 170ms is 0.0425 GB-seconds, against 1GB for 22ms at arm64's 80% rate — roughly 2.4x less per invocation, having quadrupled the memory.
+
+**What cannot be attributed.** The four changes shipped as one release and were not measured independently. Client reuse owns the warm win, on the evidence above. Source maps bought nothing measurable — the bundle fell from 614KB to 162KB and `NODE_OPTIONS` went away, but init is flat, so any gain is inside the noise. The contribution of memory and arm64 is unresolved: a cold invocation handshakes either way, and previously did so three or four times, which hides the effect. Given flat init and a fully explained warm win, their share is probably small — but that is inference, not measurement, and separating it would take three staging deploys reverting one thing at a time.
+
+Nothing broke: zero `Errors` across eight prod functions since the deploy, API Gateway 5XXError at zero, 0.00% CloudFront 5xx, and no error-level log lines in `GetAlbum`, `Search` or `GenerateDerivedImage`. Neither session checked DynamoDB throttles or SDK-level retries, so that is a thin slice rather than a clean bill.
+
+`GenerateDerivedImage` and `ProcessMediaUpload` stayed on x86_64. This is declined with the reason recorded in the template, not deferred work in flight. Both depend on `layer:sharp-heic:1`, a native x86_64 build produced by a separate CodeBuild project and pinned by ARN; moving them means cross-compiling libheif, libde265 and libvips for aarch64 and republishing. The volume makes the case: `GenerateDerivedImage` ran 35 times in seven days against 794 `GetAlbum` invocations, so about 4% of album views trigger a generation at all, and it has not run once since this deploy. Cross-compiling that stack to shave 10–20% off a rare first-viewer-only wait is poor value. Pre-generating the standard thumbnail size at upload removes the wait instead of shortening it, and is the better use of the same effort.
+
+### Preconnect hints work, and four measurements said otherwise
+
+`preconnect` hints for the API, image and auth origins ship in `app.html`, derived from the page's own hostname so one template serves every environment. They help. Every measurement taken in this repository said they did nothing, and every one of those measurements was wrong.
+
+The evidence that settled it came from Lighthouse, driven by a real Chrome against staging with the hints deployed. Its `network-rtt` audit reports what each origin cost to connect to:
+
+| Origin                         | Observed RTT | Preconnected |
+| ------------------------------ | ------------ | ------------ |
+| `staging-pix.tacocat.com`      | 59.8ms       | no           |
+| `auth.staging-pix.tacocat.com` | 0.18ms       | yes          |
+| `api.staging-pix.tacocat.com`  | 0.10ms       | yes          |
+| `img.staging-pix.tacocat.com`  | 0ms          | yes          |
+
+The three hinted origins cost essentially nothing to reach; the one origin without a hint pays the full round trip. Lighthouse also lists all three under "Preconnected origins" with no warnings attached — that is where it reports a hint that went unused — and concludes that no further origins are worth hinting.
+
+**The instrument was the problem.** The headless Chromium that Playwright bundles does not act on `<link rel="preconnect">` at all. Checked on an inert page with a three-second pause before the fetch, where a working hint must show a reused socket, it shows a full handshake with the hint and without it. Every "preconnect does nothing" result in this repository was a measurement of that browser, not of the site.
+
+The sequence is worth keeping, because each step looked like progress:
+
+1. **+20–45ms.** Hints injected through Playwright's `addInitScript`, which runs before the document is parsed — earlier than shipped markup can be. A flattering artifact.
+2. **−72ms**, hints apparently making the page slower. The HTML was rewritten in flight to place the hints where they would really live, but only the treatment arm paid the cost of that interception.
+3. **Zero**, from interception in both arms with a same-length placebo in the control. Methodologically sound, and still wrong, because the browser underneath ignored the hints.
+4. **Zero again**, from a real deployment to staging, twelve runs, `connectEnd - connectStart` never dropping to zero. Same browser, same blind spot. This one felt conclusive because it removed every confound anyone had thought of.
+
+Each fix addressed a real flaw and moved the number, which is exactly what made the final answer persuasive. The flaw none of them touched was the one that mattered.
+
+The lesson is narrower than "measure carefully" and worth stating plainly: **a null result is a claim about the instrument until the instrument has been checked against a case with a known answer.** Four experiments refined the arms and never once asked whether the browser could observe the effect at all. Validating a harness costs one test — hint, wait longer than any handshake could take, look for a reused socket — and it would have caught this before the first table was drawn.
+
+Two further notes for whoever measures next. `crossorigin` is not decoration: credentialed requests use their own connection pool, so the API and auth hints must carry no `crossorigin` (or `use-credentials`), while `crossorigin="anonymous"` would warm a pool nothing draws from. And an interim sample of five runs once showed the image origin reusing a connection twice, which looked like a signal and was not; twelve runs showed none. A small sample of a binary outcome manufactures exactly that phantom.
+
+### The origin still invisible to measurement
+
+`Timing-Allow-Origin` now ships on the API and image origins, but `auth.pix.tacocat.com` sends only CORS headers, so its connection and transfer timings read as empty from the page. It is a real origin on every page load, and it is the one that cannot be measured. The header lives in `tacocat-gallery-auth`, which was outside the scope of the change that fixed the other two.
 
 ### What is watching production today
 
-Nothing. One CloudWatch alarm exists, on `AWS/Lambda Errors`, for **dev**. There is an SNS topic wired to email, also dev-only. CloudFront access logs are disabled on all five distributions, no tracing is enabled anywhere, there are no canaries, no budget, and all 69 Lambda log groups are set to never expire.
+Nothing. One CloudWatch alarm exists, on `AWS/Lambda Errors`, for **dev**. There is an SNS topic wired to email, also dev-only. CloudFront access logs are disabled on all five distributions, no tracing is enabled anywhere, there are no canaries, no budget, and 74 of the 75 Lambda log groups are set to never expire.
 
 The cost of that showed up in the 4xx rate on the production image distribution:
 
@@ -116,21 +239,66 @@ The cost of that showed up in the 4xx rate on the production image distribution:
 
 ### Measuring
 
-`npm run perf` runs `scripts/measure-perf.mjs`: a headless browser against production, five runs, reporting the median of each critical-path segment. Run it before a change and after.
+`npm run perf` runs `scripts/measure-perf.mjs`: a headless browser against production, a discarded warm-up plus five runs, reporting the median and spread of each critical-path segment. Run it before a change and after, and check that the spread is smaller than the difference before believing the difference.
 
 That is the entire measurement apparatus. It needs no AWS changes, no vendor, no budget, and it survives a year of neglect because it is a file in a repo rather than a configuration in a console.
 
-Its value is not theoretical. Over the course of designing this document the ranking of performance fixes was revised twice, each time because a measurement contradicted a plausible-sounding argument — first that HTTP/2 on images was the biggest lever, then that cold starts cost 1,200ms.
+Its value is not theoretical. Over the course of designing this document the ranking of performance fixes was revised three times, each time because a measurement contradicted a plausible-sounding argument — that HTTP/2 on images was the biggest lever, that cold starts cost 1,200ms, and that compressing the album response would barely register.
+
+Its limits are not theoretical either. It runs on the headless Chromium that Playwright bundles, which does not act on `preconnect` hints, and four increasingly careful experiments therefore concluded that those hints were worthless. They are not. Nothing in the script's output disclosed the gap, and no amount of refining the comparison would have. Anything this tool reports as _no effect_ deserves a second opinion from a real browser before it is believed.
+
+It is a measuring instrument, so it needs the same scepticism as the things it measures. Two of its readings were misleading and are now fixed — it warmed the cache it was measuring, and it timed thumbnails nobody could see. Its pure arithmetic is covered by `scripts/measure-perf.spec.mjs`; the test that matters asserts that the thumbnail segment gives the same answer whether or not the offscreen images were requested at all, which is the reading that would otherwise turn a lazy-loading change into a fake 40% win.
 
 ### Performance fixes, in measured order
 
-1. Consolidate the three domains behind one distribution. Largest win, and the only change that touches three of the six segments.
-2. Compress the API response.
-3. Raise `GetAlbum` memory to 1024MB. Cuts init and duration together; the bill is trivial at 624 invocations a week.
-4. Raise `GenerateDerivedImage` memory, or pre-generate the standard thumbnail size during upload processing.
-5. `Cache-Control` on `index.html`, and `Timing-Allow-Origin` on the API and image origins.
+What is left, after the 2026-09-10 deploy:
 
-If consolidation is deferred, `HttpVersion: http2and3` on the image distribution and two `preconnect` hints in `app.html` recover part of the same ground — the preconnect hints measured at ~67ms.
+1. Consolidate the three domains behind one distribution. Largest win by a wider margin than before: with `GetAlbum` down to a 22ms median, the ~155ms handshake to a second origin is the biggest remaining item in the album leg.
+2. `loading="lazy"` on the thumbnail in this repo. One attribute, no deploy, and it stops 49 of 65 images being fetched for a viewport that holds 16.
+3. `Cache-Control` on `index.html`.
+
+`preconnect` hints for the API, image and auth origins ship in `app.html` and recover part of the handshake while consolidation is outstanding. They are a mitigation, not a substitute: the connection is still to a separate host, so consolidation still has the larger prize.
+
+Shipped: `HttpVersion: http2and3`, API compression, `Timing-Allow-Origin`, `GenerateDerivedImage` memory, and then arm64, 1024MB, no API source maps and reused SDK clients. See the two records above for what each round bought.
+
+### Consolidating the origins
+
+Do the API first, and not all of it at once.
+
+| Move                             | Recovers                                       | Costs                                                                                     |
+| -------------------------------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `/api/*` on the SPA distribution | ~155ms: edge termination plus connection reuse | One behaviour, one origin, and a coordinated change across two repos                      |
+| `/i/*` on the SPA distribution   | ~45ms                                          | Moving three origins, an origin group with 403/404 failover, and two CloudFront Functions |
+
+The API is 3.4x the return for a fraction of the work, and it leaves the fiddliest machinery where it is. Expect 100–150ms rather than the full 155ms — the edge-to-origin hop to us-east-1 is not free — and measure rather than assume.
+
+**Same-origin is the durability argument, and it may matter more than the latency.** `/api/*` under `pix.tacocat.com` retires the `Cors` block in the SAM template — `AllowCredentials: true` against a single hardcoded `AllowOrigin` — and the `credentials: 'include'` cross-origin story with it. Fewer moving parts that have to stay correct for decades.
+
+The offsetting cost is that the SPA's API base URL has to move in step with the CloudFront behaviour, across two repositories, in one coordinated change.
+
+**Switching the API Gateway domain to EDGE is the fallback, not the first move.** It moves TLS termination to an edge but still leaves a separate hostname to look up, connect to and negotiate, so it recovers ~110ms of the ~155ms rather than all of it. It is reachable without configuration drift, but only by dropping SAM's `Domain` shorthand and declaring `AWS::ApiGateway::DomainName` and `AWS::ApiGateway::BasePathMapping` directly, so that `Types` can carry both endpoints during a two-deploy migration. That means owning two resources SAM manages today, for the life of the project.
+
+What makes the CLI shortcut unacceptable rather than merely untidy: CloudFormation diffs each template against the previous template, not against live state. A hand-migrated domain would therefore survive silently, with deploys continuing to succeed, until some unrelated future change touched that resource — a certificate rotation is the likely trigger — at which point the stack would assert `Types: [REGIONAL]` and `RegionalCertificateArn` against a live edge-optimized domain. A landmine armed now and detonating years later, in a stack whose defined-as-code requirement exists because console drift already cost a three-day unnoticed outage.
+
+**There is no Route53 hosted zone in this account.** DNS lives at an external registrar, and `api.pix.tacocat.com` is a CNAME to `d-pbw01cw1w4.execute-api.us-east-1.amazonaws.com`. Every route here — EDGE or consolidation — needs a manual DNS edit. "No drift" and "no manual steps" are different claims, and only the first is available.
+
+**Putting the API behind CloudFront puts a cache in front of authenticated responses.** `isAuthenticatedForReads` decides on the presence of an `id_token` cookie, so a cache key that ignores cookies would serve an admin's unpublished-album response to the next anonymous visitor. `CachingDisabled` on that behaviour from the first day. The origin should defend itself too: `respondHttp` currently sets no `Cache-Control` and no `Vary` at all, so correctness would rest entirely on one CloudFront setting being right forever, with nothing to catch a mistake. `Cache-Control: private, no-store`, or at minimum `Vary: Cookie`, belongs in the same change.
+
+Edge-caching public album JSON is a large further win and exactly the change that does real damage if the auth story is wrong. Separately, deliberately, later.
+
+### A fourth origin nobody asked for
+
+Every page load, for every anonymous visitor, includes this:
+
+```
+218ms  GET  https://auth.pix.tacocat.com/
+218ms  GET  https://api.pix.tacocat.com/album/
+523ms  GET  https://api.pix.tacocat.com/latest-album/
+```
+
+`auth.` is another regional API Gateway domain, so a visitor who has never logged in pays a full transcontinental handshake to be told so. It runs in parallel with the album rather than ahead of it, so it blocks nothing directly, but it is a fourth connection competing during the only part of the load that matters, and it is waste for very nearly all traffic. Whether that check needs to happen before first paint is a question for whoever moved it to the root layout; deferring it past first paint would remove the handshake rather than hide it.
+
+`/latest-album/` is a second API call that depends on the first. It reuses the connection so costs no handshake, but it is another round trip after the album returns.
 
 ### Outages
 
@@ -148,15 +316,17 @@ Not observability, but cheap and adjacent: set retention on the 69 log groups (3
 
 Everything the back end repo needs to do, written to be actionable from a session rooted in that repo without this document's surrounding context. Ordered by measured value per line changed, not by total value.
 
-All numbers below were measured on 2026-09-09 against production: the prod image distribution is `E3R19YIU3JKJRK` (`img.pix.tacocat.com`) and the API is `api.pix.tacocat.com`. Everything lives in one 1,253-line `template.yaml`. Deploy to dev (`sam deploy`), then test (`sam deploy --config-env test`); prod goes through GitHub Actions and must not be deployed by hand.
+**All five shipped on 2026-09-10 and are kept here as the record of what was changed and why. Item 3 landed in a second release, alongside arm64, reused SDK clients and dropping source maps from the API lambdas.**
+
+All numbers below were measured against production: the prod image distribution is `E3R19YIU3JKJRK` (`img.pix.tacocat.com`) and the API is `api.pix.tacocat.com`. Everything lives in one `template.yaml`. Deploy to dev (`sam deploy`), then test (`sam deploy --config-env test`); prod goes through GitHub Actions and must not be deployed by hand.
 
 Make one change at a time and run `npm run perf` in `tacocat-gallery-sveltekit` after each. The current production baseline to beat:
 
 ```
-Shell 139ms  |  Album JSON 562ms  |  Thumbnails (65) 394ms      LCP 800ms, settled 1095ms
+Shell 130ms  |  Album JSON 452ms  |  Thumbnails on screen 161ms      LCP 688ms, settled 743ms
 ```
 
-### 1. Make the API and image origins measurable — do this first
+### 1. Make the API and image origins measurable — SHIPPED
 
 The perf script currently reports `protocol: unknown, kb: 0` for both `api.` and `img.`, because neither origin sends `Timing-Allow-Origin`. Two of the three origins are invisible to any browser-side measurement, including every measurement of the changes below. This is two one-line edits:
 
@@ -178,7 +348,7 @@ That policy is attached to the `/i/*` and `/v/*` behaviours, which is where thum
 
 Verify: the host table at the end of `npm run perf` should show a real protocol and a non-zero KB figure for all three hosts.
 
-### 2. `HttpVersion: http2and3` on `ImageDistribution`
+### 2. `HttpVersion: http2and3` on `ImageDistribution` — SHIPPED
 
 `ImageDistribution` (`template.yaml:251`) has no `HttpVersion` property, so CloudFormation defaults it to `http1.1`. Confirmed by curl and by `aws cloudfront list-distributions` — all three `img.` distributions report `HTTP1_1`, while both SPA distributions report `HTTP2`. Sixty-five thumbnails against a six-connection-per-origin limit is 394ms of the warm root album load.
 
@@ -192,7 +362,7 @@ Verify: `curl -sI https://img.staging-pix.tacocat.com/ -o /dev/null -w '%{http_v
 
 Note that `tacocat-gallery-sveltekit` may separately add `loading="lazy"` to its thumbnail component, which drops the root album's initial thumbnail count from 65 to the 17 actually on screen. That reduces how much this change is worth on a first paint but does not remove the case for it: day albums are larger, and scrolling still pulls the rest.
 
-### 3. `MemorySize: 1024` on `GetAlbumFunction`
+### 3. `MemorySize: 1024` on `GetAlbumFunction` — SHIPPED, via a global raise
 
 `GetAlbumFunction` (`template.yaml:693`) inherits `MemorySize: 256` from `Globals.Function` (`template.yaml:105`), which is roughly 0.14 vCPU. The album leg is the largest segment of the page load at 562ms, and a curl breakdown puts about 161ms of that in DNS, TCP and TLS and about 280ms in server time before the first byte. That 280ms is a DynamoDB query plus marshalling and stringifying 28KB of JSON on a seventh of a core.
 
@@ -200,7 +370,11 @@ Set it on the function, not in `Globals` — a Globals change moves forty-odd fu
 
 Whether CPU is actually the binding constraint here is a hypothesis, not a measurement. It is one line, so test it rather than arguing about it, and revert if the album segment does not move.
 
-### 4. `MinimumCompressionSize` in `Globals.Api`
+It landed differently from what is proposed here. Rather than a per-function override, `Globals.Function` was raised to 1024MB for everything, with `SyncRedis` pinned back to 256MB. That pin rests on the I/O-bound argument in the template comment and was not measured — the one configuration decision in the release with no data behind it, and worth recording as an assumption rather than a finding.
+
+Median execution went from 170ms to 22ms, but not for the reason given above. The caution that CPU being the binding constraint was a hypothesis rather than a measurement turned out to be the right caution: the hypothesis was wrong on both counts. Init did not move, and the warm win came from reusing DynamoDB connections. Raising memory here was harmless and marginally cheaper, but it was not what bought the time.
+
+### 4. `MinimumCompressionSize` in `Globals.Api` — SHIPPED
 
 There is no explicit `AWS::Serverless::Api`; the API is the implicit one created from the `Type: Api` function events, configured through `Globals.Api` (`template.yaml:114`), which sets `Name`, `Domain` and `Cors` but not `MinimumCompressionSize`. So nothing is compressed: the root album is 28,135 bytes with and without `Accept-Encoding`. Compressed it is 8,108 bytes under gzip and 6,957 under brotli.
 
@@ -210,9 +384,11 @@ MinimumCompressionSize: 1000
 
 Set expectations low: the 20KB saved is worth roughly 30ms on a slow mobile link and close to nothing on broadband, where the measured transfer tail after first byte is under a millisecond. It earns its place by being one line, not by being large.
 
-### 5. `GenerateDerivedImageFunction` memory, or pre-generation
+### 5. `GenerateDerivedImageFunction` memory — SHIPPED at 1024MB
 
-`GenerateDerivedImageFunction` (`template.yaml:459`) also inherits 256MB and averages 3,768ms. Another function in this template already carries `MemorySize: 1024` with a comment about HEIC conversion needing 400–600MB, which suggests 256MB here is an oversight rather than a decision. Raising it is one line; pre-generating the 200x200 thumbnail size during upload processing is the thorough fix and a real feature. Only the first viewer of an uncached size pays this, which in practice means whoever opens a new album first.
+`GenerateDerivedImageFunction` inherited 256MB and averaged 3,768ms. It now runs at 1024MB, where three observed invocations took 680ms, 1,227ms and 1,421ms with ~575ms of init. Peak memory used was 167–189MB, so the allocation bought CPU rather than headroom, which is what the reasoning predicted.
+
+Still open here: pre-generating the 200x200 thumbnail size during upload processing, which removes the wait rather than shortening it. Only the first viewer of an uncached size pays this, which in practice means whoever opens a new album first.
 
 ### 6. The outage alarm needs a different shape than proposed above
 
@@ -296,12 +472,13 @@ Grouped by the decision each set of alternatives was competing to answer.
 
 ### How to reduce cold starts
 
-| Option                                    | Verdict                                                                                                                                                                                             |
-| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| More memory (chosen)                      | CPU scales with memory and init is CPU-bound. Principled, one line, trivial cost at this volume.                                                                                                    |
-| Serving album JSON from S3 via CloudFront | Removes Lambda from the read path entirely — no cold start, no duration, edge-cached, and it lands on the same origin once the domains are consolidated. The most thorough answer; a larger change. |
-| Scheduled keep-warm pings                 | Rejected. An anti-pattern that adds invocations, adds cost, and buys 318ms on a fifth of requests.                                                                                                  |
-| Provisioned concurrency                   | Rejected on cost for a site at this traffic.                                                                                                                                                        |
+| Option                                    | Verdict                                                                                                                                                                                                                                                                                                       |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| More memory (chosen, on a wrong premise)  | Shipped, and the premise was wrong: init did not move at all, and the warm win came from reusing DynamoDB connections rather than from CPU. Harmless and slightly cheaper at this volume, but it is not a lever on cold starts and buying more of it will not help further.                                   |
+| Reusing SDK clients across invocations    | The change that actually mattered, though it belongs under warm latency rather than cold starts. Median execution 170ms to 22ms.                                                                                                                                                                              |
+| Serving album JSON from S3 via CloudFront | Removes Lambda from the read path entirely — no cold start, no duration, edge-cached, and it lands on the same origin once the domains are consolidated. The most thorough answer; a larger change.                                                                                                           |
+| Scheduled keep-warm pings                 | Still rejected: it adds invocations and cost to buy ~490ms on a twentieth of requests. Worth knowing that the interval is load-bearing if anyone revisits it — a five-minute ping keeps the environment alive but still lets the DynamoDB connection lapse (~104ms), while two minutes holds both (~15–20ms). |
+| Provisioned concurrency                   | Rejected on cost for a site at this traffic.                                                                                                                                                                                                                                                                  |
 
 ### How to know it broke
 
