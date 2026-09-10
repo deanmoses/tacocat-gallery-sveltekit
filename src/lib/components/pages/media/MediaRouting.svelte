@@ -39,6 +39,8 @@
     <MediaProcessingPage title="Rename In Progress" />
 {:else if DeleteStatus.IN_PROGRESS === deleteStatus}
     <MediaProcessingPage title="Delete In Progress" />
+{:else if !albumLoadStatus}
+    <MediaLoadingPage />
 {:else if AlbumLoadStatus.NOT_LOADED === albumLoadStatus}
     <MediaLoadingPage />
 {:else if AlbumLoadStatus.LOADING === albumLoadStatus}

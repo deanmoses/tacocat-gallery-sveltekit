@@ -65,6 +65,20 @@ describe(MediaRouting, () => {
         document.title = 'unset';
     });
 
+    /**
+     * An album can leave memory while a page inside it is still mounted: the
+     * rename machine drops the old album deliberately, without waiting, so the
+     * reader moves on. Until they do, the item waits the way the album pages
+     * do rather than falling through to the catch-all, which renders outside
+     * any layout and so offers no title and no way back.
+     */
+    it('waits on an album absent from memory', async () => {
+        const screen = await show();
+
+        expect(document.title).toBe(NO_TITLE);
+        await expect.element(screen.getByText(MEDIA_CONTENT)).not.toBeInTheDocument();
+    });
+
     it.each(TITLE_ONLY)('an album $state shows $title', async ({ seed, title }) => {
         seed();
 
