@@ -71,7 +71,7 @@ const UPLOAD_TITLES: Record<UploadState, string> = {
 /** States whose page announces itself with a heading as well as a title */
 const PROCESSING: Case[] = [
     ...(Object.keys(UPLOAD_TITLES) as UploadState[]).map((status) => ({
-        state: `holding an upload ${status}`,
+        state: `holding an upload at ${status}`,
         seed: setUpload(status),
         title: UPLOAD_TITLES[status],
     })),
@@ -175,8 +175,8 @@ describe(MediaRouting, () => {
     /**
      * The page mounts before its album arrives on every navigation, so the
      * store changing under a mounted page is the ordinary case rather than an
-     * edge. Every other test seeds before it renders and so cannot tell a
-     * reactive read from a snapshot.
+     * edge. A test that seeds before it renders cannot tell a reactive read
+     * from a snapshot.
      */
     it('follows the album from loading to loaded under the page', async () => {
         albumState.albums.set(ALBUM_PATH, { loadStatus: AlbumLoadStatus.LOADING });
@@ -187,6 +187,23 @@ describe(MediaRouting, () => {
         albumState.albums.set(ALBUM_PATH, { loadStatus: AlbumLoadStatus.LOADED });
 
         await expect.element(screen.getByText(MEDIA_CONTENT)).toBeVisible();
+    });
+
+    /**
+     * The buttons that start a rename or a delete sit on the media page itself,
+     * so these states arrive while the reader is already looking at the item
+     * rather than before the page mounts.
+     */
+    it.each(PROCESSING)('an album $state after the media is on screen shows $title', async ({ seed, title }) => {
+        albumState.albums.set(ALBUM_PATH, { loadStatus: AlbumLoadStatus.LOADED });
+        const screen = await show();
+
+        await expect.element(screen.getByText(MEDIA_CONTENT)).toBeVisible();
+
+        seed(THIS);
+
+        await expect.element(screen.getByRole('heading', { name: title })).toBeVisible();
+        await expect.element(screen.getByText(MEDIA_CONTENT)).not.toBeInTheDocument();
     });
 
     // The neighbour goes into the store first, so a lookup that lands on the
