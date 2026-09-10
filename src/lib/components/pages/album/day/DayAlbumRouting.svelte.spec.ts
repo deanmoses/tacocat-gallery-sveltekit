@@ -130,6 +130,23 @@ describe(DayAlbumRouting, () => {
         await expect.element(screen.getByText(ALBUM_CONTENT)).toBeVisible();
     });
 
+    /**
+     * The page mounts before its album arrives on every navigation, so the
+     * store changing under a mounted page is the ordinary case rather than an
+     * edge. Every other test seeds before it renders and so cannot tell a
+     * reactive read from a snapshot.
+     */
+    it('follows the album from loading to loaded under the page', async () => {
+        albumState.albums.set(PATH, { loadStatus: AlbumLoadStatus.LOADING });
+        const screen = await show();
+
+        await expect.element(screen.getByText(ALBUM_CONTENT)).not.toBeInTheDocument();
+
+        albumState.albums.set(PATH, { loadStatus: AlbumLoadStatus.LOADED });
+
+        await expect.element(screen.getByText(ALBUM_CONTENT)).toBeVisible();
+    });
+
     it.each([...WORDLESS, ...WITH_MESSAGE])('another album $state leaves this page alone', async ({ seed }) => {
         albumState.albums.set(PATH, { loadStatus: AlbumLoadStatus.LOADED });
         seed(OTHER_PATH);

@@ -167,6 +167,23 @@ describe(MediaRouting, () => {
         await expect.element(screen.getByText(MEDIA_CONTENT)).toBeVisible();
     });
 
+    /**
+     * The page mounts before its album arrives on every navigation, so the
+     * store changing under a mounted page is the ordinary case rather than an
+     * edge. Every other test seeds before it renders and so cannot tell a
+     * reactive read from a snapshot.
+     */
+    it('follows the album from loading to loaded under the page', async () => {
+        albumState.albums.set(ALBUM_PATH, { loadStatus: AlbumLoadStatus.LOADING });
+        const screen = await show();
+
+        await expect.element(screen.getByText(MEDIA_CONTENT)).not.toBeInTheDocument();
+
+        albumState.albums.set(ALBUM_PATH, { loadStatus: AlbumLoadStatus.LOADED });
+
+        await expect.element(screen.getByText(MEDIA_CONTENT)).toBeVisible();
+    });
+
     // The upload rows are the ones with teeth: uploads are a list rather than a
     // map, so which entry this page reads is a search rather than a lookup
     it.each([...WORDLESS, ...PROCESSING, ...WITH_MESSAGE])(
