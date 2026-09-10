@@ -25,7 +25,7 @@ npm run format        # Auto-format with Prettier
 npm run quality       # Format, lint, and type check
 npm run precommit     # Quality checks + unit tests (for pre-commit/pre-PR)
 npm run agent-docs    # Regenerate CLAUDE.md and AGENTS.md
-npm run build && npm run deploy-staging  # Build and deploy to staging
+npm run build -- --mode staging && npm run deploy-staging  # Build and deploy to staging
 ```
 
 Do NOT deploy to production. NEVER deploy to production. There's a GitHub Action for that, that runs integration tests and creates a release tag and a release.
