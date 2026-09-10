@@ -18,14 +18,22 @@ import { dayAlbum, imageRecord, mediaPath, renameEntry, uploadEntry } from '$lib
  * pages put their title on the screen as a heading as well, and the error
  * pages, which sit in the album layout and so have no heading, carry a message
  * of their own instead.
+ *
+ * A load status is keyed by album path and a processing state by item path, so
+ * each row seeds a target it is given: the same row says what this item's page
+ * shows in that state, and that a neighbour in that state leaves this page alone.
  */
 const ALBUM_PATH = '/2001/12-31/';
 const MEDIA_PATH = mediaPath('image.jpg');
-/** A second item in the same album, to say which one a page is reading */
-const OTHER_MEDIA_PATH = mediaPath('other.jpg');
 const MEDIA_CONTENT = 'the media itself';
 /** The media loading page sets an empty title rather than announcing itself */
 const NO_TITLE = '';
+
+/** Where a seed lands: a load status on the album, a processing state on the item */
+type Target = { albumPath: string; mediaPath: string };
+const THIS: Target = { albumPath: ALBUM_PATH, mediaPath: MEDIA_PATH };
+/** A second album, and a second item in this one, to say which one a page is reading */
+const OTHER: Target = { albumPath: '/2001/12-30/', mediaPath: mediaPath('other.jpg') };
 
 const media = dayAlbum([imageRecord({ itemType: 'image', path: MEDIA_PATH, itemName: 'image.jpg' })]).media[0];
 const item = createRawSnippet(() => ({ render: () => `<p>${MEDIA_CONTENT}</p>` }));
@@ -34,18 +42,27 @@ function show(overrides: { media?: Media | undefined } = {}) {
     return render(MediaRouting, { albumPath: ALBUM_PATH, mediaPath: MEDIA_PATH, media, loaded: item, ...overrides });
 }
 
-const setStatus = (loadStatus: AlbumLoadStatus) => () => albumState.albums.set(ALBUM_PATH, { loadStatus });
-const setUpload = (status: UploadState) => () =>
-    albumState.uploads.push(uploadEntry({ mediaPath: MEDIA_PATH, status }));
+type Seed = (target: Target) => void;
+type Case = { state: string; seed: Seed; title: string };
+type MessageCase = Case & { message: string };
+
+const setStatus =
+    (loadStatus: AlbumLoadStatus): Seed =>
+    ({ albumPath }) =>
+        albumState.albums.set(albumPath, { loadStatus });
+const setUpload =
+    (status: UploadState): Seed =>
+    ({ mediaPath }) =>
+        albumState.uploads.push(uploadEntry({ mediaPath, status }));
 
 /** States whose page puts no words on the screen, leaving the title to carry it */
-const WORDLESS: { state: string; seed: () => void; title: string }[] = [
+const WORDLESS: Case[] = [
     { state: 'NOT_LOADED', seed: setStatus(AlbumLoadStatus.NOT_LOADED), title: NO_TITLE },
     { state: 'LOADING', seed: setStatus(AlbumLoadStatus.LOADING), title: NO_TITLE },
 ];
 
 /** States whose page announces itself with a heading as well as a title */
-const PROCESSING: { state: string; seed: () => void; title: string }[] = [
+const PROCESSING: Case[] = [
     {
         state: 'holding an upload not started',
         seed: setUpload(UploadState.UPLOAD_NOT_STARTED),
@@ -54,20 +71,26 @@ const PROCESSING: { state: string; seed: () => void; title: string }[] = [
     { state: 'holding an upload in flight', seed: setUpload(UploadState.UPLOADING), title: 'Upload In Progress' },
     { state: 'holding an upload being processed', seed: setUpload(UploadState.PROCESSING), title: 'Upload Processing' },
     {
-        state: 'renaming the item',
-        seed: () =>
-            albumState.mediaRenames.set(MEDIA_PATH, renameEntry(MEDIA_PATH, 'renamed.jpg', RenameStatus.IN_PROGRESS)),
+        state: 'renaming an item',
+        seed: ({ mediaPath }) =>
+            albumState.mediaRenames.set(mediaPath, renameEntry(mediaPath, 'renamed.jpg', RenameStatus.IN_PROGRESS)),
         title: 'Rename In Progress',
     },
     {
-        state: 'deleting the item',
-        seed: () => albumState.mediaDeletes.set(MEDIA_PATH, { status: DeleteStatus.IN_PROGRESS }),
+        state: 'deleting an item',
+        seed: ({ mediaPath }) => albumState.mediaDeletes.set(mediaPath, { status: DeleteStatus.IN_PROGRESS }),
         title: 'Delete In Progress',
     },
 ];
 
 /** States whose page carries a message instead of a heading */
-const WITH_MESSAGE: { state: string; seed: () => void; title: string; message: string }[] = [
+const WITH_MESSAGE: MessageCase[] = [
+    {
+        state: 'ERROR_LOADING',
+        seed: setStatus(AlbumLoadStatus.ERROR_LOADING),
+        title: 'Error',
+        message: 'Error retrieving album',
+    },
     {
         state: 'DOES_NOT_EXIST',
         seed: setStatus(AlbumLoadStatus.DOES_NOT_EXIST),
@@ -99,7 +122,7 @@ describe(MediaRouting, () => {
     });
 
     it.each(WORDLESS)('an album $state shows $title', async ({ seed, title }) => {
-        seed();
+        seed(THIS);
 
         const screen = await show();
 
@@ -108,7 +131,7 @@ describe(MediaRouting, () => {
     });
 
     it.each(PROCESSING)('an album $state shows $title', async ({ seed, title }) => {
-        seed();
+        seed(THIS);
 
         const screen = await show();
 
@@ -118,7 +141,7 @@ describe(MediaRouting, () => {
     });
 
     it.each(WITH_MESSAGE)('an album $state shows $message', async ({ seed, title, message }) => {
-        seed();
+        seed(THIS);
 
         const screen = await show();
 
@@ -127,13 +150,12 @@ describe(MediaRouting, () => {
         await expect.element(screen.getByText(MEDIA_CONTENT)).not.toBeInTheDocument();
     });
 
-    it('an album ERROR_LOADING says so, and offers a way home', async () => {
-        setStatus(AlbumLoadStatus.ERROR_LOADING)();
+    // The icon carries the link's only word: unlabelled, it reads "Go back ?"
+    it('an album ERROR_LOADING offers a labelled way home', async () => {
+        albumState.albums.set(ALBUM_PATH, { loadStatus: AlbumLoadStatus.ERROR_LOADING });
 
         const screen = await show();
 
-        expect(document.title).toBe('Error');
-        await expect.element(screen.getByText('Error retrieving album')).toBeVisible();
         await expect.element(screen.getByRole('link', { name: 'Go back Home?' })).toBeVisible();
     });
 
@@ -144,6 +166,20 @@ describe(MediaRouting, () => {
 
         await expect.element(screen.getByText(MEDIA_CONTENT)).toBeVisible();
     });
+
+    // The upload rows are the ones with teeth: uploads are a list rather than a
+    // map, so which entry this page reads is a search rather than a lookup
+    it.each([...WORDLESS, ...PROCESSING, ...WITH_MESSAGE])(
+        'a neighbour $state leaves this page alone',
+        async ({ seed }) => {
+            albumState.albums.set(ALBUM_PATH, { loadStatus: AlbumLoadStatus.LOADED });
+            seed(OTHER);
+
+            const screen = await show();
+
+            await expect.element(screen.getByText(MEDIA_CONTENT)).toBeVisible();
+        },
+    );
 
     // What a stale link to a deleted or renamed item lands on
     it('reports a missing item on an album that loaded without it', async () => {
@@ -167,29 +203,6 @@ describe(MediaRouting, () => {
 
         expect(document.title).toBe('Delete In Progress');
         await expect.element(screen.getByText(MEDIA_CONTENT)).not.toBeInTheDocument();
-    });
-
-    // Uploads are a list rather than a map, so which entry this page reads is
-    // a search rather than a lookup
-    it('another item being uploaded leaves this page alone', async () => {
-        albumState.albums.set(ALBUM_PATH, { loadStatus: AlbumLoadStatus.LOADED });
-        albumState.uploads.push(uploadEntry({ mediaPath: OTHER_MEDIA_PATH, status: UploadState.UPLOADING }));
-
-        const screen = await show();
-
-        await expect.element(screen.getByText(MEDIA_CONTENT)).toBeVisible();
-    });
-
-    it('another item being renamed leaves this page alone', async () => {
-        albumState.albums.set(ALBUM_PATH, { loadStatus: AlbumLoadStatus.LOADED });
-        albumState.mediaRenames.set(
-            OTHER_MEDIA_PATH,
-            renameEntry(OTHER_MEDIA_PATH, 'renamed.jpg', RenameStatus.IN_PROGRESS),
-        );
-
-        const screen = await show();
-
-        await expect.element(screen.getByText(MEDIA_CONTENT)).toBeVisible();
     });
 
     /**
