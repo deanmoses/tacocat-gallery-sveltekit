@@ -9,8 +9,19 @@
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import { sessionStore } from '$lib/stores/SessionStore.svelte';
     import { albumState } from '$lib/stores/AlbumState.svelte';
+    import { onMount } from 'svelte';
 
     let { children }: LayoutProps = $props();
+
+    // The app's one authentication check. The root layout mounts once per
+    // document load, and that includes the load returning from the Cognito
+    // login redirect, which is how a login gets noticed.
+    //
+    // Nothing exercises this outside a real deployment: FAKE_ADMIN_ON_DEV
+    // short-circuits before the request on localhost.
+    onMount(() => {
+        sessionStore.fetchUserStatus();
+    });
 
     /**
      * Handle keyboard navigation
