@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hostSummary, lastByte, median, seriesOf, spread, thumbnailsDoneAt } from './measure-perf.mjs';
+import { firstVisitCost, hostSummary, lastByte, median, seriesOf, spread, thumbnailsDoneAt } from './measure-perf.mjs';
 
 const IMG = 'https://img.pix.tacocat.com/i';
 
@@ -100,6 +100,39 @@ describe(seriesOf, () => {
             api: [460, 460],
             thumbnails: [520, 520],
         });
+    });
+});
+
+describe(firstVisitCost, () => {
+    /** The first run finishes `slower` ms behind every figure in the warm album */
+    const slowerBy = (slower) => {
+        const warm = album({ total: 4, onScreen: 2 });
+        return {
+            ...warm,
+            lcp: warm.lcp + slower,
+            shell: warm.shell + slower,
+            resources: warm.resources.map((r) => ({ ...r, responseEnd: r.responseEnd + slower })),
+        };
+    };
+
+    it('pairs the single first-run figure with the median of the warm runs', () => {
+        const warm = [album({ total: 4, onScreen: 2 }), album({ total: 4, onScreen: 2 })];
+        expect(firstVisitCost(slowerBy(400), seriesOf(warm))).toEqual({
+            lcp: { cold: 1100, warm: 700 },
+            shell: { cold: 540, warm: 140 },
+            api: { cold: 860, warm: 460 },
+            thumbnails: { cold: 920, warm: 520 },
+        });
+    });
+
+    it('reports every metric the warm series carries, so none is silently dropped', () => {
+        const series = seriesOf([album({ total: 4, onScreen: 2 })]);
+        expect(Object.keys(firstVisitCost(slowerBy(0), series))).toEqual(Object.keys(series));
+    });
+
+    it('does not fold the first run into the warm figures it is compared against', () => {
+        const series = seriesOf([album({ total: 4, onScreen: 2 })]);
+        expect(firstVisitCost(slowerBy(400), series).lcp.warm).toBe(700);
     });
 });
 
