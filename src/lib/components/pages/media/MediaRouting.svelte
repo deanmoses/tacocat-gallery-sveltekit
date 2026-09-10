@@ -65,5 +65,5 @@
         <p><a href="/">Go back <HomeIcon title="Home" />?</a></p>
     </AlbumErrorPage>
 {:else}
-    Unknown status: [{albumLoadStatus}]
+    <AlbumErrorPage>Unknown status: [{albumLoadStatus}]</AlbumErrorPage>
 {/if}

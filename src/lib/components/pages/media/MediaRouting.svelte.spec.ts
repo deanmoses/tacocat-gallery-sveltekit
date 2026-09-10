@@ -13,11 +13,16 @@ import { dayAlbum, imageRecord, mediaPath, renameEntry, uploadEntry } from '$lib
  * media page keys off the album's load status, because the item is only
  * reachable through the album that holds it.
  *
- * The page title is what these assert on: the processing pages repeat their
- * title in the body, so matching on the message alone hits the heading too.
+ * The loading page carries no words at all, so the document title is the only
+ * thing separating it from the others and every row asserts it. The processing
+ * pages put their title on the screen as a heading as well, and the error
+ * pages, which sit in the album layout and so have no heading, carry a message
+ * of their own instead.
  */
 const ALBUM_PATH = '/2001/12-31/';
 const MEDIA_PATH = mediaPath('image.jpg');
+/** A second item in the same album, to say which one a page is reading */
+const OTHER_MEDIA_PATH = mediaPath('other.jpg');
 const MEDIA_CONTENT = 'the media itself';
 /** The media loading page sets an empty title rather than announcing itself */
 const NO_TITLE = '';
@@ -33,10 +38,14 @@ const setStatus = (loadStatus: AlbumLoadStatus) => () => albumState.albums.set(A
 const setUpload = (status: UploadState) => () =>
     albumState.uploads.push(uploadEntry({ mediaPath: MEDIA_PATH, status }));
 
-const TITLE_ONLY: { state: string; seed: () => void; title: string }[] = [
+/** States whose page puts no words on the screen, leaving the title to carry it */
+const WORDLESS: { state: string; seed: () => void; title: string }[] = [
     { state: 'NOT_LOADED', seed: setStatus(AlbumLoadStatus.NOT_LOADED), title: NO_TITLE },
     { state: 'LOADING', seed: setStatus(AlbumLoadStatus.LOADING), title: NO_TITLE },
-    { state: 'DOES_NOT_EXIST', seed: setStatus(AlbumLoadStatus.DOES_NOT_EXIST), title: 'Album Not Found' },
+];
+
+/** States whose page announces itself with a heading as well as a title */
+const PROCESSING: { state: string; seed: () => void; title: string }[] = [
     {
         state: 'holding an upload not started',
         seed: setUpload(UploadState.UPLOAD_NOT_STARTED),
@@ -54,6 +63,16 @@ const TITLE_ONLY: { state: string; seed: () => void; title: string }[] = [
         state: 'deleting the item',
         seed: () => albumState.mediaDeletes.set(MEDIA_PATH, { status: DeleteStatus.IN_PROGRESS }),
         title: 'Delete In Progress',
+    },
+];
+
+/** States whose page carries a message instead of a heading */
+const WITH_MESSAGE: { state: string; seed: () => void; title: string; message: string }[] = [
+    {
+        state: 'DOES_NOT_EXIST',
+        seed: setStatus(AlbumLoadStatus.DOES_NOT_EXIST),
+        title: 'Album Not Found',
+        message: 'Album not found',
     },
 ];
 
@@ -79,12 +98,32 @@ describe(MediaRouting, () => {
         await expect.element(screen.getByText(MEDIA_CONTENT)).not.toBeInTheDocument();
     });
 
-    it.each(TITLE_ONLY)('an album $state shows $title', async ({ seed, title }) => {
+    it.each(WORDLESS)('an album $state shows $title', async ({ seed, title }) => {
         seed();
 
         const screen = await show();
 
         expect(document.title).toBe(title);
+        await expect.element(screen.getByText(MEDIA_CONTENT)).not.toBeInTheDocument();
+    });
+
+    it.each(PROCESSING)('an album $state shows $title', async ({ seed, title }) => {
+        seed();
+
+        const screen = await show();
+
+        expect(document.title).toBe(title);
+        await expect.element(screen.getByRole('heading', { name: title })).toBeVisible();
+        await expect.element(screen.getByText(MEDIA_CONTENT)).not.toBeInTheDocument();
+    });
+
+    it.each(WITH_MESSAGE)('an album $state shows $message', async ({ seed, title, message }) => {
+        seed();
+
+        const screen = await show();
+
+        expect(document.title).toBe(title);
+        await expect.element(screen.getByText(message)).toBeVisible();
         await expect.element(screen.getByText(MEDIA_CONTENT)).not.toBeInTheDocument();
     });
 
@@ -113,5 +152,60 @@ describe(MediaRouting, () => {
         await show({ media: undefined });
 
         expect(document.title).toBe('Media Not Found');
+    });
+
+    /**
+     * The album stays loaded while an item inside it is being deleted, so both
+     * states are true at once and the order of the branches is the whole of
+     * what decides which one the reader gets.
+     */
+    it('an item being deleted stays on the delete page on a loaded album', async () => {
+        albumState.albums.set(ALBUM_PATH, { loadStatus: AlbumLoadStatus.LOADED });
+        albumState.mediaDeletes.set(MEDIA_PATH, { status: DeleteStatus.IN_PROGRESS });
+
+        const screen = await show();
+
+        expect(document.title).toBe('Delete In Progress');
+        await expect.element(screen.getByText(MEDIA_CONTENT)).not.toBeInTheDocument();
+    });
+
+    // Uploads are a list rather than a map, so which entry this page reads is
+    // a search rather than a lookup
+    it('another item being uploaded leaves this page alone', async () => {
+        albumState.albums.set(ALBUM_PATH, { loadStatus: AlbumLoadStatus.LOADED });
+        albumState.uploads.push(uploadEntry({ mediaPath: OTHER_MEDIA_PATH, status: UploadState.UPLOADING }));
+
+        const screen = await show();
+
+        await expect.element(screen.getByText(MEDIA_CONTENT)).toBeVisible();
+    });
+
+    it('another item being renamed leaves this page alone', async () => {
+        albumState.albums.set(ALBUM_PATH, { loadStatus: AlbumLoadStatus.LOADED });
+        albumState.mediaRenames.set(
+            OTHER_MEDIA_PATH,
+            renameEntry(OTHER_MEDIA_PATH, 'renamed.jpg', RenameStatus.IN_PROGRESS),
+        );
+
+        const screen = await show();
+
+        await expect.element(screen.getByText(MEDIA_CONTENT)).toBeVisible();
+    });
+
+    /**
+     * The cast is the only way in: a status outside the enum is what a server
+     * or a store change could hand this component, and TypeScript cannot.
+     *
+     * The status itself is on the page because it is the only clue to what went
+     * wrong, but it reaches the reader inside a page that is titled and has the
+     * site's navigation, the way every other state does.
+     */
+    it('an unrecognized status shows the status on a titled page', async () => {
+        albumState.albums.set(ALBUM_PATH, { loadStatus: 'WAT' as AlbumLoadStatus });
+
+        const screen = await show();
+
+        expect(document.title).toBe('Error');
+        await expect.element(screen.getByText('Unknown status: [WAT]')).toBeVisible();
     });
 });
