@@ -125,6 +125,20 @@ IndexedDB needs no setup at all: `fake-indexeddb/auto` is a setup file for the n
 
 `AlbumLoadMachine.spec.ts` is the worked example.
 
+### Testing a component
+
+`render` from `vitest-browser-svelte` mounts the component and hands back locators. `expect.element` retries a locator assertion until it holds; a plain `expect` checks once. Each is right somewhere: `render` flushes before it resolves, so a title set through `<svelte:head>` is already in `document.title` and is asserted plainly, while an overlay gated on an image firing `load` arrives whenever the browser gets to it and is asserted with `expect.element`.
+
+Seed the store the component reads rather than mocking it. The read is part of what the test covers, and `resetAlbumState()` in `beforeEach` is the whole of the setup.
+
+A page the component only routes to is stood in for by a `createRawSnippet` rendering a sentinel string. The router is the subject; the sentinel says whether it rendered the page without dragging the real one in.
+
+The library unmounts the last render in a `beforeEach` of its own. `document.title` is not part of that, so a spec that asserts it resets it by hand, or a component that sets none passes on the previous test's value.
+
+A table split by what a page puts on the screen (nothing, a heading, a message) is not a violation of one table, many functions: a row with optional columns needs a conditional in the test, which lint forbids.
+
+`DayAlbumRouting.svelte.spec.ts` is the worked example for routing off store state. `Thumbnail.svelte.spec.ts` covers what only a browser does, an `<img>` firing `load`, and a prop change through `rerender` reaching an `$effect`.
+
 ### Comment the why, never the what
 
 `expect(getDetailWidth(1024, 768)).toBe(1024)` already says what it does. It doesn't say that 1024 is the boundary and the comparison is inclusive. That's the comment worth writing.
