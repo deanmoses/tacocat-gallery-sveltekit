@@ -61,15 +61,20 @@ const WORDLESS: Case[] = [
     { state: 'LOADING', seed: setStatus(AlbumLoadStatus.LOADING), title: NO_TITLE },
 ];
 
+/** The page for each upload state. Typed against the enum, so a state added without a title fails to compile. */
+const UPLOAD_TITLES: Record<UploadState, string> = {
+    [UploadState.UPLOAD_NOT_STARTED]: 'Upload Not Started',
+    [UploadState.UPLOADING]: 'Upload In Progress',
+    [UploadState.PROCESSING]: 'Upload Processing',
+};
+
 /** States whose page announces itself with a heading as well as a title */
 const PROCESSING: Case[] = [
-    {
-        state: 'holding an upload not started',
-        seed: setUpload(UploadState.UPLOAD_NOT_STARTED),
-        title: 'Upload Not Started',
-    },
-    { state: 'holding an upload in flight', seed: setUpload(UploadState.UPLOADING), title: 'Upload In Progress' },
-    { state: 'holding an upload being processed', seed: setUpload(UploadState.PROCESSING), title: 'Upload Processing' },
+    ...(Object.keys(UPLOAD_TITLES) as UploadState[]).map((status) => ({
+        state: `holding an upload ${status}`,
+        seed: setUpload(status),
+        title: UPLOAD_TITLES[status],
+    })),
     {
         state: 'renaming an item',
         seed: ({ mediaPath }) =>
