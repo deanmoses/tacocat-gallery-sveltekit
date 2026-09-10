@@ -65,6 +65,12 @@ export default defineConfig({
                     // Setting exclude replaces vitest's default rather than adding
                     // to it, so the default has to be carried along
                     exclude: [...defaultExclude, 'src/**/*.svelte.spec.ts'],
+                    // An IndexedDB implementation, which node has none of.
+                    // Standing one up rather than stubbing idb-keyval means the
+                    // library itself runs, so a spec covers the code a version
+                    // bump would change -- and the structured-clone rules that
+                    // decide what the cache can hold in the first place.
+                    setupFiles: ['fake-indexeddb/auto'],
                 },
             },
             {

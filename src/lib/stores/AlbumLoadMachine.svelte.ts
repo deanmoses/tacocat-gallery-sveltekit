@@ -302,9 +302,10 @@ class AlbumLoadMachine {
     }
 
     #getLoadStatus(path: string): AlbumLoadStatus {
-        const album = albumState.albums.get(path);
-        if (!album) throw new Error(`Album not found [${path}]`);
-        return album.loadStatus;
+        // An album absent from memory reads as NOT_LOADED rather than raising:
+        // the caller is the error handler, and the album it is reporting on is
+        // routinely one that never made it into memory in the first place.
+        return albumState.albums.get(path)?.loadStatus ?? AlbumLoadStatus.NOT_LOADED;
     }
 
     setUpdateStatus(path: string, status: ReloadStatus): void {

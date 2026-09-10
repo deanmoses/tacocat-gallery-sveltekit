@@ -116,6 +116,12 @@ A test earns its place by failing when the code is wrong. That is not the same a
 
 When you doubt a test earns its place, break the code on purpose: invert a comparison, delete a branch, change a constant. If the suite stays green, the test is decorative.
 
+**One green run says nothing about a test that waits.** A race shows up as a pass most of the time by definition. Anything asynchronous is worth running twenty times before you believe it: `for i in $(seq 1 20); do npx vitest run --project node <spec>; done`.
+
+## Finding out what the code does
+
+`toMatchInlineSnapshot()` with no argument makes vitest write the actual value into the spec on the next run. Reach for it when the question is what the code returns rather than whether a test holds — it beats asserting a value you know is wrong to read the answer off the diff.
+
 ## Testing a store
 
 Stores split into state transition methods and service methods (see `CLAUDE.md`), and the split matters for testing:
@@ -124,6 +130,30 @@ Stores split into state transition methods and service methods (see `CLAUDE.md`)
 - **Service methods** are async and reach into the API and other stores. Covering them means standing those up: worth doing, but a different size of job. Say so in the file rather than leaving it looking overlooked.
 
 Stores are exported as singletons, so a spec resets in `beforeEach` rather than constructing one. `DraftMachine.spec.ts` is the worked example.
+
+## Waiting for fire-and-forget work
+
+A state transition method starts its service work without awaiting it, so a spec has to wait before asserting on the result. **Wait on the end state, never on a span of time.**
+
+```typescript
+// ✅ Finishes as soon as the work lands, however long it took
+await vi.waitFor(() => expect(loadStatus()).toBe(AlbumLoadStatus.LOADED));
+
+// ❌ Encodes a guess about how many event-loop turns the work takes
+await new Promise((resolve) => setTimeout(resolve, 0));
+```
+
+The guess is what rots. A single macrotask was enough to drain a disk read back when the disk was an in-memory map; once it became a real IndexedDB, an open plus a transaction outran it and the test failed about one run in six — green often enough to survive review and CI, which is the worst way for a test to be wrong. Nothing about the assertion looked stale, and that is the point: the assumption lived in the waiting, not in the assertion.
+
+A fixed drain is sound in exactly one case — asserting that something **did not** happen. Arriving too early there can only pass when it should pass, so the failure mode is a false pass rather than a flake. Say so at the call site, because the next reader will not be able to tell the two uses apart.
+
+## Standing in for the network and the disk
+
+Neither exists in node, and both have a stand-in in `src/lib/test-support/`. `fakeServer()` replaces `fetch`, keyed by method and pathname, with `jsonResponse()`, `notFound()` and `serverError()` for the replies. `resetAlbumState()` and `seedLoadedAlbum()` handle the one `AlbumState` singleton every store writes to. Read their doc comments before reaching for them — the sharp edges are written down there.
+
+IndexedDB needs no setup at all: `fake-indexeddb/auto` is a setup file for the node project, so `idb-keyval` itself runs. Drive the cache through `idb-keyval` directly.
+
+`AlbumLoadMachine.spec.ts` is the worked example.
 
 ## End-to-End tests with Playwright
 
