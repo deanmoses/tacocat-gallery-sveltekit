@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * Measures how long the gallery takes to become useful, from a real browser against a deployed site.
  *
@@ -230,4 +229,8 @@ async function main(url, runs) {
     console.table(hostSummary(warm[0].resources));
 }
 
+// import.meta.main is still Stability 1.0. Worth the risk for a dev tool: the alternative,
+// comparing import.meta.url to argv[1], is wrong in the ways that matter here -- symlinks,
+// and spaces in the path.
+// eslint-disable-next-line n/no-unsupported-features/node-builtins
 if (import.meta.main) await main(process.argv[2] ?? 'https://pix.tacocat.com/', Number(process.argv[3] ?? 5));

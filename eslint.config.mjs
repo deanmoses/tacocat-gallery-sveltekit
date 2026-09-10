@@ -9,6 +9,7 @@ import ts from 'typescript-eslint';
 import svelteConfig from './svelte.config.js';
 import vitest from '@vitest/eslint-plugin';
 import playwright from 'eslint-plugin-playwright';
+import n from 'eslint-plugin-n';
 
 const gitignorePath = path.resolve(import.meta.dirname, '.gitignore');
 
@@ -39,14 +40,14 @@ export default defineConfig(
                 projectService: {
                     // Config files and the service worker sit outside the
                     // SvelteKit tsconfig's `include`, so they need the fallback
-                    // project to be parsed at all
+                    // project to be parsed at all. scripts/ is absent because it
+                    // has a tsconfig of its own, which the service finds.
                     allowDefaultProject: [
                         'eslint.config.mjs',
                         'svelte.config.js',
                         'stylelint.config.js',
                         'playwright.config.ts',
                         'prettier.config.ts',
-                        'scripts/*.mjs',
                         'src/service-worker.ts',
                     ],
                 },
@@ -169,8 +170,10 @@ export default defineConfig(
         },
     },
     {
-        // Type-aware rules. Scoped to files the TS project actually covers;
-        // config files and scripts are linted without type information.
+        // Type-aware rules, scoped by extension rather than by what has types:
+        // the .mjs under scripts/ is inside a TS project and could be linted with
+        // type information, but carries no annotations, so every rule here would
+        // report the inferred `any` rather than anything about the code.
         files: ['**/*.ts', '**/*.svelte', '**/*.svelte.ts'],
         rules: {
             // Async correctness: the highest-value reason to run type-aware
@@ -514,5 +517,26 @@ export default defineConfig(
                 },
             ],
         },
+    },
+    {
+        // scripts/ is code node runs directly, so it gets the rules that know what
+        // node is: which builtins exist across the version range package.json
+        // declares, and whether a shebang matches how the file is actually run.
+        files: ['scripts/**/*.{mjs,ts}'],
+        extends: [n.configs['flat/recommended']],
+        rules: {
+            // A generator invoked by the pre-commit hook reports a bad source file
+            // with a message and a nonzero exit. Throwing instead buries that
+            // message under a stack trace describing this code rather than theirs.
+            'n/no-process-exit': 'off',
+        },
+    },
+    {
+        // Everything typescript-eslint has, for TypeScript under scripts/ only.
+        // The .mjs beside it carries no annotations, so these rules would report
+        // its inferred `any` hundreds of times over rather than anything about the
+        // code; a file converted to .ts is written under them from its first line.
+        files: ['scripts/**/*.ts'],
+        extends: [ts.configs.strictTypeChecked, ts.configs.stylisticTypeChecked],
     },
 );

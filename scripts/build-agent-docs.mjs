@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * Build script to generate CLAUDE.md and AGENTS.md from docs/AGENTS.src.md.
  *

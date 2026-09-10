@@ -27,7 +27,7 @@
         "test:e2e": "playwright test",
         "test:e2e:staging": "BASE_URL=https://staging-pix.tacocat.com playwright test",
         "test:e2e:prod": "BASE_URL=https://pix.tacocat.com playwright test",
-        "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+        "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json && tsc -p scripts/tsconfig.json",
         "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
         "lint": "svelte-kit sync && prettier --check . && eslint . --max-warnings 0 --concurrency auto && markdownlint-cli2 && stylelint \"src/**/*.{css,svelte}\" && knip --no-progress",
         "lint:shell": "shellcheck scripts/*.sh .claude/hooks/*.sh .husky/pre-commit",
@@ -53,6 +53,7 @@
         "@vitest/eslint-plugin": "^1.6.27",
         "@zerodevx/svelte-toast": "^0.9.6",
         "eslint": "^10.10.0",
+        "eslint-plugin-n": "^18.3.0",
         "eslint-plugin-playwright": "^2.11.0",
         "eslint-plugin-svelte": "^3.23.0",
         "fake-indexeddb": "^6.2.5",
@@ -83,7 +84,7 @@
     },
     "engineStrict": true,
     "engines": {
-        "node": ">=24.0.0"
+        "node": ">=24.2.0"
     },
     "type": "module",
     "lint-staged": {
