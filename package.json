@@ -30,7 +30,7 @@
         "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
         "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
         "lint": "svelte-kit sync && prettier --check . && eslint . --max-warnings 0 --concurrency auto && markdownlint-cli2 && stylelint \"src/**/*.{css,svelte}\" && knip --no-progress",
-        "lint:shell": "shellcheck scripts/*.sh .husky/pre-commit",
+        "lint:shell": "shellcheck scripts/*.sh .claude/hooks/*.sh .husky/pre-commit",
         "lint:actions": "actionlint",
         "format": "prettier --write --log-level warn .",
         "quality": "npm run format && npm run lint && npm run check",

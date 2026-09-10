@@ -1,5 +1,17 @@
 {
     "permissions": {
         "allow": ["Skill(branch)", "Skill(branch:*)", "Skill(commit)", "Skill(commit:*)", "Skill(pr)", "Skill(pr:*)"]
+    },
+    "hooks": {
+        "SessionStart": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh"
+                    }
+                ]
+            }
+        ]
     }
 }
