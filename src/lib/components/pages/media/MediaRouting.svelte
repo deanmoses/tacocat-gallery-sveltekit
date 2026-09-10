@@ -34,6 +34,8 @@
         <MediaProcessingPage title="Upload In Progress" />
     {:else if UploadState.PROCESSING === uploadStatus}
         <MediaProcessingPage title="Upload Processing" />
+    {:else}
+        <AlbumErrorPage>Unknown upload status: [{uploadStatus}]</AlbumErrorPage>
     {/if}
 {:else if RenameStatus.IN_PROGRESS === renameStatus}
     <MediaProcessingPage title="Rename In Progress" />

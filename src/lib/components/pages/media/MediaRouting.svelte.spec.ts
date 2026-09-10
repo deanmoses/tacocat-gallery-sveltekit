@@ -243,4 +243,13 @@ describe(MediaRouting, () => {
         expect(document.title).toBe('Error');
         await expect.element(screen.getByText('Unknown status: [WAT]')).toBeVisible();
     });
+
+    it('an unrecognized upload status shows the status on a titled page', async () => {
+        albumState.uploads.push(uploadEntry({ mediaPath: MEDIA_PATH, status: 'WAT' as UploadState }));
+
+        const screen = await show();
+
+        expect(document.title).toBe('Error');
+        await expect.element(screen.getByText('Unknown upload status: [WAT]')).toBeVisible();
+    });
 });
