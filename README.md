@@ -4,7 +4,7 @@ Front end of the Tacocat photo gallery website using the [Sveltekit](https://kit
 
 ## Prerequisites
 
-- **Node.js 24+** - the exact version is pinned in `.nvmrc`, so `nvm use` selects it
+- **Node.js 24+**
 - **gitleaks** (optional) - Secret scanner for pre-commit. Install via [gitleaks releases](https://github.com/gitleaks/gitleaks#installing). The pre-commit hook will warn but continue if not installed.
 
 ## Install
