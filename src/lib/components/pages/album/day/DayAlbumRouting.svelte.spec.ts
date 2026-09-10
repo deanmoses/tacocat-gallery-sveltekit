@@ -147,9 +147,11 @@ describe(DayAlbumRouting, () => {
         await expect.element(screen.getByText(ALBUM_CONTENT)).toBeVisible();
     });
 
+    // The neighbour goes into the store first, so a lookup that lands on the
+    // first entry rather than on this album's cannot pass by accident
     it.each([...WORDLESS, ...WITH_MESSAGE])('another album $state leaves this page alone', async ({ seed }) => {
-        albumState.albums.set(PATH, { loadStatus: AlbumLoadStatus.LOADED });
         seed(OTHER_PATH);
+        albumState.albums.set(PATH, { loadStatus: AlbumLoadStatus.LOADED });
 
         const screen = await show();
 

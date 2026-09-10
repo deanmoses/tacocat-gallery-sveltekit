@@ -189,13 +189,13 @@ describe(MediaRouting, () => {
         await expect.element(screen.getByText(MEDIA_CONTENT)).toBeVisible();
     });
 
-    // The upload rows are the ones with teeth: uploads are a list rather than a
-    // map, so which entry this page reads is a search rather than a lookup
+    // The neighbour goes into the store first, so a lookup that lands on the
+    // first entry rather than on this album's cannot pass by accident
     it.each([...WORDLESS, ...PROCESSING, ...WITH_MESSAGE])(
         'a neighbour $state leaves this page alone',
         async ({ seed }) => {
-            albumState.albums.set(ALBUM_PATH, { loadStatus: AlbumLoadStatus.LOADED });
             seed(OTHER);
+            albumState.albums.set(ALBUM_PATH, { loadStatus: AlbumLoadStatus.LOADED });
 
             const screen = await show();
 
