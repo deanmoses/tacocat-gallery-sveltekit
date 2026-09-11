@@ -28,11 +28,10 @@
         "verbatimModuleSyntax": true,
         "isolatedModules": true,
 
-        // The .mjs files are in the program so the linter's type-aware rules can see them, but not
-        // yet checked: they carry no annotations, and reporting every inferred `any` would fail the
-        // build over code that predates this config. Converting a file to .ts opts it in.
+        // JavaScript here is checked on the same terms as the TypeScript. It carries its types in
+        // JSDoc rather than in annotations; what it cannot do is go unchecked.
         "allowJs": true,
-        "checkJs": false,
+        "checkJs": true,
 
         "strict": true,
         "forceConsistentCasingInFileNames": true,

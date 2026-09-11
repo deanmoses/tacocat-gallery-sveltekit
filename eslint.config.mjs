@@ -532,11 +532,10 @@ export default defineConfig(
         },
     },
     {
-        // Everything typescript-eslint has, for TypeScript under scripts/ only.
-        // The .mjs beside it carries no annotations, so these rules would report
-        // its inferred `any` hundreds of times over rather than anything about the
-        // code; a file converted to .ts is written under them from its first line.
-        files: ['scripts/**/*.ts'],
+        // Everything typescript-eslint has, for every file under scripts/. Held at
+        // the directory rather than at an extension so a file added here is under
+        // it whichever of the two it is written in.
+        files: ['scripts/**/*.{mjs,ts}'],
         extends: [ts.configs.strictTypeChecked, ts.configs.stylisticTypeChecked],
         rules: {
             // Same shape as the rule's default, pointed at the declaration form the rest of the
