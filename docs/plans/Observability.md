@@ -48,7 +48,7 @@ Everything below this is AI-generated and I do not vouch for it.
 
 ### How this was measured
 
-Everything below comes from three sources, none of which required changing any infrastructure: `curl` against production, CloudWatch metrics and Lambda logs that were already being collected, and a headless browser driven by the Playwright that this repo already installs. That last one is now checked in as `scripts/measure-perf.mjs`.
+Everything below comes from three sources, none of which required changing any infrastructure: `curl` against production, CloudWatch metrics and Lambda logs that were already being collected, and a headless browser driven by the Playwright that this repo already installs. That last one is now checked in as `scripts/measure-perf.ts`.
 
 The script holds its first run out of the median and prints the spread behind every median, both of which it earned the hard way. Three back-to-back invocations drifted downwards on every metric — LCP 736ms, then 688ms, then 668ms — because repeated runs keep the edge cache warm that 85 views a day let go cold. Without the warm-up discard, an "after" measured later in a session beats a "before" measured earlier whether or not anything improved. And the spread separates what the tool can prove from what it cannot: across those same invocations the album and thumbnail segments held to within 24ms and 8ms, while LCP moved by 68ms — wider than several of the wins being attributed to it.
 
@@ -295,7 +295,7 @@ The cost of that showed up in the 4xx rate on the production image distribution:
 
 ### Measuring
 
-`npm run perf` runs `scripts/measure-perf.mjs`: a headless browser against production, six runs, reporting the median and spread of each critical-path segment across the last five. Run it before a change and after, and check that the spread is smaller than the difference before believing the difference. The first run is reported separately rather than folded in, because it is the only one that meets the cold edge and cold Lambda most visits meet — see _Cold starts_ for how badly that distinction was got wrong here.
+`npm run perf` runs `scripts/measure-perf.ts`: a headless browser against production, six runs, reporting the median and spread of each critical-path segment across the last five. Run it before a change and after, and check that the spread is smaller than the difference before believing the difference. The first run is reported separately rather than folded in, because it is the only one that meets the cold edge and cold Lambda most visits meet — see _Cold starts_ for how badly that distinction was got wrong here.
 
 That is the entire measurement apparatus. It needs no AWS changes, no vendor, no budget, and it survives a year of neglect because it is a file in a repo rather than a configuration in a console.
 

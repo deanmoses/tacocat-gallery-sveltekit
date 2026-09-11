@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { firstVisitCost, hostSummary, lastByte, median, seriesOf, spread, thumbnailsDoneAt } from './measure-perf.mjs';
+import { firstVisitCost, hostSummary, lastByte, median, seriesOf, spread, thumbnailsDoneAt } from './measure-perf.ts';
 
 const IMG = 'https://img.pix.tacocat.com/i';
 

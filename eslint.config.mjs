@@ -538,5 +538,15 @@ export default defineConfig(
         // code; a file converted to .ts is written under them from its first line.
         files: ['scripts/**/*.ts'],
         extends: [ts.configs.strictTypeChecked, ts.configs.stylisticTypeChecked],
+        rules: {
+            // Same shape as the rule's default, pointed at the declaration form the rest of the
+            // repo uses.
+            '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+
+            // A measurement is reported by interpolating it. Spelling every one `String(ms)` would
+            // cost the reader more than the rule catches here, where the alternative to a number is
+            // another number.
+            '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
+        },
     },
 );
