@@ -7,6 +7,8 @@ To find out how Tacocat is doing:
 - [AWS](#aws): production logs
 - [Discord](#discord): receiving alerts, historical alerts
 
+The projects, domains and environments named throughout are mapped in [Ecosystem](Ecosystem.md).
+
 ## Grafana Cloud
 
 Instance: `tacocorp.grafana.net`. Use the Grafana MCP server. Humans start with the [Synthetic Monitoring dashboard](https://tacocorp.grafana.net/a/grafana-synthetic-monitoring-app/home?from=now-24h&to=now&timezone=browser&var-probe=$__all&var-Filters=&var-region=$__all&var-check_type=$__all).

@@ -11,6 +11,8 @@ This project only contains the static Single Page App (SPA) assets; the back end
 - The hosting of this web app
 - The back end photo management: photo storage, database, search, user management, image manipulation
 
+Those projects, the domains they serve and the environments they deploy to are mapped in [Ecosystem](Ecosystem.md).
+
 ## State Management
 
 We use a state machine pattern for complex state management. The state machines are in `src/lib/stores/` and are organized by domain, such as:
