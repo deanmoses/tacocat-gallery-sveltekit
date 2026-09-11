@@ -1,0 +1,45 @@
+{
+    // Developer tooling, checked on its own rather than through the app's config: these files
+    // straddle two runtimes -- the probe installed into the browser needs DOM, `main` needs node --
+    // and nothing here goes through Vite, so none of SvelteKit's generated settings apply.
+    //
+    // The app's tsconfig cannot simply be extended to reach this directory: it inherits its
+    // `include` from .svelte-kit/tsconfig.json, and TypeScript replaces `include` rather than
+    // merging it, so widening it means hand-copying a generated list and keeping it in sync.
+    "compilerOptions": {
+        "noEmit": true,
+        "target": "esnext",
+        "lib": ["esnext", "DOM", "DOM.Iterable"],
+        "types": ["node"],
+
+        // Node runs these files directly by stripping the types out, so the module settings have to
+        // be the ones node itself enforces: `bundler` resolution would accept an extensionless
+        // import that node then fails to resolve at runtime.
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+
+        // Node resolves no extensions of its own, so one file importing another has to name the
+        // .ts. Nothing is emitted here, so the extension it names is the one that exists at runtime.
+        "allowImportingTsExtensions": true,
+
+        // Stripping erases types without evaluating them, so a construct that emits code -- an enum,
+        // a namespace, a parameter property -- would parse here and throw when run.
+        "erasableSyntaxOnly": true,
+        "verbatimModuleSyntax": true,
+        "isolatedModules": true,
+
+        // JavaScript here is checked on the same terms as the TypeScript. It carries its types in
+        // JSDoc rather than in annotations; what it cannot do is go unchecked.
+        "allowJs": true,
+        "checkJs": true,
+
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitOverride": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true
+    },
+    "include": ["**/*.ts", "**/*.mjs"]
+}

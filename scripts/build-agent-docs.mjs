@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * Build script to generate CLAUDE.md and AGENTS.md from docs/AGENTS.src.md.
  *
@@ -140,12 +139,22 @@ function cleanEmptyLines(content) {
     return content.replace(/\n{3,}/g, '\n\n').replace(/^\n+/, '');
 }
 
+/**
+ * The reason out of whatever was thrown. A catch binding holds `unknown`, and reading `.message`
+ * off a string or a plain object -- which is what a non-Error rejection is -- reports the failure
+ * as "undefined" and hides it, in a script the pre-commit hook runs.
+ *
+ * @param {unknown} err
+ * @returns {string}
+ */
+const messageOf = (err) => (err instanceof Error ? err.message : String(err));
+
 function main() {
     let sourceContent;
     try {
         sourceContent = readFileSync(SOURCE_FILE, 'utf-8');
     } catch (err) {
-        console.error(`Error reading source file ${SOURCE_FILE}:`, err.message);
+        console.error(`Error reading source file ${SOURCE_FILE}:`, messageOf(err));
         process.exit(1);
     }
 
@@ -160,7 +169,7 @@ function main() {
     try {
         writeFileSync(CLAUDE_OUTPUT, HEADER + claudeContent, 'utf-8');
     } catch (err) {
-        console.error(`Error writing ${CLAUDE_OUTPUT}:`, err.message);
+        console.error(`Error writing ${CLAUDE_OUTPUT}:`, messageOf(err));
         process.exit(1);
     }
     console.log(`Generated: ${CLAUDE_OUTPUT}`);
@@ -171,7 +180,7 @@ function main() {
     try {
         writeFileSync(AGENTS_OUTPUT, HEADER + agentsContent, 'utf-8');
     } catch (err) {
-        console.error(`Error writing ${AGENTS_OUTPUT}:`, err.message);
+        console.error(`Error writing ${AGENTS_OUTPUT}:`, messageOf(err));
         process.exit(1);
     }
     console.log(`Generated: ${AGENTS_OUTPUT}`);

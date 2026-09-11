@@ -4,7 +4,7 @@
 
 |               |                                                                        |
 | ------------- | ---------------------------------------------------------------------- |
-| Unit tests    | `src/**/*.spec.ts`, run by Vitest in node                              |
+| Unit tests    | `{src,scripts}/**/*.spec.ts`, run by Vitest in node                    |
 | Browser tests | `src/**/*.svelte.spec.ts`, run by Vitest in headless Chromium          |
 | E2E tests     | `src/**/*.e2e.ts`, run by Playwright                                   |
 | Commands      | `npm test` (quiet), `npm run test:unit` (verbose), `npm run test:e2e`  |
