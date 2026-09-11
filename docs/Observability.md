@@ -72,22 +72,69 @@ Run before and after a change and **believe a difference only when it is larger 
 
 Account `010410881828`, everything `us-east-1`. Use the `aws` CLI.
 
+### Logs
+
+#### Lambda logs
+
+Each AWS stack in the `tacocat-gallery-sam` project writes every Lambda's logs to one shared log group, `tacocat-gallery-sam/<env>`, with streams named after the function. Retention is 90 days in prod and 30 in dev and test.
+
 ```bash
-aws logs describe-log-groups --query 'logGroups[].logGroupName'
-aws logs tail /aws/lambda/<function> --since 1h
+aws logs tail tacocat-gallery-sam/prod --since 1h
+aws logs tail tacocat-gallery-sam/prod --since 1h --filter-pattern '{ $.event = "server_exception" }'
 ```
 
-Lambda logs carry `platform.report` records with init duration, execution duration and peak memory per invocation — enough to answer cold-start and latency questions without enabling tracing.
+These logs carry `platform.report` records with init duration, execution duration and peak memory per invocation — enough to answer cold-start and latency questions without enabling tracing.
 
-Known gaps:
+#### CloudFront access logs
 
-- **CloudFront access logs are disabled on all five distributions.** Cache hit rate and per-request CDN forensics are unavailable, and cannot be reconstructed retroactively.
-- **No tracing, no canaries, no budget.**
-- **Most log groups have no retention set**, so old logs are present but nothing expires.
-- **The only CloudWatch alarm is dev-only** and was created by hand in the console rather than in a template.
+Two distributions write access logs to S3, tab-separated with a `#Fields` header, expiring after 90 days. The `x-edge-result-type` field gives cache hit rate. Delivery lags requests by ten minutes to a few hours.
+
+| Distribution                   | Bucket                                                 | Prefix                                              |
+| ------------------------------ | ------------------------------------------------------ | --------------------------------------------------- |
+| Images (`img.pix.tacocat.com`) | `tacocat-gallery-sam-prod-cloudfront-logs`             | `AWSLogs/010410881828/CloudFront/image/YYYY/MM/DD/` |
+| SPA (`pix.tacocat.com`)        | `tacocat-gallery-website-hosting-prod-cloudfront-logs` | `AWSLogs/010410881828/CloudFront/spa/YYYY/MM/DD/`   |
+
+Staging twins write to the matching `-dev` buckets. The SPA distribution is defined in the `tacocat-gallery-hosting-aws` repo.
+
+Delivery is configured through CloudWatch, not on the distribution, so `get-distribution-config` shows logging disabled while logs are flowing. `aws logs describe-delivery-sources` is what says whether a distribution is logging.
+
+```bash
+aws s3 ls s3://tacocat-gallery-website-hosting-prod-cloudfront-logs/AWSLogs/010410881828/CloudFront/spa/ --recursive | tail
+```
+
+### Alarms
+
+Defined in the `tacocat-gallery-sam` project's `template.yaml`. All publish to the `tacocat-gallery-sam-<env>-alerts` SNS topic, which emails Moses. The email body is the alarm's description, which says what broke and what to do.
+
+| Alarm                             | Envs      | Fires when                                                                                                                                                  |
+| --------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `image-cdn-4xx`                   | prod      | More than 25% of image CDN requests were 4xx in an hour that had more than 200 requests. The volume gate exists because most quiet hours hold 1–3 requests. |
+| `api-5xx`                         | prod, dev | Any 5xx returned by the API in a five-minute window. Zero is the expectation.                                                                               |
+| `ProcessMediaUpload-errors`       | prod, dev | The upload processor threw. Counts a failed first attempt even if the retry succeeded.                                                                      |
+| `VideoTranscodingComplete-errors` | prod, dev | The MediaConvert completion handler threw.                                                                                                                  |
+| `DynamoToRedis-errors`            | prod, dev | The Redis sync threw. After three retries the records are dropped; run `SyncRedis` to reconcile.                                                            |
+
+These use exactly the ten alarm metrics in CloudWatch's always-free tier (the CDN alarm counts two), so any new alarm costs ten cents a month.
+
+An AWS Budget emails Moses directly if the whole account's monthly bill passes $15.
+
+```bash
+aws cloudwatch describe-alarms --alarm-name-prefix tacocat-gallery-sam-prod
+aws cloudwatch describe-alarm-history --alarm-name tacocat-gallery-sam-prod-api-5xx
+```
+
+To prove the chain end to end without touching data, invoke `tacocat-gallery-sam-<env>-DynamoToRedis` with `{"Records":[{"eventName":"REMOVE","dynamodb":{"Keys":{}}}]}`: it throws before reaching Redis, the errors alarm fires within about six minutes, and the email arrives.
+
+### Gaps
+
+- **Neither API Gateway has access logging on**, in any environment: not `api.*` (`tacocat-gallery-sam`) nor `auth.*` (`tacocat-gallery-auth`). Both are API Gateway custom domains rather than CloudFront distributions, so the access logs above do not cover them.
+- **No tracing, no canaries.** Grafana's synthetic checks cover uptime from outside.
+- **The `tacocat-gallery-auth` log groups have no retention set.**
 
 ## Discord
 
 Send alerts to the [Tacocat Discord server `#general`](https://discord.com/channels/1547715867851366460/1547715868379586582).
 
 Prefer Discord to email because email gets clutter-y and Discord server is nice easy-to-look-at history.
+
+AWS is the exception: its CloudWatch alarms and the budget email Moses directly, because reaching Discord from AWS needs a relay Lambda and a webhook secret, which is more to maintain than the alerts are worth. Grafana alerts go to Discord.
