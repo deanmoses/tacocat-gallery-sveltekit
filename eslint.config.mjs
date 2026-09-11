@@ -286,7 +286,7 @@ export default defineConfig(
         // test-only rules into the rest of the repo.
         // `.test.ts` is matched so consistent-test-filename below can reject it.
         // Unmatched, such a file is invisible: vite.config.ts wouldn't run it.
-        files: ['src/**/*.{spec,test}.ts'],
+        files: ['{src,scripts}/**/*.{spec,test}.ts'],
         plugins: { vitest },
         // Declares Vitest's type-testing mode. On for what it does to
         // prefer-describe-function-title below: the rule resolves a describe

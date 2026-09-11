@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { firstVisitCost, hostSummary, lastByte, median, seriesOf, spread, thumbnailsDoneAt } from './measure-perf.ts';
+import type { Resource, Sample } from './measure-perf.ts';
 
 const IMG = 'https://img.pix.tacocat.com/i';
 
 /** A resource timeline entry, with only the fields the arithmetic reads */
-const resource = (name, responseEnd, { protocol = 'h2', bytes = 0 } = {}) => ({
+const resource = (
+    name: string,
+    responseEnd: number,
+    { protocol = 'h2', bytes = 0 }: { protocol?: string; bytes?: number } = {},
+): Resource => ({
     name,
     responseEnd,
     protocol,
@@ -16,7 +21,7 @@ const resource = (name, responseEnd, { protocol = 'h2', bytes = 0 } = {}) => ({
  * arriving 10ms after the last. The offscreen ones therefore always finish later than the visible
  * ones, which is the case the segment has to not be fooled by.
  */
-const album = ({ total, onScreen }) => {
+const album = ({ total, onScreen }: { total: number; onScreen: number }): Sample => {
     const urls = Array.from({ length: total }, (_, i) => `${IMG}/photo${i}.jpg`);
     return {
         lcp: 700,
@@ -44,7 +49,8 @@ describe(median, () => {
     it('leaves its argument alone', () => {
         const numbers = [3, 1, 2];
         median(numbers);
-        expect(numbers).toEqual([3, 1, 2]);
+
+        expect(numbers).toStrictEqual([3, 1, 2]);
     });
 });
 
@@ -54,13 +60,14 @@ describe(spread, () => {
         { numbers: [500], expected: { min: 500, max: 500 } },
         { numbers: [], expected: { min: 0, max: 0 } },
     ])('$numbers spans $expected', ({ numbers, expected }) => {
-        expect(spread(numbers)).toEqual(expected);
+        expect(spread(numbers)).toStrictEqual(expected);
     });
 });
 
 describe(lastByte, () => {
     it('reports when the last matching resource finished', () => {
         const resources = [resource('a', 100), resource('b', 300), resource('c', 200)];
+
         expect(lastByte(resources, (r) => 'c' !== r.name)).toBe(300);
     });
 
@@ -83,6 +90,7 @@ describe(thumbnailsDoneAt, () => {
                 (r) => eager.onScreenThumbnailUrls.includes(r.name) || !r.name.startsWith(IMG),
             ),
         };
+
         expect(thumbnailsDoneAt(lazy)).toBe(thumbnailsDoneAt(eager));
     });
 
@@ -94,7 +102,8 @@ describe(thumbnailsDoneAt, () => {
 describe(seriesOf, () => {
     it('collects one figure per sample per metric', () => {
         const samples = [album({ total: 4, onScreen: 2 }), album({ total: 4, onScreen: 2 })];
-        expect(seriesOf(samples)).toEqual({
+
+        expect(seriesOf(samples)).toStrictEqual({
             lcp: [700, 700],
             shell: [140, 140],
             api: [460, 460],
@@ -105,7 +114,7 @@ describe(seriesOf, () => {
 
 describe(firstVisitCost, () => {
     /** The first run finishes `slower` ms behind every figure in the warm album */
-    const slowerBy = (slower) => {
+    const slowerBy = (slower: number): Sample => {
         const warm = album({ total: 4, onScreen: 2 });
         return {
             ...warm,
@@ -117,7 +126,8 @@ describe(firstVisitCost, () => {
 
     it('pairs the single first-run figure with the median of the warm runs', () => {
         const warm = [album({ total: 4, onScreen: 2 }), album({ total: 4, onScreen: 2 })];
-        expect(firstVisitCost(slowerBy(400), seriesOf(warm))).toEqual({
+
+        expect(firstVisitCost(slowerBy(400), seriesOf(warm))).toStrictEqual({
             lcp: { cold: 1100, warm: 700 },
             shell: { cold: 540, warm: 140 },
             api: { cold: 860, warm: 460 },
@@ -127,11 +137,13 @@ describe(firstVisitCost, () => {
 
     it('reports every metric the warm series carries, so none is silently dropped', () => {
         const series = seriesOf([album({ total: 4, onScreen: 2 })]);
-        expect(Object.keys(firstVisitCost(slowerBy(0), series))).toEqual(Object.keys(series));
+
+        expect(Object.keys(firstVisitCost(slowerBy(0), series))).toStrictEqual(Object.keys(series));
     });
 
     it('does not fold the first run into the warm figures it is compared against', () => {
         const series = seriesOf([album({ total: 4, onScreen: 2 })]);
+
         expect(firstVisitCost(slowerBy(400), series).lcp.warm).toBe(700);
     });
 });
@@ -144,14 +156,14 @@ describe(hostSummary, () => {
                 resource('https://pix.tacocat.com/app.css', 110, { protocol: 'h2', bytes: 1024 }),
                 resource(`${IMG}/photo0.jpg`, 500, { bytes: 11561 }),
             ]),
-        ).toEqual({
+        ).toStrictEqual({
             'pix.tacocat.com': { requests: 2, protocol: 'h3,h2', kb: 3 },
             'img.pix.tacocat.com': { requests: 1, protocol: 'h2', kb: 11 },
         });
     });
 
     it('says unknown for a cross-origin resource whose origin sends no Timing-Allow-Origin', () => {
-        expect(hostSummary([resource('https://api.pix.tacocat.com/album/', 460, { protocol: '' })])).toEqual({
+        expect(hostSummary([resource('https://api.pix.tacocat.com/album/', 460, { protocol: '' })])).toStrictEqual({
             'api.pix.tacocat.com': { requests: 1, protocol: 'unknown', kb: 0 },
         });
     });

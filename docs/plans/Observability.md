@@ -303,7 +303,7 @@ Its value is not theoretical. Over the course of designing this document the ran
 
 Its limits are not theoretical either. It runs on the headless Chromium that Playwright bundles, which ignores `preconnect` hints, so anything this tool reports as _no effect_ deserves a second opinion from a real browser before it is believed.
 
-It is a measuring instrument, so it needs the same scepticism as the things it measures. Three of its readings were misleading and are now fixed — it warmed the cache it was measuring, it then hid the one cold run it had, and it timed thumbnails nobody could see. Its pure arithmetic is covered by `scripts/measure-perf.spec.mjs`; the test that matters asserts that the thumbnail segment gives the same answer whether or not the offscreen images were requested at all, which is the reading that would otherwise turn a lazy-loading change into a fake 40% win.
+It is a measuring instrument, so it needs the same scepticism as the things it measures. Three of its readings were misleading and are now fixed — it warmed the cache it was measuring, it then hid the one cold run it had, and it timed thumbnails nobody could see. Its pure arithmetic is covered by `scripts/measure-perf.spec.ts`; the test that matters asserts that the thumbnail segment gives the same answer whether or not the offscreen images were requested at all, which is the reading that would otherwise turn a lazy-loading change into a fake 40% win.
 
 ### Performance fixes, in measured order
 

@@ -18,6 +18,10 @@
         "module": "nodenext",
         "moduleResolution": "nodenext",
 
+        // Node resolves no extensions of its own, so one file importing another has to name the
+        // .ts. Nothing is emitted here, so the extension it names is the one that exists at runtime.
+        "allowImportingTsExtensions": true,
+
         // Stripping erases types without evaluating them, so a construct that emits code -- an enum,
         // a namespace, a parameter property -- would parse here and throw when run.
         "erasableSyntaxOnly": true,

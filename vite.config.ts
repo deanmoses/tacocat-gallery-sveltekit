@@ -64,7 +64,7 @@ export default defineConfig({
                     // scripts/ holds developer tooling rather than shipped code, so it stays out of
                     // src/ and out of coverage; its pure logic is still worth covering, since a wrong
                     // number there is invisible in a way a wrong page is not.
-                    include: ['src/**/*.spec.ts', 'scripts/**/*.spec.mjs'],
+                    include: ['src/**/*.spec.ts', 'scripts/**/*.spec.ts'],
                     // Setting exclude replaces vitest's default rather than adding
                     // to it, so the default has to be carried along
                     exclude: [...defaultExclude, 'src/**/*.svelte.spec.ts'],
