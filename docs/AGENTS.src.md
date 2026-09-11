@@ -119,6 +119,7 @@ Located in `/src/lib/models/impl/`. Pure data structures (no fetching/persistenc
 - Localhost: Vite proxies `/api/*` to staging backend (both dev and preview servers)
 - Staging: `https://api.staging-pix.tacocat.com/`
 - Production: `https://api.pix.tacocat.com/`
+- Served by the `tacocat-gallery-sam` project; see [Ecosystem](docs/Ecosystem.md)
 
 Key endpoints:
 
@@ -134,6 +135,7 @@ Album data cached in IndexedDB with network fallback.
 - Session cookies with `credentials: 'include'`
 - `FAKE_ADMIN_ON_DEV = true` in `SessionStore` simulates admin locally
 - Auth endpoints at `https://auth.pix.tacocat.com/`
+- Served by the `tacocat-gallery-auth` project; see [Ecosystem](docs/Ecosystem.md)
 
 ## Code Conventions
 
