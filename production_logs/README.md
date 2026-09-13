@@ -65,7 +65,7 @@ production_logs/analyze/test             # build against fixtures and assert
 | `connections`        | one row per viewer connection, and whether API requests shared it with the page.        |
 | `album_reads`        | one row per reader and album: how far they read, how fast, and how each image arrived.  |
 | `image_delivery`     | per day and image kind, how many came from the edge, the bucket or Sharp, and how fast. |
-| `image_requests`     | one row per derived-image request, parsed, with the resize behind a miss.               |
+| `image_requests`     | one row per derived-image request, parsed, with the resize behind a miss and its cost.  |
 
 Every relation states its own grain and the wrong answer it prevents:
 

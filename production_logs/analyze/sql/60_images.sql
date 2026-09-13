@@ -27,16 +27,22 @@ WITH parsed AS (
   WHERE r.distribution = 'image' AND r.path LIKE '/i/%'
 ),
 -- One invocation per CloudFront request; the earliest, should CloudFront ever
--- retry an origin request under the same id.
+-- retry an origin request under the same id. What it cost comes from the
+-- result line, absent when the resize failed before one.
 resizes AS (
   SELECT
     k.request_id,
     arg_min(
-      struct_pack(request_id := i.request_id, is_cold := i.is_cold, init_ms := i.init_ms, duration_ms := i.duration_ms),
+      struct_pack(
+        request_id := i.request_id, is_cold := i.is_cold, init_ms := i.init_ms, duration_ms := i.duration_ms,
+        format := z.format, bytes := z.bytes, original_bytes := z.original_bytes,
+        source_width := z.source_width, source_height := z.source_height,
+        load_ms := z.load_ms, sharp_ms := z.sharp_ms, save_ms := z.save_ms, too_large := z.too_large),
       i.ts
     ) AS resize
   FROM parsed k
   JOIN lambda_invocations i ON i.env = k.env AND i.cf_request_id = k.request_id
+  LEFT JOIN lambda_resizes z ON z.env = i.env AND z.request_id = i.request_id
   GROUP BY k.request_id
 )
 SELECT
@@ -64,6 +70,15 @@ SELECT
   z.resize.is_cold AS resize_cold,
   z.resize.init_ms AS resize_init_ms,
   z.resize.duration_ms AS resize_ms,
+  z.resize.format AS resize_format,
+  z.resize.bytes AS resize_bytes,
+  z.resize.original_bytes AS original_bytes,
+  z.resize.source_width AS source_width,
+  z.resize.source_height AS source_height,
+  z.resize.load_ms AS resize_load_ms,
+  z.resize.sharp_ms AS resize_sharp_ms,
+  z.resize.save_ms AS resize_save_ms,
+  z.resize.too_large AS resize_too_large,
   k.ttfb_seconds,
   k.seconds,
   k.origin_ttfb_seconds,
@@ -80,7 +95,7 @@ LEFT JOIN resizes z ON z.request_id = k.request_id
 LEFT JOIN visitors v
   ON v.env = k.env AND v.day = k.ts::DATE AND v.client_ip = k.client_ip AND v.user_agent = k.user_agent;
 
-COMMENT ON VIEW image_requests IS 'GRAIN: one row per request for a derived image at the image CDN, probes and bots included and marked. `kind` is thumbnail, detail or other, from image_sizes. `served_by` is edge (a cache hit), bucket (a miss answered from the derived-images bucket in us-east-1), resized (a miss GenerateDerivedImage answered with Sharp, its invocation in the resize_ columns), error or redirect. Times are at the edge; the network between it and the reader is on top.';
+COMMENT ON VIEW image_requests IS 'GRAIN: one row per request for a derived image at the image CDN, probes and bots included and marked. `kind` is thumbnail, detail or other, from image_sizes. `served_by` is edge (a cache hit), bucket (a miss answered from the derived-images bucket in us-east-1), resized (a miss GenerateDerivedImage answered with Sharp, its invocation and what it cost in the resize_ columns, and the original it was given in original_bytes and source_width/height), error or redirect. Times are at the edge; the network between it and the reader is on top.';
 
 CREATE OR REPLACE VIEW image_delivery AS
 SELECT

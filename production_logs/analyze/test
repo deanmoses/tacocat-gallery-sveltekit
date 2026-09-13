@@ -323,13 +323,16 @@ LINE
 
 # Three resizes, each naming the CloudFront request that caused it. g1 logs its
 # request as a string of JSON and g2 as an object, the two shapes CloudWatch has
-# held; g3 was asked for an empty size, which the rewrite passes on as a trailing
-# slash.
+# held; g2's output was too large for the Lambda URL; g3 was asked for an empty
+# size, which the rewrite passes on as a trailing slash, and logged no result.
 resize_events() {  # $1 = lambda dump file to append to
   cat >> "$1" <<'LINES'
 {"eventId":"2001","timestamp":1789207202500,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]dddd4444","message":"{\"timestamp\":\"2026-09-12T10:00:02.500Z\",\"level\":\"INFO\",\"requestId\":\"g1\",\"message\":\"{\\\"event\\\":\\\"request_received\\\",\\\"method\\\":\\\"GET\\\",\\\"path\\\":\\\"/i/2026/09-07/b.jpg/vb/1024\\\",\\\"cfRequestId\\\":\\\"img2\\\"}\"}"}
+{"eventId":"2001b","timestamp":1789207204500,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]dddd4444","message":"{\"timestamp\":\"2026-09-12T10:00:04.500Z\",\"level\":\"INFO\",\"requestId\":\"g1\",\"message\":{\"event\":\"derived_image_generated\",\"path\":\"/i/2026/09-07/b.jpg/vb/1024\",\"format\":\"webp\",\"bytes\":180000,\"originalBytes\":3174770,\"sourceWidth\":3681,\"sourceHeight\":4302,\"loadMs\":249,\"sharpMs\":514,\"saveMs\":86}}"}
 {"eventId":"2002","timestamp":1789207204600,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]dddd4444","message":"{\"time\":\"2026-09-12T10:00:04.600Z\",\"type\":\"platform.report\",\"record\":{\"requestId\":\"g1\",\"metrics\":{\"durationMs\":1500.0,\"billedDurationMs\":2100,\"memorySizeMB\":3008,\"maxMemoryUsedMB\":180,\"initDurationMs\":600.0},\"status\":\"success\"}}"}
 {"eventId":"2003","timestamp":1789207319000,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]eeee5555","message":"{\"timestamp\":\"2026-09-12T10:01:59.000Z\",\"level\":\"INFO\",\"requestId\":\"g2\",\"message\":{\"event\":\"request_received\",\"method\":\"GET\",\"path\":\"/i/2026/09-07/a.jpg/va/613\",\"cfRequestId\":\"img7\"}}"}
+{"eventId":"2003b","timestamp":1789207319800,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]eeee5555","message":"{\"timestamp\":\"2026-09-12T10:01:59.800Z\",\"level\":\"INFO\",\"requestId\":\"g2\",\"message\":{\"event\":\"derived_image_generated\",\"path\":\"/i/2026/09-07/a.jpg/va/613\",\"format\":\"jpeg\",\"bytes\":5300000,\"originalBytes\":9000000,\"sourceWidth\":8000,\"sourceHeight\":6000,\"loadMs\":400,\"sharpMs\":420,\"saveMs\":60}}"}
+{"eventId":"2003c","timestamp":1789207319850,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]eeee5555","message":"{\"timestamp\":\"2026-09-12T10:01:59.850Z\",\"level\":\"WARN\",\"requestId\":\"g2\",\"message\":{\"event\":\"response_too_large\",\"path\":\"/i/2026/09-07/a.jpg/va/613\",\"bytes\":5300000,\"base64Bytes\":7066668}}"}
 {"eventId":"2004","timestamp":1789207319900,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]eeee5555","message":"{\"time\":\"2026-09-12T10:01:59.900Z\",\"type\":\"platform.report\",\"record\":{\"requestId\":\"g2\",\"metrics\":{\"durationMs\":900.0,\"billedDurationMs\":900,\"memorySizeMB\":3008,\"maxMemoryUsedMB\":170},\"status\":\"success\"}}"}
 {"eventId":"2005","timestamp":1789207379000,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]eeee5555","message":"{\"timestamp\":\"2026-09-12T10:02:59.000Z\",\"level\":\"INFO\",\"requestId\":\"g3\",\"message\":{\"event\":\"request_received\",\"method\":\"GET\",\"path\":\"/i/2026/09-07/a.jpg/va/\",\"cfRequestId\":\"img8\"}}"}
 {"eventId":"2006","timestamp":1789207379800,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]eeee5555","message":"{\"time\":\"2026-09-12T10:02:59.800Z\",\"type\":\"platform.report\",\"record\":{\"requestId\":\"g3\",\"metrics\":{\"durationMs\":800.0,\"billedDurationMs\":800,\"memorySizeMB\":3008,\"maxMemoryUsedMB\":170},\"status\":\"success\"}}"}
@@ -369,6 +372,12 @@ case_album_read() {
     "$(q "$w" "SELECT string_agg(request_id || '=' || served_by, '|' ORDER BY request_id) FROM image_requests WHERE client_ip = '10.0.0.1';")"
   expect "the resize behind a miss" "g1|true|600.0" \
     "$(q "$w" "SELECT resize_request_id || '|' || resize_cold || '|' || resize_init_ms FROM image_requests WHERE request_id = 'img2';")"
+  expect "and what it cost" "webp|180000|3174770|3681x4302|249/514/86|false" \
+    "$(q "$w" "SELECT resize_format || '|' || resize_bytes || '|' || original_bytes || '|' || source_width || 'x' || source_height || '|' || resize_load_ms || '/' || resize_sharp_ms || '/' || resize_save_ms || '|' || resize_too_large FROM image_requests WHERE request_id = 'img2';")"
+  expect "a result too large to return" "true" \
+    "$(q "$w" "SELECT resize_too_large FROM image_requests WHERE request_id = 'img7';")"
+  expect "a resize without a result" "g3|NULL" \
+    "$(q "$w" "SELECT resize_request_id || '|' || coalesce(resize_format, 'NULL') FROM image_requests WHERE request_id = 'img8';")"
   expect "a request logged as an object" "/i/2026/09-07/a.jpg/va/613" \
     "$(q "$w" "SELECT path FROM lambda_invocations WHERE request_id = 'g2';")"
   # Detail requests at :05, :05, :05, :35 and 1:20 are gaps of 0, 0, 30 and 45.

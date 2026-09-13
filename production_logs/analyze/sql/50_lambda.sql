@@ -86,6 +86,33 @@ WHERE event = 'request_received';
 
 COMMENT ON TABLE lambda_requests IS 'GRAIN: one row per request a handler logged on arrival, by Lambda request id. For a derived image, `path` is what CloudFront asked for after its rewrite: /i/<media path>/<version>/<size>, then /crop=<x,y,w,h> for a cropped one, and `cf_request_id` is the CloudFront row''s request_id. `has_token` is whether an API request carried an id_token cookie, valid or not; NULL for the resizer, which has no cookies.';
 
+-- What a resize cost and what it was given. The request names only the output;
+-- Sharp time scales with the original, which only this line states. A resize
+-- whose output was too large for a Lambda URL to return sent CloudFront a 503
+-- to retry, and the retry was served from the bucket the image had just been
+-- saved to.
+CREATE OR REPLACE TABLE lambda_resizes AS
+SELECT
+  r.ts,
+  r.env,
+  r.request_id,
+  r.logged ->> '$.path' AS path,
+  r.logged ->> '$.format' AS format,
+  try_cast(r.logged ->> '$.bytes' AS BIGINT) AS bytes,
+  try_cast(r.logged ->> '$.originalBytes' AS BIGINT) AS original_bytes,
+  try_cast(r.logged ->> '$.sourceWidth' AS INTEGER) AS source_width,
+  try_cast(r.logged ->> '$.sourceHeight' AS INTEGER) AS source_height,
+  try_cast(r.logged ->> '$.loadMs' AS INTEGER) AS load_ms,
+  try_cast(r.logged ->> '$.sharpMs' AS INTEGER) AS sharp_ms,
+  try_cast(r.logged ->> '$.saveMs' AS INTEGER) AS save_ms,
+  EXISTS (SELECT 1 FROM lambda_events t
+          WHERE t.env = r.env AND t.request_id = r.request_id AND t.event = 'response_too_large') AS too_large,
+  r.event_id, r.source_file
+FROM lambda_events r
+WHERE r.event = 'derived_image_generated';
+
+COMMENT ON TABLE lambda_resizes IS 'GRAIN: one row per image GenerateDerivedImage resized, by Lambda request id: the output''s format and bytes, the original''s bytes and pixel size, and milliseconds spent reading the original, in Sharp, and saving to S3. `too_large` is a result over 5MB base64, which the Lambda URL cannot return: CloudFront got a 503 and retried from the bucket.';
+
 CREATE OR REPLACE TABLE lambda_invocations AS
 WITH reports AS (
   SELECT
