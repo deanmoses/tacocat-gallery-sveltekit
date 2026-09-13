@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PAGE, daysBetween, dayOf, defaultWindow, merge, nextStart, pullDay, rowsOf } from './grafana.ts';
+import { PAGE, dayOf, merge, nextStart, pullDay, rowsOf } from './grafana.ts';
 import type { LokiPage, Row } from './grafana.ts';
 
 /** 2026-09-13T08:54:57.251Z, the nanosecond a real execution began */
@@ -78,30 +78,6 @@ describe(nextStart, () => {
     it('starts the next page one nanosecond after a full one', () => {
         const full = Array.from({ length: PAGE }, (_, i) => row(T0 + BigInt(i)));
         expect(nextStart(full)).toBe(T0 + BigInt(PAGE - 1) + 1n);
-    });
-});
-
-describe(daysBetween, () => {
-    it('is inclusive at both ends and crosses a month', () => {
-        expect(daysBetween('2026-08-30', '2026-09-02')).toEqual([
-            '2026-08-30',
-            '2026-08-31',
-            '2026-09-01',
-            '2026-09-02',
-        ]);
-    });
-});
-
-describe(defaultWindow, () => {
-    it.each([
-        { existing: [], start: '2026-08-30', why: 'reaches back to the retention limit when nothing is on disk' },
-        {
-            existing: ['2026-09-10', '2026-09-12', '2026-09-11'],
-            start: '2026-09-12',
-            why: 'resumes from the newest day on disk, which was short',
-        },
-    ])('$why', ({ existing, start }) => {
-        expect(defaultWindow(existing, '2026-09-13')).toEqual({ start, end: '2026-09-13' });
     });
 });
 

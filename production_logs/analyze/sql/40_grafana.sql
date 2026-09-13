@@ -87,6 +87,7 @@ CREATE OR REPLACE VIEW probe_health AS
 SELECT
   ts::DATE AS day,
   check_name,
+  target,
   probe,
   count(*) AS executions,
   count(*) FILTER (NOT success) AS failures,
@@ -96,6 +97,6 @@ SELECT
   round(quantile_cont(duration_ms, 0.9), 1) AS p90_duration_ms
 FROM probe_executions
 GROUP BY ALL
-ORDER BY day, check_name, probe;
+ORDER BY day, check_name, target, probe;
 
-COMMENT ON VIEW probe_health IS 'GRAIN: one row per UTC day, check and probe. Uptime and latency as seen from outside, one row per region rather than blended: Paris reaching the API pays a transatlantic handshake that Ohio does not, and an average of the two describes nobody.';
+COMMENT ON VIEW probe_health IS 'GRAIN: one row per UTC day, check, target URL and probe. Uptime and latency as seen from outside, one row per region rather than blended: Paris reaching the API pays a transatlantic handshake that Ohio does not, and an average of the two describes nobody. Keyed on the target as well as the check, so a check pointed at a new URL is a new row, not a before and after averaged together.';

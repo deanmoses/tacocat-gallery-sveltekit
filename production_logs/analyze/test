@@ -50,6 +50,8 @@ skip_case() { [ -n "$ONLY" ] && [ "$ONLY" != "$1" ]; }
 OLD_SPA=dumps/cloudfront/prod/spa/2026/09/11/E3DFANBWDVJ2DM.2026-09-11-12.fixture.tsv
 NEW_SPA=dumps/cloudfront/prod/spa/2026/09/12/E3DFANBWDVJ2DM.2026-09-12-10.fixture.tsv
 PROBES=dumps/grafana/synthetic/2026-09-12.ndjson
+LAMBDA=dumps/lambda/prod/2026-09-12.ndjson
+NEW_IMAGE=dumps/cloudfront/prod/image/2026/09/12/E3R19YIU3JKJRK.2026-09-12-10.fixture.tsv
 
 # --- both field sets load, and every relation says what the fixture means ------
 case_baseline() {
@@ -106,8 +108,29 @@ case_baseline() {
     "$(q "$w" "SELECT resolve_ms || '|' || total_ms || '|' || ttfb_ms || '|' || duration_ms FROM probe_executions WHERE success;")"
   expect "a timeout has no phases" "true" \
     "$(q "$w" "SELECT status_code IS NULL AND total_ms IS NULL AND duration_ms = 3000.1 FROM probe_executions WHERE NOT success;")"
-  expect "coverage carries both sources" "cloudfront|grafana" \
+  expect "coverage carries every source" "cloudfront|grafana|lambda" \
     "$(q "$w" "SELECT string_agg(DISTINCT source, '|' ORDER BY source) FROM coverage;")"
+  expect "probe health keys on the target" "https://api.pix.tacocat.com/album/|https://pix.tacocat.com/" \
+    "$(q "$w" "SELECT string_agg(DISTINCT target, '|' ORDER BY target) FROM probe_health;")"
+  # Four platform reports: GetAlbum cold, warm, then cold again an hour later, and
+  # a Search that failed.
+  expect "invocations" "4" "$(q "$w" 'SELECT count(*) FROM lambda_invocations;')"
+  expect "function from the stream name" "GetAlbum=3|Search=1" \
+    "$(q "$w" "SELECT string_agg(function_name || '=' || n, '|' ORDER BY function_name) FROM (SELECT function_name, count(*) AS n FROM lambda_invocations GROUP BY 1);")"
+  expect "cold starts" "r1|r3" \
+    "$(q "$w" "SELECT string_agg(request_id, '|' ORDER BY request_id) FROM lambda_invocations WHERE is_cold;")"
+  # r2 started at 10:01:00.100, while the Ohio API check that began at 10:01:00
+  # was waiting. r1 started a minute earlier, which no check was.
+  expect "the probe's invocation" "r2" \
+    "$(q "$w" "SELECT string_agg(request_id, '|') FROM lambda_invocations WHERE is_probe;")"
+  # r2 started 57.2s after r1 ended; r3 an hour after r2 did.
+  expect "idle before each" "57.2|3540.86" \
+    "$(q "$w" "SELECT string_agg(idle_seconds::VARCHAR, '|' ORDER BY ts) FROM lambda_invocations WHERE function_name = 'GetAlbum' AND idle_seconds IS NOT NULL;")"
+  expect "the error is kept" "error|Runtime.ExitError" \
+    "$(q "$w" "SELECT status || '|' || error_type FROM lambda_invocations WHERE function_name = 'Search';")"
+  # Init plus work: 300+150 and 280+120.
+  expect "cold starts outside the probe" "2|2|100.0|425.0" \
+    "$(q "$w" "SELECT invocations || '|' || cold || '|' || pct_cold || '|' || median_cold_ms FROM cold_starts WHERE function_name = 'GetAlbum' AND NOT is_probe;")"
 }
 
 # --- a field CloudFront adds tomorrow changes nothing ---------------------------
@@ -209,7 +232,157 @@ LINE
     "$(q "$w" "SELECT count(*) FROM checks WHERE check_name = 'probe_unknown_message' AND detail LIKE '%Negotiated HTTP/3%';")"
 }
 
-for c in baseline unknown_field missing_field malformed_line unknown_distribution no_dumps no_grafana unknown_probe_message; do
+# --- the fields CloudFront can add, and connections told apart by port ---------
+# A SPA file as it looks with the API behind the distribution and every optional
+# timing field on. One browser loads a page and its album JSON on one port and a
+# chunk on another, then comes back to the first port ten minutes later, which
+# is a new connection that happens to reuse the number.
+case_origin_fields() {
+  w=$1
+  d=$w/dumps/cloudfront/prod/spa/2026/09/14
+  mkdir -p "$d"
+  ua='Mozilla/5.0%20(Macintosh;%20Intel%20Mac%20OS%20X%2010_15_7)%20AppleWebKit/605.1.15%20(KHTML,%20like%20Gecko)%20Version/26.0%20Safari/605.1.15'
+  cf_line() {  # time, epoch ms, port, path, result type, origin-fbl, origin-lbl, behavior
+    printf '2026-09-14\t%s\tSFO53-P10\t1376\t10.0.0.20\tGET\td1e0qhrql1yoqo.cloudfront.net\t%s\t200\t-\t%s\t-\t%s\treq%s\tpix.tacocat.com\thttps\t170\t0.150\tTLSv1.3\tTLS_AES_128_GCM_SHA256\t%s\tHTTP/3.0\t%s\t0.149\t%s\tapplication/json\t-\t7018\tUS\t%s\t%s\t%s\t%s\n' \
+      "$1" "$4" "$ua" "$5" "$2" "$5" "$3" "$5" "$2" "$6" "$7" "$8"
+  }
+  {
+    printf '#Version: 1.0\n'
+    sed -n 2p "$w/$NEW_SPA" | sed 's/$/ timestamp(ms) origin-fbl origin-lbl cache-behavior-path-pattern/'
+    cf_line 09:00:00 1789376400100 50001 / Hit - - '*'
+    cf_line 09:00:00 1789376400300 50001 /api/album/2026/09-07/ Miss 0.142 0.145 '/api/*'
+    cf_line 09:00:00 1789376400700 50002 /_app/immutable/nodes/3.js Hit - - '/_app/immutable/*'
+    cf_line 09:10:00 1789377000050 50001 /api/album/2026/ Miss 0.098 0.101 '/api/*'
+  } > "$d/E3DFANBWDVJ2DM.2026-09-14-09.fixture.tsv"
+  expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
+  expect "no findings"    "0" "$(q "$w" 'SELECT count(*) FROM checks;')"
+  expect "milliseconds order a second" "09:00:00.100|09:00:00.300|09:00:00.700|09:10:00.050" \
+    "$(q "$w" "SELECT string_agg(strftime(ts, '%H:%M:%S.%g'), '|' ORDER BY ts) FROM cloudfront_requests WHERE client_ip = '10.0.0.20';")"
+  expect "origin timings only where the origin was asked" "-/-|0.142/0.145|-/-|0.098/0.101" \
+    "$(q "$w" "SELECT string_agg(coalesce(origin_ttfb_seconds::VARCHAR, '-') || '/' || coalesce(origin_seconds::VARCHAR, '-'), '|' ORDER BY ts) FROM cloudfront_requests WHERE client_ip = '10.0.0.20';")"
+  expect "the behavior that answered" "*|/api/*|/_app/immutable/*|/api/*" \
+    "$(q "$w" "SELECT string_agg(cache_behavior, '|' ORDER BY ts) FROM cloudfront_requests WHERE client_ip = '10.0.0.20';")"
+  expect "files without the fields read NULL" "0" \
+    "$(q "$w" "SELECT count(*) FROM cloudfront_requests WHERE client_ip <> '10.0.0.20' AND (origin_ttfb_seconds IS NOT NULL OR cache_behavior IS NOT NULL);")"
+  expect "connections, and the API sharing one" "50001#1=2/1|50001#2=1/1|50002#1=1/0" \
+    "$(q "$w" "SELECT string_agg(client_port || '#' || seq || '=' || requests || '/' || api_requests, '|' ORDER BY client_port, seq) FROM connections WHERE client_ip = '10.0.0.20';")"
+}
+
+# --- no Lambda dump is a smaller database, not a broken one --------------------
+case_no_lambda() {
+  w=$1
+  rm -r "$w/dumps/lambda"
+  expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
+  expect "no findings"    "0" "$(q "$w" 'SELECT count(*) FROM checks;')"
+  expect "no invocations" "0" "$(q "$w" 'SELECT count(*) FROM lambda_invocations;')"
+  expect "cloudfront unaffected" "5" "$(q "$w" 'SELECT visitors FROM avif_readiness;')"
+}
+
+# --- a report the reader cannot place is named, not quietly dropped ------------
+case_unreadable_lambda() {
+  w=$1
+  f=$w/$LAMBDA
+  # Search's stream loses the stack prefix; r2's record loses its duration; and a
+  # plain-text line, as Lambda writes when a function logs outside JSON, appears.
+  sed 's/tacocat-gallery-sam-prod-Search\[/Search[/; s/\\"durationMs\\":40.0,//' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+  cat >> "$f" <<'LINE'
+{"eventId":"1005","timestamp":1789214400020,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GetAlbum[$LATEST]aaaa1111","message":"START RequestId: r5 Version: $LATEST"}
+LINE
+  expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
+  expect "lambda_unreadable_stream fires" "1" \
+    "$(q "$w" "SELECT count(*) FROM checks WHERE check_name = 'lambda_unreadable_stream' AND detail LIKE '1 events come from streams like %Search[%';")"
+  expect "lambda_report_without_duration fires" "1" \
+    "$(q "$w" "SELECT count(*) FROM checks WHERE check_name = 'lambda_report_without_duration' AND detail LIKE '%\"requestId\":\"r2\"%';")"
+  expect "lambda_unknown_event fires" "1" \
+    "$(q "$w" "SELECT count(*) FROM checks WHERE check_name = 'lambda_unknown_event' AND detail LIKE '%START RequestId: r5%';")"
+}
+
+# Three resizes. g1 logs its request as a string of JSON and g2 as an object, the
+# two shapes CloudWatch has held; g3 was asked for an empty size, which the rewrite
+# passes on as a trailing slash.
+resize_events() {  # $1 = lambda dump file to append to
+  cat >> "$1" <<'LINES'
+{"eventId":"2001","timestamp":1789207202500,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]dddd4444","message":"{\"timestamp\":\"2026-09-12T10:00:02.500Z\",\"level\":\"INFO\",\"requestId\":\"g1\",\"message\":\"{\\\"event\\\":\\\"request_received\\\",\\\"method\\\":\\\"GET\\\",\\\"path\\\":\\\"/i/2026/09-07/b.jpg/vb/1024\\\"}\"}"}
+{"eventId":"2002","timestamp":1789207204600,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]dddd4444","message":"{\"time\":\"2026-09-12T10:00:04.600Z\",\"type\":\"platform.report\",\"record\":{\"requestId\":\"g1\",\"metrics\":{\"durationMs\":1500.0,\"billedDurationMs\":2100,\"memorySizeMB\":3008,\"maxMemoryUsedMB\":180,\"initDurationMs\":600.0},\"status\":\"success\"}}"}
+{"eventId":"2003","timestamp":1789207319000,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]eeee5555","message":"{\"timestamp\":\"2026-09-12T10:01:59.000Z\",\"level\":\"INFO\",\"requestId\":\"g2\",\"message\":{\"event\":\"request_received\",\"method\":\"GET\",\"path\":\"/i/2026/09-07/a.jpg/va/613\"}}"}
+{"eventId":"2004","timestamp":1789207319900,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]eeee5555","message":"{\"time\":\"2026-09-12T10:01:59.900Z\",\"type\":\"platform.report\",\"record\":{\"requestId\":\"g2\",\"metrics\":{\"durationMs\":900.0,\"billedDurationMs\":900,\"memorySizeMB\":3008,\"maxMemoryUsedMB\":170},\"status\":\"success\"}}"}
+{"eventId":"2005","timestamp":1789207379000,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]eeee5555","message":"{\"timestamp\":\"2026-09-12T10:02:59.000Z\",\"level\":\"INFO\",\"requestId\":\"g3\",\"message\":{\"event\":\"request_received\",\"method\":\"GET\",\"path\":\"/i/2026/09-07/a.jpg/va/\"}}"}
+{"eventId":"2006","timestamp":1789207379800,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]eeee5555","message":"{\"time\":\"2026-09-12T10:02:59.800Z\",\"type\":\"platform.report\",\"record\":{\"requestId\":\"g3\",\"metrics\":{\"durationMs\":800.0,\"billedDurationMs\":800,\"memorySizeMB\":3008,\"maxMemoryUsedMB\":170},\"status\":\"success\"}}"}
+LINES
+}
+
+# --- reading an album, one image at a time -----------------------------------
+# The iPhone at 10.0.0.1 opens the 09-07 album, then image b. b arrives resized by
+# g1 with its preloaded neighbours: c from the bucket, a from the edge. Next
+# preloads d half a minute later, then e 45 seconds after that. A size the SPA
+# does not ask for, resized by g2, and a cropped grid thumbnail come too.
+case_album_read() {
+  w=$1
+  ua='Mozilla/5.0%20(iPhone;%20CPU%20iPhone%20OS%2018_7%20like%20Mac%20OS%20X)%20AppleWebKit/605.1.15%20(KHTML,%20like%20Gecko)%20Version/26.6.1%20Mobile/15E148%20Safari/604.1'
+  img_line() {  # time, path, query, result type, time-taken, time-to-first-byte, request id
+    printf '2026-09-12\t%s\tSFO53-P10\t140000\t10.0.0.1\tGET\td1e0qhrql1yoqo.cloudfront.net\t%s\t200\thttps://pix.tacocat.com/\t%s\t%s\t%s\t%s\timg.pix.tacocat.com\thttps\t170\t%s\tTLSv1.3\tTLS_AES_128_GCM_SHA256\t%s\tHTTP/3.0\t60057\t%s\t%s\timage/webp\t-\t7018\tUS\n' \
+      "$1" "$2" "$ua" "$3" "$4" "$7" "$5" "$4" "$6" "$4"
+  }
+  {
+    img_line 10:00:03 /i/2026/09-07/a.jpg 'version=va&size=200x200&crop=1,2,3,4' Hit 0.012 0.011 img1
+    img_line 10:00:05 /i/2026/09-07/b.jpg 'version=vb&size=1024' Miss 2.600 2.590 img2
+    img_line 10:00:05 /i/2026/09-07/c.jpg 'version=vc&size=x1024' Miss 0.300 0.290 img3
+    img_line 10:00:05 /i/2026/09-07/a.jpg 'version=va&size=1024' Hit 0.010 0.009 img4
+    img_line 10:00:35 /i/2026/09-07/d.jpg 'version=vd&size=1024' Miss 0.280 0.270 img5
+    img_line 10:01:20 /i/2026/09-07/e.jpg 'version=ve&size=1024' Hit 0.012 0.011 img6
+    img_line 10:02:00 /i/2026/09-07/a.jpg 'version=va&size=613' Miss 1.200 1.190 img7
+    img_line 10:03:00 /i/2026/09-07/a.jpg 'version=va&size=' Miss 1.100 1.090 img8
+  } >> "$w/$NEW_IMAGE"
+  resize_events "$w/$LAMBDA"
+  expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
+  expect "no findings"    "0" "$(q "$w" 'SELECT count(*) FROM checks;')"
+  expect "kinds" "detail=5|other=2|thumbnail=1" \
+    "$(q "$w" "SELECT string_agg(kind || '=' || n, '|' ORDER BY kind) FROM (SELECT kind, count(*) AS n FROM image_requests WHERE client_ip = '10.0.0.1' GROUP BY 1);")"
+  expect "parsed from the URL" "/2026/09-07|/2026/09-07/a.jpg|va|200x200|1,2,3,4" \
+    "$(q "$w" "SELECT album_path || '|' || media_path || '|' || version || '|' || size || '|' || crop FROM image_requests WHERE request_id = 'img1';")"
+  expect "served by" "img1=edge|img2=resized|img3=bucket|img4=edge|img5=bucket|img6=edge|img7=resized|img8=resized" \
+    "$(q "$w" "SELECT string_agg(request_id || '=' || served_by, '|' ORDER BY request_id) FROM image_requests WHERE client_ip = '10.0.0.1';")"
+  expect "the resize behind a miss" "g1|true|600.0" \
+    "$(q "$w" "SELECT resize_request_id || '|' || resize_cold || '|' || resize_init_ms FROM image_requests WHERE request_id = 'img2';")"
+  expect "a request logged as an object" "/i/2026/09-07/a.jpg/va/613" \
+    "$(q "$w" "SELECT path FROM lambda_invocations WHERE request_id = 'g2';")"
+  # Detail requests at :05, :05, :05, :35 and 1:20 are gaps of 0, 0, 30 and 45.
+  expect "the read" "5|5|2|2|1|15.0|1|true" \
+    "$(q "$w" "SELECT images || '|' || requests || '|' || from_edge || '|' || from_bucket || '|' || resized || '|' || median_gap_s || '|' || thumbnails || '|' || is_visit FROM album_reads WHERE client_ip = '10.0.0.1';")"
+  expect "delivery from the bucket" "2|2|280.0" \
+    "$(q "$w" "SELECT requests || '|' || visit_requests || '|' || median_ttfb_ms FROM image_delivery WHERE kind = 'detail' AND served_by = 'bucket';")"
+}
+
+# --- a resize no CloudFront request asked for means the path match broke ------
+case_unmatched_resize() {
+  w=$1
+  resize_events "$w/$LAMBDA"
+  # A later day of image logs, so the resizes are old enough to be judged.
+  d=$w/dumps/cloudfront/prod/image/2026/09/14
+  mkdir -p "$d"
+  sed 's/^2026-09-12/2026-09-14/' "$w/$NEW_IMAGE" > "$d/E3R19YIU3JKJRK.2026-09-14-10.fixture.tsv"
+  expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
+  # Only g1's 1024 is a size the SPA asks for; g2's 613 and g3's empty size are not judged.
+  expect "image_resize_without_request fires" "1" \
+    "$(q "$w" "SELECT count(*) FROM checks WHERE check_name = 'image_resize_without_request' AND detail LIKE '1 derived-image invocations %/i/2026/09-07/b.jpg/vb/1024';")"
+}
+
+# --- an API check that started no invocation means the time match broke -------
+case_unmatched_api_probe() {
+  w=$1
+  # The Ohio API check succeeds. r2 started while it waited, so all is well.
+  sed 's/"probe_success": "0"/"probe_success": "1"/' "$w/$PROBES" > "$w/$PROBES.tmp" && mv "$w/$PROBES.tmp" "$w/$PROBES"
+  expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
+  expect "matched, no findings" "0" "$(q "$w" 'SELECT count(*) FROM checks;')"
+  # Without r2, the check reached nothing the reader can see.
+  grep -v '"eventId":"1002"' "$w/$LAMBDA" > "$w/$LAMBDA.tmp" && mv "$w/$LAMBDA.tmp" "$w/$LAMBDA"
+  expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
+  expect "api_probe_without_invocation fires" "1" \
+    "$(q "$w" "SELECT count(*) FROM checks WHERE check_name = 'api_probe_without_invocation';")"
+}
+
+for c in baseline unknown_field missing_field malformed_line unknown_distribution no_dumps no_grafana unknown_probe_message \
+         origin_fields no_lambda unreadable_lambda unmatched_api_probe album_read unmatched_resize; do
   name=$(echo "$c" | tr '_' '-')
   skip_case "$name" && continue
   printf '  %s\n' "$name"

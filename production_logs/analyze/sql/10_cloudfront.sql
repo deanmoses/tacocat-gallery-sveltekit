@@ -11,6 +11,9 @@
 -- `c-country` arrived. So nothing here assumes a column order. Each line is read
 -- whole, split on tabs, and every column below is looked up by CloudFront''s own
 -- field name in that file''s header -- NULL when the file predates the field.
+-- Some columns read fields the delivery may not be configured to emit yet; those
+-- are NULL until it is, and `aws logs describe-configuration-templates --service
+-- cloudfront` lists every field it can.
 --
 -- Text fields are URL-encoded on the wire (a space in a user agent is %20) and
 -- `-` is CloudFront''s empty marker in every column.
@@ -74,11 +77,19 @@ WITH lines AS (
     AND len(string_split(l.line, chr(9))) = len(f.fields)
 )
 SELECT
-  try_cast(cf_field(cols, fields, 'date') || ' ' || cf_field(cols, fields, 'time') AS TIMESTAMP) AS ts,
+  -- When the edge finished responding. `timestamp(ms)` carries the same instant
+  -- to the millisecond; `date` and `time` only to the second, so requests within
+  -- one page load tie without it.
+  coalesce(
+    make_timestamp(try_cast(nullif(cf_field(cols, fields, 'timestamp(ms)'), '-') AS BIGINT) * 1000),
+    try_cast(cf_field(cols, fields, 'date') || ' ' || cf_field(cols, fields, 'time') AS TIMESTAMP)
+  ) AS ts,
   env,
   distribution,
   cf_field(cols, fields, 'x-edge-location') AS edge_location,
   cf_field(cols, fields, 'c-ip') AS client_ip,
+  -- With the IP and edge, identifies the viewer''s connection: see `connections`.
+  try_cast(nullif(cf_field(cols, fields, 'c-port'), '-') AS INTEGER) AS client_port,
   -- Present only in files written after 2026-09-11. NULL says the file predates
   -- the field, not that CloudFront had no answer.
   nullif(cf_field(cols, fields, 'c-country'), '-') AS country,
@@ -102,6 +113,13 @@ SELECT
   try_cast(cf_field(cols, fields, 'cs-bytes') AS BIGINT) AS bytes_received,
   try_cast(nullif(cf_field(cols, fields, 'time-taken'), '-') AS DOUBLE) AS seconds,
   try_cast(nullif(cf_field(cols, fields, 'time-to-first-byte'), '-') AS DOUBLE) AS ttfb_seconds,
+  -- The edge''s wait on the origin: first byte, then last. NULL on a cache hit,
+  -- which never asked it. The gap between these and the viewer-side timings is
+  -- CloudFront''s own share of a request.
+  try_cast(nullif(cf_field(cols, fields, 'origin-fbl'), '-') AS DOUBLE) AS origin_ttfb_seconds,
+  try_cast(nullif(cf_field(cols, fields, 'origin-lbl'), '-') AS DOUBLE) AS origin_seconds,
+  -- The PathPattern of the behavior that answered, `*` for the default one.
+  nullif(cf_field(cols, fields, 'cache-behavior-path-pattern'), '-') AS cache_behavior,
   cf_field(cols, fields, 'cs-protocol') AS scheme,
   cf_field(cols, fields, 'cs-protocol-version') AS http_version,
   nullif(cf_field(cols, fields, 'ssl-protocol'), '-') AS tls_version,

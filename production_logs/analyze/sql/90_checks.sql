@@ -12,16 +12,18 @@ SELECT 'header_lines_not_one' AS check_name,
 FROM cloudfront_files WHERE header_lines <> 1
 
 UNION ALL
--- Every field the reader consumes, except the two CloudFront added on 2026-09-11,
--- which the older files legitimately lack. A file missing one still loads with
--- that column NULL, and a NULL is silent: without x-edge-result-type the cache
--- hit rate reads 0%, without cs(Referer) return visits stop counting. This is
--- the only thing that says so.
+-- Every field the reader consumes that every file so far carries. The two
+-- CloudFront added on 2026-09-11 are not here, which the older files lack, nor
+-- those no delivery has been configured to emit. A file missing one still loads
+-- with that column NULL, and a NULL is silent: without x-edge-result-type the
+-- cache hit rate reads 0%, without cs(Referer) return visits stop counting,
+-- without c-port every request looks like its own connection. This is the only
+-- thing that says so.
 SELECT 'missing_required_field',
        source_file || ' lacks ' || f.field
 FROM cloudfront_files
 CROSS JOIN (SELECT unnest([
-  'date', 'time', 'x-edge-location', 'c-ip', 'cs-method', 'x-host-header', 'cs-uri-stem', 'cs-uri-query',
+  'date', 'time', 'x-edge-location', 'c-ip', 'c-port', 'cs-method', 'x-host-header', 'cs-uri-stem', 'cs-uri-query',
   'sc-status', 'cs(Referer)', 'cs(User-Agent)', 'x-edge-result-type', 'x-edge-detailed-result-type',
   'sc-bytes', 'cs-bytes', 'time-taken', 'time-to-first-byte', 'cs-protocol', 'cs-protocol-version',
   'ssl-protocol', 'sc-content-type', 'x-edge-request-id']) AS field) f
@@ -99,6 +101,63 @@ FROM probe_lines l
 JOIN probe_executions e USING (execution_id)
 WHERE e.success AND NOT is_progress_msg(l.msg)
 GROUP BY l.msg
+
+UNION ALL
+-- The function comes out of the stream name. A stream this cannot read is Lambda
+-- or the stack naming streams differently, and its invocations belong to nobody.
+SELECT 'lambda_unreadable_stream',
+       count(*) || ' events come from streams like ' || min(stream) || ', which name no function the reader can find'
+FROM lambda_events WHERE function_name IS NULL
+HAVING count(*) > 0
+
+UNION ALL
+-- The puller keeps platform reports and request lines. Anything else is a line
+-- whose shape moved under the reader, or a filter that let more through.
+SELECT 'lambda_unknown_event',
+       count(*) || ' events are neither a platform report nor a request line, e.g. ' || min(message)
+FROM lambda_events WHERE kind IS NULL
+HAVING count(*) > 0
+
+UNION ALL
+-- Every platform.report carries a duration. One without is a record shape the
+-- reader does not know.
+SELECT 'lambda_report_without_duration',
+       count(*) || ' reports have no record.metrics.durationMs, e.g. ' || min(message)
+FROM lambda_invocations WHERE duration_ms IS NULL
+HAVING count(*) > 0
+
+UNION ALL
+-- Resizes and CloudFront misses are matched on the rewritten path and on time. A
+-- resize no request matches is that match failing: the rewrite changed shape, or
+-- the clocks drifted apart. Only where the image logs cover it, and only a day
+-- behind their newest request, since CloudFront delivers some files a day late.
+-- Only for sizes the SPA asks for: a hand-typed size has been seen to start a
+-- second resize a second after CloudFront logged its only request, which this
+-- match cannot place and a reader does not cause.
+SELECT 'image_resize_without_request',
+       count(*) || ' derived-image invocations match no CloudFront request, e.g. ' || min(i.path)
+FROM lambda_invocations i
+WHERE i.path LIKE '/i/%'
+  AND regexp_extract(i.path, '^/i/\d{4}/\d{2}-\d{2}/[^/]+/[^/]*/([^/]*)', 1) IN (SELECT size FROM image_sizes)
+  AND i.ts > (SELECT min(ts) FROM cloudfront_requests c WHERE c.distribution = 'image' AND c.env = i.env)
+  AND i.ts < (SELECT max(ts) - INTERVAL 1 DAY FROM cloudfront_requests c WHERE c.distribution = 'image' AND c.env = i.env)
+  AND NOT EXISTS (SELECT 1 FROM image_requests r WHERE r.resize_request_id = i.request_id)
+HAVING count(*) > 0
+
+UNION ALL
+-- API checks and invocations are matched on time alone, so a successful API check
+-- that no invocation started during is the match failing: the two clocks drifted
+-- apart, or the check stopped reaching a Lambda. Only where the Lambda dump covers
+-- that env, since the sources are pulled separately.
+SELECT 'api_probe_without_invocation',
+       count(*) || ' successful API checks started no Lambda invocation, e.g. at ' || min(p.ts)
+FROM probe_executions p
+JOIN (SELECT env, min(ts) AS first_ts, max(ts) AS last_ts FROM lambda_invocations GROUP BY env) l
+  ON l.env = api_probe_env(p.target) AND p.ts BETWEEN l.first_ts AND l.last_ts
+WHERE p.success
+  AND NOT EXISTS (SELECT 1 FROM lambda_invocations i
+                  WHERE i.env = l.env AND started_during_probe(p.ts, p.duration_ms, i.started_ts))
+HAVING count(*) > 0
 
 UNION ALL
 -- No VIEW may read the filesystem. A view over a file reader re-reads its files on

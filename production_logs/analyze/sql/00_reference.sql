@@ -11,6 +11,17 @@ INSERT INTO distributions VALUES
 
 COMMENT ON TABLE distributions IS 'One row per CloudFront distribution the puller knows. Hand-maintained: a log file names its distribution only by the directory it was synced into.';
 
+-- The sizes the SPA asks the image CDN for, from src/lib/utils/config.ts. Any
+-- other size was asked for by something else: an older build, a URL someone
+-- kept, a scraper.
+CREATE OR REPLACE TABLE image_sizes (size VARCHAR, kind VARCHAR, role VARCHAR);
+INSERT INTO image_sizes VALUES
+  ('200x200', 'thumbnail', 'the album grid, square, cropped when the admin chose a crop'),
+  ('1024',    'detail',    'the media page, landscape: 1024 wide'),
+  ('x1024',   'detail',    'the media page, portrait: 1024 tall');
+
+COMMENT ON TABLE image_sizes IS 'One row per derived-image size the SPA requests. Hand-maintained; image_requests calls a size absent here ''other''.';
+
 -- Grafana''s synthetic checks, which hit the SPA and the API every ten minutes
 -- from three regions. Marked, never dropped: cloudfront_requests keeps them and
 -- the views about people leave them out. `npm run perf` is not here: it drives

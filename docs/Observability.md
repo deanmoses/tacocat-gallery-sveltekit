@@ -138,12 +138,13 @@ To prove the chain end to end without touching data, invoke `tacocat-gallery-sam
 
 ## Production logs
 
-`production_logs/` pulls the CloudFront access logs above and the [synthetic probes'](#grafana-cloud) Loki lines into a local DuckDB. It answers questions about people rather than requests, which browsers visit, from where, and whether they can decode a given image format, and keeps the probes' per-execution timings past Loki's 14 days. [Its README](../production_logs/README.md) has the relations to start from.
+`production_logs/` pulls the CloudFront access logs above, the [synthetic probes'](#grafana-cloud) Loki lines and the [Lambda platform reports](#lambda-logs) into a local DuckDB. It answers questions about people rather than requests, which browsers visit, from where, and whether they can decode a given image format; keeps the probes' per-execution timings past Loki's 14 days; and says how often a request waited for a cold Lambda, with the probes' own invocations told apart from everyone else's. [Its README](../production_logs/README.md) has the relations to start from.
 
 ```bash
-npm run logs:pull                          # sync both sources into production_logs/dumps/ (gitignored)
+npm run logs:pull                          # sync every source into production_logs/dumps/ (gitignored)
 npm run logs -- "FROM avif_readiness;"     # rebuilds if stale, then queries
-npm run logs -- "FROM probe_health;"       # uptime and latency per day, check and probe
+npm run logs -- "FROM probe_health;"       # uptime and latency per day, check, target and probe
+npm run logs -- "FROM cold_starts;"        # cold start rate and cost per day and function
 ```
 
 The Grafana pull needs `GRAFANA_ANALYTICS_TOKEN` in the gitignored `.env`: a service-account token with the Viewer role.
