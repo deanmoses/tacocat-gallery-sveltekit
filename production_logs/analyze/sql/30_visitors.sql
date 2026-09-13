@@ -15,6 +15,17 @@ WHERE is_operator_ua(user_agent);
 
 COMMENT ON VIEW operator_ips IS 'GRAIN: one row per env and IP that presented a development tool on any day in the dump. The project''s own machines, and everything else behind their router.';
 
+-- Every visit asks the auth API whether it is signed in, and the answer is the
+-- status: 200 with a user, 401 without. The auth API is its own gateway with
+-- nothing in front of it, so its IP and user agent are the browser''s, the same
+-- pair CloudFront logs.
+CREATE OR REPLACE VIEW signed_in_agents AS
+SELECT DISTINCT env, ts::DATE AS day, client_ip, user_agent
+FROM gateway_requests
+WHERE api = 'auth' AND path = '/' AND status = 200;
+
+COMMENT ON VIEW signed_in_agents IS 'GRAIN: one row per env, UTC day, IP and user agent the auth API answered 200 to, meaning a signed-in session. Joined into visitors as `signed_in`.';
+
 CREATE OR REPLACE VIEW visitors AS
 SELECT
   r.env,
@@ -39,6 +50,7 @@ SELECT
   string_agg(DISTINCT r.path, ' ' ORDER BY r.path)
     FILTER (r.distribution = 'spa' AND r.path NOT LIKE '/_app/%' AND r.path NOT LIKE '%.%') AS pages,
   (o.client_ip IS NOT NULL) AS is_operator,
+  (s.client_ip IS NOT NULL) AS signed_in,
   -- A person using the gallery loads the app bundle and then some thumbnails, or
   -- on a return visit just the thumbnails, referred by the page. Scanners hit one
   -- URL with a browser-shaped agent and do neither.
@@ -49,11 +61,13 @@ SELECT
 FROM cloudfront_requests r
 JOIN user_agents u USING (user_agent)
 LEFT JOIN operator_ips o ON o.env = r.env AND o.client_ip = r.client_ip
+LEFT JOIN signed_in_agents s
+  ON s.env = r.env AND s.day = r.ts::DATE AND s.client_ip = r.client_ip AND s.user_agent = r.user_agent
 WHERE NOT r.is_probe
 GROUP BY r.env, r.ts::DATE, r.client_ip, r.user_agent, u.kind, u.os, u.os_major, u.os_minor,
-         u.browser, u.browser_major, u.browser_minor, u.avif_capable, o.client_ip;
+         u.browser, u.browser_major, u.browser_minor, u.avif_capable, o.client_ip, s.client_ip;
 
-COMMENT ON VIEW visitors IS 'GRAIN: one row per env, UTC day, client IP and user-agent string, probes excluded. `is_visit` is the row that was a person using the gallery: a browser that loaded the app bundle and an image, or an image its own page referred, from an IP that never ran a development tool. A return visit with everything cached leaves no request at all and is invisible here. Everything else here is a scanner, a crawler or a one-hit curiosity.';
+COMMENT ON VIEW visitors IS 'GRAIN: one row per env, UTC day, client IP and user-agent string, probes excluded. `is_visit` is the row that was a person using the gallery: a browser that loaded the app bundle and an image, or an image its own page referred, from an IP that never ran a development tool. `signed_in` is a row the auth API answered 200 to that day, which is the admin; false where the auth log does not cover the day. A return visit with everything cached leaves no request at all and is invisible here. Everything else here is a scanner, a crawler or a one-hit curiosity.';
 
 CREATE OR REPLACE VIEW browsers AS
 SELECT

@@ -11,6 +11,7 @@
 CREATE OR REPLACE VIEW checks AS
 FROM cloudfront_checks
 UNION ALL FROM user_agent_checks
+UNION ALL FROM gateway_checks
 UNION ALL FROM probe_checks
 UNION ALL FROM lambda_checks
 UNION ALL FROM image_checks

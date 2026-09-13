@@ -108,8 +108,22 @@ case_baseline() {
     "$(q "$w" "SELECT resolve_ms || '|' || total_ms || '|' || ttfb_ms || '|' || duration_ms FROM probe_executions WHERE success;")"
   expect "a timeout has no phases" "true" \
     "$(q "$w" "SELECT status_code IS NULL AND total_ms IS NULL AND duration_ms = 3000.1 FROM probe_executions WHERE NOT success;")"
-  expect "coverage carries every source" "cloudfront|grafana|lambda" \
+  expect "coverage carries every source" "cloudfront|gateway|grafana|lambda" \
     "$(q "$w" "SELECT string_agg(DISTINCT source, '|' ORDER BY source) FROM coverage;")"
+  # Three gallery API requests, in the format with the epoch and the Lambda id,
+  # and two auth ones without: the iPhone signed in, the mac was told 401.
+  expect "gateway rows by api" "auth=2|gallery=3" \
+    "$(q "$w" "SELECT string_agg(api || '=' || n, '|' ORDER BY api) FROM (SELECT api, count(*) AS n FROM gateway_requests GROUP BY 1);")"
+  expect "time from the epoch where logged, else the second" "10:00:02.000|10:00:02.430" \
+    "$(q "$w" "SELECT string_agg(strftime(ts, '%H:%M:%S.%g'), '|' ORDER BY api) FROM gateway_requests WHERE client_ip = '10.0.0.1';")"
+  expect "the dash is NULL, the fields parse" "true" \
+    "$(q "$w" "SELECT error_message IS NULL AND lambda_request_id = 'r1' AND route = '/album/{albumPath+}' AND latency_ms = 470 AND integration_latency_ms = 462 FROM gateway_requests WHERE request_id = 'q1';")"
+  expect "an error row keeps its message" "502|Internal server error|r4" \
+    "$(q "$w" "SELECT status || '|' || error_message || '|' || lambda_request_id FROM gateway_requests WHERE request_id = 'q4';")"
+  expect "the probe is marked at the gateway" "q2" \
+    "$(q "$w" "SELECT string_agg(request_id, '|') FROM gateway_requests WHERE is_probe;")"
+  expect "signed in" "10.0.0.1=true|10.0.0.2=false" \
+    "$(q "$w" "SELECT string_agg(client_ip || '=' || s, '|' ORDER BY client_ip) FROM (SELECT client_ip, bool_or(signed_in) AS s FROM visitors WHERE client_ip IN ('10.0.0.1', '10.0.0.2') GROUP BY 1);")"
   expect "probe health keys on the target" "https://api.pix.tacocat.com/album/|https://pix.tacocat.com/" \
     "$(q "$w" "SELECT string_agg(DISTINCT target, '|' ORDER BY target) FROM probe_health;")"
   # Four platform reports: GetAlbum cold, warm, then cold again an hour later, and

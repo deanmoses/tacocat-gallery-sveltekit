@@ -58,6 +58,7 @@ production_logs/analyze/test             # build against fixtures and assert
 | `browsers`           | those visitors by browser and OS version.                                               |
 | `visitors`           | one row per IP, user agent and day, with what makes it a real visit or not.             |
 | `probe_health`       | uptime and latency per day, check, target URL and probe region, as seen from outside.   |
+| `gateway_requests`   | one row per request at API Gateway, the gallery and auth APIs: latency, status, who.    |
 | `probe_executions`   | one row per probe execution with every phase of the request timed.                      |
 | `cold_starts`        | how often each function started cold, and what that cost, for probes and others.        |
 | `lambda_invocations` | one row per Lambda invocation: init, duration, idle before it, whether a probe asked.   |
@@ -74,6 +75,8 @@ UNION ALL SELECT view_name, comment FROM duckdb_views() WHERE internal = false;
 ```
 
 **Most rows are not people.** Over a quiet week the majority of requests are Grafana's synthetic checks, crawlers, vulnerability scanners presenting ten-year-old browser strings, and this project's own perf script and Claude desktop app. `cloudfront_requests` keeps all of them, marked; `visitors.is_visit` is the row that was a person, meaning a browser that loaded the app bundle and an image, or an image its own page referred, from an IP that never ran a development tool in the dump. The bundle is cached for a year, so a return visit fetches only thumbnails. Read `browsers` and `avif_readiness` for people, `summary` for the edge.
+
+**`visitors.signed_in` is the admin.** Every visit asks the auth API whether it is signed in, and its access log answers 200 only to a session with a user; the auth API sits behind no CloudFront, so the IP and user agent it logs are the ones CloudFront logs, and the join is exact. The auth log starts on 2026-09-13; before that the column is false for everyone.
 
 **`country` is NULL before 2026-09-11**, when CloudFront's field list changed and gained it; `whois` is the only way to place those visitors, and `coverage.has_country` says which days need it.
 

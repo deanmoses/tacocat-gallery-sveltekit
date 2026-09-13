@@ -24,6 +24,11 @@ grafana AS (
   FROM probe_executions
   GROUP BY 1, 2, 3
 ),
+gateway AS (
+  SELECT 'gateway', env || '/' || api, ts::DATE, count(DISTINCT source_file), count(*), min(ts), max(ts), NULL
+  FROM gateway_requests
+  GROUP BY 1, 2, 3
+),
 lambdas AS (
   SELECT 'lambda', env || '/' || function_name, ts::DATE, count(DISTINCT source_file), count(*), min(ts), max(ts), NULL
   FROM lambda_invocations
@@ -35,10 +40,10 @@ lambdas AS (
 -- ago, such as a deleted check, is complete on its last day.
 SELECT *, (day = max(day) OVER (PARTITION BY source, stream)
            AND day >= max(day) OVER (PARTITION BY source) - INTERVAL 1 DAY) AS partial
-FROM (FROM cloudfront UNION ALL FROM grafana UNION ALL FROM lambdas)
+FROM (FROM cloudfront UNION ALL FROM grafana UNION ALL FROM gateway UNION ALL FROM lambdas)
 ORDER BY source, stream, day;
 
-COMMENT ON VIEW coverage IS 'GRAIN: one row per source, stream and UTC day with at least one row. A stream is an env/distribution at CloudFront, a check at Grafana, or an env/function at Lambda; `rows` are requests, executions and invocations respectively. `partial` is a stream''s last day while the source is still delivering, so it is still arriving. `has_country` is NULL before CloudFront added the field, and for Grafana. A day absent here had nothing, which on staging is normal.';
+COMMENT ON VIEW coverage IS 'GRAIN: one row per source, stream and UTC day with at least one row. A stream is an env/distribution at CloudFront, a check at Grafana, an env/api at API Gateway, or an env/function at Lambda; `rows` are requests, executions, requests and invocations respectively. `partial` is a stream''s last day while the source is still delivering, so it is still arriving. `has_country` is NULL before CloudFront added the field, and for Grafana. A day absent here had nothing, which on staging is normal.';
 
 CREATE OR REPLACE VIEW summary AS
 SELECT

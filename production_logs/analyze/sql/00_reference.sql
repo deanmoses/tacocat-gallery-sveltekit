@@ -20,6 +20,16 @@ INSERT INTO distributions VALUES
 
 COMMENT ON TABLE distributions IS 'One row per CloudFront distribution the puller knows. Hand-maintained: a log file names its distribution only by the directory it was synced into.';
 
+-- The stacks whose API Gateway access logs are pulled, dumps/cloudwatch/<stack>/
+-- <env>/api-access/. This says which API each one fronts; `unknown_api_stack`
+-- names one that is not here.
+CREATE OR REPLACE TABLE api_stacks (stack VARCHAR, api VARCHAR, prod_hostname VARCHAR, role VARCHAR);
+INSERT INTO api_stacks VALUES
+  ('tacocat-gallery-sam',  'gallery', 'api.pix.tacocat.com',  'albums, images, search and the admin''s writes'),
+  ('tacocat-gallery-auth', 'auth',    'auth.pix.tacocat.com', 'sign-in status, which every visit asks, and the Cognito login flow');
+
+COMMENT ON TABLE api_stacks IS 'One row per stack with an API Gateway access log pulled. Hand-maintained: an access log names its stack only by the directory it was pulled into.';
+
 -- The sizes the SPA asks the image CDN for, from src/lib/utils/config.ts. Any
 -- other size was asked for by something else: an older build, a URL someone
 -- kept, a scraper.
