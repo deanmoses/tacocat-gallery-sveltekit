@@ -14,7 +14,6 @@ UNION ALL FROM user_agent_checks
 UNION ALL FROM gateway_checks
 UNION ALL FROM probe_checks
 UNION ALL FROM lambda_checks
-UNION ALL FROM image_checks
 
 UNION ALL
 -- No VIEW may read the filesystem. A view over a file reader re-reads its files on

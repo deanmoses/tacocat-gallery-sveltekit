@@ -127,9 +127,9 @@ case_baseline() {
   expect "probe health keys on the target" "https://api.pix.tacocat.com/album/|https://pix.tacocat.com/" \
     "$(q "$w" "SELECT string_agg(DISTINCT target, '|' ORDER BY target) FROM probe_health;")"
   # Four platform reports: GetAlbum cold, warm, then cold again an hour later, and
-  # a Search that failed; beside them r1's platform.start, the error Search logged,
-  # and a sentence it logged before that.
-  expect "every line classified" "app:-=1|app:unhandled_error=1|platform:platform.report=4|platform:platform.start=1" \
+  # a Search that failed; beside them r1's platform.start and request line, the
+  # error Search logged, and a sentence it logged before that.
+  expect "every line classified" "app:-=1|app:request_received=1|app:unhandled_error=1|platform:platform.report=4|platform:platform.start=1" \
     "$(q "$w" "SELECT string_agg(k, '|' ORDER BY k) FROM (SELECT kind || ':' || coalesce(event, '-') || '=' || count(*) AS k FROM lambda_events GROUP BY kind, event);")"
   expect "the error keeps its level" "ERROR|r4" \
     "$(q "$w" "SELECT level || '|' || request_id FROM lambda_events WHERE kind = 'app' AND level = 'ERROR';")"
@@ -140,13 +140,14 @@ case_baseline() {
     "$(q "$w" "SELECT string_agg(function_name || '=' || n, '|' ORDER BY function_name) FROM (SELECT function_name, count(*) AS n FROM lambda_invocations GROUP BY 1);")"
   expect "cold starts" "r1|r3" \
     "$(q "$w" "SELECT string_agg(request_id, '|' ORDER BY request_id) FROM lambda_invocations WHERE is_cold;")"
-  # r2 started at 10:01:00.100, while the Ohio API check that began at 10:01:00
-  # was waiting. r1 started a minute earlier, which no check was.
+  # The Ohio API check's gateway row names r2 as its invocation; r1's names a phone.
   expect "the probe's invocation" "r2" \
     "$(q "$w" "SELECT string_agg(request_id, '|') FROM lambda_invocations WHERE is_probe;")"
   # r2 started 57.2s after r1 ended; r3 an hour after r2 did.
   expect "idle before each" "57.2|3540.86" \
     "$(q "$w" "SELECT string_agg(idle_seconds::VARCHAR, '|' ORDER BY ts) FROM lambda_invocations WHERE function_name = 'GetAlbum' AND idle_seconds IS NOT NULL;")"
+  expect "who asked" "r1=false|r2=NULL|r3=NULL" \
+    "$(q "$w" "SELECT string_agg(request_id || '=' || coalesce(has_token::VARCHAR, 'NULL'), '|' ORDER BY request_id) FROM lambda_invocations WHERE function_name = 'GetAlbum';")"
   expect "the error is kept" "error|Runtime.ExitError" \
     "$(q "$w" "SELECT status || '|' || error_type FROM lambda_invocations WHERE function_name = 'Search';")"
   # Init plus work: 300+150 and 280+120.
@@ -320,16 +321,17 @@ LINE
     "$(q "$w" "SELECT count(*) FROM checks WHERE check_name = 'lambda_unknown_event' AND detail LIKE '%START RequestId: r5%';")"
 }
 
-# Three resizes. g1 logs its request as a string of JSON and g2 as an object, the
-# two shapes CloudWatch has held; g3 was asked for an empty size, which the rewrite
-# passes on as a trailing slash.
+# Three resizes, each naming the CloudFront request that caused it. g1 logs its
+# request as a string of JSON and g2 as an object, the two shapes CloudWatch has
+# held; g3 was asked for an empty size, which the rewrite passes on as a trailing
+# slash.
 resize_events() {  # $1 = lambda dump file to append to
   cat >> "$1" <<'LINES'
-{"eventId":"2001","timestamp":1789207202500,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]dddd4444","message":"{\"timestamp\":\"2026-09-12T10:00:02.500Z\",\"level\":\"INFO\",\"requestId\":\"g1\",\"message\":\"{\\\"event\\\":\\\"request_received\\\",\\\"method\\\":\\\"GET\\\",\\\"path\\\":\\\"/i/2026/09-07/b.jpg/vb/1024\\\"}\"}"}
+{"eventId":"2001","timestamp":1789207202500,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]dddd4444","message":"{\"timestamp\":\"2026-09-12T10:00:02.500Z\",\"level\":\"INFO\",\"requestId\":\"g1\",\"message\":\"{\\\"event\\\":\\\"request_received\\\",\\\"method\\\":\\\"GET\\\",\\\"path\\\":\\\"/i/2026/09-07/b.jpg/vb/1024\\\",\\\"cfRequestId\\\":\\\"img2\\\"}\"}"}
 {"eventId":"2002","timestamp":1789207204600,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]dddd4444","message":"{\"time\":\"2026-09-12T10:00:04.600Z\",\"type\":\"platform.report\",\"record\":{\"requestId\":\"g1\",\"metrics\":{\"durationMs\":1500.0,\"billedDurationMs\":2100,\"memorySizeMB\":3008,\"maxMemoryUsedMB\":180,\"initDurationMs\":600.0},\"status\":\"success\"}}"}
-{"eventId":"2003","timestamp":1789207319000,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]eeee5555","message":"{\"timestamp\":\"2026-09-12T10:01:59.000Z\",\"level\":\"INFO\",\"requestId\":\"g2\",\"message\":{\"event\":\"request_received\",\"method\":\"GET\",\"path\":\"/i/2026/09-07/a.jpg/va/613\"}}"}
+{"eventId":"2003","timestamp":1789207319000,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]eeee5555","message":"{\"timestamp\":\"2026-09-12T10:01:59.000Z\",\"level\":\"INFO\",\"requestId\":\"g2\",\"message\":{\"event\":\"request_received\",\"method\":\"GET\",\"path\":\"/i/2026/09-07/a.jpg/va/613\",\"cfRequestId\":\"img7\"}}"}
 {"eventId":"2004","timestamp":1789207319900,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]eeee5555","message":"{\"time\":\"2026-09-12T10:01:59.900Z\",\"type\":\"platform.report\",\"record\":{\"requestId\":\"g2\",\"metrics\":{\"durationMs\":900.0,\"billedDurationMs\":900,\"memorySizeMB\":3008,\"maxMemoryUsedMB\":170},\"status\":\"success\"}}"}
-{"eventId":"2005","timestamp":1789207379000,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]eeee5555","message":"{\"timestamp\":\"2026-09-12T10:02:59.000Z\",\"level\":\"INFO\",\"requestId\":\"g3\",\"message\":{\"event\":\"request_received\",\"method\":\"GET\",\"path\":\"/i/2026/09-07/a.jpg/va/\"}}"}
+{"eventId":"2005","timestamp":1789207379000,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]eeee5555","message":"{\"timestamp\":\"2026-09-12T10:02:59.000Z\",\"level\":\"INFO\",\"requestId\":\"g3\",\"message\":{\"event\":\"request_received\",\"method\":\"GET\",\"path\":\"/i/2026/09-07/a.jpg/va/\",\"cfRequestId\":\"img8\"}}"}
 {"eventId":"2006","timestamp":1789207379800,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]eeee5555","message":"{\"time\":\"2026-09-12T10:02:59.800Z\",\"type\":\"platform.report\",\"record\":{\"requestId\":\"g3\",\"metrics\":{\"durationMs\":800.0,\"billedDurationMs\":800,\"memorySizeMB\":3008,\"maxMemoryUsedMB\":170},\"status\":\"success\"}}"}
 LINES
 }
@@ -376,36 +378,21 @@ case_album_read() {
     "$(q "$w" "SELECT requests || '|' || visit_requests || '|' || median_ttfb_ms FROM image_delivery WHERE kind = 'detail' AND served_by = 'bucket';")"
 }
 
-# --- a resize no CloudFront request asked for means the path match broke ------
-case_unmatched_resize() {
+# --- a resize that stops naming its CloudFront request is a finding -----------
+case_resize_without_cf_id() {
   w=$1
   resize_events "$w/$LAMBDA"
-  # A later day of image logs, so the resizes are old enough to be judged.
-  d=$w/dumps/cloudfront/prod/image/2026/09/14
-  mkdir -p "$d"
-  sed 's/^2026-09-12/2026-09-14/' "$w/$NEW_IMAGE" > "$d/E3R19YIU3JKJRK.2026-09-14-10.fixture.tsv"
+  # A later resize whose request line carries no id.
+  cat >> "$w/$LAMBDA" <<'LINE'
+{"eventId":"2007","timestamp":1789207439000,"logStreamName":"2026/09/12/tacocat-gallery-sam-prod-GenerateDerivedImage[$LATEST]eeee5555","message":"{\"timestamp\":\"2026-09-12T10:03:59.000Z\",\"level\":\"INFO\",\"requestId\":\"g4\",\"message\":{\"event\":\"request_received\",\"method\":\"GET\",\"path\":\"/i/2026/09-07/c.jpg/vc/1024\"}}"}
+LINE
   expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
-  # Only g1's 1024 is a size the SPA asks for; g2's 613 and g3's empty size are not judged.
-  expect "image_resize_without_request fires" "1" \
-    "$(q "$w" "SELECT count(*) FROM checks WHERE check_name = 'image_resize_without_request' AND detail LIKE '1 derived-image invocations %/i/2026/09-07/b.jpg/vb/1024';")"
-}
-
-# --- an API check that started no invocation means the time match broke -------
-case_unmatched_api_probe() {
-  w=$1
-  # The Ohio API check succeeds. r2 started while it waited, so all is well.
-  sed 's/"probe_success": "0"/"probe_success": "1"/' "$w/$PROBES" > "$w/$PROBES.tmp" && mv "$w/$PROBES.tmp" "$w/$PROBES"
-  expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
-  expect "matched, no findings" "0" "$(q "$w" 'SELECT count(*) FROM checks;')"
-  # Without r2, the check reached nothing the reader can see.
-  grep -v '"eventId":"1002"' "$w/$LAMBDA" > "$w/$LAMBDA.tmp" && mv "$w/$LAMBDA.tmp" "$w/$LAMBDA"
-  expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
-  expect "api_probe_without_invocation fires" "1" \
-    "$(q "$w" "SELECT count(*) FROM checks WHERE check_name = 'api_probe_without_invocation';")"
+  expect "lambda_resize_without_cf_id fires" "1" \
+    "$(q "$w" "SELECT count(*) FROM checks WHERE check_name = 'lambda_resize_without_cf_id' AND detail LIKE '1 derived-image requests %/i/2026/09-07/c.jpg/vc/1024';")"
 }
 
 for c in baseline unknown_field missing_field malformed_line unknown_distribution no_dumps no_grafana unknown_probe_message \
-         origin_fields no_lambda unreadable_lambda unmatched_api_probe album_read unmatched_resize; do
+         origin_fields no_lambda unreadable_lambda album_read resize_without_cf_id; do
   name=$(echo "$c" | tr '_' '-')
   skip_case "$name" && continue
   printf '  %s\n' "$name"

@@ -84,7 +84,7 @@ UNION ALL SELECT view_name, comment FROM duckdb_views() WHERE internal = false;
 
 **A Next click leaves no request of its own.** The media page preloads the next and previous detail images, so what `album_reads` sees is the preload for the image after, spaced by how long the reader looked. Whether that preload finished before the click is something only the browser knows.
 
-**The API handlers log nothing that says who asked.** `lambda_invocations.is_probe` recognises the synthetic API check by when it asked; everything else is people, crawlers and the admin together.
+**Two joins are exact from 2026-09-13 and absent before.** A resize names the CloudFront request that caused it, so `image_requests.served_by` says `resized` only where the resizer logged the id; an earlier miss the resizer answered reads as `bucket`. The gateway row names the Lambda request id, so `lambda_invocations.is_probe` is the gateway's user agent; an earlier probe invocation reads as anyone else's.
 
 ## Editing the analytics
 

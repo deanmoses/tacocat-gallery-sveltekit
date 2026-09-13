@@ -15,28 +15,17 @@
 -- YYYY/MM/DD/<stack>-<function>[<version>]<instance id>.
 --
 -- The report is written when the invocation ends. Its start is that less the
--- init and the duration, which is close enough to line up with a probe: API
--- Gateway''s own few milliseconds are not in either.
+-- init and the duration.
 --
--- The API handlers log nothing on a successful read, so an invocation cannot say
--- who asked. The synthetic API check can be recognised anyway, because it says
--- when it asked: an invocation that started while one of its executions was
--- waiting is the check''s.
+-- Who asked is on the request line every handler logs on arrival: for the API
+-- handlers, whether an id_token cookie came with the request, which is the same
+-- test the read handlers decide on and never a validated token; for the image
+-- resizer, the CloudFront request id CloudFront sends every origin, which is the
+-- `x-edge-request-id` of the CloudFront row that caused the resize. The API
+-- handlers log the CloudFront id too, but it is absent until the API sits behind
+-- the SPA distribution; until then the gateway row, joined on the Lambda
+-- request id, says who asked, including whether it was the synthetic check.
 SET VARIABLE lambda_files = source_files('../../dumps/cloudwatch/tacocat-gallery-sam/*/*.ndjson');
-
--- The env whose Lambdas a probe target reaches, NULL for a target that reaches
--- none. The API is whatever answers at api.<site>/ or at <site>/api/.
-CREATE OR REPLACE MACRO api_probe_env(target) AS
-  CASE WHEN NOT regexp_matches(target, '^https://(api\.[^/]+|[^/]+/api)/') THEN NULL
-       WHEN target LIKE '%staging-pix.tacocat.com/%' THEN 'dev'
-       ELSE 'prod' END;
-
--- Whether an invocation started during a probe execution: from a second before the
--- agent began, for the two clocks, to a second after its verdict. An execution
--- cut off before one waited no longer than the check''s three-second timeout.
-CREATE OR REPLACE MACRO started_during_probe(probe_ts, probe_duration_ms, started_ts) AS
-  started_ts BETWEEN probe_ts - INTERVAL 1 SECOND
-                 AND probe_ts + to_microseconds(((coalesce(probe_duration_ms, 3000) + 1000) * 1000)::BIGINT);
 
 CREATE OR REPLACE TABLE lambda_events AS
 WITH raw AS (
@@ -85,11 +74,17 @@ FROM unwrapped;
 COMMENT ON TABLE lambda_events IS 'GRAIN: one row per line in the stack''s log group. `kind` is platform for Lambda''s own records and app for a handler''s, with `event` naming which: platform.report, request_received, unhandled_error. A line that is neither has NULL kind, and the checks say so. `level` is the handler''s, so the errors are `kind = ''app'' AND level = ''ERROR''`; a handler line that was a sentence rather than an event has NULL event and the sentence in `text`. Read lambda_invocations and lambda_requests for the shaped views.';
 
 CREATE OR REPLACE TABLE lambda_requests AS
-SELECT ts, env, function_name, request_id, logged ->> '$.method' AS method, logged ->> '$.path' AS path, event_id, source_file
+SELECT
+  ts, env, function_name, request_id,
+  logged ->> '$.method' AS method,
+  logged ->> '$.path' AS path,
+  logged ->> '$.cfRequestId' AS cf_request_id,
+  try_cast(logged ->> '$.hasToken' AS BOOLEAN) AS has_token,
+  event_id, source_file
 FROM lambda_events
 WHERE event = 'request_received';
 
-COMMENT ON TABLE lambda_requests IS 'GRAIN: one row per request a handler logged on arrival, by Lambda request id. For a derived image, `path` is what CloudFront asked for after its rewrite: /i/<media path>/<version>/<size>, then /crop=<x,y,w,h> for a cropped one.';
+COMMENT ON TABLE lambda_requests IS 'GRAIN: one row per request a handler logged on arrival, by Lambda request id. For a derived image, `path` is what CloudFront asked for after its rewrite: /i/<media path>/<version>/<size>, then /crop=<x,y,w,h> for a cropped one, and `cf_request_id` is the CloudFront row''s request_id. `has_token` is whether an API request carried an id_token cookie, valid or not; NULL for the resizer, which has no cookies.';
 
 CREATE OR REPLACE TABLE lambda_invocations AS
 WITH reports AS (
@@ -101,6 +96,8 @@ WITH reports AS (
     e.request_id,
     q.method,
     q.path,
+    q.cf_request_id,
+    q.has_token,
     e.record ->> '$.record.status' AS status,
     e.record ->> '$.record.errorType' AS error_type,
     try_cast(e.record ->> '$.record.metrics.initDurationMs' AS DOUBLE) AS init_ms,
@@ -128,6 +125,8 @@ SELECT
   t.request_id,
   t.method,
   t.path,
+  t.cf_request_id,
+  t.has_token,
   t.status,
   t.error_type,
   t.init_ms IS NOT NULL AS is_cold,
@@ -138,13 +137,13 @@ SELECT
   t.max_memory_mb,
   epoch(t.started_ts - lag(t.ts) OVER (PARTITION BY t.env, t.function_name ORDER BY t.ts)) AS idle_seconds,
   EXISTS (
-    SELECT 1 FROM probe_executions p
-    WHERE api_probe_env(p.target) = t.env AND started_during_probe(p.ts, p.duration_ms, t.started_ts)
+    SELECT 1 FROM gateway_requests g
+    WHERE g.env = t.env AND g.lambda_request_id = t.request_id AND g.is_probe
   ) AS is_probe,
   t.stream, t.message, t.event_id, t.source_file
 FROM timed t;
 
-COMMENT ON TABLE lambda_invocations IS 'GRAIN: one row per Lambda invocation, every function in the stack, every env pulled. `is_cold` means it first waited `init_ms` for an execution environment. `started_ts` is reconstructed from the end and the two durations. `path` is set where the handler logged its request. `idle_seconds` is how long the function had gone without an invocation ending before this one started, across all its instances, and negative when they overlapped. `is_probe` is an invocation that started while a synthetic API check was waiting, matched on time alone; for the API everything else is people, crawlers and the admin together, because its handlers log nothing that says who asked.';
+COMMENT ON TABLE lambda_invocations IS 'GRAIN: one row per Lambda invocation, every function in the stack, every env pulled. `is_cold` means it first waited `init_ms` for an execution environment. `started_ts` is reconstructed from the end and the two durations. `path`, `cf_request_id` and `has_token` are what the handler logged on arrival. `idle_seconds` is how long the function had gone without an invocation ending before this one started, across all its instances, and negative when they overlapped. `is_probe` is an invocation the synthetic API check asked for, by the gateway row that names it; false where the gateway log does not cover the day.';
 
 CREATE OR REPLACE VIEW cold_starts AS
 SELECT
@@ -191,18 +190,15 @@ FROM lambda_invocations WHERE duration_ms IS NULL
 HAVING count(*) > 0
 
 UNION ALL
--- API checks and invocations are matched on time alone, so a successful API check
--- that no invocation started during is the match failing: the two clocks drifted
--- apart, or the check stopped reaching a Lambda. Only where the Lambda dump covers
--- that env, since the sources are pulled separately.
-SELECT 'api_probe_without_invocation',
-       count(*) || ' successful API checks started no Lambda invocation, e.g. at ' || min(p.ts)
-FROM probe_executions p
-JOIN (SELECT env, min(ts) AS first_ts, max(ts) AS last_ts FROM lambda_invocations GROUP BY env) l
-  ON l.env = api_probe_env(p.target) AND p.ts BETWEEN l.first_ts AND l.last_ts
-WHERE p.success
-  AND NOT EXISTS (SELECT 1 FROM lambda_invocations i
-                  WHERE i.env = l.env AND started_during_probe(p.ts, p.duration_ms, i.started_ts))
+-- The resizer logs the CloudFront request id on every request, which is what
+-- ties a resize to the miss that caused it. A request line without one, after
+-- the first that had one, is CloudFront no longer sending the header or the
+-- handler no longer logging it.
+SELECT 'lambda_resize_without_cf_id',
+       count(*) || ' derived-image requests carry no cfRequestId, e.g. ' || min(path)
+FROM lambda_requests
+WHERE function_name = 'GenerateDerivedImage' AND cf_request_id IS NULL
+  AND ts > (SELECT min(ts) FROM lambda_requests WHERE function_name = 'GenerateDerivedImage' AND cf_request_id IS NOT NULL)
 HAVING count(*) > 0;
 
-COMMENT ON VIEW lambda_checks IS 'Findings about the shape of the Lambda logs and their match to the probes; zero rows when healthy. Part of checks.';
+COMMENT ON VIEW lambda_checks IS 'Findings about the shape of the Lambda logs; zero rows when healthy. Part of checks.';
