@@ -1,0 +1,223 @@
+#!/usr/bin/env sh
+# Build the SQL layer against committed fixtures and assert what comes out.
+#
+#   production_logs/analyze/test                     # every case
+#   production_logs/analyze/test missing-field       # one case, by name
+#
+# Beside `sql/` rather than inside it, because `build`'s staleness scan covers
+# that directory: a fixture edited there would mark the real database out of
+# date and trigger a rebuild of production data on a change that has nothing to
+# do with it.
+#
+# WHY THIS EXISTS SEPARATELY FROM `checks`. The checks in 90_checks.sql run
+# against whatever is in dumps/, which is gitignored, private and always
+# changing, so they can only ever assert things that happen to be true of
+# today's production. The failures worth guarding against are the ones the live
+# dumps cannot contain: a field list that changed AGAIN, a line that is
+# MALFORMED, a directory with nothing in it. Those need data authored on
+# purpose, which is what fixtures/dumps/ is.
+#
+# Each case builds a throwaway copy of the layer -- the real sql/ beside a
+# fixture dumps/ -- in a temp directory, so nothing here touches the real
+# database and the cases cannot interfere with each other.
+set -eu
+
+cd "$(dirname "$0")"
+ROOT=$(pwd)
+PASS=0
+FAIL=0
+ONLY=${1:-}
+
+setup() {  # $1 = workdir; lays out analyze/sql + dumps as the build expects them
+  mkdir -p "$1/analyze"
+  cp -R "$ROOT/sql" "$1/analyze/sql"
+  cp -R "$ROOT/fixtures/dumps" "$1/dumps"
+}
+
+build() { "$1/analyze/sql/build" --quiet >"$1/build.log" 2>&1; }
+q() { duckdb -readonly -noheader -list "$1/analyze/production_logs.duckdb" -c "$2" 2>&1 | tail -1; }
+
+expect() {  # label, want, got
+  if [ "$2" = "$3" ]; then
+    PASS=$((PASS + 1)); printf '    ok   %s\n' "$1"
+  else
+    FAIL=$((FAIL + 1)); printf '    FAIL %s: want [%s] got [%s]\n' "$1" "$2" "$3"
+  fi
+}
+
+skip_case() { [ -n "$ONLY" ] && [ "$ONLY" != "$1" ]; }
+
+OLD_SPA=dumps/cloudfront/prod/spa/2026/09/11/E3DFANBWDVJ2DM.2026-09-11-12.fixture.tsv
+NEW_SPA=dumps/cloudfront/prod/spa/2026/09/12/E3DFANBWDVJ2DM.2026-09-12-10.fixture.tsv
+PROBES=dumps/grafana/synthetic/2026-09-12.ndjson
+
+# --- both field sets load, and every relation says what the fixture means ------
+case_baseline() {
+  w=$1
+  expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
+  expect "no findings"    "0" "$(q "$w" 'SELECT count(*) FROM checks;')"
+  expect "four files"     "4" "$(q "$w" 'SELECT count(*) FROM cloudfront_files;')"
+  expect "every data line is a request" "28" "$(q "$w" 'SELECT count(*) FROM cloudfront_requests;')"
+  # The field list is per file: the 33-column files and the 29-column files land
+  # in the same table, each column found by name.
+  expect "old schema has no country" "0" \
+    "$(q "$w" "SELECT count(*) FROM cloudfront_requests WHERE ts::DATE = '2026-09-11' AND country IS NOT NULL;")"
+  expect "new schema has country"    "13" \
+    "$(q "$w" "SELECT count(*) FROM cloudfront_requests WHERE ts::DATE = '2026-09-12' AND country IS NOT NULL;")"
+  expect "status parses from both"   "0" "$(q "$w" 'SELECT count(*) FROM cloudfront_requests WHERE status IS NULL;')"
+  expect "user agent is url-decoded" "1" \
+    "$(q "$w" "SELECT count(*) FROM user_agents WHERE user_agent LIKE 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X)%';")"
+  expect "probes marked"  "3" "$(q "$w" 'SELECT count(*) FROM cloudfront_requests WHERE is_probe;')"
+  expect "and kept"       "3" "$(q "$w" "SELECT count(*) FROM cloudfront_requests WHERE user_agent LIKE 'synthetic-monitoring-agent%';")"
+  # The perf script's headless Chromium is a bot like any other headless browser;
+  # what makes it ours is the IP, handled below.
+  expect "headless is a bot" "bot" "$(q "$w" "SELECT kind FROM user_agents WHERE user_agent LIKE '%HeadlessChrome%';")"
+  expect "a CUBOT phone is a browser" "browser" "$(q "$w" "SELECT kind FROM user_agents WHERE user_agent LIKE '%CUBOT%';")"
+  # A person is an agent that loaded the bundle and an image, or, with the bundle
+  # cached from an earlier visit, an image its own page referred (10.0.0.11). The
+  # Chrome 20 scanner hit one URL; the ClaudeBot crawl hit robots.txt.
+  expect "visits" "10.0.0.1|10.0.0.11|10.0.0.2|10.0.0.5|10.0.0.6" \
+    "$(q "$w" "SELECT string_agg(client_ip, '|' ORDER BY client_ip) FROM visitors WHERE is_visit;")"
+  # The laptop that ran the perf script also opened the site in Chrome;
+  # neither session is a visitor.
+  # A thumbnail referred by the image host itself is a hotlink, not the site.
+  expect "hotlink is not a visit" "false" \
+    "$(q "$w" "SELECT is_visit FROM visitors WHERE client_ip = '10.0.0.13';")"
+  expect "operator excluded" "false" \
+    "$(q "$w" "SELECT bool_or(is_visit) FROM visitors WHERE client_ip = '10.0.0.4';")"
+  expect "operator marked"   "true" \
+    "$(q "$w" "SELECT bool_and(is_operator) FROM visitors WHERE client_ip = '10.0.0.4';")"
+  # iOS decides on the OS version, Safari 15 on the mac fails the 16.4 cutoff,
+  # and 'Edg/153' with no minor still parses.
+  expect "ios capable"        "true"  "$(q "$w" "SELECT avif_capable FROM visitors WHERE client_ip = '10.0.0.1';")"
+  expect "safari 15 not"      "false" "$(q "$w" "SELECT avif_capable FROM visitors WHERE client_ip = '10.0.0.2';")"
+  expect "edge major-only version" "153" "$(q "$w" "SELECT browser_major FROM visitors WHERE client_ip = '10.0.0.6';")"
+  expect "readiness"          "5|4|1|0|80.0" \
+    "$(q "$w" "SELECT visitors || '|' || avif_capable || '|' || not_capable || '|' || unknown || '|' || pct_capable FROM avif_readiness;")"
+  expect "newest day is partial" "2026-09-12" \
+    "$(q "$w" "SELECT string_agg(DISTINCT day::VARCHAR, ',') FROM coverage WHERE partial;")"
+  # Two executions from twelve Loki lines: one with the execution id in structured
+  # metadata, as Loki sends it, one with it among the labels, as Grafana shows it.
+  expect "probe executions" "2" "$(q "$w" 'SELECT count(*) FROM probe_executions;')"
+  expect "verdicts" "Tacocat Album API=false|Tacocat SPA=true" \
+    "$(q "$w" "SELECT string_agg(check_name || '=' || success, '|' ORDER BY check_name) FROM probe_executions;")"
+  # DNS took 172ms of a 190ms check; the roundtrip itself was 17.5ms with a 4.9ms wait for first byte.
+  expect "phase timings" "172|17|4|189.6" \
+    "$(q "$w" "SELECT resolve_ms || '|' || total_ms || '|' || ttfb_ms || '|' || duration_ms FROM probe_executions WHERE success;")"
+  expect "a timeout has no phases" "true" \
+    "$(q "$w" "SELECT status_code IS NULL AND total_ms IS NULL AND duration_ms = 3000.1 FROM probe_executions WHERE NOT success;")"
+  expect "coverage carries both sources" "cloudfront|grafana" \
+    "$(q "$w" "SELECT string_agg(DISTINCT source, '|' ORDER BY source) FROM coverage;")"
+}
+
+# --- a field CloudFront adds tomorrow changes nothing ---------------------------
+# Every column is found by name in the file's own header, so a file with a field
+# the layer has never heard of, in a position that shifts every other one, still
+# reads. The header is today's field set with the new one in front.
+case_unknown_field() {
+  w=$1
+  d=$w/dumps/cloudfront/prod/spa/2026/09/13
+  mkdir -p "$d"
+  {
+    printf '#Version: 1.0\n'
+    sed -n 2p "$w/$NEW_SPA" | sed 's/^#Fields: /#Fields: x-new-thing /'
+    printf 'whatever\t'
+    sed -n 3p "$w/$NEW_SPA" | sed 's/^2026-09-12\t09:00:00\t/2026-09-13\t01:02:03\t/; s/\t3.101.224.186\t/\t10.0.0.10\t/; s/\tsynthetic-monitoring-agent[^\t]*\t/\tMozilla\/5.0%20(X11;%20Linux%20x86_64)%20AppleWebKit\/537.36%20(KHTML,%20like%20Gecko)%20Chrome\/153.0.0.0%20Safari\/537.36\t/'
+  } > "$d/E3DFANBWDVJ2DM.2026-09-13-01.fixture.tsv"
+  expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
+  expect "no findings"    "0" "$(q "$w" 'SELECT count(*) FROM checks;')"
+  expect "row read by name" "10.0.0.10|200|Hit|US" \
+    "$(q "$w" "SELECT client_ip || '|' || status || '|' || result_type || '|' || country FROM cloudfront_requests WHERE ts::DATE = '2026-09-13';")"
+  expect "the new field is ignored" "1" \
+    "$(q "$w" "SELECT count(*) FROM cloudfront_files WHERE list_contains(fields, 'x-new-thing') AND rows = 1;")"
+}
+
+# --- a required field going away is named, not silently NULL -------------------
+case_missing_field() {
+  w=$1
+  f=$w/$NEW_SPA
+  sed 's/ cs(User-Agent) / cs(Agent) /' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+  expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
+  # One field, one finding: the rest of the header is intact.
+  expect "missing_required_field fires" "1" \
+    "$(q "$w" "SELECT count(*) FROM checks WHERE check_name = 'missing_required_field';")"
+  expect "and names the file and field" "1" \
+    "$(q "$w" "SELECT count(*) FROM checks WHERE detail LIKE '%2026-09-12-10.fixture.tsv lacks cs(User-Agent)';")"
+}
+
+# --- a line that does not match its header is dropped and counted --------------
+case_malformed_line() {
+  w=$1
+  printf '2026-09-11\t17:00:00\tSFO53-P10\tnot enough columns\n' >> "$w/$OLD_SPA"
+  expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
+  expect "malformed_rows fires" "1" \
+    "$(q "$w" "SELECT count(*) FROM checks WHERE check_name = 'malformed_rows';")"
+  expect "line is not a request" "28" "$(q "$w" 'SELECT count(*) FROM cloudfront_requests;')"
+  expect "file counts it" "1" \
+    "$(q "$w" "SELECT malformed_rows FROM cloudfront_files WHERE source_file LIKE '%2026-09-11-12.fixture.tsv';")"
+}
+
+# --- a directory nobody synced is named ----------------------------------------
+case_unknown_distribution() {
+  w=$1
+  d=$w/dumps/cloudfront/prod/api/2026/09/11
+  mkdir -p "$d"
+  cp "$w/$OLD_SPA" "$d/"
+  expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
+  expect "unknown_distribution fires" "1" \
+    "$(q "$w" "SELECT count(*) FROM checks WHERE check_name = 'unknown_distribution' AND detail LIKE 'Directory prod/api %';")"
+}
+
+# --- nothing pulled is a refusal, not an empty database ------------------------
+case_no_dumps() {
+  w=$1
+  find "$w/dumps" -name '*.tsv' -delete
+  expect "build refuses" "1" "$(build "$w" && echo 0 || echo 1)"
+  expect "and says to pull" "1" "$(grep -c 'run production_logs/pull/all first' "$w/build.log")"
+}
+
+# --- no Grafana dump is a smaller database, not a broken one ------------------
+case_no_grafana() {
+  w=$1
+  rm -r "$w/dumps/grafana"
+  expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
+  expect "no findings"    "0" "$(q "$w" 'SELECT count(*) FROM checks;')"
+  expect "no executions"  "0" "$(q "$w" 'SELECT count(*) FROM probe_executions;')"
+  expect "cloudfront unaffected" "5" "$(q "$w" 'SELECT visitors FROM avif_readiness;')"
+}
+
+# --- a failure explains itself; a success saying something new is a finding ---
+case_unknown_probe_message() {
+  w=$1
+  f=$w/$PROBES
+  # The failed API execution gains the agent's explanation, in its own words.
+  cat >> "$f" <<'LINE'
+{"timestamp":"1789207260500000000","line":"target=https://api.pix.tacocat.com/album/ probe=Ohio level=ERROR msg=\"Error making HTTP request\" err=\"context deadline exceeded\"\n","labels":{"job":"Tacocat Album API","probe":"Ohio","probe_success":"0"},"metadata":{"execution_id":"3d2ec3f9-df12-49fa-b807-e4384e182140"}}
+LINE
+  expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
+  expect "no findings"    "0" "$(q "$w" 'SELECT count(*) FROM checks;')"
+  expect "reason kept on the execution" "Error making HTTP request" \
+    "$(q "$w" "SELECT failure_reason FROM probe_executions WHERE NOT success;")"
+  expect "and the line counted" "6" "$(q "$w" "SELECT lines FROM probe_executions WHERE NOT success;")"
+  expect "a success has no reason" "true" "$(q "$w" "SELECT failure_reason IS NULL FROM probe_executions WHERE success;")"
+  # The successful SPA execution says something the reader has never seen.
+  cat >> "$f" <<'LINE'
+{"timestamp":"1789207200150000000","line":"target=https://pix.tacocat.com/ probe=Paris level=DEBUG msg=\"Negotiated HTTP/3\"\n","labels":{"job":"Tacocat SPA","probe":"Paris","probe_success":"1"},"metadata":{"execution_id":"5efded10-62d4-4340-888e-45931bd171c8"}}
+LINE
+  expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
+  expect "probe_unknown_message fires" "1" \
+    "$(q "$w" "SELECT count(*) FROM checks WHERE check_name = 'probe_unknown_message' AND detail LIKE '%Negotiated HTTP/3%';")"
+}
+
+for c in baseline unknown_field missing_field malformed_line unknown_distribution no_dumps no_grafana unknown_probe_message; do
+  name=$(echo "$c" | tr '_' '-')
+  skip_case "$name" && continue
+  printf '  %s\n' "$name"
+  w=$(mktemp -d)
+  setup "$w"
+  "case_$c" "$w"
+  rm -rf "$w"
+done
+
+printf '\n%s passed, %s failed\n' "$PASS" "$FAIL"
+[ "$FAIL" = 0 ]

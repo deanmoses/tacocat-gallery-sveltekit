@@ -2,13 +2,14 @@
 
 ## Where a test lives
 
-|               |                                                                        |
-| ------------- | ---------------------------------------------------------------------- |
-| Unit tests    | `{src,scripts}/**/*.spec.ts`, run by Vitest in node                    |
-| Browser tests | `src/**/*.svelte.spec.ts`, run by Vitest in headless Chromium          |
-| E2E tests     | `src/**/*.e2e.ts`, run by Playwright                                   |
-| Commands      | `npm test` (quiet), `npm run test:unit` (verbose), `npm run test:e2e`  |
-| Coverage      | `npm run test:coverage` to find gaps, `coverage/index.html` for detail |
+|               |                                                                           |
+| ------------- | ------------------------------------------------------------------------- |
+| Unit tests    | `{src,scripts,production_logs}/**/*.spec.ts`, run by Vitest in node       |
+| Log analytics | `npm run test:logs` builds `production_logs/analyze/sql` against fixtures |
+| Browser tests | `src/**/*.svelte.spec.ts`, run by Vitest in headless Chromium             |
+| E2E tests     | `src/**/*.e2e.ts`, run by Playwright                                      |
+| Commands      | `npm test` (quiet), `npm run test:unit` (verbose), `npm run test:e2e`     |
+| Coverage      | `npm run test:coverage` to find gaps, `coverage/index.html` for detail    |
 
 Use the cheapest runtime that can run a test. `.svelte.` in a spec name means the spec itself compiles runes and needs the client build: a `Foo.svelte.ts` might get two files, `Foo.spec.ts` for transitions and `Foo.svelte.spec.ts` for reactivity. Testing `$effect` needs the browser, and so does rendering a component, since there is no jsdom project.
 

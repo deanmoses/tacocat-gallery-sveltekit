@@ -34,6 +34,17 @@ else
     echo "Install with: brew install actionlint"
 fi
 
+# Build the production-log analytics against fixtures when its SQL or scripts
+# changed (requires installing duckdb)
+if git diff --cached --name-only | grep -q '^production_logs/analyze/'; then
+    if command -v duckdb >/dev/null 2>&1; then
+        npm run test:logs
+    else
+        echo "Warning: duckdb not installed, skipping production_logs/analyze/test"
+        echo "Install with: brew install duckdb"
+    fi
+fi
+
 # Generate SvelteKit types, which type-aware ESLint rules need to resolve
 # $lib and ./$types (npm run check does this too, but runs later)
 npx svelte-kit sync

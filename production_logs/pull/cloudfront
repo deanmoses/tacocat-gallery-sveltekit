@@ -1,0 +1,37 @@
+#!/usr/bin/env sh
+# Download CloudFront access logs into production_logs/dumps/cloudfront/.
+#
+#   production_logs/pull/cloudfront        # prod: the SPA and image distributions
+#   production_logs/pull/cloudfront dev    # their staging twins
+#
+# `aws s3 sync` only ever adds. CloudFront never rewrites a delivered file and
+# nothing here deletes, so the dump outlives the buckets' 90-day expiry: what has
+# been pulled is kept. Delivery lags the requests by ten minutes to a few hours,
+# so the newest day is always short until the next pull.
+#
+# Needs the aws CLI with credentials for the Tacocat account. The dump holds
+# visitor IP addresses and is gitignored; keep it that way.
+set -eu
+
+TARGET=${1:-prod}
+case "$TARGET" in
+  prod|dev) ;;
+  *) echo "usage: $0 [prod|dev]" >&2; exit 1 ;;
+esac
+
+DIR=$(cd "$(dirname "$0")" && pwd)
+OUT=$DIR/../dumps/cloudfront/$TARGET
+ACCOUNT=010410881828
+
+command -v aws >/dev/null || { echo "aws CLI not on PATH; brew install awscli" >&2; exit 1; }
+
+pull_distribution() {  # bucket, S3 prefix, local directory
+  mkdir -p "$OUT/$3"
+  before=$(find "$OUT/$3" -name '*.gz' | wc -l | tr -d ' ')
+  aws s3 sync "s3://$1/AWSLogs/$ACCOUNT/CloudFront/$2/" "$OUT/$3/" --only-show-errors
+  after=$(find "$OUT/$3" -name '*.gz' | wc -l | tr -d ' ')
+  echo "$TARGET/$3: $((after - before)) new files, $after total"
+}
+
+pull_distribution "tacocat-gallery-website-hosting-$TARGET-cloudfront-logs" spa spa
+pull_distribution "tacocat-gallery-sam-$TARGET-cloudfront-logs" image image

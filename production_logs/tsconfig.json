@@ -1,0 +1,7 @@
+{
+    // Node runs the puller here directly, like the tooling under scripts/, so it is checked on
+    // those terms. Its own file rather than a wider include in scripts/tsconfig.json because
+    // eslint's project service finds a file's tsconfig by walking up from the file.
+    "extends": "../scripts/tsconfig.json",
+    "include": ["**/*.ts"]
+}
