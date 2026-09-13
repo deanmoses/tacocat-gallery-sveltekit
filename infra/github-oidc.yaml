@@ -1,0 +1,168 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+    IAM roles that the tacocat-gallery-sveltekit GitHub Actions workflows
+    assume to deploy the built SPA. Deployed by hand, never by CI: CI cannot
+    be the thing that creates its own credentials. See infra/README.md.
+
+# -----------------------------------------------------------------------------
+# How the pieces fit together
+#
+#   GitHub Actions job ──(OIDC token)──▶ tacocat-gallery-sveltekit-cicd-github-{main,prod}
+#                                              │
+#                                              │ s3 sync + cloudfront invalidation
+#                                              ▼
+#                                    tacocat-gallery-website-hosting-{dev,prod} stack's
+#                                    site bucket and CloudFront distribution
+#
+# A deploy here is scripts/deploy-*.sh: sync the build directory into the
+# site bucket and invalidate the distribution. Neither role can touch
+# CloudFormation, so the hosting stacks themselves stay owned by
+# https://github.com/deanmoses/tacocat-gallery-hosting-aws. There is one role
+# per environment, so a staging deploy cannot reach the prod bucket, and
+# pull requests get no role at all: they only build and test.
+#
+# The GitHub OIDC identity provider the roles trust is account-wide and lives
+# in https://github.com/deanmoses/aws-bootstrap. The same layout deploys the
+# sister repos tacocat-gallery-sam, tacocat-gallery-auth and
+# tacocat-gallery-hosting-aws.
+#
+# Which role a job may assume is decided by the GitHub token's `sub` claim:
+#
+#   repo:ORG/REPO:ref:refs/heads/main   main role  deploy staging
+#   repo:ORG/REPO:environment:prod      prod role  deploy prod (the environment allows only main)
+# -----------------------------------------------------------------------------
+
+Parameters:
+    GitHubOrg:
+        Type: String
+        Default: deanmoses
+        Description: GitHub user or organization that owns the repository
+    GitHubRepo:
+        Type: String
+        Default: tacocat-gallery-sveltekit
+        Description: GitHub repository name
+    ProdEnvironment:
+        Type: String
+        Default: prod
+        Description: Name of the GitHub environment that gates production deploys
+    DevBucket:
+        Type: String
+        Default: tacocat-gallery-website-hosting-dev-bucket
+        Description: Site bucket of the tacocat-gallery-website-hosting-dev stack, which scripts/deploy-staging.sh syncs into
+    DevDistributionId:
+        Type: String
+        Default: E13M70NHFSSCUR
+        Description: CloudFront distribution of the tacocat-gallery-website-hosting-dev stack, which scripts/deploy-staging.sh invalidates
+    ProdBucket:
+        Type: String
+        Default: tacocat-gallery-website-hosting-prod-bucket
+        Description: Site bucket of the tacocat-gallery-website-hosting-prod stack, which scripts/deploy-prod.sh syncs into
+    ProdDistributionId:
+        Type: String
+        Default: E3DFANBWDVJ2DM
+        Description: CloudFront distribution of the tacocat-gallery-website-hosting-prod stack, which scripts/deploy-prod.sh invalidates
+
+Resources:
+    # ---------------------------------------------------------------------------
+    # Main role: pushes to main deploy staging
+    # ---------------------------------------------------------------------------
+    GitHubMainRole:
+        Type: AWS::IAM::Role
+        Properties:
+            RoleName: tacocat-gallery-sveltekit-cicd-github-main
+            Description: Assumed by workflow runs on the main branch to deploy the SPA to staging
+            MaxSessionDuration: 3600
+            AssumeRolePolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                    - Effect: Allow
+                      Principal:
+                          Federated: !Sub arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com
+                      Action: sts:AssumeRoleWithWebIdentity
+                      Condition:
+                          StringEquals:
+                              token.actions.githubusercontent.com:aud: sts.amazonaws.com
+                              token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrg}/${GitHubRepo}:ref:refs/heads/main
+            Policies:
+                - PolicyName: DeployStaging
+                  PolicyDocument:
+                      Version: '2012-10-17'
+                      Statement:
+                          - Sid: SyncSiteBucket
+                            # `aws s3 sync --delete` lists, compares, uploads and removes
+                            Effect: Allow
+                            Action:
+                                - s3:ListBucket
+                                - s3:GetObject
+                                - s3:PutObject
+                                - s3:DeleteObject
+                            Resource:
+                                - !Sub arn:aws:s3:::${DevBucket}
+                                - !Sub arn:aws:s3:::${DevBucket}/*
+                          - Sid: InvalidateDistribution
+                            # The wait polls GetInvalidation until it completes
+                            Effect: Allow
+                            Action:
+                                - cloudfront:CreateInvalidation
+                                - cloudfront:GetInvalidation
+                            Resource: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${DevDistributionId}
+                          - Sid: FindDistributionDomain
+                            # ListDistributions takes no resource
+                            Effect: Allow
+                            Action: cloudfront:ListDistributions
+                            Resource: '*'
+
+    # ---------------------------------------------------------------------------
+    # Prod role: only a job running inside the `prod` environment
+    # ---------------------------------------------------------------------------
+    GitHubProdRole:
+        Type: AWS::IAM::Role
+        Properties:
+            RoleName: tacocat-gallery-sveltekit-cicd-github-prod
+            Description: Assumed by the production deploy job, which runs inside the GitHub environment that deploys only from main
+            MaxSessionDuration: 3600
+            AssumeRolePolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                    - Effect: Allow
+                      Principal:
+                          Federated: !Sub arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com
+                      Action: sts:AssumeRoleWithWebIdentity
+                      Condition:
+                          StringEquals:
+                              token.actions.githubusercontent.com:aud: sts.amazonaws.com
+                              token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrg}/${GitHubRepo}:environment:${ProdEnvironment}
+            Policies:
+                - PolicyName: DeployProd
+                  # Same grants as the main role, on the prod bucket and distribution
+                  PolicyDocument:
+                      Version: '2012-10-17'
+                      Statement:
+                          - Sid: SyncSiteBucket
+                            Effect: Allow
+                            Action:
+                                - s3:ListBucket
+                                - s3:GetObject
+                                - s3:PutObject
+                                - s3:DeleteObject
+                            Resource:
+                                - !Sub arn:aws:s3:::${ProdBucket}
+                                - !Sub arn:aws:s3:::${ProdBucket}/*
+                          - Sid: InvalidateDistribution
+                            Effect: Allow
+                            Action:
+                                - cloudfront:CreateInvalidation
+                                - cloudfront:GetInvalidation
+                            Resource: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${ProdDistributionId}
+                          - Sid: FindDistributionDomain
+                            Effect: Allow
+                            Action: cloudfront:ListDistributions
+                            Resource: '*'
+
+Outputs:
+    GitHubMainRoleArn:
+        Description: role-to-assume for runs on main
+        Value: !GetAtt GitHubMainRole.Arn
+    GitHubProdRoleArn:
+        Description: role-to-assume for the prod deploy job
+        Value: !GetAtt GitHubProdRole.Arn
