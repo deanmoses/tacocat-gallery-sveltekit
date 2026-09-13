@@ -519,10 +519,11 @@ export default defineConfig(
         },
     },
     {
-        // scripts/ is code node runs directly, so it gets the rules that know what
-        // node is: which builtins exist across the version range package.json
-        // declares, and whether a shebang matches how the file is actually run.
-        files: ['scripts/**/*.{mjs,ts}'],
+        // scripts/ and production_logs/ are code node runs directly, so they get
+        // the rules that know what node is: which builtins exist across the version
+        // range package.json declares, and whether a shebang matches how the file
+        // is actually run.
+        files: ['scripts/**/*.{mjs,ts}', 'production_logs/**/*.ts'],
         extends: [n.configs['flat/recommended']],
         rules: {
             // A generator invoked by the pre-commit hook reports a bad source file
@@ -532,10 +533,10 @@ export default defineConfig(
         },
     },
     {
-        // Everything typescript-eslint has, for every file under scripts/. Held at
-        // the directory rather than at an extension so a file added here is under
-        // it whichever of the two it is written in.
-        files: ['scripts/**/*.{mjs,ts}'],
+        // Everything typescript-eslint has, for every file under scripts/ and
+        // production_logs/. Held at the directory rather than at an extension so a
+        // file added here is under it whichever of the two it is written in.
+        files: ['scripts/**/*.{mjs,ts}', 'production_logs/**/*.ts'],
         extends: [ts.configs.strictTypeChecked, ts.configs.stylisticTypeChecked],
         rules: {
             // Same shape as the rule's default, pointed at the declaration form the rest of the

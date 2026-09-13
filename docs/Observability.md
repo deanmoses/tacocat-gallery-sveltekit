@@ -5,6 +5,7 @@ To find out how Tacocat is doing:
 - [`npm run perf`](#npm-run-perf): live perf of a particular staging or prod URL
 - [Grafana](#grafana-cloud): uptime & perf monitoring from multiple geos. Retains data for 14 days.
 - [AWS](#aws): production logs
+- [Production logs](#production-logs): who visits, on what browser, from the CloudFront logs in DuckDB
 - [Discord](#discord): receiving alerts, historical alerts
 
 The projects, domains and environments named throughout are mapped in [Ecosystem](Ecosystem.md).
@@ -98,6 +99,8 @@ Two distributions write access logs to S3, tab-separated with a `#Fields` header
 
 Staging twins write to the matching `-dev` buckets. The SPA distribution is defined in the `tacocat-gallery-hosting-aws` repo.
 
+**The field list changed on 2026-09-11.** Earlier files carry cookie, forwarded-for and range columns; later ones drop those and add `asn` and `c-country`. Read the `#Fields` line of each file rather than assuming an order.
+
 Delivery is configured through CloudWatch, not on the distribution, so `get-distribution-config` shows logging disabled while logs are flowing. `aws logs describe-delivery-sources` is what says whether a distribution is logging.
 
 ```bash
@@ -132,6 +135,20 @@ To prove the chain end to end without touching data, invoke `tacocat-gallery-sam
 - **Neither API Gateway has access logging on**, in any environment: not `api.*` (`tacocat-gallery-sam`) nor `auth.*` (`tacocat-gallery-auth`). Both are API Gateway custom domains rather than CloudFront distributions, so the access logs above do not cover them.
 - **No tracing, no canaries.** Grafana's synthetic checks cover uptime from outside.
 - **The `tacocat-gallery-auth` log groups have no retention set.**
+
+## Production logs
+
+`production_logs/` pulls the CloudFront access logs above and the [synthetic probes'](#grafana-cloud) Loki lines into a local DuckDB. It answers questions about people rather than requests, which browsers visit, from where, and whether they can decode a given image format, and keeps the probes' per-execution timings past Loki's 14 days. [Its README](../production_logs/README.md) has the relations to start from.
+
+```bash
+npm run logs:pull                          # sync both sources into production_logs/dumps/ (gitignored)
+npm run logs -- "FROM avif_readiness;"     # rebuilds if stale, then queries
+npm run logs -- "FROM probe_health;"       # uptime and latency per day, check and probe
+```
+
+The Grafana pull needs `GRAFANA_ANALYTICS_TOKEN` in the gitignored `.env`: a service-account token with the Viewer role.
+
+Most requests are not people: Grafana's probes, crawlers, scanners and this project's own perf script and Claude desktop app dominate a quiet week. `visitors.is_visit` is the row that was a person.
 
 ## Discord
 

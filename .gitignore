@@ -51,3 +51,12 @@ coverage/
 
 # Vitest browser-mode failure screenshots and attachments
 .vitest
+
+# Production logs: the dumps hold visitor IP addresses and the database is derived
+# from them. Only the SQL and the fixtures are tracked.
+production_logs/dumps/
+*.duckdb
+*.duckdb.wal
+*.duckdb.building
+*.duckdb.building.wal
+*.duckdb.lock

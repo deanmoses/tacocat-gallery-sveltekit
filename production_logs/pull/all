@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+# Pull every source: Grafana's probe logs, then the CloudFront access logs.
+#
+#   production_logs/pull/all
+#
+# Grafana first because it is the perishable one -- Loki keeps 14 days where the
+# CloudFront buckets keep 90 -- and each source runs whether or not the other
+# failed, so a missing GRAFANA_ANALYTICS_TOKEN does not stop the S3 sync. Exits with
+# the worst child's status.
+set -u
+
+DIR=$(cd "$(dirname "$0")" && pwd)
+status=0
+
+node "$DIR/grafana.ts" || status=$?
+"$DIR/cloudfront" || status=$?
+
+exit "$status"

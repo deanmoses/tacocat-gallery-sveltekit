@@ -17,6 +17,7 @@ npm run test:unit     # Run unit tests (verbose output)
 npm run test:coverage # Unit tests + coverage (finds modules with no tests)
 npm run test:e2e      # Run Playwright E2E tests
 npm run test:all      # Run all tests (unit + E2E)
+npm run test:logs     # Build the log analytics SQL against fixtures (needs duckdb)
 npm run check         # Type checking (svelte-check + TypeScript)
 npm run lint          # ESLint + Prettier + markdownlint + stylelint + knip check
 npm run lint:shell    # Shellcheck the shell scripts
@@ -25,6 +26,8 @@ npm run format        # Auto-format with Prettier
 npm run quality       # Format, lint, and type check
 npm run precommit     # Quality checks + unit tests (for pre-commit/pre-PR)
 npm run agent-docs    # Regenerate CLAUDE.md and AGENTS.md
+npm run logs:pull     # Download prod CloudFront access logs and Grafana probe logs into production_logs/dumps/
+npm run logs -- "FROM avif_readiness;"  # Query them; see production_logs/README.md
 npm run build -- --mode staging && npm run deploy-staging  # Build and deploy to staging
 ```
 
@@ -179,7 +182,6 @@ The `main` branch is protected:
 - Requires PR before merging (no direct pushes), administrators included
 - Requires the `merge-ok` job in `ci.yml` to pass. It passes when the build succeeded, or when only docs changed and the docs lint succeeded in place of the build.
 - Does NOT require reviews
-- Does NOT require branches to be up to date
 
 Repo settings:
 
