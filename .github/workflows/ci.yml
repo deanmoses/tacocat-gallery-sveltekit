@@ -36,7 +36,6 @@ jobs:
               id: filter
               with:
                   predicate-quantifier: 'every'
-                  # Keep in step with what lint-docs.yml covers
                   filters: |
                       code:
                         - '**'
@@ -126,12 +125,37 @@ jobs:
                   path: build/
                   retention-days: 1
 
-    # The check branch protection requires. Passes when the detector said
-    # there were no code changes (so the build was rightly skipped) or the
-    # build succeeded. Anything else, including a detector that answered
-    # nothing at all, fails: this must not fail open.
+    # A docs-only change skips the build, and with it the markdown lint that
+    # `npm run lint` runs, so it gets this build-free job instead.
+    lint-docs:
+        needs: detect-code-changes
+        if: ${{ needs.detect-code-changes.outputs.code_changed == 'false' }}
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v7
+              with:
+                  persist-credentials: false
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version-file: '.nvmrc'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci --ignore-scripts
+
+            - name: Lint markdown
+              run: npx markdownlint-cli2
+
+    # The check branch protection requires. Passes when the job the detector
+    # chose (the build for code changes, the docs lint otherwise) succeeded.
+    # Anything else, including a detector that answered nothing at all,
+    # fails: this must not fail open.
     merge-ok:
-        needs: [detect-code-changes, build]
+        needs: [detect-code-changes, build, lint-docs]
         if: always()
         runs-on: ubuntu-latest
         steps:
@@ -140,24 +164,32 @@ jobs:
                   DETECT_RESULT: ${{ needs.detect-code-changes.result }}
                   CODE_CHANGED: ${{ needs.detect-code-changes.outputs.code_changed }}
                   BUILD_RESULT: ${{ needs.build.result }}
+                  LINT_DOCS_RESULT: ${{ needs.lint-docs.result }}
               run: |
                   if [[ "$DETECT_RESULT" != "success" ]]; then
                       echo "detect-code-changes failed (result: $DETECT_RESULT)"
                       exit 1
                   fi
-                  if [[ "$CODE_CHANGED" == "false" ]]; then
-                      echo "No code changes, build skipped"
-                      exit 0
-                  fi
-                  if [[ "$CODE_CHANGED" != "true" ]]; then
-                      echo "Unexpected code_changed value: '$CODE_CHANGED'"
-                      exit 1
-                  fi
-                  if [[ "$BUILD_RESULT" != "success" ]]; then
-                      echo "Code changed but the build did not succeed (result: $BUILD_RESULT)"
-                      exit 1
-                  fi
-                  echo "Code changed and the build passed"
+                  case "$CODE_CHANGED" in
+                      true)
+                          if [[ "$BUILD_RESULT" != "success" ]]; then
+                              echo "Code changed but the build did not succeed (result: $BUILD_RESULT)"
+                              exit 1
+                          fi
+                          echo "Code changed and the build passed"
+                          ;;
+                      false)
+                          if [[ "$LINT_DOCS_RESULT" != "success" ]]; then
+                              echo "No code changes but the docs lint did not succeed (result: $LINT_DOCS_RESULT)"
+                              exit 1
+                          fi
+                          echo "No code changes and the docs lint passed"
+                          ;;
+                      *)
+                          echo "Unexpected code_changed value: '$CODE_CHANGED'"
+                          exit 1
+                          ;;
+                  esac
 
     deploy:
         needs: build

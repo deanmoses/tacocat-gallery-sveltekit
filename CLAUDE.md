@@ -177,7 +177,7 @@ git rebase --continue
 The `main` branch is protected:
 
 - Requires PR before merging (no direct pushes), administrators included
-- Requires the `merge-ok` job in `ci.yml` to pass. It passes when the build succeeded, or when only docs changed and the build was skipped.
+- Requires the `merge-ok` job in `ci.yml` to pass. It passes when the build succeeded, or when only docs changed and the docs lint succeeded in place of the build.
 - Does NOT require reviews
 - Does NOT require branches to be up to date
 
