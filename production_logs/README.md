@@ -13,7 +13,7 @@ It exists to answer questions about our production systems:
 production_logs/
   dumps/cloudfront/<env>/<distribution>/   Raw CloudFront logs. Gitignored: they hold visitor IPs.
   dumps/grafana/synthetic/                 Raw Loki lines from the probes. Gitignored.
-  dumps/lambda/<env>/                      One platform report per Lambda invocation. Gitignored.
+  dumps/cloudwatch/<log group>/            Every line of the Lambda and API Gateway log groups. Gitignored.
   analyze/production_logs.duckdb           The log db. Derived, gitignored.
   analyze/sql/*.sql                        SQL that creates the log db.
 ```
@@ -24,7 +24,7 @@ npm run logs:pull                          # every source
 npm run logs:pull:cloudfront               # prod, both distributions
 production_logs/pull/cloudfront dev        # the staging twins
 npm run logs:pull:grafana -- --start 2026-09-01   # the probes, that day through today
-npm run logs:pull:lambda                   # prod Lambda reports; --env dev for staging
+npm run logs:pull:cloudwatch -- tacocat-gallery-sam/dev   # a staging log group; pull/all names the prod ones
 
 # Analyze
 npm run logs -- "FROM avif_readiness;"   # one-shot
@@ -40,9 +40,9 @@ production_logs/analyze/test             # build against fixtures and assert
 
 `pull/grafana.ts` reads the synthetic-monitoring agent's lines out of Loki through the Grafana instance, one UTC day at a time, and merges them into `dumps/grafana/synthetic/<day>.ndjson` on timestamp and line, so a re-pull only adds. Needs `GRAFANA_ANALYTICS_TOKEN`, a service-account token with the Viewer role, in the environment or in the gitignored `.env` at the repo root. With no `--start` it resumes from the newest day on disk, or reaches back 14 days.
 
-`pull/lambda.ts` runs `aws logs filter-log-events` over the stack's shared log group, `tacocat-gallery-sam/<env>`, one UTC day at a time, keeping the `platform.report` events and the `request_received` line with which `GenerateDerivedImage` names the image it resizes, and merges them into `dumps/lambda/<env>/<day>.ndjson` on the event id. Same credentials as `pull/cloudfront`. With no `--start` it resumes from the newest day on disk, or reaches back as far as the group keeps.
+`pull/cloudwatch.ts` runs `aws logs filter-log-events` over each log group named on its command line, one UTC day at a time and unfiltered, and merges the events into `dumps/cloudwatch/<group>/<day>.ndjson` on the event id. `pull/all` names the prod groups: the gallery stack's Lambda group, `tacocat-gallery-sam/prod`, and the API Gateway access logs of the gallery and auth APIs, `tacocat-gallery-sam/prod/api-access` and `tacocat-gallery-auth/prod/api-access`. Same credentials as `pull/cloudfront`. With no `--start` it resumes from the newest day on disk, or reaches back as far as the group's own retention.
 
-**Loki keeps 14 days.** CloudWatch keeps the Lambda reports 90 days in prod and 30 in dev, and the CloudFront buckets keep 90, so those tolerate being pulled late; the probes do not. `pull/all` runs the probes first for that reason.
+**Loki keeps 14 days.** CloudWatch keeps the prod log groups 90 days and the dev ones 30, and the CloudFront buckets keep 90, so those tolerate being pulled late; the probes do not. `pull/all` runs the probes first for that reason.
 
 **The newest day is always short.** CloudFront delivers a file ten minutes to a few hours after the requests in it, and Loki and CloudWatch are only as current as the last pull. Pull again before quoting today.
 

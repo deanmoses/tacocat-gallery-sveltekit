@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { byTime, dayWindowMs, eventsOf } from './lambda.ts';
-import type { LogEvent } from './lambda.ts';
+import { byTime, dayWindowMs, eventsOf, retentionOf } from './cloudwatch.ts';
+import type { LogEvent } from './cloudwatch.ts';
 
 const event = (eventId: string, timestamp: number): LogEvent => ({
     eventId,
@@ -29,6 +29,27 @@ describe(eventsOf, () => {
         },
     ])('refuses $why', ({ response }) => {
         expect(() => eventsOf(response)).toThrow('filter-log-events');
+    });
+});
+
+describe(retentionOf, () => {
+    const response = {
+        logGroups: [
+            { logGroupName: 'tacocat-gallery-sam/prod', retentionInDays: 90 },
+            { logGroupName: 'tacocat-gallery-sam/prod/api-access', retentionInDays: 90 },
+            { logGroupName: 'tacocat-gallery-sam/prod/forever' },
+        ],
+    };
+
+    it('picks the group asked for out of everything sharing its prefix', () => {
+        expect(retentionOf(response, 'tacocat-gallery-sam/prod')).toBe(90);
+    });
+
+    it.each([
+        { why: 'a group that does not exist', group: 'tacocat-gallery-sam/nope', error: 'does not exist' },
+        { why: 'a group that keeps logs forever', group: 'tacocat-gallery-sam/prod/forever', error: 'pass --start' },
+    ])('refuses $why', ({ group, error }) => {
+        expect(() => retentionOf(response, group)).toThrow(error);
     });
 });
 

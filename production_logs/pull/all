@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# Pull every prod source: Grafana's probe logs, the Lambda platform reports, then
+# Pull every prod source: Grafana's probe logs, the CloudWatch log groups, then
 # the CloudFront access logs.
 #
 #   production_logs/pull/all
@@ -14,7 +14,10 @@ DIR=$(cd "$(dirname "$0")" && pwd)
 status=0
 
 node "$DIR/grafana.ts" || status=$?
-node "$DIR/lambda.ts" || status=$?
+node "$DIR/cloudwatch.ts" \
+  tacocat-gallery-sam/prod \
+  tacocat-gallery-sam/prod/api-access \
+  tacocat-gallery-auth/prod/api-access || status=$?
 "$DIR/cloudfront" || status=$?
 
 exit "$status"

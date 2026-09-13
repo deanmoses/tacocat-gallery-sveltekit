@@ -50,7 +50,7 @@ skip_case() { [ -n "$ONLY" ] && [ "$ONLY" != "$1" ]; }
 OLD_SPA=dumps/cloudfront/prod/spa/2026/09/11/E3DFANBWDVJ2DM.2026-09-11-12.fixture.tsv
 NEW_SPA=dumps/cloudfront/prod/spa/2026/09/12/E3DFANBWDVJ2DM.2026-09-12-10.fixture.tsv
 PROBES=dumps/grafana/synthetic/2026-09-12.ndjson
-LAMBDA=dumps/lambda/prod/2026-09-12.ndjson
+LAMBDA=dumps/cloudwatch/tacocat-gallery-sam/prod/2026-09-12.ndjson
 NEW_IMAGE=dumps/cloudfront/prod/image/2026/09/12/E3R19YIU3JKJRK.2026-09-12-10.fixture.tsv
 
 # --- both field sets load, and every relation says what the fixture means ------
@@ -113,7 +113,14 @@ case_baseline() {
   expect "probe health keys on the target" "https://api.pix.tacocat.com/album/|https://pix.tacocat.com/" \
     "$(q "$w" "SELECT string_agg(DISTINCT target, '|' ORDER BY target) FROM probe_health;")"
   # Four platform reports: GetAlbum cold, warm, then cold again an hour later, and
-  # a Search that failed.
+  # a Search that failed; beside them r1's platform.start, the error Search logged,
+  # and a sentence it logged before that.
+  expect "every line classified" "app:-=1|app:unhandled_error=1|platform:platform.report=4|platform:platform.start=1" \
+    "$(q "$w" "SELECT string_agg(k, '|' ORDER BY k) FROM (SELECT kind || ':' || coalesce(event, '-') || '=' || count(*) AS k FROM lambda_events GROUP BY kind, event);")"
+  expect "the error keeps its level" "ERROR|r4" \
+    "$(q "$w" "SELECT level || '|' || request_id FROM lambda_events WHERE kind = 'app' AND level = 'ERROR';")"
+  expect "the sentence is kept" "Searching for: cats" \
+    "$(q "$w" "SELECT text FROM lambda_events WHERE kind = 'app' AND event IS NULL;")"
   expect "invocations" "4" "$(q "$w" 'SELECT count(*) FROM lambda_invocations;')"
   expect "function from the stream name" "GetAlbum=3|Search=1" \
     "$(q "$w" "SELECT string_agg(function_name || '=' || n, '|' ORDER BY function_name) FROM (SELECT function_name, count(*) AS n FROM lambda_invocations GROUP BY 1);")"
@@ -270,10 +277,10 @@ case_origin_fields() {
     "$(q "$w" "SELECT string_agg(client_port || '#' || seq || '=' || requests || '/' || api_requests, '|' ORDER BY client_port, seq) FROM connections WHERE client_ip = '10.0.0.20';")"
 }
 
-# --- no Lambda dump is a smaller database, not a broken one --------------------
+# --- no CloudWatch dump is a smaller database, not a broken one ----------------
 case_no_lambda() {
   w=$1
-  rm -r "$w/dumps/lambda"
+  rm -r "$w/dumps/cloudwatch"
   expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
   expect "no findings"    "0" "$(q "$w" 'SELECT count(*) FROM checks;')"
   expect "no invocations" "0" "$(q "$w" 'SELECT count(*) FROM lambda_invocations;')"
@@ -284,7 +291,7 @@ case_no_lambda() {
 case_unreadable_lambda() {
   w=$1
   f=$w/$LAMBDA
-  # Search's stream loses the stack prefix; r2's record loses its duration; and a
+  # Search's stream, three lines of it, loses the stack prefix; r2's record loses its duration; and a
   # plain-text line, as Lambda writes when a function logs outside JSON, appears.
   sed 's/tacocat-gallery-sam-prod-Search\[/Search[/; s/\\"durationMs\\":40.0,//' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
   cat >> "$f" <<'LINE'
@@ -292,7 +299,7 @@ case_unreadable_lambda() {
 LINE
   expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
   expect "lambda_unreadable_stream fires" "1" \
-    "$(q "$w" "SELECT count(*) FROM checks WHERE check_name = 'lambda_unreadable_stream' AND detail LIKE '1 events come from streams like %Search[%';")"
+    "$(q "$w" "SELECT count(*) FROM checks WHERE check_name = 'lambda_unreadable_stream' AND detail LIKE '3 events come from streams like %Search[%';")"
   expect "lambda_report_without_duration fires" "1" \
     "$(q "$w" "SELECT count(*) FROM checks WHERE check_name = 'lambda_report_without_duration' AND detail LIKE '%\"requestId\":\"r2\"%';")"
   expect "lambda_unknown_event fires" "1" \

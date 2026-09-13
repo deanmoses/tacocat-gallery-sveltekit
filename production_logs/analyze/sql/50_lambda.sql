@@ -1,13 +1,17 @@
 -- Lambda invocations, from the platform report each one ends with and the line a
 -- handler logs on arrival.
 --
--- SOURCE: ../../dumps/lambda/<env>/YYYY-MM-DD.ndjson, one filter-log-events event
--- per line as the puller received it. The message is Lambda''s own JSON. A report
--- carries duration, billed duration, memory, and `initDurationMs` only when the
--- invocation had to start an execution environment first. A request line wraps
--- what the handler logged in `message`, which has arrived both as an object and
--- as that object serialised to a string. Every function in the stack logs to one
--- group, so the function is read from the stream name,
+-- SOURCE: ../../dumps/cloudwatch/tacocat-gallery-sam/<env>/YYYY-MM-DD.ndjson, one
+-- filter-log-events event per line as the puller received it, the whole log
+-- group unfiltered. The message is Lambda''s own JSON: platform records, whose
+-- `type` is platform.start, platform.report and so on, and the handlers'' own
+-- lines, which Lambda''s JSON log format stamps with a `level` and wraps in
+-- `message`: usually the object they logged, with an `event` naming it, which
+-- has arrived both as an object and as itself serialised to a string, and
+-- sometimes just a sentence. A report carries duration, billed duration, memory, and
+-- `initDurationMs` only when the invocation had to start an execution
+-- environment first. Every function in the stack logs to one group, so the
+-- function is read from the stream name,
 -- YYYY/MM/DD/<stack>-<function>[<version>]<instance id>.
 --
 -- The report is written when the invocation ends. Its start is that less the
@@ -18,7 +22,7 @@
 -- who asked. The synthetic API check can be recognised anyway, because it says
 -- when it asked: an invocation that started while one of its executions was
 -- waiting is the check''s.
-SET VARIABLE lambda_files = source_files('../../dumps/lambda/*/*.ndjson');
+SET VARIABLE lambda_files = source_files('../../dumps/cloudwatch/tacocat-gallery-sam/*/*.ndjson');
 
 -- The env whose Lambdas a probe target reaches, NULL for a target that reaches
 -- none. The API is whatever answers at api.<site>/ or at <site>/api/.
@@ -37,13 +41,13 @@ CREATE OR REPLACE MACRO started_during_probe(probe_ts, probe_duration_ms, starte
 CREATE OR REPLACE TABLE lambda_events AS
 WITH raw AS (
   SELECT
-    regexp_extract(filename, 'dumps/lambda/([^/]+)/', 1) AS env,
+    regexp_extract(filename, 'dumps/cloudwatch/tacocat-gallery-sam/([^/]+)/', 1) AS env,
     make_timestamp("timestamp" * 1000) AS ts,
     logStreamName AS stream,
     CASE WHEN json_valid(message) THEN message::JSON END AS record,
     message,
     eventId AS event_id,
-    regexp_replace(filename, '^.*/dumps/lambda/', '') AS source_file
+    regexp_replace(filename, '^.*/dumps/cloudwatch/', '') AS source_file
   FROM read_json(getvariable('lambda_files'), format = 'newline_delimited', filename = true,
     columns = {'eventId': 'VARCHAR', 'timestamp': 'BIGINT', 'logStreamName': 'VARCHAR', 'message': 'VARCHAR'})
 ),
@@ -60,8 +64,15 @@ SELECT
   env,
   nullif(regexp_extract(stream, '^\d{4}/\d{2}/\d{2}/tacocat-gallery-sam-[a-z]+-([A-Za-z0-9]+)\[', 1), '') AS function_name,
   nullif(regexp_extract(stream, '\]([0-9a-f]+)$', 1), '') AS instance,
-  CASE WHEN record ->> '$.type' = 'platform.report' THEN 'report'
-       WHEN logged ->> '$.event' = 'request_received' THEN 'request' END AS kind,
+  -- A platform record, or a line a handler logged; NULL for a line that is
+  -- neither, such as plain text from a function logging outside JSON.
+  CASE WHEN record ->> '$.type' LIKE 'platform.%' THEN 'platform'
+       WHEN record ->> '$.level' IS NOT NULL THEN 'app' END AS kind,
+  -- NULL for a handler line that was a sentence rather than an event; `text`
+  -- holds the sentence.
+  coalesce(record ->> '$.type', logged ->> '$.event') AS event,
+  record ->> '$.level' AS level,
+  CASE WHEN logged IS NULL THEN record ->> '$.message' END AS text,
   coalesce(record ->> '$.record.requestId', record ->> '$.requestId') AS request_id,
   record,
   logged,
@@ -71,12 +82,12 @@ SELECT
   source_file
 FROM unwrapped;
 
-COMMENT ON TABLE lambda_events IS 'GRAIN: one row per CloudWatch event pulled. `kind` is report or request; anything else is a line the reader does not know, and the checks say so. Read lambda_invocations and lambda_requests rather than this.';
+COMMENT ON TABLE lambda_events IS 'GRAIN: one row per line in the stack''s log group. `kind` is platform for Lambda''s own records and app for a handler''s, with `event` naming which: platform.report, request_received, unhandled_error. A line that is neither has NULL kind, and the checks say so. `level` is the handler''s, so the errors are `kind = ''app'' AND level = ''ERROR''`; a handler line that was a sentence rather than an event has NULL event and the sentence in `text`. Read lambda_invocations and lambda_requests for the shaped views.';
 
 CREATE OR REPLACE TABLE lambda_requests AS
 SELECT ts, env, function_name, request_id, logged ->> '$.method' AS method, logged ->> '$.path' AS path, event_id, source_file
 FROM lambda_events
-WHERE kind = 'request';
+WHERE event = 'request_received';
 
 COMMENT ON TABLE lambda_requests IS 'GRAIN: one row per request a handler logged on arrival, by Lambda request id. For a derived image, `path` is what CloudFront asked for after its rewrite: /i/<media path>/<version>/<size>, then /crop=<x,y,w,h> for a cropped one.';
 
@@ -101,7 +112,7 @@ WITH reports AS (
     e.stream, e.message, e.event_id, e.source_file
   FROM lambda_events e
   LEFT JOIN lambda_requests q ON q.env = e.env AND q.request_id = e.request_id
-  WHERE e.kind = 'report'
+  WHERE e.event = 'platform.report'
 ),
 timed AS (
   SELECT *,
@@ -164,10 +175,10 @@ FROM lambda_events WHERE function_name IS NULL
 HAVING count(*) > 0
 
 UNION ALL
--- The puller keeps platform reports and request lines. Anything else is a line
--- whose shape moved under the reader, or a filter that let more through.
+-- Every line is a platform record or a handler''s event. One that is neither is
+-- a function logging outside JSON, or a shape that moved under the reader.
 SELECT 'lambda_unknown_event',
-       count(*) || ' events are neither a platform report nor a request line, e.g. ' || min(message)
+       count(*) || ' events are neither a platform record nor a handler''s event, e.g. ' || min(message)
 FROM lambda_events WHERE kind IS NULL
 HAVING count(*) > 0
 
