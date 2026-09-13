@@ -80,7 +80,7 @@ UNION ALL SELECT view_name, comment FROM duckdb_views() WHERE internal = false;
 
 **`country` is NULL before 2026-09-11**, when CloudFront's field list changed and gained it; `whois` is the only way to place those visitors, and `coverage.has_country` says which days need it.
 
-**`origin_ttfb_seconds`, `origin_seconds` and `cache_behavior` are NULL until the log delivery emits them.** They are the edge's wait on its origin and the behavior that answered: what separates CloudFront's share of an `/api/` request from the Lambda's. Until then `ts` is also only to the second, since `timestamp(ms)` is one of the same optional fields.
+**`origin_ttfb_seconds`, `origin_seconds` and `cache_behavior` are NULL before 2026-09-13**, when the log delivery started emitting them, and `ts` is only to the second before then. They are the edge's wait on its origin and the behavior that answered: what will separate CloudFront's share of an `/api/` request from the Lambda's once the API sits behind the SPA distribution. `cache_behavior` is the behavior that answered, not the one the path matched: a client-side route on the SPA distribution is answered by the error response through the default behavior, so it logs `*`.
 
 **A Next click leaves no request of its own.** The media page preloads the next and previous detail images, so what `album_reads` sees is the preload for the image after, spaced by how long the reader looked. Whether that preload finished before the click is something only the browser knows.
 

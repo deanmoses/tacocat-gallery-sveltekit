@@ -6,14 +6,15 @@
 -- in a diff; the reader takes both.
 --
 -- THE FIELD LIST IS PER FILE. It is whatever the log delivery was configured to
--- emit when that file was written, and it changed on 2026-09-11: cookie,
--- forwarded-for, field-level-encryption and range fields went away, `asn` and
--- `c-country` arrived. So nothing here assumes a column order. Each line is read
--- whole, split on tabs, and every column below is looked up by CloudFront''s own
--- field name in that file''s header -- NULL when the file predates the field.
--- Some columns read fields the delivery may not be configured to emit yet; those
--- are NULL until it is, and `aws logs describe-configuration-templates --service
--- cloudfront` lists every field it can.
+-- emit when that file was written, and it has changed twice: on 2026-09-11
+-- cookie, forwarded-for, field-level-encryption and range fields went away and
+-- `asn` and `c-country` arrived; on 2026-09-13 `timestamp(ms)`, `origin-fbl`,
+-- `origin-lbl` and `cache-behavior-path-pattern` were appended. So nothing here
+-- assumes a column order. Each line is read whole, split on tabs, and every
+-- column below is looked up by CloudFront''s own field name in that file''s
+-- header -- NULL when the file predates the field. `aws logs
+-- describe-configuration-templates --service cloudfront` lists every field the
+-- delivery can emit.
 --
 -- Text fields are URL-encoded on the wire (a space in a user agent is %20) and
 -- `-` is CloudFront''s empty marker in every column.
@@ -102,8 +103,9 @@ SELECT
   nullif(url_decode(cf_field(cols, fields, 'cs(Referer)')), '-') AS referer,
   nullif(url_decode(cf_field(cols, fields, 'cs(User-Agent)')), '-') AS user_agent,
   is_probe_ua(nullif(url_decode(cf_field(cols, fields, 'cs(User-Agent)')), '-')) AS is_probe,
-  -- Hit, RefreshHit, Miss, LimitExceeded, CapacityExceeded, Error, Redirect.
-  -- Only the first two were answered from the edge.
+  -- Hit, RefreshHit, Miss, LimitExceeded, CapacityExceeded, Error, Redirect, and
+  -- FunctionGeneratedResponse where a CloudFront Function answered without an
+  -- origin, as robots.txt is. Only the first two were answered from the edge.
   cf_field(cols, fields, 'x-edge-result-type') AS result_type,
   (cf_field(cols, fields, 'x-edge-result-type') IN ('Hit', 'RefreshHit')) AS is_cache_hit,
   cf_field(cols, fields, 'x-edge-detailed-result-type') AS detailed_result_type,
@@ -116,7 +118,11 @@ SELECT
   -- CloudFront''s own share of a request.
   try_cast(nullif(cf_field(cols, fields, 'origin-fbl'), '-') AS DOUBLE) AS origin_ttfb_seconds,
   try_cast(nullif(cf_field(cols, fields, 'origin-lbl'), '-') AS DOUBLE) AS origin_seconds,
-  -- The PathPattern of the behavior that answered, `*` for the default one.
+  -- The PathPattern of the behavior that ANSWERED, `*` for the default one,
+  -- which is not always the one the path matched: on the SPA distribution a
+  -- path with no object behind it is answered by the error response, which
+  -- fetches /index.html through the default behavior, so every client-side
+  -- route logs `*` whatever it matched. Nothing under /api/ falls back that way.
   nullif(cf_field(cols, fields, 'cache-behavior-path-pattern'), '-') AS cache_behavior,
   cf_field(cols, fields, 'cs-protocol') AS scheme,
   cf_field(cols, fields, 'cs-protocol-version') AS http_version,

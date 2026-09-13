@@ -86,7 +86,15 @@ aws logs tail tacocat-gallery-sam/prod --since 1h
 aws logs tail tacocat-gallery-sam/prod --since 1h --filter-pattern '{ $.event = "server_exception" }'
 ```
 
-These logs carry `platform.report` records with init duration, execution duration and peak memory per invocation — enough to answer cold-start and latency questions without enabling tracing.
+These logs carry `platform.report` records with init duration, execution duration and peak memory per invocation — enough to answer cold-start and latency questions without enabling tracing. Every API handler logs a `request_received` line on arrival with the method, path, whether an `id_token` cookie came along, and the CloudFront request id once the API sits behind the SPA distribution; `GenerateDerivedImage` logs the CloudFront id on every request and a `derived_image_generated` line with what the resize cost.
+
+#### API Gateway access logs
+
+Both API Gateways log one JSON record per request to their own group, `tacocat-gallery-sam/<env>/api-access` and `tacocat-gallery-auth/<env>/api-access`, with the same retention as the Lambda groups: method, path, status, latency split into API Gateway's and the Lambda's share, client IP, user agent and error message. The gallery API's record also carries the Lambda request id, API Gateway's own request id, the epoch time in milliseconds and the route template. The auth log's `path` omits the query string, so the OAuth `code` and `state` on the login callback never reach it; keep it that way.
+
+```bash
+aws logs tail tacocat-gallery-sam/prod/api-access --since 1h
+```
 
 #### CloudFront access logs
 
@@ -99,7 +107,7 @@ Two distributions write access logs to S3, tab-separated with a `#Fields` header
 
 Staging twins write to the matching `-dev` buckets. The SPA distribution is defined in the `tacocat-gallery-hosting-aws` repo.
 
-**The field list changed on 2026-09-11.** Earlier files carry cookie, forwarded-for and range columns; later ones drop those and add `asn` and `c-country`. Read the `#Fields` line of each file rather than assuming an order.
+**The field list has changed twice.** On 2026-09-11 the cookie, forwarded-for and range columns went and `asn` and `c-country` came; on 2026-09-13 `timestamp(ms)`, `origin-fbl`, `origin-lbl` and `cache-behavior-path-pattern` were appended. Read the `#Fields` line of each file rather than assuming an order. `cache-behavior-path-pattern` is the behavior that answered, so on the SPA distribution every client-side route logs `*`: the error response fetches `/index.html` through the default behavior.
 
 Delivery is configured through CloudWatch, not on the distribution, so `get-distribution-config` shows logging disabled while logs are flowing. `aws logs describe-delivery-sources` is what says whether a distribution is logging.
 
@@ -132,13 +140,12 @@ To prove the chain end to end without touching data, invoke `tacocat-gallery-sam
 
 ### Gaps
 
-- **Neither API Gateway has access logging on**, in any environment: not `api.*` (`tacocat-gallery-sam`) nor `auth.*` (`tacocat-gallery-auth`). Both are API Gateway custom domains rather than CloudFront distributions, so the access logs above do not cover them.
 - **No tracing, no canaries.** Grafana's synthetic checks cover uptime from outside.
-- **The `tacocat-gallery-auth` log groups have no retention set.**
+- **Nothing from the browser.** No beacon or client-side telemetry, on purpose; whether a preloaded image was ready when a reader clicked Next is something no server log can say.
 
 ## Production logs
 
-`production_logs/` pulls the CloudFront access logs above, the [synthetic probes'](#grafana-cloud) Loki lines and the [Lambda platform reports](#lambda-logs) into a local DuckDB. It answers questions about people rather than requests, which browsers visit, from where, and whether they can decode a given image format; keeps the probes' per-execution timings past Loki's 14 days; and says how often a request waited for a cold Lambda, with the probes' own invocations told apart from everyone else's. [Its README](../production_logs/README.md) has the relations to start from.
+`production_logs/` pulls the CloudFront access logs above, the [synthetic probes'](#grafana-cloud) Loki lines, the [Lambda log group](#lambda-logs) and the [API Gateway access logs](#api-gateway-access-logs) into a local DuckDB. It answers questions about people rather than requests, which browsers visit, from where, whether they can decode a given image format and whether they were signed in; keeps the probes' per-execution timings past Loki's 14 days; says how often a request waited for a cold Lambda, with the probes' own invocations told apart from everyone else's; and ties each resized image to the request that caused it and what the resize cost. [Its README](../production_logs/README.md) has the relations to start from.
 
 ```bash
 npm run logs:pull                          # sync every source into production_logs/dumps/ (gitignored)
