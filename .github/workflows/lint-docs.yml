@@ -1,6 +1,6 @@
-# The main CI workflow ignores markdown paths, so a docs-only change skips it
-# entirely. Linting docs there instead would mean a typo fix triggering a
-# staging deploy, so markdown gets this separate, build-free workflow.
+# The main CI workflow skips its build on a docs-only change, so markdown
+# gets this separate, build-free workflow. Its path list must match the
+# non-code paths that ci.yml's detect-code-changes job excludes.
 name: Lint docs
 
 on:
