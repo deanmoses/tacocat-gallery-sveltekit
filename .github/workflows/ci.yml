@@ -20,6 +20,9 @@ concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true # Cancel previous runs when new commits push
 
+permissions:
+    contents: read
+
 env:
     HUSKY: 0 # Skip git hooks in CI - we run checks directly
 
@@ -105,6 +108,9 @@ jobs:
         needs: build
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            id-token: write # lets the job request a GitHub OIDC token to assume an AWS role
 
         steps:
             - name: Checkout
@@ -119,10 +125,13 @@ jobs:
                   path: build/
 
             - name: Configure AWS credentials
+              # No stored keys: the job trades its GitHub OIDC token for a short-lived AWS role
+              # that can only sync the staging bucket and invalidate its distribution.
+              # Roles are defined in infra/github-oidc.yaml.
               uses: aws-actions/configure-aws-credentials@v6
               with:
-                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  role-to-assume: arn:aws:iam::010410881828:role/tacocat-gallery-sveltekit-cicd-github-main
+                  role-session-name: github-${{ github.run_id }}
                   aws-region: us-east-1
 
             - name: Deploy to staging

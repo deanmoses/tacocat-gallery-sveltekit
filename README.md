@@ -52,6 +52,8 @@ To deploy:
     2. Deploys to prod
     3. Creates a GitHub release (like 2027v2) with auto-generated release notes
 
+CI never holds AWS keys. Each deploy job exchanges its GitHub OIDC token for a short-lived AWS role that can only touch that environment's bucket and distribution; see [infra/README.md](infra/README.md).
+
 ## More Info
 
 - [Architecture](docs/Architecture.md)

@@ -178,6 +178,8 @@ START_AGENTS
 - **gh CLI**: Use the `gh` CLI tool for GitHub operations.
   END_AGENTS
 
+- **CI credentials**: deploy jobs assume IAM roles via GitHub OIDC, see `infra/README.md`. There are no AWS secrets in the repo.
+
 - **Pre-commit hooks**: Husky runs gitleaks (secret scanning), shellcheck, actionlint, lint-staged, type checking, and unit tests on commit. To bypass when needed: `git commit --no-verify`
 - **Gitleaks**: Secret scanner runs on pre-commit. Install with `brew install gitleaks`. The hook warns but continues if gitleaks is not installed.
 - **Shellcheck**: Shell script linter runs on pre-commit. Install with `brew install shellcheck`. The hook warns but continues if shellcheck is not installed; CI enforces it, since GitHub's runners ship it preinstalled.
