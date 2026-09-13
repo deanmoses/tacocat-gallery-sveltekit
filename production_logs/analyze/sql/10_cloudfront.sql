@@ -23,13 +23,11 @@
 -- escape are off so a stray quote in a user agent cannot swallow the rest of the
 -- file. chr() because DuckDB string literals do not process escapes.
 --
--- The file list is gathered first because read_csv rejects a list of globs when
--- any one of them matches nothing, and a dump holds either .gz or .tsv, not both.
-SET VARIABLE cf_files = (
-  SELECT list(file) FROM (
-    FROM glob('../../dumps/cloudfront/**/*.gz') UNION ALL FROM glob('../../dumps/cloudfront/**/*.tsv')
-  )
-);
+-- Two patterns because a dump holds either .gz or .tsv, not both. Deduplicated
+-- because with neither present both resolve to the same empty placeholder, and
+-- read_csv handed the same empty file twice forgets the columns it was given.
+SET VARIABLE cf_files = list_distinct(list_concat(
+  source_files('../../dumps/cloudfront/**/*.gz'), source_files('../../dumps/cloudfront/**/*.tsv')));
 
 CREATE TEMP TABLE cf_lines AS
 SELECT filename, line
@@ -129,3 +127,61 @@ SELECT
 FROM lines;
 
 COMMENT ON TABLE cloudfront_requests IS 'GRAIN: one row per request at the CloudFront edge, both distributions, every environment pulled. Cache hits included: this is what clients got, not what reached S3. `is_probe` marks the project''s own probes; visitors and everything built on it leave them out, this relation does not. Columns a file predates are NULL.';
+
+CREATE OR REPLACE VIEW cloudfront_checks AS
+-- Every file declares its columns once. Zero headers means it is not a CloudFront
+-- log; two means two deliveries were concatenated.
+SELECT 'header_lines_not_one' AS check_name,
+       source_file || ' has ' || header_lines || ' #Fields lines' AS detail
+FROM cloudfront_files WHERE header_lines <> 1
+
+UNION ALL
+-- Every field the reader consumes that every file so far carries. The fields
+-- CloudFront added on 2026-09-11 and 2026-09-13 are not here, which the older
+-- files lack. A file missing one still loads with that column NULL, and a NULL
+-- is silent: without x-edge-result-type the cache hit rate reads 0%, without
+-- cs(Referer) return visits stop counting, without c-port every request looks
+-- like its own connection. This is the only thing that says so.
+SELECT 'missing_required_field',
+       source_file || ' lacks ' || f.field
+FROM cloudfront_files
+CROSS JOIN (SELECT unnest([
+  'date', 'time', 'x-edge-location', 'c-ip', 'c-port', 'cs-method', 'x-host-header', 'cs-uri-stem', 'cs-uri-query',
+  'sc-status', 'cs(Referer)', 'cs(User-Agent)', 'x-edge-result-type', 'x-edge-detailed-result-type',
+  'sc-bytes', 'cs-bytes', 'time-taken', 'time-to-first-byte', 'cs-protocol', 'cs-protocol-version',
+  'ssl-protocol', 'sc-content-type', 'x-edge-request-id']) AS field) f
+WHERE header_lines = 1 AND NOT list_contains(fields, f.field)
+
+UNION ALL
+-- A line whose column count disagrees with its header is dropped by the reader;
+-- more than a stray one means the format moved under the tab split.
+SELECT 'malformed_rows',
+       source_file || ' has ' || malformed_rows || ' lines whose column count disagrees with its header'
+FROM cloudfront_files WHERE malformed_rows > 0
+
+UNION ALL
+SELECT 'null_ts', count(*) || ' requests have an unparseable date or time'
+FROM cloudfront_requests WHERE ts IS NULL
+HAVING count(*) > 0
+
+UNION ALL
+-- Bounded against now() rather than a hardcoded date so it ages well.
+SELECT 'ts_out_of_range',
+       count(*) || ' requests fall outside 2020..now; date parsing may be wrong'
+FROM cloudfront_requests WHERE ts < TIMESTAMP '2020-01-01' OR ts > now() + INTERVAL 1 DAY
+HAVING count(*) > 0
+
+UNION ALL
+SELECT 'null_status', count(*) || ' requests have no status'
+FROM cloudfront_requests WHERE status IS NULL
+HAVING count(*) > 0
+
+UNION ALL
+-- How a directory the puller did not create announces itself.
+SELECT 'unknown_distribution',
+       'Directory ' || env || '/' || distribution || ' (' || count(*) || ' files) is not in distributions'
+FROM cloudfront_files
+WHERE distribution NOT IN (SELECT distribution FROM distributions)
+GROUP BY env, distribution;
+
+COMMENT ON VIEW cloudfront_checks IS 'Findings about the shape of the CloudFront logs; zero rows when healthy. Part of checks.';

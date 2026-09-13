@@ -191,12 +191,14 @@ case_unknown_distribution() {
     "$(q "$w" "SELECT count(*) FROM checks WHERE check_name = 'unknown_distribution' AND detail LIKE 'Directory prod/api %';")"
 }
 
-# --- nothing pulled is a refusal, not an empty database ------------------------
+# --- nothing pulled is an empty database, not a broken one ---------------------
 case_no_dumps() {
   w=$1
-  find "$w/dumps" -name '*.tsv' -delete
-  expect "build refuses" "1" "$(build "$w" && echo 0 || echo 1)"
-  expect "and says to pull" "1" "$(grep -c 'run production_logs/pull/all first' "$w/build.log")"
+  rm -r "$w/dumps"
+  expect "build succeeds" "0" "$(build "$w" && echo 0 || echo 1)"
+  expect "no findings"    "0" "$(q "$w" 'SELECT count(*) FROM checks;')"
+  expect "nothing covered" "0" "$(q "$w" 'SELECT count(*) FROM coverage;')"
+  expect "and it says so" "1" "$(grep -c 'run production_logs/pull/all' "$w/build.log")"
 }
 
 # --- no Grafana dump is a smaller database, not a broken one ------------------

@@ -1,6 +1,15 @@
 -- Facts no log line states outright, and the user-agent vocabulary every later
 -- file shares. Keep it small; prefer deriving over declaring.
 
+-- The files a reader loads: everything matching the pattern, or, when nothing
+-- does, the empty `absent_source` beside this file, so the reader still runs and
+-- its relations exist with zero rows. Every source is optional; a source nobody
+-- pulled is a smaller database, never a broken one. A reader cannot call this
+-- inline, because a table function refuses an argument with a subquery in it,
+-- so each one goes through SET VARIABLE.
+CREATE OR REPLACE MACRO source_files(pattern) AS
+  coalesce((SELECT list(file) FROM glob(pattern)), ['./absent_source']);
+
 -- The puller lays files out as dumps/cloudfront/<env>/<distribution>/, mirroring
 -- the S3 prefixes, and the reader takes both from the path. This says what each
 -- distribution serves; `unknown_distribution` names one that is not here.

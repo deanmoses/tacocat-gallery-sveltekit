@@ -158,4 +158,24 @@ LEFT JOIN grid g
 GROUP BY d.env, d.ts::DATE, d.client_ip, d.user_agent, d.album_path
 ORDER BY first_ts;
 
+CREATE OR REPLACE VIEW image_checks AS
+-- Resizes and CloudFront misses are matched on the rewritten path and on time. A
+-- resize no request matches is that match failing: the rewrite changed shape, or
+-- the clocks drifted apart. Only where the image logs cover it, and only a day
+-- behind their newest request, since CloudFront delivers some files a day late.
+-- Only for sizes the SPA asks for: a hand-typed size has been seen to start a
+-- second resize a second after CloudFront logged its only request, which this
+-- match cannot place and a reader does not cause.
+SELECT 'image_resize_without_request' AS check_name,
+       count(*) || ' derived-image invocations match no CloudFront request, e.g. ' || min(i.path) AS detail
+FROM lambda_invocations i
+WHERE i.path LIKE '/i/%'
+  AND regexp_extract(i.path, '^/i/\d{4}/\d{2}-\d{2}/[^/]+/[^/]*/([^/]*)', 1) IN (SELECT size FROM image_sizes)
+  AND i.ts > (SELECT min(ts) FROM cloudfront_requests c WHERE c.distribution = 'image' AND c.env = i.env)
+  AND i.ts < (SELECT max(ts) - INTERVAL 1 DAY FROM cloudfront_requests c WHERE c.distribution = 'image' AND c.env = i.env)
+  AND NOT EXISTS (SELECT 1 FROM image_requests r WHERE r.resize_request_id = i.request_id)
+HAVING count(*) > 0;
+
+COMMENT ON VIEW image_checks IS 'Findings about the match between image requests and resizes; zero rows when healthy. Part of checks.';
+
 COMMENT ON VIEW album_reads IS 'GRAIN: one row per env, UTC day, client IP, user agent and album with a detail image requested, probes excluded. `images` is how far they read, counting the neighbours preloaded along the way; `median_gap_s` is the typical time between detail requests, which is the time spent on an image, except that the first one opened arrives with its neighbours. `from_edge`, `from_bucket` and `resized` count how the images reached the edge. `thumbnails` is the album grid the same reader loaded. Read the is_visit rows for people.';

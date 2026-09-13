@@ -22,9 +22,15 @@ A view over a file reader re-reads the files on every query, resolved against wh
 
 State the **grain** first, _one row per what_. Then, if there is one, the specific wrong answer the relation prevents. These are the discovery surface, so a relation without one is invisible. They are also the only home for a fact: if it is in a COMMENT, it does not also belong in a file header or in `../../README.md`.
 
+## Every source is optional
+
+A reader gets its files through `source_files(pattern)`, which hands back the empty `absent_source` when nothing matches, so a source nobody pulled builds as relations with zero rows. `coverage` is what says which sources are actually there.
+
 ## Checks
 
 Every `checks` branch returns zero rows when healthy; any row is a finding, and `build` exits nonzero.
+
+A reader's checks live beside it, in a `<source>_checks` view in the reader's own file, so the guard changes with the shape it guards; `90_checks.sql` unions them and adds the one check about the layer itself.
 
 Guard **shape**, not values. CloudFront's shape is whatever the log delivery was last configured to emit, and a field renamed in the console arrives as NULLs, never as an error. Data being unusual is not a defect; the layer misreading it is. A check that fires on an expected permanent condition is worse than no check, because it teaches everyone to ignore the whole list.
 

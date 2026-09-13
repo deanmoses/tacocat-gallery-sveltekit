@@ -18,12 +18,7 @@
 -- who asked. The synthetic API check can be recognised anyway, because it says
 -- when it asked: an invocation that started while one of its executions was
 -- waiting is the check''s.
---
--- No dump at all is not an error: the placeholder beside this file is empty.
-SET VARIABLE lambda_files = coalesce(
-  (SELECT list(file) FROM glob('../../dumps/lambda/*/*.ndjson')),
-  ['./lambda_absent.ndjson']
-);
+SET VARIABLE lambda_files = source_files('../../dumps/lambda/*/*.ndjson');
 
 -- The env whose Lambdas a probe target reaches, NULL for a target that reaches
 -- none. The API is whatever answers at api.<site>/ or at <site>/api/.
@@ -159,3 +154,44 @@ GROUP BY ALL
 ORDER BY env, day, function_name, is_probe;
 
 COMMENT ON VIEW cold_starts IS 'GRAIN: one row per env, UTC day, function and whether a synthetic check asked. `pct_cold` is the share of invocations that waited for an execution environment; `median_cold_ms` is that wait plus the work, `median_warm_ms` the work alone. `max_warm_idle_s` is the longest the function sat idle and still found an instance warm, a lower bound on how long Lambda keeps one; `median_cold_idle_s` is the idle a cold start typically followed. Probes are a row of their own because they arrive on a fixed schedule and visitors do not, so blending them describes neither.';
+
+CREATE OR REPLACE VIEW lambda_checks AS
+-- The function comes out of the stream name. A stream this cannot read is Lambda
+-- or the stack naming streams differently, and its invocations belong to nobody.
+SELECT 'lambda_unreadable_stream' AS check_name,
+       count(*) || ' events come from streams like ' || min(stream) || ', which name no function the reader can find' AS detail
+FROM lambda_events WHERE function_name IS NULL
+HAVING count(*) > 0
+
+UNION ALL
+-- The puller keeps platform reports and request lines. Anything else is a line
+-- whose shape moved under the reader, or a filter that let more through.
+SELECT 'lambda_unknown_event',
+       count(*) || ' events are neither a platform report nor a request line, e.g. ' || min(message)
+FROM lambda_events WHERE kind IS NULL
+HAVING count(*) > 0
+
+UNION ALL
+-- Every platform.report carries a duration. One without is a record shape the
+-- reader does not know.
+SELECT 'lambda_report_without_duration',
+       count(*) || ' reports have no record.metrics.durationMs, e.g. ' || min(message)
+FROM lambda_invocations WHERE duration_ms IS NULL
+HAVING count(*) > 0
+
+UNION ALL
+-- API checks and invocations are matched on time alone, so a successful API check
+-- that no invocation started during is the match failing: the two clocks drifted
+-- apart, or the check stopped reaching a Lambda. Only where the Lambda dump covers
+-- that env, since the sources are pulled separately.
+SELECT 'api_probe_without_invocation',
+       count(*) || ' successful API checks started no Lambda invocation, e.g. at ' || min(p.ts)
+FROM probe_executions p
+JOIN (SELECT env, min(ts) AS first_ts, max(ts) AS last_ts FROM lambda_invocations GROUP BY env) l
+  ON l.env = api_probe_env(p.target) AND p.ts BETWEEN l.first_ts AND l.last_ts
+WHERE p.success
+  AND NOT EXISTS (SELECT 1 FROM lambda_invocations i
+                  WHERE i.env = l.env AND started_during_probe(p.ts, p.duration_ms, i.started_ts))
+HAVING count(*) > 0;
+
+COMMENT ON VIEW lambda_checks IS 'Findings about the shape of the Lambda logs and their match to the probes; zero rows when healthy. Part of checks.';

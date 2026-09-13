@@ -74,3 +74,14 @@ FROM versioned v
 LEFT JOIN avif_support s ON s.platform = v.platform;
 
 COMMENT ON TABLE user_agents IS 'GRAIN: one row per distinct user-agent string in cloudfront_requests. `kind` is probe, bot or browser; `avif_capable` is NULL for anything that is not a browser and for browsers avif_support does not list. On iOS and iPadOS the OS version decides, so `platform` is ''ios'' there and the browser name elsewhere.';
+
+CREATE OR REPLACE VIEW user_agent_checks AS
+-- A browser whose version did not parse gets NULL for avif_capable and is
+-- counted as unknown in avif_readiness. Thresholded because scanners send
+-- browser-shaped junk; a real browser build appearing here is a regex to fix.
+SELECT 'unversioned_browser' AS check_name,
+       count(*) || ' browser agents have no parseable version, e.g. ' || min(user_agent) AS detail
+FROM user_agents WHERE kind = 'browser' AND browser <> 'other' AND browser_major IS NULL
+HAVING count(*) > 0;
+
+COMMENT ON VIEW user_agent_checks IS 'Findings about user-agent parsing; zero rows when healthy. Part of checks.';
