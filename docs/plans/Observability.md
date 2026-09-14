@@ -135,6 +135,8 @@ Ranked by measured contribution to a page load, weighted by how many visits actu
 
     The usual argument for consolidating — that domain sharding is an obsolete HTTP/1.1 workaround — is true but does no work here. These are not shards of one asset class; they are functionally distinct origins, and serving an API from its own hostname is a defensible architecture. The case rests on the measurement above, not on the principle.
 
+    **Measured on 2026-09-13: the prototype recovered none of it.** `preconnect` already hides most of that handshake, and the edge's own cold connection to Virginia costs more than the rest. See _What the same-origin prototype measured_.
+
 3. **Thumbnails are JPEG, and far heavier than their size suggests.** A 200x200 thumbnail costs 18–30KB. A day album of 32 of them is 709KB of image transfer, and Lighthouse puts ~460KB of that as recoverable by encoding WebP or AVIF instead. Measured against production on a phone the figures are larger: `/2022/11-27` transfers 1.26MB of thumbnails, 622KiB of it recoverable, which is 94% of the whole page. That is larger than every latency win recorded in this document combined, and it is a change to `GenerateDerivedImage` rather than to the front end. Serving a modern format also has to survive browsers that cannot read it, so it needs either content negotiation on `Accept` at the edge or a `<picture>` element with a JPEG fallback — neither of which exists today.
 
 4. **Every thumbnail loads eagerly.** At 1440x900 the root album puts 16 of its 65 thumbnails on screen and fetches all 65 — roughly 560KB nobody looks at, contending with the ones they do. On a 412x823 phone viewport the ratio is starker still: three thumbnails visible, 47 fetched. `Thumbnail.svelte` sets `decoding="async"` but neither `loading` nor `fetchpriority`.
@@ -273,6 +275,38 @@ Two cautions. `resolve` from these probes is noise for a check's first few runs,
 
 `Timing-Allow-Origin` now ships on the API and image origins, but `auth.pix.tacocat.com` sends only CORS headers, so its connection and transfer timings read as empty from the page. It is a real origin on every page load, and it is the one that cannot be measured. The header lives in `tacocat-gallery-auth`, which was outside the scope of the change that fixed the other two.
 
+### What the same-origin prototype measured on 2026-09-13
+
+The consolidation ranked second in _Findings still open_ was built and deployed to staging, unmerged, to measure before two repos commit to it. Three branches: `feat/api-behind-spa-cdn` in `tacocat-gallery-hosting-aws` adds API Gateway as a second origin and a `/api/*` behavior on `CachingDisabled` with cookies forwarded, and moves SPA routing from `CustomErrorResponses` to a viewer-request function, because the error mapping is distribution-wide and would have turned the API's "Album Not Found" 404 into a 200 carrying `index.html`; `feat/api-same-origin` here sets the base URL to `/api/` and drops the `api.` preconnect; `fix/cookie-header-case` in `tacocat-gallery-sam` is the bug below.
+
+**It works, and it found a bug.** Through CloudFront the API saw no auth cookie. CloudFront speaks HTTP/1.1 to the origin and sends `Cookie`; the API read only `event.headers.cookie`. Browsers reach API Gateway over HTTP/2, which lowercases header names on the wire, so the bug was latent for as long as the API had its own hostname. Fixed and unit-tested in `tacocat-gallery-sam`, not yet deployed: until it is, every admin reads as anonymous through `/api/` and every write is refused.
+
+**It is not faster.** `npm run perf` against staging, median of five runs, each in a fresh browser so the connection is cold and the server warm:
+
+| Album JSON                 | starts at | done at | took            |
+| -------------------------- | --------- | ------- | --------------- |
+| Before, `api.` subdomain   | 118ms     | 447ms   | 329ms (438–609) |
+| After, `/api/` same-origin | 115ms     | 439ms   | 324ms (377–450) |
+
+**Why the handshake did not pay out.** Two things the ~155ms estimate did not count. First, `preconnect`: the handshake to `api.` starts during HTML parse and runs under the ~120ms shell download, so what the album fetch actually waited on was some 40ms of it, not 155. Second, the edge has to reach Virginia too. CloudFront holds an origin connection open for at most 60 seconds — the `OriginKeepaliveTimeout` ceiling without a limit increase — and at 85 views a day it has closed before nearly every visit, so the edge opens a fresh one after the request is already in flight, where no hint can hide it. `curl`, requests 75 seconds apart so the origin connection has always lapsed, time from connection established to first byte:
+
+| Path                   | 5 cold runs |
+| ---------------------- | ----------- |
+| Direct to `api.`       | 106–119ms   |
+| `/api/` via CloudFront | 319–359ms   |
+
+The direct path's own handshake, 160–210ms from San Francisco, sits mostly under the shell; the CloudFront path's extra ~220ms sits in the open. Warm, the two are close — 105ms direct against 115–135ms through an edge that still holds its connection — but warm is the case that almost never happens here. Six same-origin fetches in a row from the staging page read 117, 129, 135, 191, 248 and 251ms to first byte; six direct ones read 103–108. The bimodality is the edge sometimes having a connection and sometimes not, and production traffic keeps it on the slow side.
+
+**Where that leaves the ranking.** Consolidation is not a latency fix from San Francisco, cold or warm. The 90ms for a Californian in the probe section was connect plus TLS, which is not the exposed cost. Paris is unmeasured: roughly 130ms of its direct handshake shows past the shell, and a cold edge-to-origin leg from a Paris POP would give about 170ms of it back, so the estimate is a wash. What survives is the durability argument in _Consolidating the origins_ — retiring the `Cors` block and `credentials: 'include'` — and it should be argued as that kind of change rather than this kind.
+
+**Still open.**
+
+1. Edge-optimized API Gateway is the same architecture with AWS holding the distribution. Whether its edge-to-region connections are pooled across tenants, and so already warm at this traffic level, is undocumented. Two throwaway REST APIs with mock integrations, one EDGE and one REGIONAL, probed 75 seconds apart, would answer it in ten minutes. The CloudFormation migration cost in _Consolidating the origins_ stands either way.
+2. Origin Shield in us-east-1 on the `/api/*` origin might hold the origin connection warm on the site's behalf. One property, one more run of the probe above.
+3. Whichever way the domain question goes, the cold visit's album JSON was 1.4–1.7s in both variants, and that is the Lambda's. It is item 1 for a reason.
+
+Staging keeps the prototype until any push to `main` in either repo redeploys it. Through `/api/`, API Gateway's access log records CloudFront's addresses as `sourceIp`.
+
 ### What is watching production today
 
 Two Grafana Cloud synthetic checks, added on 2026-09-10 and covered in the section above, and otherwise nothing. One CloudWatch alarm exists, on `AWS/Lambda Errors`, for **dev**. There is an SNS topic wired to email, also dev-only. CloudFront access logs are disabled on all five distributions, no tracing is enabled anywhere, there are no canaries, no budget, and 74 of the 75 Lambda log groups are set to never expire.
@@ -310,7 +344,7 @@ It is a measuring instrument, so it needs the same scepticism as the things it m
 What is left, after the 2026-09-10 deploy:
 
 1. Keep `GetAlbum` warm, or take album reads off Lambda. Largest win by a distance once weighted by who pays it: ~455ms on roughly three quarters of arrivals, against ~155ms on all of them for the item below. A two-minute ping is the cheap version and costs about a penny a month; serving album JSON from S3 through CloudFront is the thorough one and lands on the same origin as the consolidation.
-2. Consolidate the three domains behind one distribution. The largest item in a _warm_ album leg: with `GetAlbum` down to a 22ms median, the ~155ms handshake to a second origin is what is left of it.
+2. ~~Consolidate the three domains behind one distribution.~~ Built and measured on 2026-09-13: no gain from San Francisco, cold or warm, and a cold visit reads slower. The durability case remains; the latency case does not. See _What the same-origin prototype measured_.
 3. `loading="lazy"` from the first offscreen thumbnail onward, plus `fetchpriority="high"` on the first, both in this repo. No deploy. It stops 49 of 65 images being fetched for a desktop viewport that holds 16, and 44 of 47 on a phone that holds three.
 4. `Cache-Control` on `index.html`.
 
@@ -329,11 +363,13 @@ Do the API first, and not all of it at once.
 
 The API is 3.4x the return for a fraction of the work, and it leaves the fiddliest machinery where it is. Expect 100–150ms rather than the full 155ms — the edge-to-origin hop to us-east-1 is not free — and measure rather than assume.
 
+**Measured, 2026-09-13: it recovered nothing.** The table's ~155ms was connect plus TLS, not the exposed cost, and the edge-to-origin hop is a full cold handshake on nearly every visit. Record and numbers in _What the same-origin prototype measured_. The rest of this section is kept for the durability case and for the EDGE analysis, which still hold.
+
 **Same-origin is the durability argument, and it may matter more than the latency.** `/api/*` under `pix.tacocat.com` retires the `Cors` block in the SAM template — `AllowCredentials: true` against a single hardcoded `AllowOrigin` — and the `credentials: 'include'` cross-origin story with it. Fewer moving parts that have to stay correct for decades.
 
 The offsetting cost is that the SPA's API base URL has to move in step with the CloudFront behaviour, across two repositories, in one coordinated change.
 
-**Switching the API Gateway domain to EDGE is the fallback, not the first move.** It moves TLS termination to an edge but still leaves a separate hostname to look up, connect to and negotiate, so it recovers ~110ms of the ~155ms rather than all of it. It is reachable without configuration drift, but only by dropping SAM's `Domain` shorthand and declaring `AWS::ApiGateway::DomainName` and `AWS::ApiGateway::BasePathMapping` directly, so that `Types` can carry both endpoints during a two-deploy migration. That means owning two resources SAM manages today, for the life of the project.
+**Switching the API Gateway domain to EDGE is the fallback, not the first move.** It moves TLS termination to an edge but still leaves a separate hostname to look up, connect to and negotiate, so it recovers ~110ms of the ~155ms rather than all of it — and, after the prototype, whether AWS's own edge holds a warmer connection to the region than a customer distribution can is the open question that decides if it recovers anything. It is reachable without configuration drift, but only by dropping SAM's `Domain` shorthand and declaring `AWS::ApiGateway::DomainName` and `AWS::ApiGateway::BasePathMapping` directly, so that `Types` can carry both endpoints during a two-deploy migration. That means owning two resources SAM manages today, for the life of the project.
 
 What makes the CLI shortcut unacceptable rather than merely untidy: CloudFormation diffs each template against the previous template, not against live state. A hand-migrated domain would therefore survive silently, with deploys continuing to succeed, until some unrelated future change touched that resource — a certificate rotation is the likely trigger — at which point the stack would assert `Types: [REGIONAL]` and `RegionalCertificateArn` against a live edge-optimized domain. A landmine armed now and detonating years later, in a stack whose defined-as-code requirement exists because console drift already cost a three-day unnoticed outage.
 
