@@ -1,6 +1,6 @@
 -- Viewer connections, reconstructed from requests.
 --
--- CloudFront logs no connection id outside mutual TLS, but it logs the client''s
+-- CloudFront logs no connection id outside mutual TLS, but it logs the client's
 -- source port, and a connection is one browser at one IP and port talking to one
 -- edge. Requests on the same tuple share a connection unless it sat idle long
 -- enough for the port to have been closed and handed out again; five minutes is

@@ -1,13 +1,13 @@
 # Production logs
 
-This is a DuckDB-based analytics system that pulls logs from the AWS for all Tacocat repos (CloudFront, Lambda) and Grafana's synthetic probes.
+This is a DuckDB-based analytics system that pulls logs from AWS for all Tacocat repos (CloudFront, Lambda) and Grafana's synthetic probes.
 
 It exists to answer questions about our production systems:
 
 - investigating incidents and errors
 - understanding user and bot behavior
 - helping improve performance
-- understanding which browsers are users are on to determine a floor for browser support
+- understanding which browsers users are on to determine a floor for browser support
 
 ```text
 production_logs/

@@ -1,6 +1,6 @@
 -- Invariants. Each returns ZERO rows when healthy; any row is a finding.
 --
--- These guard the SHAPE the layer assumes, and CloudFront''s shape is whatever the
+-- These guard the SHAPE the layer assumes, and CloudFront's shape is whatever the
 -- delivery was last configured to emit: a field renamed or dropped in the console
 -- shows up here as NULLs, never as an error, unless something says so.
 --
@@ -17,7 +17,7 @@ UNION ALL FROM lambda_checks
 
 UNION ALL
 -- No VIEW may read the filesystem. A view over a file reader re-reads its files on
--- every query, resolved against the CALLER''s working directory, and `query` does
+-- every query, resolved against the CALLER's working directory, and `query` does
 -- not cd. read_csv raises there, which is loud; glob returns an empty result, so a
 -- view built on one reports nothing found, with no error, from every directory
 -- but this one. Matched on the shape of a call, with the paren, so this branch

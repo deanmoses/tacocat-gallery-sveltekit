@@ -1,26 +1,17 @@
 -- API Gateway access logs: one record per request at the gallery API, api.*,
--- and the auth API, auth.*.
+-- and the auth API, auth.*. This is the API's own tier, between CloudFront and
+-- the Lambda; nothing sits in front of the auth API, so its client_ip and
+-- user_agent are the browser's.
 --
 -- SOURCE: ../../dumps/cloudwatch/<stack>/<env>/api-access/YYYY-MM-DD.ndjson, one
 -- filter-log-events event per line as the puller received it. The message is
--- flat JSON in the format each stack''s template sets, every value quoted, `-`
--- where API Gateway had nothing to fill. The auth stack''s twelve fields come
--- first in both; the gallery stack adds the Lambda request id, API Gateway''s own
+-- flat JSON in the format each stack's template sets, every value quoted, `-`
+-- where API Gateway had nothing to fill. The auth stack's twelve fields come
+-- first in both; the gallery stack adds the Lambda request id, API Gateway's own
 -- id, the epoch time and the route template. `requestId` is the id a client can
 -- set, so `extended_request_id` is the one to key incident work on.
---
--- `requestTime` is to the second, so a stack that logs `requestTimeEpoch` gets
--- millisecond order and one that does not, ties. Latencies are milliseconds:
--- `latency_ms` is the whole request as API Gateway saw it, `integration_latency_ms`
--- the Lambda''s share, and the difference is API Gateway''s own.
---
--- This is the API''s own tier, not the edge''s: the auth API has no CloudFront in
--- front of it, and the gallery API sits behind the SPA distribution only once
--- the API move happens, after which its `client_ip` will be CloudFront''s and
--- the viewer''s IP lives in the CloudFront row.
 SET VARIABLE gateway_files = source_files('../../dumps/cloudwatch/*/*/api-access/*.ndjson');
 
--- A field as the format wrote it, NULL where API Gateway wrote its dash.
 CREATE OR REPLACE MACRO gw(record, key) AS nullif(record ->> key, '-');
 
 CREATE OR REPLACE TABLE gateway_requests AS
@@ -29,7 +20,7 @@ WITH raw AS (
     regexp_extract(filename, 'dumps/cloudwatch/([^/]+)/([^/]+)/api-access/', 1) AS stack,
     regexp_extract(filename, 'dumps/cloudwatch/([^/]+)/([^/]+)/api-access/', 2) AS env,
     make_timestamp("timestamp" * 1000) AS logged_ts,
-    CASE WHEN json_valid(message) THEN message::JSON END AS record,
+    try_cast(message AS JSON) AS record,
     message,
     eventId AS event_id,
     regexp_replace(filename, '^.*/dumps/cloudwatch/', '') AS source_file
@@ -46,17 +37,18 @@ SELECT
   stack,
   gw(record, '$.requestId') AS request_id,
   gw(record, '$.extendedRequestId') AS extended_request_id,
-  -- The Lambda''s own request id, which is what lambda_invocations is keyed on.
   gw(record, '$.integrationRequestId') AS lambda_request_id,
   gw(record, '$.ip') AS client_ip,
   gw(record, '$.userAgent') AS user_agent,
-  is_probe_ua(gw(record, '$.userAgent')) AS is_probe,
+  is_probe_ua(user_agent) AS is_probe,
   gw(record, '$.httpMethod') AS method,
   gw(record, '$.path') AS path,
   -- The route template, /album/{albumPath+}, which groups by endpoint.
   gw(record, '$.resourcePath') AS route,
   try_cast(gw(record, '$.status') AS INTEGER) AS status,
   try_cast(gw(record, '$.responseLength') AS BIGINT) AS response_bytes,
+  -- The whole request as API Gateway saw it, then the Lambda's share of it; the
+  -- difference is API Gateway's own.
   try_cast(gw(record, '$.responseLatency') AS INTEGER) AS latency_ms,
   try_cast(gw(record, '$.integrationStatus') AS INTEGER) AS integration_status,
   try_cast(gw(record, '$.integrationLatency') AS INTEGER) AS integration_latency_ms,

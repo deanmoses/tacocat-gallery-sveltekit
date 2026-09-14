@@ -6,11 +6,11 @@
 -- /i/<media path>/<v>/<s>[/crop=<x,y,w,h>], and on a cache miss the image comes
 -- from the derived-images bucket or, when the bucket has none yet, from
 -- GenerateDerivedImage resizing the original with Sharp. CloudFront logs both as a
--- Miss. The Lambda logs the CloudFront request id on arrival, so a miss is a
--- resize when an invocation names its request id.
+-- Miss; the resizer logs the CloudFront request id, so a miss is a resize when an
+-- invocation names its request id.
 --
 -- The media page preloads the next and the previous detail image, so a Next click
--- is answered from the browser''s cache and the request it leaves is for the image
+-- is answered from the browser's cache and the request it leaves is for the image
 -- after. A reader moving forward leaves one detail request per image, spaced by how
 -- long they looked; the first image opened arrives with its two neighbours.
 
@@ -31,19 +31,13 @@ WITH parsed AS (
 -- result line, absent when the resize failed before one.
 resizes AS (
   SELECT
-    k.request_id,
-    arg_min(
-      struct_pack(
-        request_id := i.request_id, is_cold := i.is_cold, init_ms := i.init_ms, duration_ms := i.duration_ms,
-        format := z.format, bytes := z.bytes, original_bytes := z.original_bytes,
-        source_width := z.source_width, source_height := z.source_height,
-        load_ms := z.load_ms, sharp_ms := z.sharp_ms, save_ms := z.save_ms, too_large := z.too_large),
-      i.ts
-    ) AS resize
-  FROM parsed k
-  JOIN lambda_invocations i ON i.env = k.env AND i.cf_request_id = k.request_id
-  LEFT JOIN lambda_resizes z ON z.env = i.env AND z.request_id = i.request_id
-  GROUP BY k.request_id
+    i.env, i.cf_request_id, i.request_id, i.is_cold, i.init_ms, i.duration_ms,
+    z.format, z.bytes, z.original_bytes, z.source_width, z.source_height,
+    z.load_ms, z.sharp_ms, z.save_ms, z.too_large
+  FROM lambda_invocations i
+  LEFT JOIN lambda_resizes z USING (env, request_id)
+  WHERE i.cf_request_id IS NOT NULL
+  QUALIFY row_number() OVER (PARTITION BY i.env, i.cf_request_id ORDER BY i.ts) = 1
 )
 SELECT
   k.ts,
@@ -64,21 +58,21 @@ SELECT
   CASE WHEN k.result_type = 'Redirect' THEN 'redirect'
        WHEN k.status >= 400 THEN 'error'
        WHEN k.is_cache_hit THEN 'edge'
-       WHEN z.resize IS NOT NULL THEN 'resized'
+       WHEN z.request_id IS NOT NULL THEN 'resized'
        ELSE 'bucket' END AS served_by,
-  z.resize.request_id AS resize_request_id,
-  z.resize.is_cold AS resize_cold,
-  z.resize.init_ms AS resize_init_ms,
-  z.resize.duration_ms AS resize_ms,
-  z.resize.format AS resize_format,
-  z.resize.bytes AS resize_bytes,
-  z.resize.original_bytes AS original_bytes,
-  z.resize.source_width AS source_width,
-  z.resize.source_height AS source_height,
-  z.resize.load_ms AS resize_load_ms,
-  z.resize.sharp_ms AS resize_sharp_ms,
-  z.resize.save_ms AS resize_save_ms,
-  z.resize.too_large AS resize_too_large,
+  z.request_id AS resize_request_id,
+  z.is_cold AS resize_cold,
+  z.init_ms AS resize_init_ms,
+  z.duration_ms AS resize_ms,
+  z.format AS resize_format,
+  z.bytes AS resize_bytes,
+  z.original_bytes,
+  z.source_width,
+  z.source_height,
+  z.load_ms AS resize_load_ms,
+  z.sharp_ms AS resize_sharp_ms,
+  z.save_ms AS resize_save_ms,
+  z.too_large AS resize_too_large,
   k.ttfb_seconds,
   k.seconds,
   k.origin_ttfb_seconds,
@@ -91,7 +85,7 @@ SELECT
   k.request_id
 FROM parsed k
 LEFT JOIN image_sizes s ON s.size = k.size
-LEFT JOIN resizes z ON z.request_id = k.request_id
+LEFT JOIN resizes z ON z.env = k.env AND z.cf_request_id = k.request_id
 LEFT JOIN visitors v
   ON v.env = k.env AND v.day = k.ts::DATE AND v.client_ip = k.client_ip AND v.user_agent = k.user_agent;
 

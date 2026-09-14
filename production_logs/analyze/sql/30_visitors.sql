@@ -16,15 +16,14 @@ WHERE is_operator_ua(user_agent);
 COMMENT ON VIEW operator_ips IS 'GRAIN: one row per env and IP that presented a development tool on any day in the dump. The project''s own machines, and everything else behind their router.';
 
 -- Every visit asks the auth API whether it is signed in, and the answer is the
--- status: 200 with a user, 401 without. The auth API is its own gateway with
--- nothing in front of it, so its IP and user agent are the browser''s, the same
--- pair CloudFront logs.
+-- status: 200 with a user, 401 without. Nothing sits in front of the auth API,
+-- so its IP and user agent are the browser's, the same pair CloudFront logs.
 CREATE OR REPLACE VIEW signed_in_agents AS
 SELECT DISTINCT env, ts::DATE AS day, client_ip, user_agent
 FROM gateway_requests
 WHERE api = 'auth' AND path = '/' AND status = 200;
 
-COMMENT ON VIEW signed_in_agents IS 'GRAIN: one row per env, UTC day, IP and user agent the auth API answered 200 to, meaning a signed-in session. Joined into visitors as `signed_in`.';
+COMMENT ON VIEW signed_in_agents IS 'GRAIN: one row per env, UTC day, IP and user agent the auth API answered 200 to, meaning a signed-in session.';
 
 CREATE OR REPLACE VIEW visitors AS
 SELECT
@@ -54,10 +53,8 @@ SELECT
   -- A person using the gallery loads the app bundle and then some thumbnails, or
   -- on a return visit just the thumbnails, referred by the page. Scanners hit one
   -- URL with a browser-shaped agent and do neither.
-  (u.kind = 'browser' AND o.client_ip IS NULL
-     AND ((count(*) FILTER (r.distribution = 'spa' AND r.path LIKE '/_app/%') > 0
-           AND count(*) FILTER (r.distribution = 'image') > 0)
-          OR count(*) FILTER (r.distribution = 'image' AND regexp_matches(r.referer, '^https://(staging-)?pix\.tacocat\.com/')) > 0)) AS is_visit
+  (u.kind = 'browser' AND NOT is_operator
+     AND ((app_asset_requests > 0 AND image_requests > 0) OR site_image_requests > 0)) AS is_visit
 FROM cloudfront_requests r
 JOIN user_agents u USING (user_agent)
 LEFT JOIN operator_ips o ON o.env = r.env AND o.client_ip = r.client_ip

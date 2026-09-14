@@ -17,22 +17,22 @@ WITH cloudfront AS (
     max(ts) AS last_ts,
     bool_or(country IS NOT NULL) AS has_country
   FROM cloudfront_requests
-  GROUP BY 1, 2, 3
+  GROUP BY ALL
 ),
 grafana AS (
   SELECT 'grafana', check_name, ts::DATE, count(DISTINCT source_file), count(*), min(ts), max(ts), NULL
   FROM probe_executions
-  GROUP BY 1, 2, 3
+  GROUP BY ALL
 ),
 gateway AS (
   SELECT 'gateway', env || '/' || api, ts::DATE, count(DISTINCT source_file), count(*), min(ts), max(ts), NULL
   FROM gateway_requests
-  GROUP BY 1, 2, 3
+  GROUP BY ALL
 ),
 lambdas AS (
   SELECT 'lambda', env || '/' || function_name, ts::DATE, count(DISTINCT source_file), count(*), min(ts), max(ts), NULL
   FROM lambda_invocations
-  GROUP BY 1, 2, 3
+  GROUP BY ALL
 )
 -- A stream's own last day, but only while it is within a day of the source's
 -- newest: image logs lag the SPA's by hours, so image's last day is still

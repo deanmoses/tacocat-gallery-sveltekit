@@ -10,7 +10,7 @@
 -- Loki API documents for structured metadata, which the Grafana proxy has never
 -- been seen to send. The reader accepts either, and the fixture exercises both.
 --
--- The agent''s clock timestamps every line, and the roundtrip line carries its
+-- The agent's clock timestamps every line, and the roundtrip line carries its
 -- own phase timestamps from the same clock, so the phase durations are exact to
 -- the microsecond the cast keeps. `duration_ms` on the verdict line covers the
 -- whole check including DNS resolution, which the roundtrip does not, so it can
@@ -19,7 +19,7 @@ SET VARIABLE grafana_files = source_files('../../dumps/grafana/synthetic/*.ndjso
 
 CREATE OR REPLACE TABLE probe_lines AS
 SELECT
-  make_timestamp((timestamp::HUGEINT / 1000)::BIGINT) AS ts,
+  make_timestamp_ns(timestamp::BIGINT)::TIMESTAMP AS ts,
   coalesce(metadata ->> 'execution_id', labels ->> 'execution_id') AS execution_id,
   labels ->> 'job' AS check_name,
   labels ->> 'probe' AS probe,
