@@ -10,22 +10,16 @@
 -- Loki API documents for structured metadata, which the Grafana proxy has never
 -- been seen to send. The reader accepts either, and the fixture exercises both.
 --
--- The agent''s clock timestamps every line, and the roundtrip line carries its
+-- The agent's clock timestamps every line, and the roundtrip line carries its
 -- own phase timestamps from the same clock, so the phase durations are exact to
 -- the microsecond the cast keeps. `duration_ms` on the verdict line covers the
 -- whole check including DNS resolution, which the roundtrip does not, so it can
 -- exceed `total_ms` by a lot on the first request after a resolver cache expires.
---
--- No dump at all is not an error: the placeholder file beside this one is empty,
--- so the relations exist with zero rows and the CloudFront half still builds.
-SET VARIABLE grafana_files = coalesce(
-  (SELECT list(file) FROM glob('../../dumps/grafana/synthetic/*.ndjson')),
-  ['./grafana_absent.ndjson']
-);
+SET VARIABLE grafana_files = source_files('../../dumps/grafana/synthetic/*.ndjson');
 
 CREATE OR REPLACE TABLE probe_lines AS
 SELECT
-  make_timestamp((timestamp::HUGEINT / 1000)::BIGINT) AS ts,
+  make_timestamp_ns(timestamp::BIGINT)::TIMESTAMP AS ts,
   coalesce(metadata ->> 'execution_id', labels ->> 'execution_id') AS execution_id,
   labels ->> 'job' AS check_name,
   labels ->> 'probe' AS probe,
@@ -87,6 +81,7 @@ CREATE OR REPLACE VIEW probe_health AS
 SELECT
   ts::DATE AS day,
   check_name,
+  target,
   probe,
   count(*) AS executions,
   count(*) FILTER (NOT success) AS failures,
@@ -96,6 +91,40 @@ SELECT
   round(quantile_cont(duration_ms, 0.9), 1) AS p90_duration_ms
 FROM probe_executions
 GROUP BY ALL
-ORDER BY day, check_name, probe;
+ORDER BY day, check_name, target, probe;
 
-COMMENT ON VIEW probe_health IS 'GRAIN: one row per UTC day, check and probe. Uptime and latency as seen from outside, one row per region rather than blended: Paris reaching the API pays a transatlantic handshake that Ohio does not, and an average of the two describes nobody.';
+COMMENT ON VIEW probe_health IS 'GRAIN: one row per UTC day, check, target URL and probe. Uptime and latency as seen from outside, one row per region rather than blended: Paris reaching the API pays a transatlantic handshake that Ohio does not, and an average of the two describes nobody. Keyed on the target as well as the check, so a check pointed at a new URL is a new row, not a before and after averaged together.';
+
+CREATE OR REPLACE VIEW probe_checks AS
+-- Every execution ends in a verdict line. One that does not was cut off, which a
+-- pull landing mid-execution can do to the newest one; more than that means the
+-- agent changed how it logs, or the puller dropped lines.
+SELECT 'probe_execution_without_verdict' AS check_name,
+       count(*) || ' executions have no Check succeeded/failed line' AS detail
+FROM probe_executions
+WHERE NOT has_verdict AND ts < (SELECT max(ts) - INTERVAL 5 MINUTE FROM probe_executions)
+HAVING count(*) > 0
+
+UNION ALL
+-- A line without an execution id cannot be folded into an execution and is
+-- dropped by the reader. The id is structured metadata, so this is what it looks
+-- like when the puller stops carrying that field, or Loki stops sending it.
+SELECT 'probe_line_without_execution_id',
+       count(*) || ' probe lines carry no execution id and were dropped'
+FROM probe_lines WHERE execution_id IS NULL
+HAVING count(*) > 0
+
+UNION ALL
+-- A successful execution should say nothing but the routine lines every column
+-- is keyed on. A new message on a success is the agent changing what it logs,
+-- which is shape; on a failure it is the explanation, which probe_executions
+-- carries as failure_reason and which fires nothing, because every failure has
+-- its own words and a check that trips on each would soon be ignored.
+SELECT 'probe_unknown_message',
+       'Successful executions say msg="' || l.msg || '" (' || count(*) || ' lines), which the reader does not know'
+FROM probe_lines l
+JOIN probe_executions e USING (execution_id)
+WHERE e.success AND NOT is_progress_msg(l.msg)
+GROUP BY l.msg;
+
+COMMENT ON VIEW probe_checks IS 'Findings about the shape of the probe logs; zero rows when healthy. Part of checks.';

@@ -20,9 +20,11 @@
  *   node production_logs/pull/grafana.ts --start 2026-09-01 --end 2026-09-03
  */
 
-import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
+import { dayFile, daysBetween, mergeBy, mergeIntoDayFile, resolveWindow } from './days.ts';
+import type { Identity } from './days.ts';
 
 const GRAFANA = 'https://tacocorp.grafana.net';
 const LOKI_UID = 'grafanacloud-logs';
@@ -85,14 +87,9 @@ export function rowsOf(page: LokiPage): Row[] {
 export const rowKey = (row: Row): string => `${row.timestamp}\t${row.line}`;
 
 /** Union on row identity, in time order. What is already on disk is never rewritten. */
-export function merge(existing: Row[], incoming: Row[]): Row[] {
-    const byKey = new Map(existing.map((row) => [rowKey(row), row]));
-    for (const row of incoming) {
-        const key = rowKey(row);
-        if (!byKey.has(key)) byKey.set(key, row);
-    }
-    return [...byKey.values()].sort(byTimestamp);
-}
+export const merge = (existing: Row[], incoming: Row[]): Row[] => mergeBy(existing, incoming, ROW_IDENTITY);
+
+const ROW_IDENTITY: Identity<Row> = { key: rowKey, order: byTimestamp };
 
 /** The UTC day a nanosecond timestamp falls on, as YYYY-MM-DD */
 export function dayOf(timestampNs: string): string {
@@ -108,27 +105,6 @@ export function nextStart(rows: Row[]): bigint | null {
     const last = rows.at(-1);
     if (rows.length < PAGE || last === undefined) return null;
     return BigInt(last.timestamp) + 1n;
-}
-
-/** Every UTC day from start through end, inclusive */
-export function daysBetween(start: string, end: string): string[] {
-    const days: string[] = [];
-    for (let t = Date.parse(`${start}T00:00:00Z`); t <= Date.parse(`${end}T00:00:00Z`); t += 86_400_000) {
-        days.push(new Date(t).toISOString().slice(0, 10));
-    }
-    return days;
-}
-
-/**
- * The window to pull when none is given: from the newest day already on disk, which was short when
- * it was pulled, through today. With nothing on disk, as far back as Loki can answer.
- */
-export function defaultWindow(existingDays: string[], today: string): { start: string; end: string } {
-    const newest = [...existingDays].sort().at(-1);
-    const retentionStart = new Date(Date.parse(`${today}T00:00:00Z`) - RETENTION_DAYS * 86_400_000)
-        .toISOString()
-        .slice(0, 10);
-    return { start: newest ?? retentionStart, end: today };
 }
 
 /** One UTC day of the stream, however many pages it takes */
@@ -193,34 +169,9 @@ function token(): string {
     return value;
 }
 
-function readRows(file: string): Row[] {
-    if (!existsSync(file)) return [];
-    return readFileSync(file, 'utf8')
-        .split('\n')
-        .filter((line) => line !== '')
-        .map((line) => JSON.parse(line) as Row);
-}
-
-function isDay(value: string): boolean {
-    return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
-}
-
 async function main(argv: string[]): Promise<void> {
     const { values } = parseArgs({ args: argv, options: { start: { type: 'string' }, end: { type: 'string' } } });
-    const today = new Date().toISOString().slice(0, 10);
-    const existing = existsSync(OUT)
-        ? readdirSync(OUT)
-              .filter((f) => f.endsWith('.ndjson'))
-              .map((f) => f.slice(0, 10))
-        : [];
-    const window = defaultWindow(existing, today);
-    const start = values.start ?? window.start;
-    const end = values.end ?? window.end;
-    if (!isDay(start) || !isDay(end) || start > end) {
-        console.error(`usage: --start YYYY-MM-DD [--end YYYY-MM-DD], start no later than end (got ${start}..${end})`);
-        process.exit(1);
-    }
-
+    const { start, end } = resolveWindow(values, OUT, RETENTION_DAYS);
     const fetchPage = lokiFetcher(token());
     mkdirSync(OUT, { recursive: true });
     for (const day of daysBetween(start, end)) {
@@ -233,15 +184,8 @@ async function main(argv: string[]): Promise<void> {
         // lands in the file its day owns.
         const byDay = Map.groupBy(pulled, (row) => dayOf(row.timestamp));
         for (const [rowDay, rows] of byDay) {
-            const file = path.join(OUT, `${rowDay}.ndjson`);
-            const before = readRows(file);
-            const merged = merge(before, rows);
-            // Written beside and renamed in, so a kill or a full disk mid-write leaves the
-            // day's file as it was rather than truncated. A day past Loki's retention has no
-            // other copy.
-            writeFileSync(`${file}.tmp`, merged.map((row) => JSON.stringify(row)).join('\n') + '\n');
-            renameSync(`${file}.tmp`, file);
-            console.log(`${rowDay}: ${merged.length - before.length} new lines, ${merged.length} total`);
+            const { added, total } = mergeIntoDayFile(dayFile(OUT, rowDay), rows, ROW_IDENTITY);
+            console.log(`${rowDay}: ${added} new lines, ${total} total`);
         }
     }
 }

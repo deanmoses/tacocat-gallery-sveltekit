@@ -43,6 +43,7 @@
         "logs:pull": "production_logs/pull/all",
         "logs:pull:cloudfront": "production_logs/pull/cloudfront",
         "logs:pull:grafana": "node production_logs/pull/grafana.ts",
+        "logs:pull:cloudwatch": "node production_logs/pull/cloudwatch.ts",
         "agent-docs": "node scripts/build-agent-docs.mjs",
         "prepare": "husky && playwright install chromium && svelte-kit sync"
     },

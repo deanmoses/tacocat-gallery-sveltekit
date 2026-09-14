@@ -39,10 +39,11 @@ for arg in "$@"; do
 done
 
 command -v duckdb >/dev/null || { echo "duckdb not on PATH; brew install duckdb" >&2; exit 1; }
-[ -n "$(find ../../dumps/cloudfront \( -name '*.gz' -o -name '*.tsv' \) -print -quit 2>/dev/null)" ] || {
-  echo "nothing under ../../dumps/cloudfront/; the dumps are gitignored, run production_logs/pull/all first" >&2
-  exit 1
-}
+# Every source is optional, so an empty dump builds an empty database rather than
+# failing; but nothing at all is worth a word, because the dumps are gitignored
+# and a fresh clone has none.
+[ -n "$(find ../../dumps -type f -print -quit 2>/dev/null)" ] ||
+  echo "note: nothing under ../../dumps/; run production_logs/pull/all to fill it" >&2
 
 # One build at a time. mkdir is atomic on any POSIX filesystem, which a
 # test-then-create is not, so two shells racing cannot both think they won.

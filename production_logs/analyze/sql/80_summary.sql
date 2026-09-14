@@ -17,12 +17,22 @@ WITH cloudfront AS (
     max(ts) AS last_ts,
     bool_or(country IS NOT NULL) AS has_country
   FROM cloudfront_requests
-  GROUP BY 1, 2, 3
+  GROUP BY ALL
 ),
 grafana AS (
   SELECT 'grafana', check_name, ts::DATE, count(DISTINCT source_file), count(*), min(ts), max(ts), NULL
   FROM probe_executions
-  GROUP BY 1, 2, 3
+  GROUP BY ALL
+),
+gateway AS (
+  SELECT 'gateway', env || '/' || api, ts::DATE, count(DISTINCT source_file), count(*), min(ts), max(ts), NULL
+  FROM gateway_requests
+  GROUP BY ALL
+),
+lambdas AS (
+  SELECT 'lambda', env || '/' || function_name, ts::DATE, count(DISTINCT source_file), count(*), min(ts), max(ts), NULL
+  FROM lambda_invocations
+  GROUP BY ALL
 )
 -- A stream's own last day, but only while it is within a day of the source's
 -- newest: image logs lag the SPA's by hours, so image's last day is still
@@ -30,10 +40,10 @@ grafana AS (
 -- ago, such as a deleted check, is complete on its last day.
 SELECT *, (day = max(day) OVER (PARTITION BY source, stream)
            AND day >= max(day) OVER (PARTITION BY source) - INTERVAL 1 DAY) AS partial
-FROM (FROM cloudfront UNION ALL FROM grafana)
+FROM (FROM cloudfront UNION ALL FROM grafana UNION ALL FROM gateway UNION ALL FROM lambdas)
 ORDER BY source, stream, day;
 
-COMMENT ON VIEW coverage IS 'GRAIN: one row per source, stream and UTC day with at least one row. A stream is an env/distribution at CloudFront or a check at Grafana; `rows` are requests for one and executions for the other. `partial` is a stream''s last day while the source is still delivering, so it is still arriving. `has_country` is NULL before CloudFront added the field, and for Grafana. A day absent here had nothing, which on staging is normal.';
+COMMENT ON VIEW coverage IS 'GRAIN: one row per source, stream and UTC day with at least one row. A stream is an env/distribution at CloudFront, a check at Grafana, an env/api at API Gateway, or an env/function at Lambda; `rows` are requests, executions, requests and invocations respectively. `partial` is a stream''s last day while the source is still delivering, so it is still arriving. `has_country` is NULL before CloudFront added the field, and for Grafana. A day absent here had nothing, which on staging is normal.';
 
 CREATE OR REPLACE VIEW summary AS
 SELECT
