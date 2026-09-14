@@ -58,6 +58,10 @@ describe(pullWindow, () => {
     it.each([
         { why: 'a start after the end', asked: { start: '2026-09-14', end: '2026-09-13' } },
         { why: 'a day that is not zero-padded', asked: { start: '2026-9-1' } },
+        {
+            why: 'a day the month does not have, which Date.parse would roll into March',
+            asked: { start: '2026-02-30' },
+        },
     ])('refuses $why', ({ asked }) => {
         expect(() => pullWindow({ asked, existingDays: [], today: '2026-09-13', retentionDays: 14 })).toThrow('usage');
     });

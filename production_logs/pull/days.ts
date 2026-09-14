@@ -22,8 +22,11 @@ export function daysBetween(start: string, end: string): string[] {
     return days;
 }
 
+// Round-tripped rather than checked for NaN, because Date.parse normalises a
+// day the month does not have: February 30th parses as March 2nd.
 function isDay(value: string): boolean {
-    return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(dayStartMs(value));
+    const ms = dayStartMs(value);
+    return !Number.isNaN(ms) && dayOfMs(ms) === value;
 }
 
 /** The UTC day a millisecond epoch falls on, as YYYY-MM-DD */
