@@ -3,56 +3,12 @@
 To find out how Tacocat is doing:
 
 - [`npm run perf`](#npm-run-perf): live perf of a particular staging or prod URL
-- [Grafana](#grafana-cloud): uptime & perf monitoring from multiple geos. Retains data for 14 days.
-- [AWS](#aws): production logs
-- [Production logs](#production-logs): who visits, on what browser, from the CloudFront logs in DuckDB
-- [Discord](#discord): receiving alerts, historical alerts
+- [Analytics](#duckdb): DuckDB analytics over AWS and Grafana logs
+- [AWS](#aws): logs, alarms and budget
+- [Grafana](#grafana-cloud): uptime & perf monitoring from multiple geos, retained for 14 days
+- [Alerting](#alerting): where alerts go, historical alerts in Discord
 
 The projects, domains and environments named throughout are mapped in [Ecosystem](Ecosystem.md).
-
-## Grafana Cloud
-
-Instance: `tacocorp.grafana.net`. Use the Grafana MCP server. Humans start with the [Synthetic Monitoring dashboard](https://tacocorp.grafana.net/a/grafana-synthetic-monitoring-app/home?from=now-24h&to=now&timezone=browser&var-probe=$__all&var-Filters=&var-region=$__all&var-check_type=$__all).
-
-Two synthetic checks run every 10 minutes from Northern California, Paris and Ohio:
-
-| Check               | Target                               |
-| ------------------- | ------------------------------------ |
-| `Tacocat SPA`       | `https://pix.tacocat.com/`           |
-| `Tacocat Album API` | `https://api.pix.tacocat.com/album/` |
-
-Both verify HTTPS and compression — gzip for API, brotli for SPA.
-
-We're on the free plan. Logs are only retained 14 days so after that the only record of uptime is [Discord](#discord).
-
-### Alerting
-
-Alerts go to the [Tacocat Discord server](#discord).
-
-### Querying it
-
-Datasources: `grafanacloud-prom` (metrics), `grafanacloud-logs` (Loki), `grafanacloud-usage` (billing).
-
-```promql
-probe_success                                  # 1 = up, per check per probe
-probe_http_duration_seconds{phase="connect"}   # also: resolve, tls, processing, transfer
-probe_duration_seconds                         # total, per probe
-probe_http_content_length                      # compressed bytes on the wire
-probe_http_uncompressed_body_length            # decoded payload size
-probe_ssl_earliest_cert_expiry                 # subtract time() for seconds remaining
-grafanacloud_org_sm_billable_check_executions  # against grafanacloud_org_sm_included_check_executions
-```
-
-### Reading these metrics without being misled
-
-Four traps, each of which has already produced a wrong answer:
-
-- **The scrape interval is not the check interval.** Metrics are scraped every ~2 minutes but the checks execute every 10, so the same measurement is republished several times with fresh timestamps. `count_over_time` and `timestamp()` therefore both overstate how much data exists. A real execution is a **change in value**, so range-query the metric and count distinct values.
-- **`config_version` changes on every check edit**, and two versions briefly coexist during a save. Aggregate across it, and prefer ratios (`avg`) over counts (`sum`) in anything that needs to be stable.
-- **The alert reads Loki, not Prometheus.** It counts `{source="synthetic-monitoring-agent", probe_success="0"}` log lines; Prometheus only supplies the per-check threshold. If log ingestion breaks, the alert goes quiet rather than failing loudly.
-- **`blackbox_exporter` does not speak HTTP/3**, so `probe_http_version` reports 2 for `pix.` regardless of what CloudFront actually negotiates with browsers.
-
-Single-request probes cannot see thumbnails, LCP, or connection reuse across a page load. Use the perf script for that.
 
 ## `npm run perf`
 
@@ -63,13 +19,33 @@ npm run perf # hit https://pix.tacocat.com/ with 5 runs
 npm run perf https://pix.tacocat.com/2022/11-27 7 # optional URL and run count
 ```
 
-Drives headless Chromium and reports the median and spread of each critical-path segment across the runs after the first.
+Drives headless Chromium and reports the median and spread of each critical-path segment across warm runs.
 
-**The medians describe a warm visit, and most visits are not warm.** Even in prod, visits arrive too sparsely for that: roughly three quarters of `GetAlbum` invocations that follow an idle gap init from cold, at a cost of around 450ms. The first run is held out of the median for that reason — including it would let an "after" taken later in a session beat a "before" taken earlier whether or not anything improved — but it is reported on its own line, because it is what most visits get.
-
-**The bundled Chromium ignores `<link rel="preconnect">`**, so this script cannot measure preconnect hints.
+The bundled Chromium ignores `<link rel="preconnect">`; this script cannot measure preconnect hints.
 
 Run before and after a change and **believe a difference only when it is larger than the spread**.
+
+## DuckDB
+
+The DuckDB-based analytics system (relations in [`production_logs/README.md`](../production_logs/README.md)) pulls the [CloudFront access logs](#cloudfront-access-logs), the [synthetic probes'](#grafana-cloud) Loki lines, the [Lambda log group](#lambda-logs) and the [API Gateway access logs](#api-gateway-access-logs) into a local DuckDB. It answers:
+
+- which browsers visit, from where, whether they can decode a given image format and whether they were signed in
+- how each probe execution went, kept past Loki's 14 days
+- how often a request waited for a cold Lambda, with the probes' own invocations told apart from everyone else's
+- which request caused each resized image, and what the resize cost
+
+It is only as current as the last `npm run logs:pull`, and CloudFront delivers its logs up to a few hours late. For what is happening now, go to the [AWS logs](#logs) directly.
+
+```bash
+npm run logs:pull                          # sync every source into production_logs/dumps/ (gitignored)
+npm run logs -- "FROM avif_readiness;"     # rebuilds if stale, then queries
+npm run logs -- "FROM probe_health;"       # uptime and latency per day, check, target and probe
+npm run logs -- "FROM cold_starts;"        # cold start rate and cost per day and function
+```
+
+The Grafana pull needs `GRAFANA_ANALYTICS_TOKEN` in the gitignored `.env`: a service-account token with the Viewer role.
+
+Most requests are not people: Grafana's probes, crawlers, scanners and this project's own perf script and Claude desktop app dominate a quiet week. `visitors.is_visit` is the row that was a person.
 
 ## AWS
 
@@ -107,7 +83,7 @@ Two distributions write access logs to S3, tab-separated with a `#Fields` header
 
 Staging twins write to the matching `-dev` buckets. The SPA distribution is defined in the `tacocat-gallery-hosting-aws` repo.
 
-**The field list has changed twice.** On 2026-09-11 the cookie, forwarded-for and range columns went and `asn` and `c-country` came; on 2026-09-13 `timestamp(ms)`, `origin-fbl`, `origin-lbl` and `cache-behavior-path-pattern` were appended. Read the `#Fields` line of each file rather than assuming an order. `cache-behavior-path-pattern` is the behavior that answered, so on the SPA distribution every client-side route logs `*`: the error response fetches `/index.html` through the default behavior.
+**Read the `#Fields` line of each file rather than assuming an order**: the field list has changed, and [the analytics README](../production_logs/README.md#analyze) says which columns are missing before when. `cache-behavior-path-pattern` is the behavior that answered, so on the SPA distribution every client-side route logs `*`: the error response fetches `/index.html` through the default behavior.
 
 Delivery is configured through CloudWatch, not on the distribution, so `get-distribution-config` shows logging disabled while logs are flowing. `aws logs describe-delivery-sources` is what says whether a distribution is logging.
 
@@ -138,30 +114,55 @@ aws cloudwatch describe-alarm-history --alarm-name tacocat-gallery-sam-prod-api-
 
 To prove the chain end to end without touching data, invoke `tacocat-gallery-sam-<env>-DynamoToRedis` with `{"Records":[{"eventName":"REMOVE","dynamodb":{"Keys":{}}}]}`: it throws before reaching Redis, the errors alarm fires within about six minutes, and the email arrives.
 
-### Gaps
+## Grafana Cloud
 
-- **No tracing, no canaries.** Grafana's synthetic checks cover uptime from outside.
-- **Nothing from the browser.** No beacon or client-side telemetry, on purpose; whether a preloaded image was ready when a reader clicked Next is something no server log can say.
+Instance: `tacocorp.grafana.net`. Use the Grafana MCP server. Humans start with the [Synthetic Monitoring dashboard](https://tacocorp.grafana.net/a/grafana-synthetic-monitoring-app/home?from=now-24h&to=now&timezone=browser&var-probe=$__all&var-Filters=&var-region=$__all&var-check_type=$__all).
 
-## Production logs
+Two synthetic checks run every 10 minutes from Northern California, Paris and Ohio:
 
-`production_logs/` pulls the CloudFront access logs above, the [synthetic probes'](#grafana-cloud) Loki lines, the [Lambda log group](#lambda-logs) and the [API Gateway access logs](#api-gateway-access-logs) into a local DuckDB. It answers questions about people rather than requests, which browsers visit, from where, whether they can decode a given image format and whether they were signed in; keeps the probes' per-execution timings past Loki's 14 days; says how often a request waited for a cold Lambda, with the probes' own invocations told apart from everyone else's; and ties each resized image to the request that caused it and what the resize cost. [Its README](../production_logs/README.md) has the relations to start from.
+| Check               | Target                               |
+| ------------------- | ------------------------------------ |
+| `Tacocat SPA`       | `https://pix.tacocat.com/`           |
+| `Tacocat Album API` | `https://api.pix.tacocat.com/album/` |
 
-```bash
-npm run logs:pull                          # sync every source into production_logs/dumps/ (gitignored)
-npm run logs -- "FROM avif_readiness;"     # rebuilds if stale, then queries
-npm run logs -- "FROM probe_health;"       # uptime and latency per day, check, target and probe
-npm run logs -- "FROM cold_starts;"        # cold start rate and cost per day and function
+Both verify HTTPS and compression — gzip for API, brotli for SPA.
+
+We're on the free plan. Grafana only retains logs for 14 days so after that the only record of uptime is whatever's in [localhost analytics](#duckdb) or [Discord](#alerting).
+
+### Querying it
+
+Datasources: `grafanacloud-prom` (metrics), `grafanacloud-logs` (Loki), `grafanacloud-usage` (billing).
+
+```promql
+probe_success                                  # 1 = up, per check per probe
+probe_http_duration_seconds{phase="connect"}   # also: resolve, tls, processing, transfer
+probe_duration_seconds                         # total, per probe
+probe_http_content_length                      # compressed bytes on the wire
+probe_http_uncompressed_body_length            # decoded payload size
+probe_ssl_earliest_cert_expiry                 # subtract time() for seconds remaining
+grafanacloud_org_sm_billable_check_executions  # against grafanacloud_org_sm_included_check_executions
 ```
 
-The Grafana pull needs `GRAFANA_ANALYTICS_TOKEN` in the gitignored `.env`: a service-account token with the Viewer role.
+### Reading these metrics without being misled
 
-Most requests are not people: Grafana's probes, crawlers, scanners and this project's own perf script and Claude desktop app dominate a quiet week. `visitors.is_visit` is the row that was a person.
+Four traps, each of which has already produced a wrong answer:
 
-## Discord
+- **The scrape interval is not the check interval.** Metrics are scraped every ~2 minutes but the checks execute every 10, so the same measurement is republished several times with fresh timestamps. `count_over_time` and `timestamp()` therefore both overstate how much data exists. A real execution is a **change in value**, so range-query the metric and count distinct values.
+- **`config_version` changes on every check edit**, and two versions briefly coexist during a save. Aggregate across it, and prefer ratios (`avg`) over counts (`sum`) in anything that needs to be stable.
+- **The alert reads Loki, not Prometheus.** It counts `{source="synthetic-monitoring-agent", probe_success="0"}` log lines; Prometheus only supplies the per-check threshold. If log ingestion breaks, the alert goes quiet rather than failing loudly.
+- **`blackbox_exporter` does not speak HTTP/3**, so `probe_http_version` reports 2 for `pix.` regardless of what CloudFront actually negotiates with browsers.
+
+Single-request probes cannot see thumbnails, LCP, or connection reuse across a page load. Use [the perf script](#npm-run-perf) for that.
+
+## Alerting
 
 Send alerts to the [Tacocat Discord server `#general`](https://discord.com/channels/1547715867851366460/1547715868379586582).
 
 Prefer Discord to email because email gets clutter-y and Discord server is nice easy-to-look-at history.
 
-AWS is the exception: its CloudWatch alarms and the budget email Moses directly, because reaching Discord from AWS needs a relay Lambda and a webhook secret, which is more to maintain than the alerts are worth. Grafana alerts go to Discord.
+AWS is the exception: its CloudWatch alarms and the budget email Moses directly, because reaching Discord from AWS needs a relay Lambda and a webhook secret, which is more to maintain than the alerts are worth.
+
+## Gaps
+
+- **No tracing, no canaries.** Grafana's synthetic checks cover uptime from outside.
+- **Nothing from the browser.** No beacon or client-side telemetry.

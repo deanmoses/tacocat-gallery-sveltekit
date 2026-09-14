@@ -260,13 +260,15 @@ Use labels on pull requests. Apply all labels that fit. Only use these labels:
 
 **No label needed** for dependency bumps, CI/CD, tooling, or infrastructure changes - these go in "Other Changes" in release notes.
 
-## Observabiltiy
+## Observability
 
 See `docs/Observability.md`:
 
 - [`npm run perf`](docs/Observability.md#npm-run-perf): live perf of a particular staging or prod URL
-- [Grafana](docs/Observability.md#grafana-cloud): uptime & perf monitoring from multiple geos
-- [AWS](docs/Observability.md#aws): production logs
+- [Analytics](docs/Observability.md#duckdb): DuckDB analytics over AWS and Grafana logs
+- [AWS](docs/Observability.md#aws): logs, alarms and budget
+- [Grafana](docs/Observability.md#grafana-cloud): uptime & perf monitoring from multiple geos, retained for 14 days
+- [Alerting](docs/Observability.md#alerting): where alerts go, historical alerts in Discord
 
 ## AI Assistant Configuration
 
