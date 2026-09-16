@@ -200,6 +200,24 @@ describe('albumLoadMachine', () => {
             expect(loadStatus()).toBe(AlbumLoadStatus.ERROR_LOADING);
         });
 
+        /**
+         * The API answers a read with an expired token as it would a guest,
+         * flagged in a header, rather than with a 401. Without the second ask
+         * an admin would be shown the guest version of the album.
+         */
+        it('refreshes the session and asks again when the server could not verify the auth cookie', async () => {
+            const server = fakeServer();
+            const guestView = albumRecord({ path: PATH, parentPath: PARENT_PATH, itemName: '12-31', children: [] });
+            server.get(ROUTE, jsonResponse(guestView, 200, { 'X-Auth-Status': 'invalid' }), jsonResponse(record()));
+            // The auth service, which under node resolves to a hostname the fake server ignores
+            server.get('/', jsonResponse({ user: 'admin' }));
+
+            await albumLoadMachine.fetchFromServer(PATH);
+
+            expect(server.calls.map((c) => c.pathname)).toStrictEqual([ROUTE, '/', ROUTE]);
+            expect(albumState.albums.get(PATH)?.album?.media.map((m) => m.path)).toStrictEqual([IMAGE_PATH]);
+        });
+
         it('keeps an album that is already loaded readable when a reload fails', async () => {
             seedLoadedAlbum(record());
             const server = fakeServer();
