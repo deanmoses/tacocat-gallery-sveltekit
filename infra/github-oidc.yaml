@@ -57,6 +57,10 @@ Parameters:
         Type: String
         Default: tacocat-gallery-website-hosting-prod-bucket
         Description: Site bucket of the tacocat-gallery-website-hosting-prod stack, which scripts/deploy-prod.sh syncs into
+    ClaudeCodeCloudUserName:
+        Type: String
+        Default: tacocat-gallery-claude-code-cloud
+        Description: The IAM user a Claude Code on the web session authenticates as. The tacocat-gallery-sam repo's cicd stack creates it, so that stack has to exist before this one deploys; here it is only attached to.
     ProdDistributionId:
         Type: String
         Default: E3DFANBWDVJ2DM
@@ -158,6 +162,63 @@ Resources:
                             Effect: Allow
                             Action: cloudfront:ListDistributions
                             Resource: '*'
+
+    # ---------------------------------------------------------------------------
+    # Claude Code on the web: build the site and deploy it to staging, the same
+    # reach the main branch's CI role has. The user itself is created by the
+    # tacocat-gallery-sam repo, because a cloud session presents one credential
+    # for the whole account and so can only have one user; what that user may do
+    # *here* is this repo's to decide, and lives in this file.
+    #
+    # Reading the CloudFront access logs that production_logs/ analyses is granted
+    # by the repos that own those buckets, the hosting and gallery projects.
+    # ---------------------------------------------------------------------------
+    ClaudeCodeCloudPolicy:
+        Type: AWS::IAM::ManagedPolicy
+        Properties:
+            ManagedPolicyName: tacocat-gallery-sveltekit-claude-code-cloud
+            Description: Deploy the built site to staging from a Claude Code on the web session
+            Users:
+                - !Ref ClaudeCodeCloudUserName
+            PolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                    - Sid: SyncSiteBucket
+                      # `aws s3 sync --delete` lists, compares, uploads and removes
+                      Effect: Allow
+                      Action:
+                          - s3:ListBucket
+                          - s3:GetObject
+                          - s3:PutObject
+                          - s3:DeleteObject
+                      Resource:
+                          - !Sub arn:aws:s3:::${DevBucket}
+                          - !Sub arn:aws:s3:::${DevBucket}/*
+                    - Sid: InvalidateDistribution
+                      # The wait polls GetInvalidation until it completes
+                      Effect: Allow
+                      Action:
+                          - cloudfront:CreateInvalidation
+                          - cloudfront:GetInvalidation
+                      Resource: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${DevDistributionId}
+                    - Sid: FindDistributionDomain
+                      # ListDistributions takes no resource
+                      Effect: Allow
+                      Action: cloudfront:ListDistributions
+                      Resource: '*'
+                    - Sid: NeverProd
+                      # Nothing above grants the production site, and this is so that a
+                      # later widening cannot quietly hand it to a credential that sits
+                      # in a cloud environment. scripts/deploy-prod.sh differs from the
+                      # staging one only in which bucket and distribution it names.
+                      Effect: Deny
+                      Action:
+                          - s3:*
+                          - cloudfront:CreateInvalidation
+                      Resource:
+                          - !Sub arn:aws:s3:::${ProdBucket}
+                          - !Sub arn:aws:s3:::${ProdBucket}/*
+                          - !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${ProdDistributionId}
 
 Outputs:
     GitHubMainRoleArn:
