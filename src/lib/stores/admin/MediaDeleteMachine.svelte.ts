@@ -67,7 +67,7 @@ class MediaDeleteMachine {
             }
             console.log(`Media [${mediaPath}] deleted`);
             // reload the album
-            await albumLoadMachine.fetchFromServer(getParentFromPath(mediaPath));
+            await albumLoadMachine.reloadAfterChange(getParentFromPath(mediaPath));
             this.#success(mediaPath);
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);

@@ -12,13 +12,7 @@
 export type GalleryItem = AlbumGalleryItem; /*| ImageGalleryItem if I ever need Image-specific fields */
 
 export type AlbumGalleryItem = AlbumRecord & {
-    prev?: AlbumNavInfo;
-    next?: AlbumNavInfo;
     children?: GalleryRecord[];
-};
-
-export type AlbumNavInfo = {
-    path: string;
 };
 
 // export type ImageGalleryItem = ImageRecord & {
@@ -33,7 +27,7 @@ export type AlbumNavInfo = {
 //
 // RECORD TYPE DECLARATIONS
 // A Record is a single row/item/record from DynamoDB
-// Doesn't contain information from other records like prev/next or children
+// Doesn't contain information from other records like children
 //
 
 /** A gallery record is either an album or a media item (image or video) */

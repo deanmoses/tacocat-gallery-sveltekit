@@ -110,6 +110,14 @@ describe(seriesOf, () => {
             thumbnails: [520, 520],
         });
     });
+
+    // The API is /api/ on the site's own domain, and still an api. host where it is reached directly
+    it('finds the album JSON on the site domain as well as on an api. host', () => {
+        const sample = album({ total: 1, onScreen: 1 });
+        sample.resources = [resource('https://staging-pix.tacocat.com/api/album/', 380), ...sample.resources.slice(1)];
+
+        expect(seriesOf([sample]).api).toStrictEqual([380]);
+    });
 });
 
 describe(firstVisitCost, () => {

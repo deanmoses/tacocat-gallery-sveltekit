@@ -14,16 +14,16 @@ function hints(): { href: string; crossorigin: string | null }[] {
 }
 
 describe('app.html preconnect hints', () => {
+    // Only cross-origin hosts get a hint; the API is on the site's own domain, on the connection the shell came over
     it('warms every cross-origin host the first screen needs', () => {
         expect(hints().map((hint) => hint.href)).toStrictEqual([
-            'https://api.%sveltekit.env.PUBLIC_GALLERY_DOMAIN%',
             'https://auth.%sveltekit.env.PUBLIC_GALLERY_DOMAIN%',
             'https://img.%sveltekit.env.PUBLIC_GALLERY_DOMAIN%',
         ]);
     });
 
-    // Chrome keys socket pools partly on privacy mode. All three of these requests carry cookies --
-    // the API and auth through credentials: 'include', the thumbnails as ordinary <img> -- so they
+    // Chrome keys socket pools partly on privacy mode. Both of these requests carry cookies --
+    // auth through credentials: 'include', the thumbnails as ordinary <img> -- so they
     // want the pool a bare preconnect warms. crossorigin="anonymous" warms the cookie-less pool
     // instead, opening connections nothing draws from, with no error anywhere to show for it.
     it.each(hints())('$href carries no crossorigin, so it warms the cookie-carrying pool', ({ crossorigin }) => {

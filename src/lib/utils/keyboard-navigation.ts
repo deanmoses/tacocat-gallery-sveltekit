@@ -1,4 +1,5 @@
 import type { Album } from '$lib/models/GalleryItemInterfaces';
+import { albumNav } from './albumNavigation';
 import { getParentFromPath, isValidAlbumPath, isValidMediaPath } from './galleryPathUtils';
 
 /**
@@ -70,16 +71,13 @@ enum Direction {
  * @returns path of album or media item to navigate to, or null if do not navigate
  */
 function navigateToPeer(path: string, getAlbum: GetAlbumFunction, direction: Direction): string | null {
-    // If on an album, go to prev/next album
+    // If on an album, go to prev/next album. Albums are listed oldest first and
+    // the site pages through them newest first, so "next" is the older one.
     if (isValidAlbumPath(path)) {
-        const album = getAlbum(path);
-        if (album) {
-            const newPath = direction === Direction.Next ? album.prevHref : album.nextHref; // album.prevAlbumHref and nextAlbumHref are backwards!
-            if (newPath) {
-                return newPath;
-            }
-        } else {
-            console.log('No album found at path: ' + path);
+        const nav = albumNav(path, getAlbum(getParentFromPath(path)));
+        const newPath = direction === Direction.Next ? nav.prevHref : nav.nextHref;
+        if (newPath) {
+            return newPath;
         }
     }
     // If on a media item, go to prev/next media

@@ -131,6 +131,10 @@ export const fromHost =
     (resource: Resource): boolean =>
         resource.name.includes(marker);
 
+/** The album JSON: /api/ on the site's own domain, or on an api. host where the API is still reached directly */
+export const isAlbumJson = (resource: Resource): boolean =>
+    resource.name.includes('/api/') || fromHost('//api.')(resource);
+
 /**
  * Only the thumbnails inside the opening viewport count toward the segment.
  *
@@ -147,7 +151,7 @@ export const thumbnailsDoneAt = (sample: Sample): number => {
 export const seriesOf = (samples: Sample[]): Series => ({
     lcp: samples.map((sample) => sample.lcp),
     shell: samples.map((sample) => sample.shell),
-    api: samples.map((sample) => lastByte(sample.resources, fromHost('/api.'))),
+    api: samples.map((sample) => lastByte(sample.resources, isAlbumJson)),
     thumbnails: samples.map(thumbnailsDoneAt),
 });
 

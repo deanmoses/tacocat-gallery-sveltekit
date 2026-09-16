@@ -13,17 +13,19 @@
     import AlbumEditControls from '$lib/components/site/admin/edit_controls/AlbumEditControls.svelte';
     import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
+    import { albumNav } from '$lib/utils/albumNavigation';
     import DayAlbumFullScreenDropZone from './DayAlbumFullScreenDropZone.svelte';
     import type { UploadEntry } from '$lib/models/album';
     import UploadThumbnail from '$lib/components/site/admin/UploadThumbnail.svelte';
     import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
     import { albumThumbnailSetMachine } from '$lib/stores/admin/AlbumThumbnailSetMachine.svelte';
-    import { getUploadsForAlbum } from '$lib/stores/AlbumState.svelte';
+    import { getParentAlbum, getUploadsForAlbum } from '$lib/stores/AlbumState.svelte';
 
     interface Props {
         album: Album;
     }
     let { album }: Props = $props();
+    let neighbours = $derived(albumNav(album.path, getParentAlbum(album.path)));
     let okToNavigate = $derived(draftMachine.okToNavigate);
     let uploads: UploadEntry[] | undefined = $derived(getUploadsForAlbum(album.path));
 
@@ -38,9 +40,9 @@
     {/snippet}
 
     {#snippet nav()}
-        <PrevButton href={okToNavigate ? album.nextHref : undefined} title={album.nextTitle} />
+        <PrevButton href={okToNavigate ? neighbours.nextHref : undefined} title={neighbours.nextTitle} />
         <UpButton href={okToNavigate ? album.parentHref : undefined} title={album.parentTitle} />
-        <NextButton href={okToNavigate ? album.prevHref : undefined} title={album.prevTitle} />
+        <NextButton href={okToNavigate ? neighbours.prevHref : undefined} title={neighbours.prevTitle} />
     {/snippet}
 
     {#snippet caption()}

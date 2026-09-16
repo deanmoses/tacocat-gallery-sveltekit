@@ -24,6 +24,9 @@ export type Reply = Response | (() => Response);
 
 export type Call = { method: string; pathname: string; body: unknown };
 
+/** A call as fetch() received it, for what Call leaves out: the query string, the request options */
+export type RawCall = { url: URL; init: RequestInit | undefined };
+
 type Routes = {
     get: (pathname: string, ...replies: Reply[]) => void;
     head: (pathname: string, ...replies: Reply[]) => void;
@@ -33,6 +36,8 @@ type Routes = {
     delete: (pathname: string, ...replies: Reply[]) => void;
     /** Every call the code made, in order */
     calls: Call[];
+    /** The same calls, unreduced */
+    rawCalls: RawCall[];
 };
 
 /**
@@ -45,18 +50,25 @@ type Routes = {
  * retry without the spec having to say so twice.
  *
  * A route the spec never registered throws, naming the URL. That is deliberate:
- * a spec that forgets to stub something fails loudly rather than reaching the
- * live API, which under node resolves to production rather than staging.
+ * a spec that forgets to stub something fails loudly rather than reaching a
+ * live API.
+ *
+ * API URLs are paths on the site's own origin, which node has none of, so they
+ * are resolved against a stand-in.
  */
+const ORIGIN = 'https://site.test';
+
 export function fakeServer(): Routes {
     const routes = new Map<string, Reply[]>();
     const calls: Call[] = [];
+    const rawCalls: RawCall[] = [];
 
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
-        const url = new URL(input instanceof Request ? input.url : String(input));
+        const url = new URL(input instanceof Request ? input.url : String(input), ORIGIN);
         const method = init?.method ?? 'GET';
         const body = typeof init?.body === 'string' ? JSON.parse(init.body) : undefined;
         calls.push({ method, pathname: url.pathname, body });
+        rawCalls.push({ url, init });
 
         const replies = routes.get(`${method} ${url.pathname}`);
         const reply = replies?.length && replies.length > 1 ? replies.shift() : replies?.[0];
@@ -79,5 +91,6 @@ export function fakeServer(): Routes {
         patch: route('PATCH'),
         delete: route('DELETE'),
         calls,
+        rawCalls,
     };
 }

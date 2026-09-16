@@ -12,7 +12,7 @@
     import MainContent from '$lib/components/site/MainContent.svelte';
     import Thumbnails from '$lib/components/site/Thumbnails.svelte';
     import AlbumThumbnail from '$lib/components/site/AlbumThumbnail.svelte';
-    import LatestAlbumThumbnail from '$lib/components/data-aware/LatestAlbumThumbnail.svelte';
+    import LatestAlbumThumbnail from './LatestAlbumThumbnail.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
     import { siteShortTitle, siteTitle } from '$lib/utils/config';
     import AdminToggle from '$lib/components/site/admin/toggle/AdminToggle.svelte';

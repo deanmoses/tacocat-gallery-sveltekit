@@ -1,4 +1,3 @@
-import { albumPathToDate } from '$lib/utils/galleryPathUtils';
 import { AlbumBaseImpl } from './AlbumBaseImpl';
 import type { Album } from '../GalleryItemInterfaces';
 
@@ -10,18 +9,5 @@ export class AlbumYearImpl extends AlbumBaseImpl implements Album {
     /** Never used but required to exist */
     get parentTitle(): string {
         return '';
-    }
-
-    get nextTitle(): string {
-        return this.#albumTitle(this.next);
-    }
-
-    get prevTitle(): string {
-        return this.#albumTitle(this.prev);
-    }
-
-    /**  Get title of a prev/next album */
-    #albumTitle(albumPath?: string): string {
-        return !!albumPath ? albumPathToDate(albumPath).getFullYear().toString() : '';
     }
 }

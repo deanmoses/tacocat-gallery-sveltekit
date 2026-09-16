@@ -7,6 +7,8 @@ import type {
     ReloadStatus,
     CreateEntry,
 } from '$lib/models/album';
+import type { Album } from '$lib/models/GalleryItemInterfaces';
+import { getParentFromPath } from '$lib/utils/galleryPathUtils';
 import { SvelteMap } from 'svelte/reactivity';
 
 /**
@@ -23,6 +25,8 @@ class AlbumState {
     mediaDeletes = new SvelteMap<string, DeleteEntry>();
     crops = new SvelteMap<string, CropEntry>();
     uploads: UploadEntry[] = $state([]);
+    /** When this session last changed each album, so a re-read soon after can ask past the edge cache */
+    albumChangedAt = new Map<string, number>();
 }
 export const albumState = new AlbumState();
 
@@ -36,4 +40,9 @@ export function getUploadsForAlbum(albumPath: string): UploadEntry[] {
 
 export function getUpload(mediaPath: string): UploadEntry | undefined {
     return albumState.uploads.find((upload) => upload.mediaPath === mediaPath);
+}
+
+/** The album's parent, if it has loaded. The root has none. */
+export function getParentAlbum(albumPath: string): Album | undefined {
+    return albumState.albums.get(getParentFromPath(albumPath))?.album;
 }

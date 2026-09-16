@@ -20,6 +20,7 @@ export function resetAlbumState(): void {
     albumState.mediaRenames.clear();
     albumState.mediaDeletes.clear();
     albumState.crops.clear();
+    albumState.albumChangedAt.clear();
 }
 
 /**

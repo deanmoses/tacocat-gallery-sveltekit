@@ -99,9 +99,9 @@ Located in `/src/lib/models/impl/`. Pure data structures (no fetching/persistenc
 
 ## API Integration
 
-- Localhost: Vite proxies `/api/*` to staging backend (both dev and preview servers)
-- Staging: `https://api.staging-pix.tacocat.com/`
-- Production: `https://api.pix.tacocat.com/`
+- The API is `/api/*` on the site's own domain, so there is no CORS and no cross-origin credentials
+- Staging and production: the site's CloudFront distribution (the `tacocat-gallery-hosting-aws` project) routes `/api/*` to the API and caches album responses at the edge
+- Localhost: Vite proxies `/api/*` to the staging API directly (both dev and preview servers)
 - Served by the `tacocat-gallery-sam` project; see [Ecosystem](docs/Ecosystem.md)
 
 Key endpoints:

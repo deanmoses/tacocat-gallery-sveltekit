@@ -8,6 +8,15 @@ import { albumUrl } from '$lib/utils/config';
 import { albumState } from './AlbumState.svelte';
 
 /**
+ * How long after this session changes an album its re-reads bypass the edge
+ * cache. The edge keeps serving the old copy until the album's version
+ * catches up, which takes the DynamoDB stream, a batching window and the
+ * store's propagation: some seconds. Generous, because a stale copy would
+ * overwrite what the admin just saw, on screen and on disk.
+ */
+export const FRESH_AFTER_CHANGE_MS = 120_000;
+
+/**
  * Album loading state machine
  */
 class AlbumLoadMachine {
@@ -56,8 +65,18 @@ class AlbumLoadMachine {
         // I have a copy in memory, but the caller has asked to re-fetch
         else if (refetch) {
             this.setUpdateStatus(path, ReloadStatus.RELOADING);
-            this.fetchFromServer(path); // fire and forget, don't await
+            this.fetchFromServer(path, this.#changedRecently(path)); // fire and forget, don't await
         }
+    }
+
+    /**
+     * Re-read an album this session just changed, past the edge cache, and
+     * keep re-reading it that way for a while: the edge serves the old copy
+     * until the album's version catches up with the change.
+     */
+    reloadAfterChange(path: string): Promise<void> {
+        albumState.albumChangedAt.set(path, Date.now());
+        return this.fetchFromServer(path, true);
     }
 
     /**
@@ -148,7 +167,7 @@ class AlbumLoadMachine {
         } catch (error) {
             console.error(`Album [${path}] error fetching from disk`, error);
         } finally {
-            await this.fetchFromServer(path);
+            await this.fetchFromServer(path, this.#changedRecently(path));
         }
     }
 
@@ -158,10 +177,12 @@ class AlbumLoadMachine {
      * You can either await this or not.  If you don't await, it loads in the background.
      *
      * @param path path of the album
+     * @param fresh bypass the edge cache, which serves the old copy of an album
+     *   until its version catches up with a change
      */
-    async fetchFromServer(path: string): Promise<void> {
+    async fetchFromServer(path: string, fresh = false): Promise<void> {
         try {
-            const response = await fetch(albumUrl(path), this.#buildFetchConfig());
+            const response = await fetch(albumUrl(path) + (fresh ? '?fresh' : ''), this.#buildFetchConfig());
             if (response.status === 404) {
                 this.#notFound(path);
                 this.#removeFromDisk(path); // Delete album from local disk
@@ -233,14 +254,6 @@ class AlbumLoadMachine {
         // Fetch() will behave as if no HTTP cache exists.
         requestConfig.cache = 'no-store';
 
-        // Only send credentials if we're in prod.
-        // This helps with testing in development.
-        // The production build process replaces the text 'process.env.NODE_ENV'
-        // with the literal string 'production'
-        if ('production' === process.env.NODE_ENV) {
-            requestConfig.credentials = 'include';
-        }
-
         return requestConfig;
     }
 
@@ -252,6 +265,7 @@ class AlbumLoadMachine {
         if (!albumEntry.album) throw 'Album is null';
         const oldAlbumEntry = albumState.albums.get(albumEntry.album.path);
         if (!oldAlbumEntry) throw 'albumEntryStore is null';
+        albumState.albumChangedAt.set(albumEntry.album.path, Date.now());
         albumState.albums.set(albumEntry.album.path, albumEntry);
         this.#writeToDisk(albumEntry.album.path, albumEntry.album.json); // Put album in browser's local disk cache
     }
@@ -299,6 +313,11 @@ class AlbumLoadMachine {
             draftState.loadStatus = loadStatus;
         });
         albumState.albums.set(path, newAlbumEntry);
+    }
+
+    #changedRecently(path: string): boolean {
+        const changedAt = albumState.albumChangedAt.get(path);
+        return changedAt !== undefined && Date.now() - changedAt < FRESH_AFTER_CHANGE_MS;
     }
 
     #getLoadStatus(path: string): AlbumLoadStatus {

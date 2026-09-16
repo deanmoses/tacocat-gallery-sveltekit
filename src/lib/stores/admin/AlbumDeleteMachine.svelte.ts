@@ -68,7 +68,7 @@ class AlbumDeleteMachine {
                 throw new Error(json?.errorMessage || response.statusText);
             }
             await albumLoadMachine.removeFromMemoryAndDisk(albumPath);
-            await albumLoadMachine.fetchFromServer(getParentFromPath(albumPath)); // reload parent album
+            await albumLoadMachine.reloadAfterChange(getParentFromPath(albumPath)); // reload parent album
             this.#success(albumPath);
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);

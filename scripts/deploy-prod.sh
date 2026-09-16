@@ -6,8 +6,16 @@ cloudfront_distribution_id=E3DFANBWDVJ2DM
 echo "Deploying files to S3..."
 aws s3 sync build s3://tacocat-gallery-website-hosting-prod-bucket/ --delete --exclude '.DS_Store' --exclude '.well-known'
 
-echo "Kicking off CloudFront invalidation..."
-invalidation_id=$(aws cloudfront create-invalidation --distribution-id "$cloudfront_distribution_id" --paths "/*" --output json --query Invalidation.Id)
+# The site's files only, read off the build: the distribution also serves the API
+# as /api/*, whose cached albums are keyed on their versions and never need
+# invalidating. Every SPA route is served as /index.html.
+paths=()
+for entry in build/*; do
+    name=$(basename "$entry")
+    if [ -d "$entry" ]; then paths+=("/$name/*"); else paths+=("/$name"); fi
+done
+echo "Kicking off CloudFront invalidation of ${paths[*]}..."
+invalidation_id=$(aws cloudfront create-invalidation --distribution-id "$cloudfront_distribution_id" --paths "${paths[@]}" --output json --query Invalidation.Id)
 invalidation_id="${invalidation_id//\"/}" # Remove quotes from around ID
 
 # Wait for cloudfront invalidation to complete

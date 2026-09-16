@@ -288,7 +288,7 @@ class UploadMachine {
             }
 
             // Check which uploads have completed successfully
-            await albumLoadMachine.fetchFromServer(albumPath);
+            await albumLoadMachine.reloadAfterChange(albumPath);
             const album = albumState.albums.get(albumPath)?.album;
             if (!album) throw new Error('album not loaded');
 

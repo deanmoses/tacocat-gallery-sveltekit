@@ -19,7 +19,7 @@ export interface ThumbnailUrlInfo {
     readonly crop?: Rectangle;
 }
 
-export interface Album extends Nextable {
+export interface Album extends Thumbable {
     published: boolean;
     summary: string;
     thumbnailPath: string | undefined;

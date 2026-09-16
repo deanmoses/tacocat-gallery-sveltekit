@@ -110,9 +110,9 @@ class AlbumThumbnailSetMachine {
             }
             console.log(`Set thumbnail of album [${albumPath}] to [${newThumbnailMediaPath}]`);
             console.log(`Reloading album [${albumPath}] from server`);
-            await albumLoadMachine.fetchFromServer(albumPath);
+            await albumLoadMachine.reloadAfterChange(albumPath);
             console.log(`Reloading parent album [${getParentFromPath(albumPath)}] from server`);
-            await albumLoadMachine.fetchFromServer(getParentFromPath(albumPath));
+            await albumLoadMachine.reloadAfterChange(getParentFromPath(albumPath));
             this.#success(albumPath);
         } catch (error) {
             const msg = error instanceof Error ? error.message : String(error);

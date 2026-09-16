@@ -8,10 +8,4 @@ export class AlbumRootImpl extends AlbumBaseImpl implements Album {
     get parentTitle(): string {
         return '';
     }
-    get prevTitle(): string | undefined {
-        return undefined;
-    }
-    get nextTitle(): string | undefined {
-        return undefined;
-    }
 }

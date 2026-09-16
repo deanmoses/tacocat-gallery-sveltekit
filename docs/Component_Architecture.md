@@ -18,10 +18,6 @@ The main categories of components are organized by folder:
     - Admin-specific components (`admin/` subdirectory)
     - Except for the `admin/` components, these are **data-agnostic** by default, and do not interact with state machines
 
-3. **`/data-aware/`** - Components that fetch their own data, rather than letting a page in '/pages/' do it
-    - We want to keep these to an absolutely minimum. Do not add any more of these.
-    - Examples: `LatestAlbumThumbnail.svelte`
-
 ## Key Architectural Patterns
 
 ### State Machine Integration

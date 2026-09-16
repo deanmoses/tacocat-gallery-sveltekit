@@ -12,12 +12,15 @@
     import AlbumEditControls from '$lib/components/site/admin/edit_controls/AlbumEditControls.svelte';
     import EditableHtml from '$lib/components/site/admin/EditableHtml.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
+    import { albumNav } from '$lib/utils/albumNavigation';
+    import { getParentAlbum } from '$lib/stores/AlbumState.svelte';
     import { draftMachine } from '$lib/stores/admin/DraftMachine.svelte';
 
     interface Props {
         album: Album;
     }
     let { album }: Props = $props();
+    let neighbours = $derived(albumNav(album.path, getParentAlbum(album.path)));
     let okToNavigate = $derived(draftMachine.okToNavigate);
 </script>
 
@@ -27,9 +30,9 @@
     {/snippet}
 
     {#snippet nav()}
-        <PrevButton href={okToNavigate ? album.nextHref : undefined} title={album.nextTitle} />
+        <PrevButton href={okToNavigate ? neighbours.nextHref : undefined} title={neighbours.nextTitle} />
         <UpButton href={okToNavigate ? '../' : undefined} title="All Years" />
-        <NextButton href={okToNavigate ? album.prevHref : undefined} title={album.prevTitle} />
+        <NextButton href={okToNavigate ? neighbours.prevHref : undefined} title={neighbours.prevTitle} />
     {/snippet}
 
     {#snippet caption()}

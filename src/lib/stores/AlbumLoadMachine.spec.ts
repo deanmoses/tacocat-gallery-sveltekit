@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { albumLoadMachine } from './AlbumLoadMachine.svelte';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { albumLoadMachine, FRESH_AFTER_CHANGE_MS } from './AlbumLoadMachine.svelte';
 import { albumState } from './AlbumState.svelte';
 import { AlbumLoadStatus, ReloadStatus } from '$lib/models/album';
 import { clear as clearDisk, get as getFromDisk, keys as diskKeys, set as setOnDisk } from 'idb-keyval';
@@ -18,7 +18,7 @@ import { albumRecord, imageRecord, mediaPath } from '$lib/test-support/records';
  */
 const PATH = '/2001/12-31/';
 const PARENT_PATH = '/2001/';
-const ROUTE = '/album/2001/12-31/';
+const ROUTE = '/api/album/2001/12-31/';
 const IMAGE_PATH = mediaPath('image.jpg');
 
 function record() {
@@ -149,6 +149,66 @@ describe('albumLoadMachine', () => {
             await vi.waitFor(() => expect(albumState.albumUpdates.get(PATH)).toBe(ReloadStatus.NOT_RELOADING));
 
             expect(server.calls).toHaveLength(1);
+        });
+    });
+
+    /**
+     * The edge serves an album from cache until its version catches up with a
+     * change, some seconds after it. A re-read in that window that went through
+     * the cache would get the old copy and overwrite the new one, on screen and
+     * on disk, so every read of an album this session changed asks past the
+     * cache for a while.
+     */
+    describe('reading past the edge cache after a change', () => {
+        afterEach(() => vi.useRealTimers());
+
+        const searches = (server: ReturnType<typeof fakeServer>) => server.rawCalls.map((call) => call.url.search);
+
+        it('reloadAfterChange asks past the cache', async () => {
+            const server = fakeServer();
+            server.get(ROUTE, jsonResponse(record()));
+
+            await albumLoadMachine.reloadAfterChange(PATH);
+
+            expect(searches(server)).toStrictEqual(['?fresh']);
+        });
+
+        it('so does a page visit soon after, and a plain one later', async () => {
+            vi.useFakeTimers({ now: new Date(2001, 11, 31) });
+            const server = fakeServer();
+            server.get(ROUTE, jsonResponse(record()));
+            await albumLoadMachine.reloadAfterChange(PATH);
+
+            albumLoadMachine.fetch(PATH);
+            await vi.waitFor(() => expect(server.calls).toHaveLength(2));
+            vi.advanceTimersByTime(FRESH_AFTER_CHANGE_MS);
+            albumLoadMachine.fetch(PATH);
+            await vi.waitFor(() => expect(server.calls).toHaveLength(3));
+
+            expect(searches(server)).toStrictEqual(['?fresh', '?fresh', '']);
+        });
+
+        // A draft save changes the album in memory without a server round trip
+        it('a saved draft counts as a change', async () => {
+            const entry = seedLoadedAlbum(record());
+            const server = fakeServer();
+            server.get(ROUTE, jsonResponse(record()));
+
+            albumLoadMachine.updateAlbumEntry(entry);
+            albumLoadMachine.fetch(PATH);
+            await vi.waitFor(() => expect(server.calls).toHaveLength(1));
+
+            expect(searches(server)).toStrictEqual(['?fresh']);
+        });
+
+        it('an album this session never changed is read through the cache', async () => {
+            const server = fakeServer();
+            server.get(ROUTE, jsonResponse(record()));
+
+            albumLoadMachine.fetch(PATH);
+            await vi.waitFor(() => expect(server.calls).toHaveLength(1));
+
+            expect(searches(server)).toStrictEqual(['']);
         });
     });
 

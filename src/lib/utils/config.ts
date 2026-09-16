@@ -19,21 +19,11 @@ function isStaging(): boolean {
 }
 
 /**
- * Note: This is browser-only (returns false during SSR).
- * This is safe because the app is a static SPA with no server-side data fetching.
- * If SSR were enabled, this would need to handle the server-side case.
+ * The API is served on the site's own domain: through the site's CloudFront
+ * distribution in staging and prod, and through Vite's proxy on localhost.
  */
-function isLocalhost(): boolean {
-    if (!browser) return false;
-    return window?.location?.hostname === 'localhost' || window?.location?.hostname === '127.0.0.1';
-}
-
 function baseApiUrl(): string {
-    // Use proxy path on localhost (works for both dev and preview servers).
-    // Note: This assumes browser-only execution (SPA mode). LAN IPs (e.g., 192.168.x.x)
-    // won't trigger the proxy and will hit staging/prod directly.
-    if (isLocalhost()) return '/api/';
-    return isStaging() ? 'https://api.staging-pix.tacocat.com/' : 'https://api.pix.tacocat.com/';
+    return '/api/';
 }
 function baseAuthApiUrl(): string {
     return isStaging() ? 'https://auth.staging-pix.tacocat.com/' : 'https://auth.pix.tacocat.com/';
@@ -162,13 +152,6 @@ export function renameAlbumUrl(albumPath: string): string {
  */
 export function renameMediaUrl(mediaPath: string): string {
     return baseApiUrl() + 'media-rename' + mediaPath;
-}
-
-/**
- * URL to send HTTP GET retrieve latest album
- */
-export function latestAlbumUrl(): string {
-    return baseApiUrl() + 'latest-album/';
 }
 
 /**

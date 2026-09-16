@@ -11,14 +11,16 @@
     import NextButton from '$lib/components/site/nav/NextButton.svelte';
     import MediaThumbnail from '$lib/components/site/MediaThumbnail.svelte';
     import type { Album } from '$lib/models/GalleryItemInterfaces';
+    import { albumNav } from '$lib/utils/albumNavigation';
     import type { UploadEntry } from '$lib/models/album';
     import { sessionStore } from '$lib/stores/SessionStore.svelte';
-    import { albumState } from '$lib/stores/AlbumState.svelte';
+    import { albumState, getParentAlbum } from '$lib/stores/AlbumState.svelte';
 
     interface Props {
         album: Album;
     }
     let { album }: Props = $props();
+    let neighbours = $derived(albumNav(album.path, getParentAlbum(album.path)));
     let uploads: UploadEntry[] | undefined = $derived(
         albumState.uploads.filter((upload) => upload.mediaPath.startsWith(album.path)),
     );
@@ -30,9 +32,9 @@
     {/snippet}
 
     {#snippet nav()}
-        <PrevButton href={album.nextHref} title={album.nextTitle} />
+        <PrevButton href={neighbours.nextHref} title={neighbours.nextTitle} />
         <UpButton href={album.parentHref} title={album.parentTitle} />
-        <NextButton href={album.prevHref} title={album.prevTitle} />
+        <NextButton href={neighbours.prevHref} title={neighbours.prevTitle} />
     {/snippet}
 
     {#snippet caption()}

@@ -12,13 +12,13 @@ import { sessionStore } from '$lib/stores/SessionStore.svelte';
  * Low-level fetch wrapper that handles 401 by refreshing the token and retrying once.
  */
 async function authFetch(url: string, init: RequestInit): Promise<Response> {
-    const response = await fetch(url, { ...init, credentials: 'include' });
+    const response = await fetch(url, init);
 
     if (response.status !== 401) {
         return response;
     }
 
-    // Try to refresh the token via auth service
+    // Try to refresh the token via the auth service, which is on its own domain
     const refreshResponse = await fetch(checkAuthenticationUrl(), {
         cache: 'no-store',
         credentials: 'include',
@@ -31,7 +31,7 @@ async function authFetch(url: string, init: RequestInit): Promise<Response> {
     }
 
     // Token refreshed - retry the original request
-    return fetch(url, { ...init, credentials: 'include' });
+    return fetch(url, init);
 }
 
 const JSON_HEADERS = {
@@ -41,13 +41,12 @@ const JSON_HEADERS = {
 
 /**
  * Authenticated API client for admin operations.
- * Includes automatic token refresh on 401, credentials, and JSON headers.
+ * Includes automatic token refresh on 401 and JSON headers.
  */
 export const adminApi = {
     async get(url: string): Promise<Response> {
         return authFetch(url, {
             method: 'GET',
-            credentials: 'include',
             headers: JSON_HEADERS,
         });
     },
@@ -55,7 +54,6 @@ export const adminApi = {
     async post(url: string, body: object): Promise<Response> {
         return authFetch(url, {
             method: 'POST',
-            credentials: 'include',
             headers: JSON_HEADERS,
             body: JSON.stringify(body),
         });
@@ -64,7 +62,6 @@ export const adminApi = {
     async put(url: string, body: object = {}): Promise<Response> {
         return authFetch(url, {
             method: 'PUT',
-            credentials: 'include',
             headers: JSON_HEADERS,
             body: JSON.stringify(body),
         });
@@ -73,7 +70,6 @@ export const adminApi = {
     async patch(url: string, body: object): Promise<Response> {
         return authFetch(url, {
             method: 'PATCH',
-            credentials: 'include',
             headers: JSON_HEADERS,
             body: JSON.stringify(body),
         });
@@ -82,7 +78,6 @@ export const adminApi = {
     async delete(url: string): Promise<Response> {
         return authFetch(url, {
             method: 'DELETE',
-            credentials: 'include',
             headers: JSON_HEADERS,
         });
     },

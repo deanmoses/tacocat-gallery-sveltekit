@@ -74,7 +74,7 @@ class MediaRenameMachine {
                 const json = await response.json().catch(() => ({}));
                 throw new Error(json?.errorMessage || response.statusText);
             }
-            await albumLoadMachine.fetchFromServer(albumPath); // update the album
+            await albumLoadMachine.reloadAfterChange(albumPath); // update the album
             this.#success(oldMediaPath);
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);

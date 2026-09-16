@@ -24,7 +24,6 @@ export async function checkMediaErrors(paths: string[]): Promise<MediaErrorsResp
             headers: {
                 'Content-Type': 'application/json',
             },
-            credentials: 'include',
             body: JSON.stringify({ paths }),
         });
 

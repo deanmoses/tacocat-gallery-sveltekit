@@ -79,7 +79,7 @@ class CropMachine {
             //  2) this media item may be the album's thumb
             const albumPath = getParentFromPath(mediaPath);
             console.log(`Reloading album [${albumPath}] from server`);
-            await albumLoadMachine.fetchFromServer(albumPath); // force reload from server
+            await albumLoadMachine.reloadAfterChange(albumPath); // force reload from server
 
             // Reload year album because this media item may be the year's thumb
             // TODO: not doing yet because back end isn't setting year's thumb yet

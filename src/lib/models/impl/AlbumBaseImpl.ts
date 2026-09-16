@@ -15,8 +15,6 @@ export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
     }
 
     abstract get parentTitle(): string;
-    abstract get prevTitle(): string | undefined;
-    abstract get nextTitle(): string | undefined;
 
     override get published(): boolean {
         return this.json.published ?? false;
@@ -43,22 +41,6 @@ export abstract class AlbumBaseImpl extends ThumbableBaseImpl implements Album {
 
     override get parentHref(): string {
         return this.json.parentPath.slice(0, -1); // slice off trailing slash
-    }
-
-    get nextHref(): string | undefined {
-        return this?.next?.slice(0, -1); // slice off trailing slash
-    }
-
-    get prevHref(): string | undefined {
-        return this?.prev?.slice(0, -1); // slice off trailing slash
-    }
-
-    protected get next(): string | undefined {
-        return this.json?.next?.path;
-    }
-
-    protected get prev(): string | undefined {
-        return this.json?.prev?.path;
     }
 
     get thumbnailPath(): string | undefined {

@@ -12,17 +12,17 @@ Tacocat is multiple Github repos deployed into AWS account `010410881828`, every
 
 ## Domains
 
-A guest loads the SPA from `pix`, which fetches album JSON from `api` and thumbnails from `img`. Admins additionally hit `auth`, which redirects to Cognito's hosted UI.
+A guest loads the SPA from `pix`, which fetches album JSON from `pix/api/` and thumbnails from `img`. Admins additionally hit `auth`, which redirects to Cognito's hosted UI.
 
-| Domain                 | Serves               | Fronted by  | Defined in                                                                         |
-| ---------------------- | -------------------- | ----------- | ---------------------------------------------------------------------------------- |
-| `pix.tacocat.com`      | the SPA              | CloudFront  | `tacocat-gallery-hosting-aws` (distribution), `tacocat-gallery-sveltekit` (assets) |
-| `api.pix.tacocat.com`  | album/image API      | API Gateway | `tacocat-gallery-sam`                                                              |
-| `img.pix.tacocat.com`  | image CDN            | CloudFront  | `tacocat-gallery-sam`                                                              |
-| `auth.pix.tacocat.com` | login/logout/session | API Gateway | `tacocat-gallery-auth`                                                             |
-| `login.tacocat.com`    | Cognito hosted UI    | Cognito     | `tacocat-gallery-auth`                                                             |
+| Domain                 | Serves                                       | Fronted by  | Defined in                                                                                                      |
+| ---------------------- | -------------------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------- |
+| `pix.tacocat.com`      | the SPA, and the album/image API as `/api/*` | CloudFront  | `tacocat-gallery-hosting-aws` (distribution), `tacocat-gallery-sveltekit` (assets), `tacocat-gallery-sam` (API) |
+| `api.pix.tacocat.com`  | album/image API, directly                    | API Gateway | `tacocat-gallery-sam`                                                                                           |
+| `img.pix.tacocat.com`  | image CDN                                    | CloudFront  | `tacocat-gallery-sam`                                                                                           |
+| `auth.pix.tacocat.com` | login/logout/session                         | API Gateway | `tacocat-gallery-auth`                                                                                          |
+| `login.tacocat.com`    | Cognito hosted UI                            | Cognito     | `tacocat-gallery-auth`                                                                                          |
 
-`api` and `auth` are API Gateway custom domains, not CloudFront distributions — the account has five distributions, all SPA or image.
+The SPA's distribution has an API Gateway origin at `api`, so the app and the API share an origin: no CORS, and album responses are cached at the edge. `api` still answers directly, for the integration tests and for debugging. `api` and `auth` are API Gateway custom domains, not CloudFront distributions — the account has five distributions, all SPA or image.
 
 ## Environments
 

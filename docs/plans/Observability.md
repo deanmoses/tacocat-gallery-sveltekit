@@ -344,7 +344,7 @@ It is a measuring instrument, so it needs the same scepticism as the things it m
 What is left, after the 2026-09-10 deploy:
 
 1. Keep `GetAlbum` warm, or take album reads off Lambda. Largest win by a distance once weighted by who pays it: ~455ms on roughly three quarters of arrivals, against ~155ms on all of them for the item below. A two-minute ping is the cheap version and costs about a penny a month; serving album JSON from S3 through CloudFront is the thorough one and lands on the same origin as the consolidation.
-2. ~~Consolidate the three domains behind one distribution.~~ Built and measured on 2026-09-13: no gain from San Francisco, cold or warm, and a cold visit reads slower. The durability case remains; the latency case does not. See _What the same-origin prototype measured_.
+2. ~~Consolidate the three domains behind one distribution.~~ Built and measured on 2026-09-13: no gain from San Francisco, cold or warm, and a cold visit reads slower. The durability case remains; the latency case does not. See _What the same-origin prototype measured_. **Shipped for the API on 2026-09-16 regardless**, because the edge cache changed the arithmetic: a cached album reaches no origin at all, so the cold edge-to-origin handshake lands only on misses, and same-origin was the one way to put the cache in the real request path, with the real auth cookie, without moving domains. See `tacocat-gallery-sam`'s `docs/plans/EdgeCachedAlbums.md`.
 3. `loading="lazy"` from the first offscreen thumbnail onward, plus `fetchpriority="high"` on the first, both in this repo. No deploy. It stops 49 of 65 images being fetched for a desktop viewport that holds 16, and 44 of 47 on a phone that holds three.
 4. `Cache-Control` on `index.html`.
 
