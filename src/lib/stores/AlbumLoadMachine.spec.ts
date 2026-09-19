@@ -70,13 +70,19 @@ describe('albumLoadMachine', () => {
             await expect(diskKeys()).resolves.toStrictEqual([PATH]);
         });
 
-        it('marks the album LOADING before any of that has happened', () => {
+        it('marks the album LOADING before any of that has happened', async () => {
             const server = fakeServer();
             server.get(ROUTE, jsonResponse(record()));
 
             albumLoadMachine.fetch(PATH);
 
             expect(loadStatus()).toBe(AlbumLoadStatus.LOADING);
+
+            // The load must finish inside the test: once the test ends the
+            // fetch stub is restored, and the disk read still in flight would
+            // send the server request to the live API and land its answer in
+            // the next test's state
+            await vi.waitFor(() => expect(loadStatus()).toBe(AlbumLoadStatus.LOADED));
         });
 
         // The disk copy is what the reader sees while the server request is in
