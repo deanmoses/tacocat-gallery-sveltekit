@@ -5,8 +5,8 @@
  * Automatically handles 401 responses by refreshing the auth token and retrying once.
  */
 
-import { checkAuthenticationUrl } from './config';
 import { sessionStore } from '$lib/stores/SessionStore.svelte';
+import { refreshSession } from './session';
 
 /**
  * Low-level fetch wrapper that handles 401 by refreshing the token and retrying once.
@@ -18,13 +18,7 @@ async function authFetch(url: string, init: RequestInit): Promise<Response> {
         return response;
     }
 
-    // Try to refresh the token via auth service
-    const refreshResponse = await fetch(checkAuthenticationUrl(), {
-        cache: 'no-store',
-        credentials: 'include',
-    });
-
-    if (!refreshResponse.ok) {
+    if (!(await refreshSession())) {
         // Refresh failed - user session is truly expired
         sessionStore.fetchUserStatus(); // Updates UI to show logged-out state
         throw new Error('Your session has expired. Please log in again.');

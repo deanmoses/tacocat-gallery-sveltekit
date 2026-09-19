@@ -136,6 +136,7 @@ Album data cached in IndexedDB with network fallback.
 
 - Cognito-hosted login via redirect
 - Session cookies with `credentials: 'include'`
+- The API verifies the cookie on reads too. An expired token gets the public view with an `X-Auth-Status: invalid` header; album fetches go through `fetchRefreshingSession()`, which refreshes the session and asks once more
 - `FAKE_ADMIN_ON_DEV = true` in `SessionStore` simulates admin locally
 - Auth endpoints at `https://auth.pix.tacocat.com/`
 - Served by the `tacocat-gallery-auth` project; see [Ecosystem](docs/Ecosystem.md)

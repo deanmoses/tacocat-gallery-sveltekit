@@ -1,5 +1,5 @@
 import { dev } from '$app/environment';
-import { checkAuthenticationUrl } from '$lib/utils/config';
+import { checkSession } from '$lib/utils/session';
 import { get as getFromIdb, set as setToIdb } from 'idb-keyval';
 
 /** True: simulate being an admin when in a dev (localhost) environment */
@@ -77,12 +77,7 @@ class SessionStore {
             return;
         }
         try {
-            const response = await fetch(checkAuthenticationUrl(), {
-                // no-store: the browser fetches from the remote server without first looking in the cache,
-                // and will not update the cache with the downloaded resource
-                cache: 'no-store',
-                credentials: 'include',
-            });
+            const response = await checkSession();
             // 401 unauthorized
             if (401 === response.status) {
                 // User is not logged in,

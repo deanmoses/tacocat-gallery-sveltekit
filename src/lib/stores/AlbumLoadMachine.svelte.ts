@@ -5,6 +5,7 @@ import toAlbum from '$lib/models/impl/AlbumCreator';
 import { isValidAlbumPath } from '$lib/utils/galleryPathUtils';
 import type { AlbumRecord } from '$lib/models/impl/server';
 import { albumUrl } from '$lib/utils/config';
+import { fetchRefreshingSession } from '$lib/utils/session';
 import { albumState } from './AlbumState.svelte';
 
 /**
@@ -161,7 +162,7 @@ class AlbumLoadMachine {
      */
     async fetchFromServer(path: string): Promise<void> {
         try {
-            const response = await fetch(albumUrl(path), this.#buildFetchConfig());
+            const response = await fetchRefreshingSession(albumUrl(path), this.#buildFetchConfig());
             if (response.status === 404) {
                 this.#notFound(path);
                 this.#removeFromDisk(path); // Delete album from local disk
@@ -214,7 +215,7 @@ class AlbumLoadMachine {
         const url = albumUrl(path);
         const requestConfig = this.#buildFetchConfig();
         requestConfig.method = 'HEAD';
-        const response = await fetch(url, requestConfig);
+        const response = await fetchRefreshingSession(url, requestConfig);
         if (response.status === 404) return false;
         if (response.ok) return true;
         throw new Error(`Unexpected response [${response.status}] fetching album [${path}]`);
