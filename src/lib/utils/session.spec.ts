@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { fakeServer, jsonResponse } from '$lib/test-support/http';
-import { AUTH_STATUS_HEADER, fetchRefreshingSession, refreshSession } from './session';
+import { AUTH_STATUS_HEADER, checkSession, fetchRefreshingSession, refreshSession } from './session';
 
 /** Under node the auth service resolves to the production hostname; the fake server keys on pathname alone */
 const AUTH_ROUTE = '/';
@@ -10,6 +10,28 @@ const ALBUM_URL = `https://api.pix.tacocat.com${ALBUM_ROUTE}`;
 const unauthorized = (): Response => new Response(null, { status: 401 });
 const albumReply = (status: string | undefined, body: unknown): Response =>
     jsonResponse(body, 200, status ? { [AUTH_STATUS_HEADER]: status } : {});
+
+describe(checkSession, () => {
+    it('shares one request between concurrent callers, each able to read the body', async () => {
+        const server = fakeServer();
+        server.get(AUTH_ROUTE, jsonResponse({ user: 'x' }));
+
+        const [first, second] = await Promise.all([checkSession(), checkSession()]);
+
+        expect(server.calls).toHaveLength(1);
+        await expect(first.json()).resolves.toStrictEqual({ user: 'x' });
+        await expect(second.json()).resolves.toStrictEqual({ user: 'x' });
+    });
+
+    it('rejects when the auth service cannot be reached', async () => {
+        const server = fakeServer();
+        server.get(AUTH_ROUTE, () => {
+            throw new Error('offline');
+        });
+
+        await expect(checkSession()).rejects.toThrow('offline');
+    });
+});
 
 describe(refreshSession, () => {
     it.each([

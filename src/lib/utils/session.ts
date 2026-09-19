@@ -7,25 +7,35 @@ import { checkAuthenticationUrl } from './config';
  */
 export const AUTH_STATUS_HEADER = 'X-Auth-Status';
 
-let refreshInFlight: Promise<boolean> | undefined;
+let sessionCheck: Promise<Response> | undefined;
 
 /**
- * Ask the auth service to refresh the session cookies. Resolves to whether it
- * could; false means the session has truly expired and the user must log in.
+ * Ask the auth service whether the session is live, which also refreshes its
+ * cookies. Rejects when the service cannot be reached.
  *
- * Concurrent callers share one request: an album load and the session check
- * both fire on page load, and a refresh token must not be spent twice.
+ * Concurrent callers share one request and each get their own copy of the
+ * response: the session check on page load and an album's retry can coincide,
+ * and a refresh token must not be spent twice.
  */
-export function refreshSession(): Promise<boolean> {
-    if (!refreshInFlight) {
-        refreshInFlight = fetch(checkAuthenticationUrl(), { cache: 'no-store', credentials: 'include' })
-            .then((response) => response.ok)
-            .catch(() => false)
-            .finally(() => {
-                refreshInFlight = undefined;
-            });
+export function checkSession(): Promise<Response> {
+    if (!sessionCheck) {
+        sessionCheck = fetch(checkAuthenticationUrl(), { cache: 'no-store', credentials: 'include' }).finally(() => {
+            sessionCheck = undefined;
+        });
     }
-    return refreshInFlight;
+    return sessionCheck.then((response) => response.clone());
+}
+
+/**
+ * Refresh the session cookies. Resolves to whether it could; false means the
+ * session has truly expired and the user must log in.
+ */
+export async function refreshSession(): Promise<boolean> {
+    try {
+        return (await checkSession()).ok;
+    } catch {
+        return false;
+    }
 }
 
 /**
