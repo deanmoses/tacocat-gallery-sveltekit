@@ -8,7 +8,10 @@ on:
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true # Cancel previous runs when new commits push
+    # A push to main must run to completion so the staging deploy is never cut off
+    # between the bucket sync and the CloudFront invalidation. A superseded pull
+    # request run can go.
+    cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
     contents: read
