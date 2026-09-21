@@ -12,7 +12,10 @@
         "noUnusedParameters": true,
         "noImplicitOverride": true,
         "noImplicitReturns": true,
-        "noFallthroughCasesInSwitch": true
+        "noFallthroughCasesInSwitch": true,
+        // Errors rather than editor hints
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false
     }
     // Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
     //
