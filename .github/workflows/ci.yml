@@ -8,7 +8,10 @@ on:
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true # Cancel previous runs when new commits push
+    # A push to main must run to completion so the staging deploy is never cut off
+    # between the bucket sync and the CloudFront invalidation. A superseded pull
+    # request run can go.
+    cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
     contents: read
@@ -22,6 +25,7 @@ jobs:
     # and branch protection needs a check that always does: merge-ok below.
     detect-code-changes:
         runs-on: ubuntu-latest
+        timeout-minutes: 5
         permissions:
             contents: read
             pull-requests: read # paths-filter lists a pull request's files through the API
@@ -50,6 +54,7 @@ jobs:
         needs: detect-code-changes
         if: ${{ needs.detect-code-changes.outputs.code_changed == 'true' }}
         runs-on: ubuntu-latest
+        timeout-minutes: 15
 
         steps:
             - name: Checkout
@@ -131,6 +136,7 @@ jobs:
         needs: detect-code-changes
         if: ${{ needs.detect-code-changes.outputs.code_changed == 'false' }}
         runs-on: ubuntu-latest
+        timeout-minutes: 5
 
         steps:
             - name: Checkout
@@ -158,6 +164,7 @@ jobs:
         needs: [detect-code-changes, build, lint-docs]
         if: always()
         runs-on: ubuntu-latest
+        timeout-minutes: 5
         steps:
             - name: Check required jobs
               env:
@@ -195,6 +202,7 @@ jobs:
         needs: build
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         runs-on: ubuntu-latest
+        timeout-minutes: 15
         permissions:
             contents: read
             id-token: write # lets the job request a GitHub OIDC token to assume an AWS role
@@ -227,6 +235,7 @@ jobs:
     smoke-test:
         needs: deploy
         runs-on: ubuntu-latest
+        timeout-minutes: 15
 
         steps:
             - name: Checkout

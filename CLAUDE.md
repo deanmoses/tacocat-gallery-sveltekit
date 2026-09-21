@@ -37,7 +37,7 @@ Merging to `main` automatically deploys to staging via GitHub Actions.
 
 ## Node.js
 
-Requires Node.js >=24.0.0.
+Requires Node.js 24, at least 24.2.0. `.nvmrc` selects it and the strict engine check refuses anything else.
 
 ## Tech Stack
 
