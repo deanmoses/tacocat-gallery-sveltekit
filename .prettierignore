@@ -13,3 +13,8 @@ package-lock.json
 yarn.lock
 
 coverage
+
+# Generated: CLAUDE.md and AGENTS.md come from docs/AGENTS.src.md via
+# scripts/build-agent-docs.mjs. Formatting them here would fight the generator.
+CLAUDE.md
+AGENTS.md

@@ -1,5 +1,16 @@
 {
     // Rules live in .markdownlint.json so the editor extension reads them too.
     "globs": ["**/*.md"],
-    "ignores": [".git", "node_modules", "build", ".svelte-kit", "coverage", "playwright-report", "test-results"],
+    "ignores": [
+        ".git",
+        "node_modules",
+        "build",
+        ".svelte-kit",
+        "coverage",
+        "playwright-report",
+        "test-results",
+        // Generated from docs/AGENTS.src.md; linting them duplicates linting the source.
+        "CLAUDE.md",
+        "AGENTS.md",
+    ],
 }
