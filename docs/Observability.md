@@ -83,7 +83,7 @@ Two distributions write access logs to S3, tab-separated with a `#Fields` header
 
 Staging twins write to the matching `-dev` buckets. The SPA distribution is defined in the `tacocat-gallery-hosting-aws` repo.
 
-**Read the `#Fields` line of each file rather than assuming an order**: the field list has changed, and [the analytics README](../production_logs/README.md#analyze) says which columns are missing before when. `cache-behavior-path-pattern` is the behavior that answered, so on the SPA distribution every client-side route logs `*`: the error response fetches `/index.html` through the default behavior.
+**Read the `#Fields` line of each file rather than assuming an order**: the field list has changed, and [the analytics README](../production_logs/README.md#analyze) says which columns are missing before when. `cache-behavior-path-pattern` is the behavior that answered, so on the SPA distribution every client-side route logs `*`: a day album or photo page is rewritten to `/index.html` by a CloudFront Function on the default behavior, and any other route is answered by the error response, which fetches `/index.html` through the default behavior.
 
 Delivery is configured through CloudWatch, not on the distribution, so `get-distribution-config` shows logging disabled while logs are flowing. `aws logs describe-delivery-sources` is what says whether a distribution is logging.
 

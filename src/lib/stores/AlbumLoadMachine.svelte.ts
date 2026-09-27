@@ -213,8 +213,8 @@ class AlbumLoadMachine {
         // Then check server
         console.log(`Checking if album [${path}] exists on server`);
         const url = albumUrl(path);
-        const requestConfig = this.#buildFetchConfig();
-        requestConfig.method = 'HEAD';
+        // The existence check's response has no Cache-Control, so nothing else stops the browser reusing a stale answer
+        const requestConfig: RequestInit = { ...this.#buildFetchConfig(), method: 'HEAD', cache: 'no-store' };
         const response = await fetchRefreshingSession(url, requestConfig);
         if (response.status === 404) return false;
         if (response.ok) return true;
@@ -225,19 +225,16 @@ class AlbumLoadMachine {
      * Build the configuration for the HTTP fetch
      */
     #buildFetchConfig(): RequestInit {
+        // In the browser's default cache mode: the album page's headers preload the album, and a browser hands the
+        // preloaded response only to a request made the same way. The API's Cache-Control: private, no-cache keeps
+        // the browser from reusing a stale album.
         const requestConfig: RequestInit = {};
-
-        // no-store: bypass the HTTP cache completely.
-        // This will make the browser not look into the HTTP cache
-        // on the way to the network, and never store the resulting
-        // response in the HTTP cache.
-        // Fetch() will behave as if no HTTP cache exists.
-        requestConfig.cache = 'no-store';
 
         // Only send credentials if we're in prod.
         // This helps with testing in development.
         // The production build process replaces the text 'process.env.NODE_ENV'
         // with the literal string 'production'
+        // The preload says crossorigin=use-credentials to match this.
         if ('production' === process.env.NODE_ENV) {
             requestConfig.credentials = 'include';
         }

@@ -100,9 +100,10 @@ SELECT
   try_cast(nullif(cf_field(cols, fields, 'origin-lbl'), '-') AS DOUBLE) AS origin_seconds,
   -- The PathPattern of the behavior that ANSWERED, `*` for the default one,
   -- which is not always the one the path matched: on the SPA distribution a
-  -- path with no object behind it is answered by the error response, which
-  -- fetches /index.html through the default behavior, so every client-side
-  -- route logs `*` whatever it matched.
+  -- day album or photo page is rewritten to /index.html by a function on the
+  -- default behavior, and any other path with no object behind it is answered
+  -- by the error response, which fetches /index.html through the default
+  -- behavior, so every client-side route logs `*` whatever it matched.
   nullif(cf_field(cols, fields, 'cache-behavior-path-pattern'), '-') AS cache_behavior,
   cf_field(cols, fields, 'cs-protocol') AS scheme,
   cf_field(cols, fields, 'cs-protocol-version') AS http_version,
