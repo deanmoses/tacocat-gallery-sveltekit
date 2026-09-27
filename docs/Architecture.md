@@ -45,6 +45,7 @@ For retrieving albums and other data from the server, we use a Cache-Then-Networ
     - On success, update the in-memory state first (prioritize showing new info to the user the fastest), then write to IndexedDB
     - On 404, remove it from all the caches.
     - On any other server error, keep the cached version.
+    - A day album's or photo's page names its album's JSON in a `Link: rel=preload` header, added by a CloudFront Function in `tacocat-gallery-hosting-aws`, so on a fresh page load the browser has already started this request by the time the app makes it. The fetch uses the browser's default cache mode, since a browser hands a preloaded response only to a request made the same way, and the API's `Cache-Control: private, no-cache` keeps the browser from reusing a stale album.
 
 This strategy ensures:
 

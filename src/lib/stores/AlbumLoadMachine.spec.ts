@@ -70,6 +70,19 @@ describe('albumLoadMachine', () => {
             await expect(diskKeys()).resolves.toStrictEqual([PATH]);
         });
 
+        // The album page's headers preload this URL, and a browser hands the preloaded response only to a fetch in
+        // the same cache mode; bypassing the cache would fetch the album a second time
+        it("asks the server in the browser's default cache mode, so a response the page preloaded is used", async () => {
+            const server = fakeServer();
+            server.get(ROUTE, jsonResponse(record()));
+
+            albumLoadMachine.fetch(PATH);
+
+            await vi.waitFor(() => expect(loadStatus()).toBe(AlbumLoadStatus.LOADED));
+
+            expect(vi.mocked(globalThis.fetch).mock.calls.map(([, init]) => init?.cache)).toStrictEqual([undefined]);
+        });
+
         it('marks the album LOADING before any of that has happened', async () => {
             const server = fakeServer();
             server.get(ROUTE, jsonResponse(record()));
