@@ -10,7 +10,7 @@
     import PlayButtonIcon from './icons/PlayButtonIcon.svelte';
     import RenameIcon from './icons/RenameIcon.svelte';
     import UnpublishedIcon from './icons/UnpublishedIcon.svelte';
-    import { thumbnailUrl } from '$lib/utils/config';
+    import { thumbnailSrcset, thumbnailUrl } from '$lib/utils/config';
     import type { ThumbnailUrlInfo } from '$lib/models/GalleryItemInterfaces';
     import type { Snippet } from 'svelte';
 
@@ -53,6 +53,11 @@
             ? thumbnailUrl(thumbnailUrlInfo.imagePath, thumbnailUrlInfo.versionId, thumbnailUrlInfo.crop)
             : src,
     );
+    let imgSrcset: string | undefined = $derived(
+        thumbnailUrlInfo
+            ? thumbnailSrcset(thumbnailUrlInfo.imagePath, thumbnailUrlInfo.versionId, thumbnailUrlInfo.crop)
+            : undefined,
+    );
     let unpublished: boolean = $derived(!published);
     let imageLoaded = $state(false);
 
@@ -67,6 +72,7 @@
     <a {href} aria-hidden="true" tabindex="-1"
         >{#if imgSrc}<img
                 src={imgSrc}
+                srcset={imgSrcset}
                 alt=""
                 data-testid="thumbnail-image"
                 draggable="false"

@@ -43,15 +43,38 @@ function cdnDomain(): string {
     return isStaging() ? 'img.staging-pix.tacocat.com' : 'img.pix.tacocat.com';
 }
 
+/** Thumbnails are square, drawn at this many CSS pixels: --thumbnail-width in global.css */
+const THUMBNAIL_SIZE = 200;
+
 /**
  * URL to CDN'ed thumbnail images
+ *
+ * Thumbnails are WebP: sharper than JPEG for the same bytes. The detail image stays JPEG so readers
+ * can drag it into apps that cannot open a WebP.
+ *
  * @param mediaPath Path to the source media like /2001/12-31/image.jpg or /2001/12-31/video.mp4
  * @param versionId Version of the source media
  * @param crop Optional crop rectangle
  */
 export function thumbnailUrl(mediaPath: string, versionId: string, crop?: Rectangle): string {
+    return thumbnailUrlAt(THUMBNAIL_SIZE, { mediaPath, versionId, crop });
+}
+
+/**
+ * The thumbnail at 1x and at 2x, so a Retina screen draws it pixel for pixel instead of upscaling the 200.
+ * A 3x phone upscales the 400 by half, which beats doubling the 200 without a third variant.
+ */
+export function thumbnailSrcset(mediaPath: string, versionId: string, crop?: Rectangle): string {
+    return [1, 2]
+        .map((density) => `${thumbnailUrlAt(THUMBNAIL_SIZE * density, { mediaPath, versionId, crop })} ${density}x`)
+        .join(', ');
+}
+
+type ThumbnailSource = { mediaPath: string; versionId: string; crop?: Rectangle };
+
+function thumbnailUrlAt(size: number, { mediaPath, versionId, crop }: ThumbnailSource): string {
     return (
-        `https://${cdnDomain()}/i${mediaPath}?version=${versionId}&size=200x200` +
+        `https://${cdnDomain()}/i${mediaPath}?version=${versionId}&size=${size}x${size}&format=webp` +
         (crop ? `&crop=${crop.x},${crop.y},${crop.width},${crop.height}` : '')
     );
 }
