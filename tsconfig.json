@@ -1,6 +1,8 @@
 {
     "extends": "./.svelte-kit/tsconfig.json",
     "compilerOptions": {
+        // Safari 15.6's library, near enough; see src/lib/utils/browserTarget.ts
+        "lib": ["ES2022", "DOM", "DOM.Iterable"],
         "allowJs": true,
         "checkJs": true,
         "forceConsistentCasingInFileNames": true,

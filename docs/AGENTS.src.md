@@ -62,11 +62,22 @@ Requires Node.js 24, at least 24.2.0. `.nvmrc` selects it and the strict engine 
 ## Tech Stack
 
 - **SvelteKit 2** with Svelte 5 - Static adapter (SPA mode, SSR disabled). All code runs in the browser; there is no server-side rendering.
-- **Vite 6** - Dev and preview servers proxy `/api/*` to backend
+- **Vite 8** - Dev and preview servers proxy `/api/*` to backend
 - **TypeScript** - Strict mode enabled
 - **Immer** - Immutable state updates via `produce()`
 - **Quill** - Rich text editing for descriptions
 - **Playwright** - E2E testing
+
+## Browser Support
+
+The build targets iOS Safari 15.6: `BROWSER_TARGET` in `src/lib/utils/browserTarget.ts`, wired into `build.target` in `vite.config.ts`. One of the gallery's most valued readers is on an iPhone that stopped at iOS 15.7 and will never be replaced, so the target stays where it is no matter where Vite's default moves.
+
+What the pin covers, and what it cannot:
+
+- Vite lowers JavaScript syntax (class static blocks and the like) and CSS (range media queries, nesting) to what Safari 15.6 parses, for the whole bundle, dependencies included. `browserTarget.spec.ts` proves the lowering on a fixture and that the project config carries the target.
+- A regex Safari 15.6 cannot parse, such as a lookbehind, has no older spelling. Vite turns the literal into a `RegExp()` call, which throws where it runs: inside a function that is one failed call, at module scope it is the whole module, and in an entry chunk it is a blank page. Don't write one.
+- Nothing polyfills a missing API. `tsconfig.json` pins `lib` to ES2022, near enough to what Safari 15.6 implements, so `toSorted()` and the like fail type checking. DOM APIs have no such pin: check [caniuse](https://caniuse.com/) against Safari 15.6 before using a newer one.
+- `src/service-worker.ts` is compiled by SvelteKit in a separate Vite build that does not carry the target, so it ships at Vite's default. Keep it to syntax Safari 15.6 parses. A worker that fails to parse costs the reader the offline cache, not the page.
 
 ## Architecture
 
