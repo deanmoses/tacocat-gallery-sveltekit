@@ -19,6 +19,28 @@ async function settles(image: Locator): Promise<void> {
 }
 
 describe(Thumbnail, () => {
+    it('offers the thumbnail at 200 for 1x and 400 for 2x screens, so neither upscales', async () => {
+        const screen = await render(Thumbnail, {
+            thumbnailUrlInfo: { imagePath: '/2001/12-31/felix.jpg', versionId: 'v1' },
+        });
+
+        const image = screen.getByTestId('thumbnail-image');
+
+        await expect.element(image).toHaveAttribute('src', expect.stringContaining('size=200x200&format=webp'));
+        await expect
+            .element(image)
+            .toHaveAttribute(
+                'srcset',
+                expect.stringMatching(/size=200x200&format=webp 1x, .*size=400x400&format=webp 2x$/),
+            );
+    });
+
+    it('offers no srcset for a raw src, which is an upload in progress', async () => {
+        const screen = await render(Thumbnail, { src: LOADABLE_IMAGE });
+
+        await expect.element(screen.getByTestId('thumbnail-image')).not.toHaveAttribute('srcset');
+    });
+
     it('shows a play overlay once a video thumbnail has loaded', async () => {
         const screen = await render(Thumbnail, { src: LOADABLE_IMAGE, isVideo: true });
 
