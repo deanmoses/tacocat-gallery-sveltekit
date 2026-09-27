@@ -43,7 +43,7 @@ function cdnDomain(): string {
     return isStaging() ? 'img.staging-pix.tacocat.com' : 'img.pix.tacocat.com';
 }
 
-/** Thumbnails are square, drawn at this many CSS pixels */
+/** Thumbnails are square, drawn at this many CSS pixels: --thumbnail-width in global.css */
 const THUMBNAIL_SIZE = 200;
 
 /**
@@ -61,7 +61,8 @@ export function thumbnailUrl(mediaPath: string, versionId: string, crop?: Rectan
 }
 
 /**
- * The thumbnail at 1x and at 2x, so a phone or Retina screen draws it pixel for pixel instead of upscaling
+ * The thumbnail at 1x and at 2x, so a Retina screen draws it pixel for pixel instead of upscaling the 200.
+ * A 3x phone upscales the 400 by half, which beats doubling the 200 without a third variant.
  */
 export function thumbnailSrcset(mediaPath: string, versionId: string, crop?: Rectangle): string {
     return [1, 2]
