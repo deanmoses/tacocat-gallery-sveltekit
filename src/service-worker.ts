@@ -1,5 +1,9 @@
 /// <reference lib="webworker" />
 /// <reference types="@sveltejs/kit" />
+
+// SvelteKit compiles this file in a Vite build of its own that ignores the
+// project's build.target, so it ships at Vite's default rather than at
+// BROWSER_TARGET: keep it to syntax Safari 15.6 parses.
 import { build, files, version } from '$service-worker';
 
 const worker = self as unknown as ServiceWorkerGlobalScope;

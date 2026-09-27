@@ -2,6 +2,7 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { playwright } from '@vitest/browser-playwright';
 import type { ProxyOptions } from 'vite';
 import { defaultExclude, defineConfig } from 'vitest/config';
+import { BROWSER_TARGET } from './src/lib/utils/browserTarget.js';
 import { emulateProdOnLocalhost } from './src/lib/utils/settings.js';
 
 // Shared proxy config for both dev server and preview server
@@ -30,6 +31,9 @@ const apiProxy: Record<string, ProxyOptions> = {
 
 export default defineConfig({
     plugins: [sveltekit()],
+    build: {
+        target: BROWSER_TARGET,
+    },
     test: {
         // Undo spies and stubbed globals between tests, so a test that mocks
         // a browser API the runtime does not provide cannot change what a
