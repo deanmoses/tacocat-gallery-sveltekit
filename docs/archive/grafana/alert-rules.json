@@ -1,0 +1,89 @@
+[
+    {
+        "id": 3,
+        "uid": "sm-failed-executions-10m-69e55f30",
+        "orgID": 1,
+        "folderUID": "grafana-synthetic-monitoring-app",
+        "ruleGroup": "Failed Checks [10m]",
+        "title": "ProbeFailedExecutionsTooHigh [10m]",
+        "condition": "condition",
+        "data": [
+            {
+                "refId": "executions",
+                "queryType": "instant",
+                "relativeTimeRange": {
+                    "from": 600,
+                    "to": 0
+                },
+                "datasourceUid": "grafanacloud-logs",
+                "model": {
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "grafanacloud-logs"
+                    },
+                    "expr": "sum  by(instance, job) (count_over_time({source=\"synthetic-monitoring-agent\", probe_success=\"0\"} | logfmt | __error__ = \"\" | msg=\"Check failed\" [10m]))",
+                    "instant": true,
+                    "intervalMs": 1000,
+                    "maxDataPoints": 43200,
+                    "queryType": "instant",
+                    "refId": "executions"
+                }
+            },
+            {
+                "refId": "threshold",
+                "queryType": "",
+                "relativeTimeRange": {
+                    "from": 60,
+                    "to": 0
+                },
+                "datasourceUid": "grafanacloud-prom",
+                "model": {
+                    "expr": "(sum by (instance, job) (sm_alerts_threshold_probe_failed_executions_too_high{period=\"10m\"}) * on (instance, job) group_right() max without(probe, region, geohash, config_version) (sm_check_info)) or sum by (instance, job) (sm_alerts_threshold_probe_failed_executions_too_high{job=\"__internal__\", instance=\"__internal__\", period=\"10m\"})",
+                    "instant": true,
+                    "intervalMs": 1000,
+                    "maxDataPoints": 43200,
+                    "refId": "threshold"
+                }
+            },
+            {
+                "refId": "condition",
+                "queryType": "",
+                "relativeTimeRange": {
+                    "from": 0,
+                    "to": 0
+                },
+                "datasourceUid": "__expr__",
+                "model": {
+                    "datasource": {
+                        "name": "Expression",
+                        "type": "__expr__",
+                        "uid": "__expr__"
+                    },
+                    "expression": "${executions} >= ${threshold}",
+                    "intervalMs": 1000,
+                    "maxDataPoints": 43200,
+                    "refId": "condition",
+                    "type": "math"
+                }
+            }
+        ],
+        "updated": "2026-09-10T22:58:33Z",
+        "noDataState": "OK",
+        "execErrState": "KeepLast",
+        "for": "0s",
+        "keep_firing_for": "0s",
+        "annotations": {
+            "dashboard_url": "https://tacocorp.grafana.net/a/grafana-synthetic-monitoring-app/scene?var-instance={{ urlquery $labels.instance }}&var-job={{ urlquery $labels.job }}&var-probe=$__all",
+            "runbook_url": "https://tacocorp.grafana.net/a/grafana-synthetic-monitoring-app/scene?var-instance={{ urlquery $labels.instance }}&var-job={{ urlquery $labels.job }}&var-probe=$__all&var-alert={{ urlquery $labels.alertname }}&var-runbook=true",
+            "summary": "Check job:{{ $labels.job }} instance:{{ $labels.instance }} has failed {{ $values.executions.Value }} times in the last 10m."
+        },
+        "labels": {
+            "__grafana_origin": "plugin/grafana-synthetic-monitoring-app",
+            "namespace": "synthetic_monitoring"
+        },
+        "provenance": "api",
+        "isPaused": false,
+        "notification_settings": null,
+        "record": null
+    }
+]

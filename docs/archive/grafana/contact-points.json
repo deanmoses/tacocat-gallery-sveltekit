@@ -1,0 +1,22 @@
+[
+    {
+        "uid": "cfxvapolw02dcb",
+        "name": "Tacocat Discord",
+        "type": "discord",
+        "settings": { "url": "[REDACTED]", "use_discord_username": false, "use_embed_description": false },
+        "disableResolveMessage": false
+    },
+    {
+        "uid": "dfz2ryrznirr4a",
+        "name": "grafana-insight-processor",
+        "type": "webhook",
+        "settings": {
+            "httpMethod": "POST",
+            "password": "[REDACTED]",
+            "url": "https://asserts-prod-us-east-3.grafana.net/asserts/assertion-detector/v4/prometheus-alerts",
+            "username": "1825854"
+        },
+        "disableResolveMessage": false,
+        "provenance": "api"
+    }
+]
