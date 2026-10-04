@@ -1,5 +1,7 @@
 # tacocat-gallery-sveltekit
 
+> **Archived.** This repo was the front end of [pix.tacocat.com](https://pix.tacocat.com): started in December 2021 and served from DreamHost against Zenphoto, then on AWS from December 2023 to October 2026. On 2026-10-02 the gallery moved to Cloudflare and now lives in [tacocat-gallery-cloudflare](https://github.com/deanmoses/tacocat-gallery-cloudflare), whose `web/` workspace was ported from this repo at the tag `cloudflare-port-origin`, and whose `docs/Risks.md` records why. Nothing here deploys any more. The last production release was `2026v30`, which is what `main` holds. The branch `feature/feeling-lucky` is kept for nostalgia. For how the AWS site performed and was watched, start with [Observability.md](docs/Observability.md) and [plans/Observability.md](docs/plans/Observability.md); for how the repos fit together, [Ecosystem.md](docs/Ecosystem.md).
+
 Front end of the Tacocat photo gallery website using the [Sveltekit](https://kit.svelte.dev/) application framework.
 
 ## Prerequisites

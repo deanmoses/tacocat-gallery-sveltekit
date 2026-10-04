@@ -1,0 +1,98 @@
+{
+    "status": "success",
+    "data": {
+        "resultType": "vector",
+        "result": [
+            {
+                "metric": {
+                    "__name__": "sm_check_info",
+                    "asserts_env": "unknown",
+                    "check_name": "http",
+                    "config_version": "1789081112975823872",
+                    "frequency": "600000",
+                    "geohash": "9q9k2xr7w037",
+                    "instance": "https://pix.tacocat.com/",
+                    "job": "Tacocat SPA",
+                    "probe": "NorthCalifornia",
+                    "region": "AMER"
+                },
+                "value": [1791071483.749, "1"]
+            },
+            {
+                "metric": {
+                    "__name__": "sm_check_info",
+                    "asserts_env": "unknown",
+                    "check_name": "http",
+                    "config_version": "1789081112975823872",
+                    "frequency": "600000",
+                    "geohash": "dphgr63pzgdr",
+                    "instance": "https://pix.tacocat.com/",
+                    "job": "Tacocat SPA",
+                    "probe": "Ohio",
+                    "region": "AMER"
+                },
+                "value": [1791071483.749, "1"]
+            },
+            {
+                "metric": {
+                    "__name__": "sm_check_info",
+                    "asserts_env": "unknown",
+                    "check_name": "http",
+                    "config_version": "1789081112975823872",
+                    "frequency": "600000",
+                    "geohash": "u09tvw0f64xm",
+                    "instance": "https://pix.tacocat.com/",
+                    "job": "Tacocat SPA",
+                    "probe": "Paris",
+                    "region": "EMEA"
+                },
+                "value": [1791071483.749, "1"]
+            },
+            {
+                "metric": {
+                    "__name__": "sm_check_info",
+                    "asserts_env": "unknown",
+                    "check_name": "http",
+                    "config_version": "1789081127908317184",
+                    "frequency": "600000",
+                    "geohash": "9q9k2xr7w037",
+                    "instance": "https://api.pix.tacocat.com/album/",
+                    "job": "Tacocat Album API",
+                    "probe": "NorthCalifornia",
+                    "region": "AMER"
+                },
+                "value": [1791071483.749, "1"]
+            },
+            {
+                "metric": {
+                    "__name__": "sm_check_info",
+                    "asserts_env": "unknown",
+                    "check_name": "http",
+                    "config_version": "1789081127908317184",
+                    "frequency": "600000",
+                    "geohash": "dphgr63pzgdr",
+                    "instance": "https://api.pix.tacocat.com/album/",
+                    "job": "Tacocat Album API",
+                    "probe": "Ohio",
+                    "region": "AMER"
+                },
+                "value": [1791071483.749, "1"]
+            },
+            {
+                "metric": {
+                    "__name__": "sm_check_info",
+                    "asserts_env": "unknown",
+                    "check_name": "http",
+                    "config_version": "1789081127908317184",
+                    "frequency": "600000",
+                    "geohash": "u09tvw0f64xm",
+                    "instance": "https://api.pix.tacocat.com/album/",
+                    "job": "Tacocat Album API",
+                    "probe": "Paris",
+                    "region": "EMEA"
+                },
+                "value": [1791071483.749, "1"]
+            }
+        ]
+    }
+}
